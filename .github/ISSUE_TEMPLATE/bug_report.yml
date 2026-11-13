@@ -1,0 +1,57 @@
+name: Bug Report
+description: Report an issue with skill execution, scripts, state retention, or HTML artifacts.
+title: "[BUG]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please ensure you have tested with `python3 scripts/verify-instance.py` before filing.
+  - type: dropdown
+    id: agent-platform
+    attributes:
+      label: Agent Platform
+      description: Which AI agent platform or harness were you running?
+      options:
+        - Google Antigravity
+        - Claude Code
+        - Cursor
+        - OpenAI Codex / CLI
+        - Gemini CLI
+        - Other (specify below)
+    validations:
+      required: true
+  - type: input
+    id: active-topic
+    attributes:
+      label: Active Topic / Cluster ID
+      description: What was the active topic ID when the bug occurred? (e.g. topic.0.1.tcp-vs-udp)
+      placeholder: topic.0.1.tcp-vs-udp
+    validations:
+      required: false
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: Exact commands or agent prompts used to trigger the issue.
+      placeholder: |
+        1. Run `init-learning-instance.sh`
+        2. Ask agent to advance topic
+        3. See error in terminal or HTML artifact
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs or CLI Output
+      description: Paste output from `sync-status.py` or `verify-instance.py`.
+      render: shell
+    validations:
+      required: false

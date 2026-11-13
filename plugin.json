@@ -1,0 +1,14 @@
+{
+  "name": "system-design-studio",
+  "version": "2.1.0",
+  "description": "Interactive, visual-first system design studio running inside a project as a dedicated learning instance. Teaches HLD, LLD, and distributed systems via connected causal reasoning, living cursor state retention, and interactive HTML lesson artifacts.",
+  "author": {
+    "name": "Jeel Patel",
+    "email": "itsjeel01@gmail.com"
+  },
+  "homepage": "https://alph-a07.github.io/system-design-studio",
+  "repository": "https://github.com/alph-a07/system-design-studio",
+  "license": "MIT",
+  "category": "Education",
+  "skills": "./skills/system-design-studio"
+}

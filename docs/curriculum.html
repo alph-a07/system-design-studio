@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curriculum Syllabus — System Design Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- QUIET TOPBAR -->
+  <header class="site-header">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <a href="index.html" style="font-weight: 600; font-size: 15px; color: var(--text-primary); text-decoration: none; letter-spacing: -0.01em;">
+          System Design Studio
+        </a>
+        <span class="status-pill">
+          <span class="status-dot"></span> 50 Clusters · 354 Topics
+        </span>
+      </div>
+
+      <nav style="display: flex; align-items: center; gap: 8px;">
+        <a href="index.html" class="nav-link">Overview</a>
+        <a href="curriculum.html" class="nav-link active">Syllabus</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" class="nav-link">GitHub</a>
+        <a href="index.html#quickstart" class="btn-primary" style="margin-left: 8px;">Quickstart</a>
+      </nav>
+    </div>
+  </header>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 48px 24px 96px; display: flex; flex-direction: column; gap: 32px;">
+
+    <!-- HEADER & SEARCH -->
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent);">
+        Master Roadmap
+      </div>
+      <h1 style="font-size: 32px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em;">
+        The 50-Cluster System Design Syllabus
+      </h1>
+      <p style="font-size: 16px; color: var(--text-secondary); max-width: 720px; line-height: 1.5;">
+        Every topic defines an exact physical constraint, causal mechanism, workload contrast, and tick-off criterion.
+      </p>
+
+      <!-- SEARCH BAR -->
+      <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
+        <input 
+          type="text" 
+          id="syllabus-search" 
+          placeholder="Search by topic, mechanism, or keyword (e.g. Raft, WAL, QUIC, Kafka)..." 
+          class="surface-raised"
+          style="flex: 1; min-width: 280px; padding: 10px 16px; font-size: 14px; color: var(--text-primary); border: 1px solid var(--border-hairline); outline: none;"
+          oninput="filterCurriculum()"
+        >
+        <button onclick="document.getElementById('syllabus-search').value = ''; filterCurriculum();" class="btn-secondary" style="padding: 10px 16px;">Clear</button>
+      </div>
+
+      <div id="filter-stats" style="font-size: 13px; color: var(--text-muted); font-family: ui-monospace, monospace;">
+        Showing 50 of 50 clusters · 354 of 354 topics
+      </div>
+    </div>
+
+    <!-- CLUSTERS CONTAINER -->
+    <div id="clusters-container" style="display: flex; flex-direction: column; gap: 20px;">
+      <!-- Populated dynamically by script -->
+    </div>
+
+  </main>
+
+  <footer style="border-top: 1px solid var(--border-hairline); background-color: var(--bg-deep); padding: 40px 24px; font-size: 13px; color: var(--text-muted);">
+    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+      <div>
+        System Design Studio · Licensed under <a href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" style="color: var(--text-secondary); text-decoration: none;">MIT</a>
+      </div>
+      <div style="display: flex; gap: 16px;">
+        <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Overview</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" style="color: var(--text-secondary); text-decoration: none;">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="curriculum-data.js"></script>
+  <script>
+    function renderCurriculumList(clustersToRender) {
+      const container = document.getElementById('clusters-container');
+      const stats = document.getElementById('filter-stats');
+      if (!container) return;
+
+      container.innerHTML = '';
+      let totalVisibleTopics = 0;
+
+      clustersToRender.forEach(cluster => {
+        totalVisibleTopics += cluster.topics.length;
+        const card = document.createElement('div');
+        card.className = 'surface-card p-6';
+        card.style.display = 'flex';
+        card.style.flexDirection = 'column';
+        card.style.gap = '16px';
+
+        let topicsHtml = cluster.topics.map(t => `
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(238,240,245,0.04); gap:12px;">
+            <div style="display:flex; align-items:flex-start; gap:10px;">
+              <span style="display:inline-block; width:14px; height:14px; border:1px solid var(--border-subtle); border-radius:3px; margin-top:3px; flex-shrink:0;"></span>
+              <div>
+                <span style="font-size:14px; color:var(--text-primary); font-weight:500;">${t.title}</span>
+                <div style="font-size:11px; font-family:ui-monospace, monospace; color:var(--text-muted); margin-top:2px;">${t.id}</div>
+              </div>
+            </div>
+            <span style="font-size:11px; font-family:ui-monospace, monospace; color:var(--text-muted); background:var(--bg-deep); padding:2px 8px; border-radius:4px; border:1px solid var(--border-hairline); flex-shrink:0;">
+              ${t.status || 'unseen'}
+            </span>
+          </div>
+        `).join('');
+
+        card.innerHTML = `
+          <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-hairline); padding-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <span style="font-size:12px; font-weight:600; font-family:ui-monospace, monospace; color:var(--accent);">
+                CLUSTER ${cluster.code}
+              </span>
+              <h2 style="font-size:16px; font-weight:600; color:var(--text-primary);">${cluster.title}</h2>
+            </div>
+            <span style="font-size:12px; font-family:ui-monospace, monospace; color:var(--text-muted);">
+              ${cluster.topics.length} topics
+            </span>
+          </div>
+          <div style="display:flex; flex-direction:column;">
+            ${topicsHtml}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+
+      if (stats) {
+        stats.textContent = `Showing ${clustersToRender.length} of ${CURRICULUM_CLUSTERS.length} clusters · ${totalVisibleTopics} of 354 topics`;
+      }
+    }
+
+    function filterCurriculum() {
+      const query = document.getElementById('syllabus-search').value.toLowerCase().trim();
+      if (!query) {
+        renderCurriculumList(CURRICULUM_CLUSTERS);
+        return;
+      }
+
+      const filtered = [];
+      CURRICULUM_CLUSTERS.forEach(cluster => {
+        const clusterMatch = cluster.title.toLowerCase().includes(query) || cluster.id.toLowerCase().includes(query);
+        const matchingTopics = cluster.topics.filter(t => 
+          t.title.toLowerCase().includes(query) || t.id.toLowerCase().includes(query)
+        );
+
+        if (clusterMatch) {
+          filtered.push(cluster);
+        } else if (matchingTopics.length > 0) {
+          filtered.push({
+            ...cluster,
+            topics: matchingTopics
+          });
+        }
+      });
+
+      renderCurriculumList(filtered);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderCurriculumList(CURRICULUM_CLUSTERS);
+    });
+  </script>
+</body>
+</html>

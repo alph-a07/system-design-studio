@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Topic 1.2 — HTTP/1.1 vs HTTP/2 vs HTTP/3: Where Head-of-Line Blocking Relocated</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased p-4 md:p-8">
+
+  <div class="max-w-4xl mx-auto space-y-12">
+
+    <!-- HERO HEADER -->
+    <header class="border-b border-[var(--border)] pb-8 space-y-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">Tier 0 · HLD Building Blocks</span>
+        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">Cluster 0.1 · Topic 1.2</span>
+        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">Rehydrated Deferral: #defer.01.quic</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">
+        HTTP/1.1 vs HTTP/2 vs HTTP/3: Where Head-of-Line Blocking Relocated
+      </h1>
+
+      <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">
+        How fixing a bottleneck at the application layer exposed a deeper bottleneck at the transport layer, and why modern web architecture had to rewrite 40 years of networking stack.
+      </p>
+    </header>
+
+    <!-- SECTION 1: THE CAUSAL LINEAGE -->
+    <section class="space-y-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">01</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">The Causal Chain: How One Fix Bounded the Next</h2>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
+        <div class="text-xs font-mono uppercase text-[var(--primary)] font-bold">Unbroken Lineage from Topic 1.1</div>
+        <p class="text-sm text-[var(--foreground)] leading-relaxed">
+          In Topic 1.1, we established that TCP treats data as a strictly ordered byte stream: if one packet is dropped, the receiver kernel halts delivery of all subsequent bytes.
+        </p>
+        <p class="text-xs md:text-sm text-[var(--muted-foreground)] leading-relaxed">
+          Now observe what happened as application developers tried to build rich web apps on top of that byte stream. The history of HTTP protocols is not a story of adding arbitrary features; it is the story of <strong>Head-of-Line (HOL) blocking migrating up and down the network stack</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECTION 2: THE 3 PROTOCOL ERAS -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold text-sm">02</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">The Three Protocol Eras: Where Did the Jam Occur?</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- HTTP/1.1 -->
+        <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
+          <div class="text-xs font-mono font-bold text-amber-500">HTTP/1.1 (1997)</div>
+          <h3 class="text-base font-bold">Application-Layer HOL Blocking</h3>
+          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            HTTP/1.1 transfers plain text. Only <em>one request/response</em> could occupy a TCP connection at a time. If image <code class="text-[10px] bg-[var(--background)] px-1 py-0.5 rounded">hero.jpg</code> took 500ms to generate on the server, all other asset requests behind it were completely stuck.
+          </p>
+          <div class="p-2.5 rounded bg-[var(--background)] border border-[var(--border)] text-[11px] text-[var(--foreground)]">
+            <strong>Workaround</strong>: Browsers opened <strong>6 parallel TCP sockets</strong> per domain. Expensive handshakes and cellular memory overhead!
+          </div>
+        </div>
+
+        <!-- HTTP/2 -->
+        <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
+          <div class="text-xs font-mono font-bold text-blue-500">HTTP/2 (2015)</div>
+          <h3 class="text-base font-bold">Transport-Layer Cross-Stream Blocking</h3>
+          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            HTTP/2 introduced binary framing. Hundreds of requests could be multiplexed over a <strong>single TCP connection</strong> as independent logical "streams".
+          </p>
+          <div class="p-2.5 rounded bg-rose-500/10 border border-rose-500/20 text-[11px] text-rose-500">
+            <strong>The Hidden Trap</strong>: TCP knows nothing about HTTP/2 streams! If a packet carrying 1 byte of Stream #1 drops, the TCP kernel halts the socket buffer. Streams #2 through #50 are completely blocked in kernel memory!
+          </div>
+        </div>
+
+        <!-- HTTP/3 -->
+        <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
+          <div class="text-xs font-mono font-bold text-emerald-500">HTTP/3 + QUIC (2022)</div>
+          <h3 class="text-base font-bold">True Independent Stream Isolation</h3>
+          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            QUIC abandons TCP and builds transport directly over <strong>UDP</strong>. It implements congestion control, loss detection, and encryption in user space.
+          </p>
+          <div class="p-2.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[11px] text-emerald-500">
+            <strong>The Triumph</strong>: Each stream has its own independent sequence space. If Stream #1 loses a packet, Streams #2 and #3 proceed instantly with zero stall!
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: INTERACTIVE MULTIPLEXING COMPARISON -->
+    <section class="space-y-6">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">03</div>
+          <h2 class="text-xl md:text-2xl font-bold tracking-tight">Interactive Trace: Drop Packet on Stream A</h2>
+        </div>
+        <span class="text-xs font-mono text-[var(--muted-foreground)]">Compare HTTP/2 vs HTTP/3 under packet loss</span>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-6">
+        <div class="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-[var(--border)]">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-medium text-[var(--muted-foreground)]">Select Architecture:</span>
+            <div class="inline-flex rounded-lg p-0.5 bg-[var(--background)] border border-[var(--border)]">
+              <button id="p2-btn-h2" onclick="setP2Mode('h2')" class="px-3 py-1 text-xs font-semibold rounded-md bg-[var(--primary)] text-white shadow-sm">HTTP/2 (Over Single TCP)</button>
+              <button id="p2-btn-h3" onclick="setP2Mode('h3')" class="px-3 py-1 text-xs font-semibold rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)]">HTTP/3 (QUIC Over UDP)</button>
+            </div>
+          </div>
+
+          <button onclick="p2SimulateLoss()" class="px-4 py-1.5 text-xs font-bold rounded-lg bg-rose-600 hover:bg-rose-700 text-white shadow transition-all flex items-center gap-1.5">
+            💥 Inject 2% Cellular Packet Loss on Stream A
+          </button>
+        </div>
+
+        <!-- 3 STREAMS VISUAL -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- STREAM A -->
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="font-bold text-blue-500">Stream A (style.css)</span>
+              <span id="sA-status" class="text-emerald-500 font-bold">Streaming</span>
+            </div>
+            <div id="sA-visual" class="h-16 rounded bg-[var(--card)] border border-[var(--border)] flex items-center justify-center text-xs text-[var(--muted-foreground)]">
+              Active Transmission
+            </div>
+          </div>
+
+          <!-- STREAM B -->
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="font-bold text-purple-500">Stream B (app.js)</span>
+              <span id="sB-status" class="text-emerald-500 font-bold">Streaming</span>
+            </div>
+            <div id="sB-visual" class="h-16 rounded bg-[var(--card)] border border-[var(--border)] flex items-center justify-center text-xs text-[var(--muted-foreground)]">
+              Active Transmission
+            </div>
+          </div>
+
+          <!-- STREAM C -->
+          <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="font-bold text-amber-500">Stream C (avatar.png)</span>
+              <span id="sC-status" class="text-emerald-500 font-bold">Streaming</span>
+            </div>
+            <div id="sC-visual" class="h-16 rounded bg-[var(--card)] border border-[var(--border)] flex items-center justify-center text-xs text-[var(--muted-foreground)]">
+              Active Transmission
+            </div>
+          </div>
+        </div>
+
+        <div id="p2-explanation" class="p-3.5 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs text-[var(--muted-foreground)] leading-relaxed">
+          Click <strong>Inject 2% Cellular Packet Loss</strong> above to observe how packet drops on Stream A impact Streams B and C under HTTP/2 vs HTTP/3.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    let p2Mode = 'h2';
+
+    function setP2Mode(m) {
+      p2Mode = m;
+      document.getElementById('p2-btn-h2').className = m === 'h2'
+        ? "px-3 py-1 text-xs font-semibold rounded-md bg-[var(--primary)] text-white shadow-sm"
+        : "px-3 py-1 text-xs font-semibold rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)]";
+      document.getElementById('p2-btn-h3').className = m === 'h3'
+        ? "px-3 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white shadow-sm"
+        : "px-3 py-1 text-xs font-semibold rounded-md text-[var(--muted-foreground)] hover:text-[var(--foreground)]";
+
+      resetStreams();
+    }
+
+    function resetStreams() {
+      ['sA', 'sB', 'sC'].forEach(id => {
+        document.getElementById(id + '-status').innerText = 'Streaming';
+        document.getElementById(id + '-status').className = 'text-emerald-500 font-bold';
+        document.getElementById(id + '-visual').innerHTML = 'Active Transmission';
+        document.getElementById(id + '-visual').className = 'h-16 rounded bg-[var(--card)] border border-[var(--border)] flex items-center justify-center text-xs text-[var(--muted-foreground)]';
+      });
+      document.getElementById('p2-explanation').innerHTML = `Architecture: <strong>${p2Mode.toUpperCase()}</strong>. Ready to test.`;
+    }
+
+    function p2SimulateLoss() {
+      if (p2Mode === 'h2') {
+        // Under HTTP/2: Stream A drop stalls B and C!
+        document.getElementById('sA-status').innerText = 'Packet Dropped 💥';
+        document.getElementById('sA-status').className = 'text-rose-500 font-bold';
+        document.getElementById('sA-visual').innerHTML = '<span class="text-rose-500 font-bold">Segment Lost (Retrying)</span>';
+
+        document.getElementById('sB-status').innerText = 'STALLED (HOL)';
+        document.getElementById('sB-status').className = 'text-rose-500 font-bold animate-pulse';
+        document.getElementById('sB-visual').innerHTML = '<span class="text-rose-500 font-bold">🚨 Blocked behind Stream A in TCP buffer!</span>';
+        document.getElementById('sB-visual').className = 'h-16 rounded bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-xs text-center p-2';
+
+        document.getElementById('sC-status').innerText = 'STALLED (HOL)';
+        document.getElementById('sC-status').className = 'text-rose-500 font-bold animate-pulse';
+        document.getElementById('sC-visual').innerHTML = '<span class="text-rose-500 font-bold">🚨 Blocked behind Stream A in TCP buffer!</span>';
+        document.getElementById('sC-visual').className = 'h-16 rounded bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-xs text-center p-2';
+
+        document.getElementById('p2-explanation').innerHTML = `
+          <strong class="text-rose-500">HTTP/2 Failure Exposed</strong>: Even though Stream B and Stream C had zero packet loss, their data is <strong>trapped in the single TCP socket buffer</strong> waiting for Stream A's packet to retransmit. On lossy mobile networks (1–3% drop), HTTP/2 performs <em>worse</em> than multiple HTTP/1.1 connections!
+        `;
+      } else {
+        // Under HTTP/3: Only Stream A waits; B and C finish!
+        document.getElementById('sA-status').innerText = 'QUIC Packet Lost';
+        document.getElementById('sA-status').className = 'text-amber-500 font-bold';
+        document.getElementById('sA-visual').innerHTML = '<span class="text-amber-500 font-bold">Stream A retransmitting in QUIC</span>';
+
+        document.getElementById('sB-status').innerText = 'COMPLETED ✓';
+        document.getElementById('sB-status').className = 'text-emerald-500 font-bold';
+        document.getElementById('sB-visual').innerHTML = '<span class="text-emerald-500 font-bold">✓ app.js parsed & executed</span>';
+        document.getElementById('sB-visual').className = 'h-16 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xs text-center p-2';
+
+        document.getElementById('sC-status').innerText = 'COMPLETED ✓';
+        document.getElementById('sC-status').className = 'text-emerald-500 font-bold';
+        document.getElementById('sC-visual').innerHTML = '<span class="text-emerald-500 font-bold">✓ avatar.png rendered</span>';
+        document.getElementById('sC-visual').className = 'h-16 rounded bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-xs text-center p-2';
+
+        document.getElementById('p2-explanation').innerHTML = `
+          <strong class="text-emerald-500">HTTP/3 + QUIC Isolation In Action</strong>: Because QUIC gives each stream its own independent sequence number space on top of UDP, <strong>Stream B and Stream C finished with zero stall</strong>! Only Stream A experienced a delay.
+        `;
+      }
+    }
+  </script>
+</body>
+</html>

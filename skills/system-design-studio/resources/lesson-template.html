@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{PAGE_TITLE}}</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(0.98); }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2s infinite ease-in-out;
+    }
+    .interactive-element {
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+  </style>
+</head>
+<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8">
+
+  <div class="max-w-4xl mx-auto space-y-12">
+
+    <!-- HERO HEADER -->
+    <header class="border-b border-[var(--border)] pb-8 space-y-4">
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
+        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
+        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">[concept] [mechanics] [contrast] [trap]</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">
+        {{LESSON_TITLE}}
+      </h1>
+
+      <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">
+        {{LESSON_SUBTITLE}}
+      </p>
+    </header>
+
+    <!-- SECTION 1: PHYSICAL MOTIVATION & FORCES -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">01</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SECTION_1_TITLE}}</h2>
+      </div>
+
+      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">
+        {{SECTION_1_BODY}}
+      </div>
+
+      <!-- METRIC CALLOUT GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {{METRIC_CARDS}}
+      </div>
+    </section>
+
+    <!-- SECTION 2: MECHANISTIC CORE & TRACE -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">02</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SECTION_2_TITLE}}</h2>
+      </div>
+
+      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">
+        {{SECTION_2_BODY}}
+      </div>
+
+      <!-- INTERACTIVE SIMULATOR CONTAINER -->
+      <div class="rounded-2xl bg-[var(--card)] border border-[var(--card-border)] p-6 shadow-sm space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
+          <div>
+            <h3 class="text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
+              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              {{SIMULATOR_TITLE}}
+            </h3>
+            <p class="text-xs text-[var(--muted-foreground)]">{{SIMULATOR_SUBTITLE}}</p>
+          </div>
+          <div class="flex items-center gap-2" id="sim-controls">
+            {{SIMULATOR_CONTROLS}}
+          </div>
+        </div>
+
+        {{SIMULATOR_CANVAS}}
+
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs text-[var(--muted-foreground)] space-y-1" id="sim-log-panel">
+          {{SIMULATOR_LOG_PANEL}}
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION 3: WORKLOAD CONTRAST & TRADE-OFF MATRIX -->
+    <section class="space-y-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm">03</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Workload Comparison: The Architectural Invariant</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {{WORKLOAD_CARDS}}
+      </div>
+
+      <!-- INVARIANT TABLE -->
+      <div class="rounded-xl border border-[var(--card-border)] overflow-hidden">
+        <table class="w-full text-left text-sm">
+          <thead class="bg-[var(--card)] border-b border-[var(--card-border)] text-xs font-mono uppercase text-[var(--muted-foreground)]">
+            <tr>
+              <th class="p-4">Dimension</th>
+              <th class="p-4">{{TABLE_COL_1_HEADER}}</th>
+              <th class="p-4">{{TABLE_COL_2_HEADER}}</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[var(--border)] text-xs md:text-sm">
+            {{TABLE_ROWS}}
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SECTION 4: ENGINEERING REALITY CHECK -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm">04</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Engineering Reality Check: Active Verification</h2>
+      </div>
+
+      <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-4">
+        <div class="flex items-start gap-3">
+          <div class="text-rose-500 font-bold text-lg mt-0.5">⚠️</div>
+          <div class="space-y-2">
+            <h3 class="font-bold text-[var(--foreground)] text-base">The Scenario Challenge</h3>
+            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
+              {{REALITY_CHECK_SCENARIO}}
+            </p>
+          </div>
+        </div>
+
+        <div class="pt-4 border-t border-[var(--border)]">
+          <button id="toggle-solution-btn" onclick="toggleSolution()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">
+            Reveal Architectural Breakdown & Trade-off
+          </button>
+          <div id="solution-box" class="hidden mt-4 p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm space-y-3">
+            {{REALITY_CHECK_SOLUTION}}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER NAV -->
+    <footer class="border-t border-[var(--border)] pt-8 pb-12 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted-foreground)] gap-4">
+      <div>
+        Part of the <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance
+      </div>
+      <div class="flex items-center gap-4">
+        <span>Backward Anchor: <strong class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</strong></span>
+        <span>•</span>
+        <span>Next Hook: <strong class="text-[var(--foreground)]">{{FORWARD_HOOK}}</strong></span>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+    function toggleSolution() {
+      const box = document.getElementById('solution-box');
+      const btn = document.getElementById('toggle-solution-btn');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        btn.textContent = 'Hide Architectural Breakdown';
+      } else {
+        box.classList.add('hidden');
+        btn.textContent = 'Reveal Architectural Breakdown & Trade-off';
+      }
+    }
+
+    {{EMBEDDED_JAVASCRIPT}}
+  </script>
+</body>
+</html>

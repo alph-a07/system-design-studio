@@ -1,0 +1,30 @@
+name: Feature Request
+description: Propose a new capability, CLI script, visual simulator, or customization feature.
+title: "[FEATURE]: "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to make System Design Studio even better? We welcome proposals that uphold the core invariants (pure local state, zero cloud locks, first-principles causality).
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Motivation
+      description: What limitation or friction does this feature solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Proposed Solution / Architecture
+      description: Describe how the feature should behave, including CLI arguments or template changes.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches or workarounds have you evaluated?
+    validations:
+      required: false

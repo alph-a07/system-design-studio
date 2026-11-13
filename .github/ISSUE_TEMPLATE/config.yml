@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: System Design Studio Discussions
+    url: https://github.com/alph-a07/system-design-studio/discussions
+    about: Ask questions, share your learning journey, or discuss architectural decisions.
+  - name: Interactive Documentation Site
+    url: https://alph-a07.github.io/system-design-studio
+    about: Explore the 50-cluster syllabus and test interactive simulators.

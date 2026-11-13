@@ -1,0 +1,61 @@
+name: CI & Integrity Verification
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: Verify Skill Suite & Scaffolding
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Verify SKILL.md Standard
+        run: |
+          LINE_COUNT=$(wc -l < skills/system-design-studio/SKILL.md)
+          echo "SKILL.md line count: $LINE_COUNT"
+          if [ "$LINE_COUNT" -gt 500 ]; then
+            echo "Error: SKILL.md exceeds 500 lines rule ($LINE_COUNT lines)"
+            exit 1
+          fi
+
+      - name: Test Fresh Scaffolding & Verification
+        run: |
+          chmod +x skills/system-design-studio/scripts/*
+          mkdir -p /tmp/test-instance && cd /tmp/test-instance
+          $GITHUB_WORKSPACE/skills/system-design-studio/scripts/init-learning-instance.sh "CI Test Instance"
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/verify-instance.py .system-design
+
+      - name: Test State Advance & Lineage
+        run: |
+          cd /tmp/test-instance
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/advance-cursor.py \
+            --complete-topic topic.0.1.tcp-vs-udp \
+            --evidence "CI Verified Topic 1.1" \
+            --log-example-domain "Financial Ledger" \
+            --log-example-scenario "CI payment retry trace" \
+            --next-topic-id topic.0.1.http-1-1-vs-http-2-vs-http-3 \
+            --next-action "CI next action test"
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/sync-status.py .system-design
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/verify-instance.py .system-design
+
+      - name: Test BYO Curriculum Import
+        run: |
+          mkdir -p /tmp/test-byo && cd /tmp/test-byo
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/import-curriculum.py \
+            --input $GITHUB_WORKSPACE/skills/system-design-studio/resources/custom-curriculum-example.md \
+            --instance-dir .system-design
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/verify-instance.py .system-design

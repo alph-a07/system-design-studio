@@ -1,0 +1,29 @@
+name: Curriculum Proposal
+description: Propose a new cluster, topic, concrete reality check, or specialized BYO syllabus.
+title: "[CURRICULUM]: "
+labels: ["curriculum", "pedagogy"]
+body:
+  - type: input
+    id: cluster-title
+    attributes:
+      label: Cluster Title & Suggested Code
+      placeholder: "Cluster 51: GPU Cluster Interconnects & InfiniBand"
+    validations:
+      required: true
+  - type: textarea
+    id: proposed-topics
+    attributes:
+      label: Proposed Topics & Tick-Off Rules
+      description: List topics with concrete tick-off rules (e.g. - [ ] Topic name — Tick off when: ...).
+      placeholder: |
+        - [ ] RoCE v2 vs InfiniBand: hardware flow control (PFC) and deadlocks
+        - [ ] AllReduce collective communications and ring topologies
+    validations:
+      required: true
+  - type: textarea
+    id: physical-forces
+    attributes:
+      label: Underlying Physical Forces & Invariants
+      description: What hardware boundaries or distributed constraints govern these topics?
+    validations:
+      required: true
