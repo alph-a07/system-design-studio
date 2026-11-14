@@ -238,69 +238,65 @@
 </div>
 </div>
 </section>
-<!-- INSTALL FOR YOUR AGENT (TERMINAL INSTALLER TABS) -->
+<!-- INSTALL FOR YOUR AGENT (SIMPLIFIED SINGLE COMMAND) -->
 <section class="w-full border-b-[3px] border-primary bg-surface-container-low px-6 lg:px-12 py-16" id="install">
-<div class="max-w-7xl mx-auto flex flex-col gap-8">
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div class="max-w-5xl mx-auto flex flex-col gap-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
 <div>
-<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Quickstart Command</span>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Quickstart</span>
 <h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
-            Install for your agent
+            Install For Your Agent
           </h2>
 </div>
-<p class="font-body text-sm text-on-surface-variant max-w-md">
-          Single 1-line setup: install the verified skill for your AI agents with one command, ready to use in any chat.
+<p class="font-body text-sm text-on-surface-variant max-w-sm">
+          Single 1-line setup: detects active coding agents and installs the verified skill ready to use in any chat.
         </p>
 </div>
-<!-- Callout warning banner -->
-<div class="border-2 border-primary bg-primary-container p-4 font-mono text-xs flex items-center gap-3">
-<span class="material-symbols-outlined text-base font-bold text-on-primary">info</span>
-<span>
-<strong>Where to install:</strong> We recommend a dedicated learning repository (for example, <code class="font-bold underline">mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If you scaffold inside an existing work repository, add <code class="font-bold underline">.system-design/</code> to your <code class="font-bold underline">.gitignore</code> so personal progress files stay out of team commits.
-        </span>
-</div>
-<!-- Terminal widget box -->
+
+<!-- Terminal Box: Single Command -->
 <div class="border-[3px] border-primary bg-primary text-surface shadow-[8px_8px_0px_#1a1a1a]">
-<!-- Tabs Bar -->
-<div class="flex flex-wrap items-center justify-between border-b-2 border-surface-variant/30 bg-primary px-4 pt-3">
-<div class="flex flex-wrap gap-1">
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase border-t-2 border-x-2 border-primary bg-surface text-on-surface" id="tab-quickstart" onclick="selectInstallTab('quickstart')">
-              ⚡ Universal 1-Line Installer
-            </button>
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-antigravity" onclick="selectInstallTab('antigravity')">
-              Google Antigravity
-            </button>
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-claude" onclick="selectInstallTab('claude')">
-              Claude Code
-            </button>
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-cursor" onclick="selectInstallTab('cursor')">
-              Cursor
-            </button>
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-codex" onclick="selectInstallTab('codex')">
-              OpenAI Codex
-            </button>
+<!-- Terminal Top Bar -->
+<div class="flex flex-wrap items-center justify-between border-b-2 border-surface-variant/30 bg-primary px-4 py-3 gap-2">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-primary-container inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
+<span class="text-xs font-mono text-surface-dim uppercase ml-2 tracking-wider">Universal Shell Installer • Auto-Detects All Agents</span>
 </div>
-<span class="text-[11px] font-mono text-primary-fixed hidden md:inline-block pb-2" id="install-target-label">Target: Auto-Detects & Installs For All Supported Agents</span>
-</div>
-<!-- Terminal Body -->
-<div class="p-6 font-mono text-sm">
-<div class="flex items-center justify-between pb-3 mb-4 border-b border-surface-variant/20">
-<span class="text-xs text-surface-dim uppercase">Run in your terminal</span>
-<button class="flex items-center gap-1.5 px-3 py-1 bg-surface text-on-surface font-headline text-xs font-bold uppercase border border-surface hover:bg-primary-container transition-colors" id="copy-btn" onclick="copyCommand()">
+<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#ffcc00] hover:bg-primary-container transition-all active:translate-x-[1px] active:translate-y-[1px]" id="copy-btn" onclick="copyCommand()">
 <span class="material-symbols-outlined text-sm">content_copy</span>
-<span>Copy</span>
+<span>Copy Command</span>
 </button>
 </div>
-<div class="leading-relaxed" id="cmd-display">
-<p class="text-surface-dim"># Universal 1-line installer: detects your coding agents and installs the verified skill</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</p>
-<p class="text-surface-dim mt-3"># Ready to use in any chat! On first prompt, the agent automatically initializes the hidden .system-design/ state directory.</p>
+<!-- Terminal Body -->
+<div class="p-6 font-mono text-sm space-y-4">
+<p class="text-surface-dim"># Run in your terminal (installs for Claude Code, Cursor, Antigravity &amp; Codex):</p>
+<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
+<code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-text">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</code>
 </div>
-<div class="mt-6 pt-4 border-t border-surface-variant/20 flex flex-wrap items-center justify-between text-xs text-surface-dim">
-<span>Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.</span>
-<span class="text-surface font-bold uppercase">Ready to launch</span>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs text-surface-dim border-t border-surface-variant/20">
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
+<span><strong>Auto-Detection:</strong> Scans &amp; links standard skill paths for your agents.</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
+<span><strong>Zero Scaffolding Hassle:</strong> First chat prompt auto-initializes state.</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
+<span><strong>Offline &amp; Git Native:</strong> State lives in <code class="text-primary-fixed">.system-design/</code> in your repo.</span>
 </div>
 </div>
+</div>
+</div>
+
+<!-- Callout Warning / Recommendation Banner -->
+<div class="border-2 border-primary bg-primary-container p-4 font-mono text-xs flex items-center gap-3">
+<span class="material-symbols-outlined text-base font-bold text-on-primary shrink-0">info</span>
+<span class="text-neutral-900 leading-relaxed">
+<strong>Where to install:</strong> We recommend a dedicated learning repository (e.g. <code class="font-bold underline">mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If installing in a work repository, add <code class="font-bold underline">.system-design/</code> to your <code class="font-bold underline">.gitignore</code> so personal progress files stay out of team commits.
+</span>
 </div>
 </div>
 </section>
@@ -549,68 +545,7 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
-    // Terminal installation tabs data
-    const installCommands = {
-      quickstart: {
-        target: "Target: Auto-Detects & Installs For All Supported Agents",
-        html: `<p class="text-surface-dim"># Universal installer: places skill into verified paths for your active agents</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</p>
-<p class="text-surface-dim mt-3"># Or specify agents explicitly: curl ... | bash -s -- --antigravity --claude --cursor --codex</p>
-<p class="text-emerald-300 font-bold py-1 select-all"># Works in any chat: automatically scaffolds hidden .system-design/ on first use</p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash"
-      },
-      antigravity: {
-        target: "Target: Google Antigravity (~/.gemini/antigravity/skills/)",
-        html: `<p class="text-surface-dim"># Install skill directly into Antigravity skills directory</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity</p>
-<p class="text-surface-dim mt-3"># Ready to use in Antigravity chat: automatically creates .system-design/ at workspace root</p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity"
-      },
-      claude: {
-        target: "Target: Anthropic Claude Code (~/.claude/skills/)",
-        html: `<p class="text-surface-dim"># Install skill directly into Claude Code skills directory</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude</p>
-<p class="text-surface-dim mt-3"># Ready to use in Claude Code: automatically creates .system-design/ at workspace root</p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude"
-      },
-      cursor: {
-        target: "Target: Cursor IDE (~/.cursor/skills/ & .cursorrules)",
-        html: `<p class="text-surface-dim"># Install skill directly into Cursor IDE skills directory</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor</p>
-<p class="text-surface-dim mt-3"># In your workspace: curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules</p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor"
-      },
-      codex: {
-        target: "Target: OpenAI Codex (~/.codex/skills/)",
-        html: `<p class="text-surface-dim"># Install skill directly into Codex directory</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex</p>
-<p class="text-surface-dim mt-3"># Ready to use in Codex: automatically creates .system-design/ at workspace root</p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex"
-      }
-    };
-
-    let currentTab = 'quickstart';
-
-    function selectInstallTab(tabKey) {
-      currentTab = tabKey;
-      document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary', 'tab-active');
-        btn.classList.add('text-surface-dim');
-      });
-      const activeBtn = document.getElementById('tab-' + tabKey);
-      if (activeBtn) {
-        activeBtn.classList.add('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary', 'tab-active');
-        activeBtn.classList.remove('text-surface-dim');
-      }
-      const data = installCommands[tabKey];
-      if (data) {
-        const cmdDisplay = document.getElementById('cmd-display');
-        if (cmdDisplay) cmdDisplay.innerHTML = data.html;
-        const targetLabel = document.getElementById('install-target-label');
-        if (targetLabel) targetLabel.textContent = data.target;
-      }
-    }
-
+    // Copy single universal install command
     function fallbackCopy(text) {
       const textarea = document.createElement('textarea');
       textarea.value = text;
@@ -629,16 +564,14 @@
     }
 
     function copyCommand() {
-      const data = installCommands[currentTab];
-      if (!data) return;
-      const copyText = data.raw;
+      const copyText = 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash';
       const btn = document.getElementById('copy-btn');
 
       const showCopied = () => {
         if (!btn) return;
         btn.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600">check</span><span class="text-emerald-600 font-bold">Copied!</span>`;
         setTimeout(() => {
-          btn.innerHTML = `<span class="material-symbols-outlined text-sm">content_copy</span><span>Copy</span>`;
+          btn.innerHTML = `<span class="material-symbols-outlined text-sm">content_copy</span><span>Copy Command</span>`;
         }, 2000);
       };
 
