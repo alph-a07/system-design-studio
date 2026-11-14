@@ -66,7 +66,7 @@ When configured, the tutor anchors its primary traces and examples around that d
 
 ## 3. Customizing the HTML Lesson Simulator & Theme
 
-All lesson artifacts are compiled from [`skills/system-design-studio/resources/lesson-template.html`](file:///Users/itsjeel01/Developer/system-design-studio/skills/system-design-studio/resources/lesson-template.html).
+All lesson artifacts are compiled from [`skills/system-design-studio/resources/lesson-template.html`](../resources/lesson-template.html).
 
 You can customize:
 1. **Color Themes & Ramps**: Supports Graphite, Ink, or Warm ramps directly via CSS variables.

@@ -4,7 +4,7 @@ Thank you for your interest in contributing to **System Design Studio**! We welc
 
 ---
 
-## 🏛️ Guiding Invariants
+## Guiding Invariants
 
 Before writing code or opening a PR, please note the non-negotiable architectural invariants:
 
@@ -24,7 +24,7 @@ Before writing code or opening a PR, please note the non-negotiable architectura
 
 ---
 
-## 🛠️ Local Development & Testing
+## Local Development and Testing
 
 1. **Clone the repository**:
    ```bash
@@ -55,7 +55,7 @@ Before writing code or opening a PR, please note the non-negotiable architectura
 
 ---
 
-## 📝 Submitting a Pull Request
+## Submitting a Pull Request
 
 1. Fork the repo and create your branch from `main`:
    ```bash

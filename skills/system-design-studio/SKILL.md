@@ -81,7 +81,7 @@ To guarantee zero loss across chat restarts, model switches (Gemini âž” Claude â
    - The precise next teaching action.
 3. **Continuity Bridge**: The agent emits a crisp 2-sentence bridge and immediately presents the next lesson without re-asking introductory questions.
 
-*Detailed reference*: [`references/project-learning-instance.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/project-learning-instance.md)
+*Detailed reference*: [`references/project-learning-instance.md`](references/project-learning-instance.md)
 
 ---
 
@@ -102,9 +102,9 @@ When a forward-looking question arises:
 4. When the target cluster arrives, automatically rehydrate the question and close the loop.
 
 *Detailed references*:
-- [`references/running-context-engine.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/running-context-engine.md)
-- [`references/first-principles-pedagogy.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/first-principles-pedagogy.md)
-- [`references/connected-closure-method.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/connected-closure-method.md)
+- [`references/running-context-engine.md`](references/running-context-engine.md)
+- [`references/first-principles-pedagogy.md`](references/first-principles-pedagogy.md)
+- [`references/connected-closure-method.md`](references/connected-closure-method.md)
 
 ---
 
@@ -133,9 +133,9 @@ Every topic begins by answering:
 6. **Learning Bridge**: Connect to prior topics and state what is deferred.
 
 *Detailed references*:
-- [`references/interactive-html-artifacts.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/interactive-html-artifacts.md)
-- [`references/fresh-fictional-problems.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/fresh-fictional-problems.md)
-- [`references/interaction-contract.md`](file:///Users/itsjeel01/.agents/skills/system-design-studio/references/interaction-contract.md)
+- [`references/interactive-html-artifacts.md`](references/interactive-html-artifacts.md)
+- [`references/fresh-fictional-problems.md`](references/fresh-fictional-problems.md)
+- [`references/interaction-contract.md`](references/interaction-contract.md)
 
 ---
 

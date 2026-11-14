@@ -1,10 +1,10 @@
 /*
   System Design Studio — Interactive Application Engine
-  Handles console instruments, installation switchers, syllabus filtering,
-  and browser-storage persisted progress tracking.
+  Handles console instruments, interactive protocol simulator,
+  installation switchers, syllabus filtering, and browser-persisted progress tracking.
 */
 
-// STORAGE KEY
+// STORAGE KEY FOR COMPLETED TOPICS
 const PROGRESS_STORAGE_KEY = 'sds_mastered_topics';
 
 // SAFE LOCAL STORAGE WRAPPERS
@@ -15,7 +15,7 @@ function getMasteredTopicIds() {
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? new Set(parsed) : new Set();
   } catch (err) {
-    console.warn('[SDS] Local storage not accessible; using session memory.', err);
+    console.warn('[SDS] Local storage not accessible; using memory.', err);
     return new Set();
   }
 }
@@ -61,7 +61,7 @@ function switchInstallTab(method, buttonEl) {
   buttonEl.classList.add('active');
 }
 
-// CLIPBOARD COPY
+// CLIPBOARD COPY HELPER
 function copySnippet(buttonEl, sourceId) {
   const sourceEl = document.getElementById(sourceId);
   if (!sourceEl) return;
@@ -70,14 +70,13 @@ function copySnippet(buttonEl, sourceId) {
   navigator.clipboard.writeText(textToCopy).then(() => {
     const originalHtml = buttonEl.innerHTML;
     buttonEl.innerHTML = `
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-      <span style="color: #10b981;">Copied!</span>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      <span style="color: #10b981;">Copied</span>
     `;
     setTimeout(() => {
       buttonEl.innerHTML = originalHtml;
     }, 2000);
   }).catch(() => {
-    // Fallback if clipboard permissions blocked
     const input = document.createElement('textarea');
     input.value = textToCopy;
     document.body.appendChild(input);
@@ -104,6 +103,122 @@ function switchConsoleTab(tabKey, buttonEl) {
   buttonEl.classList.add('active');
 }
 
+// INTERACTIVE PROTOCOL SIMULATOR STATE & LOGIC
+let simState = {
+  protocol: 'tcp', // 'tcp' or 'quic'
+  packet2Dropped: true
+};
+
+function setSimulatorProtocol(proto) {
+  simState.protocol = proto;
+  const btnTcp = document.getElementById('sim-btn-tcp');
+  const btnQuic = document.getElementById('sim-btn-quic');
+
+  if (btnTcp) btnTcp.classList.toggle('active', proto === 'tcp');
+  if (btnQuic) btnQuic.classList.toggle('active', proto === 'quic');
+
+  renderSimulatorUI();
+}
+
+function togglePacket2Drop() {
+  simState.packet2Dropped = !simState.packet2Dropped;
+  renderSimulatorUI();
+}
+
+function renderSimulatorUI() {
+  const pkt2El = document.getElementById('sim-pkt-2');
+  const pkt3El = document.getElementById('sim-pkt-3');
+  const pkt4El = document.getElementById('sim-pkt-4');
+  const actionBtn = document.getElementById('sim-action-btn');
+  const statusBadge = document.getElementById('sim-status-badge');
+  const explainText = document.getElementById('sim-explain-text');
+  const penaltyPill = document.getElementById('sim-penalty-pill');
+
+  if (!pkt2El) return;
+
+  const isTcp = simState.protocol === 'tcp';
+  const dropped = simState.packet2Dropped;
+
+  if (actionBtn) {
+    actionBtn.textContent = dropped ? 'Retransmit Packet 2' : 'Inject Packet 2 Drop';
+  }
+
+  if (dropped) {
+    pkt2El.className = 'sim-packet-box status-lost';
+    pkt2El.querySelector('.sim-packet-tag').textContent = 'LOST';
+    pkt2El.querySelector('.sim-packet-tag').style.color = '#ef4444';
+
+    if (isTcp) {
+      // TCP HOL Blocking: Packets 3 & 4 blocked in socket queue
+      pkt3El.className = 'sim-packet-box status-blocked';
+      pkt3El.querySelector('.sim-packet-tag').textContent = 'BLOCKED';
+      pkt3El.querySelector('.sim-packet-tag').style.color = 'var(--text-muted)';
+
+      pkt4El.className = 'sim-packet-box status-blocked';
+      pkt4El.querySelector('.sim-packet-tag').textContent = 'BLOCKED';
+      pkt4El.querySelector('.sim-packet-tag').style.color = 'var(--text-muted)';
+
+      if (statusBadge) {
+        statusBadge.textContent = 'HOL BLOCKING ACTIVE';
+        statusBadge.style.color = '#ef4444';
+        statusBadge.style.background = 'rgba(239, 68, 68, 0.1)';
+      }
+      if (explainText) {
+        explainText.textContent = 'Single-stream TCP socket buffer stall: Packets 3 and 4 cannot be consumed by the application layer until Packet 2 is retransmitted and acknowledged.';
+      }
+      if (penaltyPill) {
+        penaltyPill.innerHTML = '<span style="color: #ef4444;">Transport Stall: +84ms RTT penalty</span>';
+      }
+    } else {
+      // QUIC / HTTP/3: Independent streams continue without HOL blocking
+      pkt3El.className = 'sim-packet-box status-acked';
+      pkt3El.querySelector('.sim-packet-tag').textContent = 'DELIVERED';
+      pkt3El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+
+      pkt4El.className = 'sim-packet-box status-acked';
+      pkt4El.querySelector('.sim-packet-tag').textContent = 'DELIVERED';
+      pkt4El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+
+      if (statusBadge) {
+        statusBadge.textContent = 'NO HOL BLOCKING';
+        statusBadge.style.color = 'var(--accent-diode)';
+        statusBadge.style.background = 'var(--accent-diode-surface)';
+      }
+      if (explainText) {
+        explainText.textContent = 'QUIC multiplexed independent streams: Stream 3 and 4 deliver immediately over UDP framing. Only Stream 2 waits for retransmission.';
+      }
+      if (penaltyPill) {
+        penaltyPill.innerHTML = '<span style="color: var(--accent-diode);">Stream Isolation: 0ms stall on streams 3/4</span>';
+      }
+    }
+  } else {
+    // Healthy stream: all ACKed
+    pkt2El.className = 'sim-packet-box status-acked';
+    pkt2El.querySelector('.sim-packet-tag').textContent = 'ACK';
+    pkt2El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+
+    pkt3El.className = 'sim-packet-box status-acked';
+    pkt3El.querySelector('.sim-packet-tag').textContent = 'ACK';
+    pkt3El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+
+    pkt4El.className = 'sim-packet-box status-acked';
+    pkt4El.querySelector('.sim-packet-tag').textContent = 'ACK';
+    pkt4El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+
+    if (statusBadge) {
+      statusBadge.textContent = 'STREAM NOMINAL';
+      statusBadge.style.color = 'var(--accent-diode)';
+      statusBadge.style.background = 'var(--accent-diode-surface)';
+    }
+    if (explainText) {
+      explainText.textContent = 'All packets acknowledged sequentially. Socket receive buffer reading in continuous stream order.';
+    }
+    if (penaltyPill) {
+      penaltyPill.innerHTML = '<span style="color: var(--text-secondary);">Latency: 84ms nominal WAN RTT</span>';
+    }
+  }
+}
+
 // PROGRESS TRACKING & SYLLABUS ENGINE
 let currentActiveTier = 'all';
 let currentActiveStatus = 'all';
@@ -127,11 +242,10 @@ function updateGlobalProgressUI(masteredSet) {
   if (ratioEl) ratioEl.textContent = `${completedCount} of ${totalTopics} topics completed`;
   if (fillEl) fillEl.style.width = `${percentage}%`;
 
-  // Update topbar pill on any page if present
   const topbarTags = document.querySelectorAll('.version-tag');
   topbarTags.forEach(tag => {
     if (completedCount > 0) {
-      tag.innerHTML = `<span class="version-dot"></span> v2.1.0 &middot; ${completedCount}/${totalTopics} mastered`;
+      tag.innerHTML = `<span class="version-dot"></span> v2.1.0 · ${completedCount}/${totalTopics} mastered`;
     }
   });
 }
@@ -145,7 +259,6 @@ function toggleTopicMastery(topicId, isChecked) {
   }
   saveMasteredTopicIds(masteredSet);
 
-  // Update DOM topic row
   const safeId = topicId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const rowEl = document.getElementById(`topic-row-${safeId}`);
   if (rowEl) {
@@ -156,7 +269,6 @@ function toggleTopicMastery(topicId, isChecked) {
     }
   }
 
-  // Update cluster count
   if (typeof CURRICULUM_CLUSTERS !== 'undefined') {
     const parentCluster = CURRICULUM_CLUSTERS.find(c => c.topics.some(t => t.id === topicId));
     if (parentCluster) {
@@ -170,7 +282,6 @@ function toggleTopicMastery(topicId, isChecked) {
 
   updateGlobalProgressUI(masteredSet);
 
-  // If filtered by status, re-filter view smoothly
   if (currentActiveStatus !== 'all') {
     renderCurriculum();
   }
@@ -229,23 +340,18 @@ function renderCurriculum() {
   const query = currentSearchQuery.toLowerCase().trim();
   const masteredSet = getMasteredTopicIds();
 
-  // Filter clusters & topics
   const processedClusters = [];
 
   CURRICULUM_CLUSTERS.forEach(cluster => {
-    // 1. Tier filter (code like "0.1", "1.4", "2.3")
     const tierMatch = currentActiveTier === 'all' || cluster.code.startsWith(currentActiveTier + '.');
     if (!tierMatch) return;
 
-    // 2. Filter topics by search & status
     const matchingTopics = cluster.topics.filter(topic => {
       const isMastered = masteredSet.has(topic.id);
 
-      // Status filter
       if (currentActiveStatus === 'mastered' && !isMastered) return false;
       if (currentActiveStatus === 'remaining' && isMastered) return false;
 
-      // Query filter
       if (!query) return true;
       const inTitle = topic.title.toLowerCase().includes(query);
       const inId = topic.id.toLowerCase().includes(query);
@@ -272,9 +378,9 @@ function renderCurriculum() {
 
   if (processedClusters.length === 0) {
     displayEl.innerHTML = `
-      <div style="background: var(--bg-surface); border: 1px solid var(--border-wire); border-radius: var(--radius-md); padding: 36px; text-align: center;">
-        <p style="font-size: 15px; color: var(--text-primary); margin-bottom: 8px;">No matching topics found.</p>
-        <p style="font-size: 13px; color: var(--text-secondary);">Try clearing your search query or switching the status/tier filter.</p>
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-wire); border-radius: var(--radius-md); padding: 32px 20px; text-align: center;">
+        <p style="font-size: 14.5px; color: var(--text-primary); margin-bottom: 6px;">No matching topics found.</p>
+        <p style="font-size: 13px; color: var(--text-secondary);">Try clearing your search query or switching tier filters.</p>
       </div>
     `;
     return;
@@ -316,188 +422,56 @@ function renderCurriculum() {
   }).join('');
 }
 
-// IMMERSIVE SYSTEMS TOPOLOGY NETWORK CANVAS
-function initSystemsNetworkCanvas() {
-  const canvas = document.getElementById('systems-mesh-canvas');
-  if (!canvas) return;
+// DOCS SIDEBAR SCROLL SPY
+function initDocsScrollSpy() {
+  const sections = document.querySelectorAll('.docs-section');
+  const links = document.querySelectorAll('.docs-sidebar-link');
+  if (sections.length === 0 || links.length === 0) return;
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+  function onScroll() {
+    let currentId = '';
+    const scrollPos = window.scrollY + 120;
 
-  let width = (canvas.width = canvas.offsetWidth);
-  let height = (canvas.height = canvas.offsetHeight);
-
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = width * dpr;
-  canvas.height = height * dpr;
-  ctx.scale(dpr, dpr);
-
-  const NODE_COUNT = Math.max(18, Math.floor(width / 45));
-  const nodes = [];
-  const packets = [];
-
-  for (let i = 0; i < NODE_COUNT; i++) {
-    nodes.push({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      radius: Math.random() > 0.8 ? 3.5 : 2,
-      pulse: Math.random() * Math.PI,
-      ip: `10.${Math.floor(Math.random() * 4)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 254 + 1)}`
+    sections.forEach(section => {
+      const top = section.offsetTop;
+      const height = section.offsetHeight;
+      if (scrollPos >= top && scrollPos < top + height) {
+        currentId = section.getAttribute('id');
+      }
     });
-  }
 
-  let mouseX = -1000;
-  let mouseY = -1000;
-  const heroWrapper = canvas.closest('.hero-workbench-wrapper');
-  if (heroWrapper) {
-    heroWrapper.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouseX = e.clientX - rect.left;
-      mouseY = e.clientY - rect.top;
-    });
-    heroWrapper.addEventListener('mouseleave', () => {
-      mouseX = -1000;
-      mouseY = -1000;
-    });
-  }
-
-  // Periodic packet routing pulse
-  setInterval(() => {
-    if (nodes.length < 2 || document.hidden) return;
-    const srcIdx = Math.floor(Math.random() * nodes.length);
-    let targetIdx = Math.floor(Math.random() * nodes.length);
-    while (targetIdx === srcIdx) {
-      targetIdx = Math.floor(Math.random() * nodes.length);
-    }
-    const dist = Math.hypot(nodes[srcIdx].x - nodes[targetIdx].x, nodes[srcIdx].y - nodes[targetIdx].y);
-    if (dist < 260) {
-      packets.push({
-        src: nodes[srcIdx],
-        target: nodes[targetIdx],
-        progress: 0,
-        speed: 0.012 + Math.random() * 0.018
+    if (currentId) {
+      links.forEach(link => {
+        const href = link.getAttribute('href');
+        if (href === `#${currentId}`) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
       });
     }
-  }, 400);
-
-  function animate() {
-    ctx.clearRect(0, 0, width, height);
-
-    // Architectural topology links
-    const maxLinkDist = 180;
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const dx = nodes[i].x - nodes[j].x;
-        const dy = nodes[i].y - nodes[j].y;
-        const dist = Math.hypot(dx, dy);
-
-        if (dist < maxLinkDist) {
-          const alpha = (1 - dist / maxLinkDist) * 0.07;
-          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(nodes[i].x, nodes[i].y);
-          ctx.lineTo(nodes[j].x, nodes[j].y);
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Packet transit pulses
-    for (let i = packets.length - 1; i >= 0; i--) {
-      const p = packets[i];
-      p.progress += p.speed;
-      if (p.progress >= 1) {
-        packets.splice(i, 1);
-        continue;
-      }
-      const curX = p.src.x + (p.target.x - p.src.x) * p.progress;
-      const curY = p.src.y + (p.target.y - p.src.y) * p.progress;
-
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.85)';
-      ctx.beginPath();
-      ctx.arc(curX, curY, 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Node updates and rendering
-    let nearestNode = null;
-    let nearestDist = 120;
-
-    for (let i = 0; i < nodes.length; i++) {
-      const n = nodes[i];
-      n.x += n.vx;
-      n.y += n.vy;
-
-      if (n.x < 10 || n.x > width - 10) n.vx *= -1;
-      if (n.y < 10 || n.y > height - 10) n.vy *= -1;
-
-      n.pulse += 0.025;
-      const pulseFactor = Math.sin(n.pulse) * 0.5 + 0.5;
-
-      const distToMouse = Math.hypot(n.x - mouseX, n.y - mouseY);
-      if (distToMouse < nearestDist) {
-        nearestDist = distToMouse;
-        nearestNode = n;
-      }
-
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (n.radius > 3) {
-        ctx.fillStyle = `rgba(16, 185, 129, ${0.4 + pulseFactor * 0.4})`;
-        ctx.beginPath();
-        ctx.arc(n.x, n.y, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // Cursor telemetry crosshair on nearest active node
-    if (nearestNode) {
-      ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.arc(nearestNode.x, nearestNode.y, 7, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.fillStyle = 'rgba(16, 185, 129, 0.85)';
-      ctx.font = '10px "Red Hat Mono", monospace';
-      ctx.fillText(`${nearestNode.ip} [LIVE]`, nearestNode.x + 12, nearestNode.y + 4);
-    }
-
-    requestAnimationFrame(animate);
   }
 
-  animate();
-
-  window.addEventListener('resize', () => {
-    width = canvas.offsetWidth;
-    height = canvas.offsetHeight;
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
-    ctx.scale(dpr, dpr);
-  });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 }
 
-// INITIALIZATION ON DOM READY
+// INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
   const masteredSet = getMasteredTopicIds();
-
-  // Initialize systems topology canvas on landing
-  initSystemsNetworkCanvas();
-
-  // Update topbar tag on all pages
   updateGlobalProgressUI(masteredSet);
+
+  // Initialize interactive simulator if present on page
+  renderSimulatorUI();
+
+  // Initialize docs scroll spy if on docs page
+  initDocsScrollSpy();
 
   // Curriculum-specific setup
   if (document.getElementById('clusters-display')) {
     const params = new URLSearchParams(window.location.search);
     const tierParam = params.get('tier');
-    if (tierParam && ['0', '1', '2', '3', '4', '5'].includes(tierParam)) {
+    if (tierParam && ['0', '1', '2', '3', '4'].includes(tierParam)) {
       currentActiveTier = tierParam;
       const targetBtn = document.querySelector(`.filter-pill[data-tier="${tierParam}"]`);
       if (targetBtn) {
