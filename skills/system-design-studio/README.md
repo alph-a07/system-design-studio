@@ -1,22 +1,37 @@
 # 🏛️ System Design Studio
 
+[![Agent Skills Standard](https://img.shields.io/badge/Agent%20Skills-Standard-059669?style=flat-square)](https://agentskills.io)
+[![License: MIT](https://img.shields.io/badge/License-MIT-0ea5e9?style=flat-square)](LICENSE)
+[![Universal Agents](https://img.shields.io/badge/Agents-Antigravity%20%7C%20Claude%20%7C%20Cursor%20%7C%20Codex-6366f1?style=flat-square)](README.md)
+[![Documentation](https://img.shields.io/badge/Docs-GitHub%20Pages-10b981?style=flat-square)](https://alph-a07.github.io/system-design-studio)
+
 > **Connected Engineering & Project-Based System Design Learning for AI Agents**  
-> *Universal agent compatibility: Google Antigravity, Claude Code, Cursor, Codex, and Gemini CLI.*
+> *Transform technical system design from superficial buzzword memorization into first-principles causal reasoning, living cursor state retention, and interactive visual simulators.*
 
 ---
 
 ## 🎯 What is System Design Studio?
 
-**System Design Studio** is an open, portable, agent-agnostic learning studio that runs directly inside your codebase or project repository. It transforms technical system design from passive memorization of architectural buzzwords (*"how to design Twitter"*) into **first-principles causal reasoning**, **mechanical closure**, and **interactive visual learning**.
+**System Design Studio** is an open, portable, agent-agnostic learning studio that runs directly inside your codebase or project repository. It teaches Low-Level Design (LLD), High-Level Design (HLD), distributed systems, infrastructure mechanisms, and mobile architecture across a **50-cluster canonical roadmap** (354 topics).
 
 ### Why Most System Design Prep Fails:
-* **The "Magic Box" Trap**: Treating components (Kafka, Redis, Cassandra) as magic solutions rather than trade-off implementations of physical and algorithmic limits.
+* **The "Magic Box" Trap**: Treating components (Kafka, Redis, Cassandra) as magic answers rather than trade-off implementations of physical hardware and algorithmic constraints.
 * **Cognitive Fragmentation**: Tutors jumping between random, disconnected examples every turn without causal continuity.
-* **Fragile Cloud Dependencies**: Fragile integrations with external database tools (Notion) or drawing boards that break across environments, leak codebases, and fail offline.
+* **Fragile Cloud Dependencies**: Heavy lock-in to external databases (Notion) or drawing boards that break across environments, leak private workspaces, and fail offline.
 
-### The System Design Studio Difference:
-1. **Universal Agent Portability**: 100% compliant with the open Agent Skills standard. Operates identically whether running in Antigravity, Claude Code, Cursor, Codex, or Gemini CLI.
-2. **Project as a Learning Instance**: No external accounts, no cloud database locks, no Notion API keys, and no drawing board logins. The learning state lives in a local `.system-design/` folder in your project, version-controlled by standard Git.
+### The 4 Pillars of the Studio:
+```mermaid
+flowchart TD
+    P1["1. Universal Agent Portability<br/>(Antigravity, Claude, Cursor, Codex)"] --> SYNC["Local Project State Engine"]
+    P2["2. Project as a Learning Instance<br/>(Local .system-design/ Directory)"] --> SYNC
+    P3["3. Cursor as Living Running Context<br/>(Lineage, Examples Log, Deferred Queue)"] --> TEACHING["Interactive Teaching Engine"]
+    P4["4. Visual Interactive HTML Artifacts<br/>(Causal Storytelling & Simulators)"] --> TEACHING
+
+    SYNC <--> TEACHING
+```
+
+1. **Universal Agent Portability**: Zero proprietary runtime lock-in. 100% compliant with the open Agent Skills standard. Operates seamlessly whether hosted in Google Antigravity, Claude Code, Cursor, Codex, or Gemini CLI.
+2. **Project as a Learning Instance**: No external accounts, no cloud database locks, no Notion API keys, and no drawing board logins. Learning state resides entirely in a local `.system-design/` folder in your project, version-controlled by standard Git.
 3. **Cursor & Curriculum as the Sole Shared Context**:
    - **`CURRICULUM.md`**: Master 50-cluster syllabus with 354 topics and actionable tick-off rules.
    - **`CURSOR.md`**: The living operational brain tracking active focus, target depth, causal lineage (backward anchor & forward hook), domain examples registry (`examplesTaken`), and pending deferred questions (`deferredQueue`).
@@ -29,24 +44,24 @@
 Every learning workspace is a self-contained Git repository:
 
 ```text
-my-system-design-journey/
+my-system-design-project/
 ├── .git/
 ├── .system-design/
 │   ├── manifest.json              # Canonical machine-readable state (schema v2.0)
 │   ├── CURSOR.md                  # Living running context (brain of the instance)
-│   ├── CURRICULUM.md              # Living 50-cluster syllabus with checkboxes
+│   ├── CURRICULUM.md              # Master 50-cluster syllabus with checkboxes
 │   ├── DECISIONS.md               # Accepted Architecture Decision Records (ADRs)
 │   └── lessons/                   # Standalone interactive HTML lesson artifacts
 │       ├── topic-0.1-tcp-vs-udp.html
 │       ├── topic-0.2-http-quic.html
 │       └── ...
-├── notes/                         # Learner's personal study notes (100% private)
+├── notes/                         # Optional personal markdown study notes
 └── README.md
 ```
 
 ### Zero-Cloud Privacy Invariant
 * **Your code never leaves your machine.**
-* **Personal notes remain your own.**
+* **Personal notes remain 100% your own.**
 * The studio only reads and updates `.system-design/` within your current project root.
 
 ---
@@ -57,7 +72,7 @@ my-system-design-journey/
 Run the scaffolding script inside any new or existing project directory:
 
 ```bash
-~/.agents/skills/system-design-studio/scripts/init-learning-instance.sh "My System Design Mastery"
+skills/system-design-studio/scripts/init-learning-instance.sh "My System Design Journey"
 ```
 
 This scaffolds `.system-design/` with the complete 50-cluster curriculum, template cursor, and manifest at pristine 0% state.
@@ -66,21 +81,21 @@ This scaffolds `.system-design/` with the complete 50-cluster curriculum, templa
 Run the automated diagnostic and verification suite:
 
 ```bash
-python3 ~/.agents/skills/system-design-studio/scripts/verify-instance.py .system-design
+python3 skills/system-design-studio/scripts/verify-instance.py .system-design
 ```
 
 ### 3. Check Live Running Context
 Inspect your active topic, progress percentage, examples log, and deferred questions:
 
 ```bash
-python3 ~/.agents/skills/system-design-studio/scripts/sync-status.py .system-design
+python3 skills/system-design-studio/scripts/sync-status.py .system-design
 ```
 
 ### 4. Advance the Cursor Idempotently
 When an agent or learner completes a topic:
 
 ```bash
-python3 ~/.agents/skills/system-design-studio/scripts/advance-cursor.py \
+python3 skills/system-design-studio/scripts/advance-cursor.py \
   --complete-topic topic.0.1.tcp-vs-udp \
   --evidence "Learner traced TCP sequence numbering and receive window bufferbloat" \
   --log-example-domain "Financial Ledger" \
@@ -92,92 +107,81 @@ python3 ~/.agents/skills/system-design-studio/scripts/advance-cursor.py \
 
 ---
 
-## 🧠 Pedagogy Grounded in Longevity: Kleppmann Meets Xu
+## 📦 Installation Across AI Agent Platforms
+
+### Google Antigravity
+To install as a native plugin:
+```bash
+agy plugin add https://github.com/alph-a07/system-design-studio.git
+```
+Or clone into your local skills directory:
+```bash
+cp -r skills/system-design-studio ~/.gemini/antigravity/skills/
+```
+
+### Claude Code
+Clone into your personal or workspace skills directory:
+```bash
+git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio
+```
+
+### Cursor
+Add as a project skill or workspace rule:
+```bash
+git submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio
+```
+
+### OpenAI Codex / Gemini CLI
+Copy the `skills/system-design-studio` directory into your active agent workspace or path.
+
+---
+
+## 🎨 Bring-Your-Own (BYO) & Customization
+
+System Design Studio is completely curriculum-agnostic:
+
+### 1. Bring Your Own Curriculum (Markdown Syllabus)
+Import any custom markdown syllabus (e.g. specialized trading architecture, ML platform engineering, or team onboarding):
+
+```bash
+python3 skills/system-design-studio/scripts/import-curriculum.py \
+  --input my-team-curriculum.md \
+  --instance-dir .system-design \
+  --title "Low-Latency Trading Architecture" \
+  --domain "Order Matching Engines"
+```
+
+### 2. Bring Your Own Flagship Domain
+Set `flagshipDomain` in `.system-design/CURSOR.md` (e.g., `Autonomous Vehicles`, `Fintech`, `Healthcare Imaging`). The tutor automatically anchors all subsequent traces and reality checks around your chosen vertical.
+
+*Read the complete customization guide*: [`skills/system-design-studio/references/bring-your-own-curriculum.md`](file:///Users/itsjeel01/Developer/system-design-studio/skills/system-design-studio/references/bring-your-own-curriculum.md)
+
+---
+
+## 🧠 Longevity Pedagogy: Kleppmann Meets Xu
 
 System Design Studio bridges the two foundational schools of distributed architecture:
 
-```mermaid
-flowchart LR
-    subgraph BottomUp["Martin Kleppmann (DDIA)"]
-        direction TB
-        PHY["Physics of Hardware<br/>(Speed of light, RAM, NVMe, Disk seeks)"]
-        INV["Mechanical Invariants<br/>(WAL, LSM-trees, 2PC, Quorums)"]
-    end
-
-    subgraph TopDown["Alex Xu (System Design Interview)"]
-        direction TB
-        SCOPE["Problem Scoping<br/>(Functional vs Non-Functional)"]
-        MATH["Back-of-the-Envelope<br/>(QPS, Bandwidth, 80/20 Caching)"]
-    end
-
-    BottomUp <--> TopDown
-    TopDown --> LESSON["Interactive HTML Lesson Artifact<br/>(Causal Story + Live Simulator)"]
-```
-
-### The 6-Part Topic Foundation
-Every topic begins with an unshakeable foundation before deep diving into packet traces or algorithms:
-1. **Physical Problem & Motivation**: What physical limit forces this mechanism into existence?
-2. **System Placement**: Where does this component sit in the architectural stack?
-3. **Design Relevance**: Which trade-offs (latency, durability, consistency, cost) depend on it?
-4. **Prerequisites & Vocabulary**: Define necessary terms immediately; eliminate unexplained jargon.
-5. **Mental Model**: Intuitive visual or mechanical model of the moving parts.
-6. **Learning Bridge**: Connect to prior topics and state what is deferred.
+| Dimension | Martin Kleppmann (*Designing Data-Intensive Applications*) | Alex Xu (*System Design Interview* series) |
+| :--- | :--- | :--- |
+| **Primary Focus** | Bottom-up physical mechanics, storage engines, consensus, invariants. | Top-down scoping, quantitative estimation, component trade-off matrices. |
+| **Mental Model** | Hardware latency hierarchy, write-ahead logs, 2PC, quorums, failure modes. | Peak QPS, storage footprint, 80/20 caching, high-level blueprints. |
+| **Studio Integration** | The physical justification: why trivial software approaches break down. | The engineering structure: bounding problems and sizing hardware resources. |
 
 ---
 
-## 🎨 Interactive HTML Lesson Artifacts
+## 🌐 Product Documentation Site
 
-Instead of walls of dry bullet points, lessons are generated as standalone, responsive HTML files:
-* **Tailwind CSS Styling**: Clean, modern dark/light system theme support.
-* **Embedded Simulators**: Interactive JavaScript controls allowing the learner to step through packet transmissions, inject network drops, test head-of-line blocking, and observe buffer states in real time.
-* **Workload Contrasts**: Direct side-by-side comparison of opposing real-world profiles (e.g., Financial Ledger vs High-Throughput Telemetry).
-* **Invariant Matrices**: Rigorous tables detailing guaranteed invariants vs non-guarantees.
-* **Engineering Reality Checks**: Practical production failure scenarios with revealable root-cause breakdowns.
+Visit the live site: **[https://alph-a07.github.io/system-design-studio](https://alph-a07.github.io/system-design-studio)**
 
----
-
-## 🤖 Multi-Agent Compatibility Guide
-
-| Agent Platform | Integration Mechanism | HTML Rendering | State Retention |
-| :--- | :--- | :--- | :--- |
-| **Google Antigravity** | Native Skill / Plugin | Live Side Pane (`UserFacing: true`) | `.system-design/` + Git |
-| **Claude Code** | Native Skill Folder | Standalone HTML browser view | `.system-design/` + Git |
-| **Cursor** | Workspace Skill / Rule | Built-in Editor Preview | `.system-design/` + Git |
-| **Codex / OpenAI** | CLI / Bash Tool | Standalone HTML browser view | `.system-design/` + Git |
-| **Gemini CLI** | Skill Directory | Terminal link / Local Browser | `.system-design/` + Git |
+* **Interactive 50-Cluster Syllabus Explorer**: Filter, search, and view all 354 topics and tick-off rules across 6 engineering tiers.
+* **Architecture & Memory Hierarchy Guide**: Technical specifications of the Project Learning Instance and Living Cursor.
+* **CLI Reference & Guides**: Quickstart instructions for `init`, `advance`, `sync`, and `import-curriculum`.
 
 ---
 
-## 📁 Repository & Skill Structure
+## 📜 License & Community
 
-```text
-skills/system-design-studio/
-├── SKILL.md                          # Main skill instructions (open Agent Skills standard)
-├── README.md                         # Public documentation and quickstart guide
-├── references/                       # Deep technical specifications
-│   ├── first-principles-pedagogy.md  # Synthesis of Kleppmann & Alex Xu
-│   ├── interactive-html-artifacts.md # HTML artifact design guidelines
-│   ├── project-learning-instance.md  # Local project architecture contract
-│   ├── running-context-engine.md     # Examples registry & deferred queue spec
-│   ├── context-manifest-spec.md      # v2.0 JSON manifest schema
-│   ├── interaction-contract.md       # Pedagogical pacing & checkpoint rules
-│   ├── connected-closure-method.md   # 7-step causal closure checklist
-│   └── fresh-fictional-problems.md   # Safe fictional scenario generator
-├── resources/                        # Reusable templates & canonical curricula
-│   ├── CURRICULUM-template.md        # Canonical 50-cluster syllabus (354 topics)
-│   ├── CURSOR-template.md            # Living cursor operational template
-│   ├── manifest-template.json        # Pristine 0% state manifest
-│   └── lesson-template.html          # Interactive HTML lesson starter template
-└── scripts/                          # Deterministic, zero-dependency CLI tools
-    ├── init-learning-instance.sh     # Instance scaffolding script
-    ├── advance-cursor.py             # Idempotent state transition engine
-    ├── sync-status.py                # Diagnostic reporting CLI
-    ├── render-lesson.py              # Interactive HTML lesson compiler
-    └── verify-instance.py            # Automated health & parity verification
-```
-
----
-
-## 📜 License
-
-MIT License. Built for the open developer and AI agent community.
+- **License**: MIT License ([LICENSE](LICENSE))
+- **Contributing**: Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+- **Issues & Discussions**: Use our [Issue Templates](.github/ISSUE_TEMPLATE/) or start a GitHub Discussion.

@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Design Studio — Connected Engineering for AI Agents</title>
+  <title>System Design Studio — The Connected System Design Engine for AI Agents</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
   <!-- QUIET TOPBAR -->
   <header class="site-header">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; align-items: center; justify-content: space-between;">
+    <div class="header-inner">
       <div style="display: flex; align-items: center; gap: 16px;">
-        <a href="index.html" style="font-weight: 600; font-size: 15px; color: var(--text-primary); text-decoration: none; letter-spacing: -0.01em;">
-          System Design Studio
+        <a href="index.html" class="site-logo">
+          <span class="mark">SDS</span>
+          <span>System Design Studio</span>
         </a>
         <span class="status-pill">
           <span class="status-dot"></span> v2.1.0 · 354 topics
@@ -21,217 +22,546 @@
       </div>
 
       <nav style="display: flex; align-items: center; gap: 8px;">
-        <a href="index.html" class="nav-link active">Overview</a>
-        <a href="curriculum.html" class="nav-link">Syllabus</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" class="nav-link" style="display:flex; align-items:center; gap:6px;">
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="curriculum.html" class="nav-link">50-Cluster Syllabus</a>
+        <a href="docs.html" class="nav-link">Documentation</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" class="nav-link" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
           GitHub
         </a>
-        <a href="#quickstart" class="btn-primary" style="margin-left: 8px;">Quickstart</a>
+        <a href="#install" class="btn-primary" style="margin-left: 8px;">Install</a>
       </nav>
     </div>
   </header>
 
-  <main style="max-width: 1200px; margin: 0 auto; padding: 64px 24px 96px; display: flex; flex-direction: column; gap: 64px;">
+  <main style="max-width: 1200px; margin: 0 auto; padding: 0 24px 96px; display: flex; flex-direction: column; gap: 96px;">
 
     <!-- HERO SECTION -->
-    <section style="display: flex; flex-direction: column; gap: 24px; max-width: 840px;">
-      <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent);">
-        Open Agent Skills Standard
+    <section class="hero-container">
+      <div class="hero-badge">
+        <span>Universal Agent Skill</span>
+        <span style="opacity: 0.4;">·</span>
+        <span style="color: var(--accent);">Antigravity, Claude Code, Cursor, Codex</span>
       </div>
 
-      <h1 style="font-size: 40px; font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; color: var(--text-primary);">
+      <h1 class="hero-headline">
         System design for engineers who demand mechanical proof
       </h1>
 
-      <p style="font-size: 18px; line-height: 1.5; color: var(--text-secondary); max-width: 720px;">
-        Universal agent skill running directly inside your codebase. Teaches LLD, HLD, and distributed mechanisms through unbroken causal reasoning, living cursor state retention, and interactive visual simulators.
+      <p class="hero-subhead">
+        A project-grounded learning studio that runs directly inside your repository. Maintains unbroken cognitive memory across agent switches with living cursor retention, and replaces superficial buzzwords with interactive visual simulations.
       </p>
 
-      <div style="display: flex; align-items: center; gap: 12px; margin-top: 8px;">
-        <a href="#quickstart" class="btn-primary">Initialize in Project</a>
-        <a href="curriculum.html" class="btn-secondary">Browse 50 Clusters</a>
+      <!-- INSTALLATION BOX -->
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%;">
+        <div style="display: flex; gap: 6px; font-size: 12px; margin-bottom: 4px;">
+          <button class="install-toggle-btn" data-method="curl" onclick="switchInstallMethod('curl')" style="padding: 4px 10px; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-raised); color: var(--text-primary); cursor: pointer;">1-Line Scaffolding</button>
+          <button class="install-toggle-btn" data-method="agy" onclick="switchInstallMethod('agy')" style="padding: 4px 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer;">Antigravity Plugin</button>
+          <button class="install-toggle-btn" data-method="git" onclick="switchInstallMethod('git')" style="padding: 4px 10px; border-radius: 4px; border: 1px solid transparent; background: transparent; color: var(--text-secondary); cursor: pointer;">Git Clone</button>
+        </div>
+
+        <div class="install-box">
+          <code id="install-command-code">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
+          <button class="copy-btn" onclick="copyText(this, document.getElementById('install-command-code').textContent)">Copy</button>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px;">
+        <a href="curriculum.html" class="btn-primary">Browse 50 Clusters</a>
+        <a href="docs.html" class="btn-secondary">Read Documentation</a>
+      </div>
+
+      <!-- PRODUCT MOCKUP / HERO VISUAL -->
+      <div class="product-frame">
+        <div class="window-titlebar">
+          <div class="window-dots">
+            <span class="window-dot"></span>
+            <span class="window-dot"></span>
+            <span class="window-dot"></span>
+          </div>
+          <div style="font-family: ui-monospace, monospace; font-size: 11px;">
+            my-service — .system-design/CURSOR.md — Active Learning Session
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--accent);">
+            <span class="status-dot"></span> Antigravity Agent Connected
+          </div>
+        </div>
+
+        <div class="split-workspace">
+          <!-- LEFT PANE: TERMINAL & AGENT REASONING -->
+          <div class="pane-terminal">
+            <div style="color: var(--text-muted); border-bottom: 1px solid var(--border-hairline); padding-bottom: 8px;">
+              // Step 1: Agent inherits running context from .system-design/CURSOR.md
+            </div>
+            <div>
+              <span style="color: var(--accent); font-weight: 600;">$</span> python3 scripts/sync-status.py .system-design
+            </div>
+            <div style="background-color: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 6px; border: 1px solid var(--border-hairline); font-size: 11px; line-height: 1.5;">
+              <div>🧠 <strong style="color: var(--text-primary);">SYSTEM DESIGN STUDIO — INSTANCE DIAGNOSTIC</strong></div>
+              <div style="color: var(--text-muted);">Curriculum: System Design Mastery (50 clusters, 354 topics)</div>
+              <div style="margin-top: 6px;">Active Cluster: <strong style="color: var(--text-primary);">1. [0.1] APIs & Network Transport for Design</strong></div>
+              <div>Active Topic: <strong style="color: var(--accent);">TCP vs UDP (Mechanics & Buffer Invariants)</strong></div>
+              <div style="margin-top: 6px; color: var(--text-muted);">
+                Backward Anchor: Grounded in physical propagation delay & hardware limits<br>
+                Forward Hook: Connecting to HTTP/2 stream multiplexing & QUIC<br>
+                Examples Registry: [Financial Ledger] Payment retry idempotency
+              </div>
+            </div>
+            <div style="color: var(--text-primary);">
+              <span style="color: #0ea5e9; font-weight: 600;">Agent:</span> Rehydrated lineage. Delivering Topic 1.1 Foundation as an interactive HTML artifact in your side pane.
+            </div>
+          </div>
+
+          <!-- RIGHT PANE: INTERACTIVE ARTIFACT PREVIEW -->
+          <div class="pane-preview">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-hairline); padding-bottom: 8px;">
+              <span style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); text-transform: uppercase; font-weight: 600;">
+                Artifact: topic-0.1-tcp-vs-udp.html
+              </span>
+              <span style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--text-muted);">
+                UserFacing: true
+              </span>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-hairline); border-radius: 8px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+              <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">
+                TCP vs UDP: The Mechanical Cost of Reliability
+              </div>
+              <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.4;">
+                A wire is not a pipe. Packet delivery across networks is best-effort. Guaranteed in-order byte streams require kernel receive queues that inject head-of-line blocking under loss.
+              </p>
+
+              <!-- MINI INVARIANT MATRIX -->
+              <div style="border: 1px solid var(--border-hairline); border-radius: 6px; overflow: hidden; font-size: 11px;">
+                <table style="width: 100%; border-collapse: collapse;">
+                  <thead style="background: var(--bg-deep); color: var(--text-muted);">
+                    <tr>
+                      <th style="padding: 6px 10px; text-align: left;">Workload</th>
+                      <th style="padding: 6px 10px; text-align: left;">Protocol</th>
+                      <th style="padding: 6px 10px; text-align: left;">Failure Invariant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style="border-top: 1px solid var(--border-hairline);">
+                      <td style="padding: 6px 10px; color: var(--text-primary);">Financial Ledger</td>
+                      <td style="padding: 6px 10px; color: var(--accent);">TCP / TLS</td>
+                      <td style="padding: 6px 10px;">Zero frame loss; stall buffer</td>
+                    </tr>
+                    <tr style="border-top: 1px solid var(--border-hairline);">
+                      <td style="padding: 6px 10px; color: var(--text-primary);">Live Audio / Media</td>
+                      <td style="padding: 6px 10px; color: var(--status-warn);">UDP / RTP</td>
+                      <td style="padding: 6px 10px;">Drop late frames; preserve real-time</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                <span style="font-size: 11px; color: var(--text-muted);">Interactive Simulator Embedded</span>
+                <span style="font-size: 11px; color: var(--accent); font-weight: 500;">Reality Check Ready ➔</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- LIVE INTERACTIVE MOMENT: IN-BROWSER SIMULATOR -->
-    <section class="surface-card p-6" style="display: flex; flex-direction: column; gap: 20px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border-hairline); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <h2 style="font-size: 16px; font-weight: 600; color: var(--text-primary);">
-            Interactive Simulator: Transport Head-of-Line Blocking
-          </h2>
-          <p style="font-size: 13px; color: var(--text-muted); margin-top: 2px;">
-            Step through multiplexed application streams to see how packet loss stalls TCP vs QUIC
-          </p>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <select id="sim-mode-select" onchange="simReset()" class="surface-raised" style="padding: 6px 12px; font-size: 12px; color: var(--text-primary); border: 1px solid var(--border-hairline); outline: none; cursor: pointer;">
-            <option value="tcp">Protocol: TCP (HTTP/2)</option>
-            <option value="quic">Protocol: QUIC / UDP (HTTP/3)</option>
-          </select>
-          <button id="sim-drop-btn" onclick="simToggleDrop()" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Inject Packet Loss</button>
-          <button onclick="simStep()" class="btn-primary" style="font-size: 12px; padding: 6px 12px;">Step Forward</button>
-          <button onclick="simReset()" class="btn-secondary" style="font-size: 12px; padding: 6px 12px;">Reset</button>
-        </div>
-      </div>
-
-      <!-- SIMULATOR TRACK -->
-      <div style="background-color: var(--bg-deep); border: 1px solid var(--border-hairline); border-radius: var(--radius-sm); padding: 24px;">
-        <div style="font-size: 11px; text-transform: uppercase; font-family: ui-monospace, monospace; color: var(--text-muted); margin-bottom: 12px; display: flex; justify-content: space-between;">
-          <span>Client Socket Buffer</span>
-          <span>Transit Wire</span>
-          <span>Server Receiver Queue</span>
-        </div>
-        <div id="sim-packet-track" style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;">
-          <!-- Dynamically populated by app.js -->
-        </div>
-      </div>
-
-      <div id="sim-buffer-log" class="surface-raised p-4 font-mono" style="font-size: 12px; line-height: 1.5; color: var(--text-secondary);">
-        <!-- Buffer log updated by app.js -->
-      </div>
-
-      <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-hairline); padding-top: 16px; font-size: 13px; color: var(--text-muted); flex-wrap: wrap; gap: 12px;">
-        <span>Live Lesson Previews:</span>
-        <div style="display: flex; gap: 12px;">
-          <a href="demo/topic-0.1-tcp-vs-udp.html" target="_blank" class="nav-link" style="font-size: 12px; border: 1px solid var(--border-hairline);">
-            Demo: Topic 1.1 (TCP vs UDP) ↗
-          </a>
-          <a href="demo/topic-0.2-http-quic.html" target="_blank" class="nav-link" style="font-size: 12px; border: 1px solid var(--border-hairline);">
-            Demo: Topic 1.2 (HTTP/2 vs HTTP/3) ↗
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- THE 4 PILLARS (QUIET CARDS) -->
-    <section style="display: flex; flex-direction: column; gap: 24px;">
-      <h2 style="font-size: 20px; font-weight: 600; letter-spacing: -0.01em;">Architectural Foundations</h2>
-
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
-        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent);">01 · UNIVERSAL</div>
-          <h3 style="font-size: 16px; font-weight: 600;">Cross-Agent Portability</h3>
-          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
-            Complies with the open Agent Skills standard. Operates seamlessly in Google Antigravity, Claude Code, Cursor, Codex, and Gemini CLI.
-          </p>
-        </div>
-
-        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent);">02 · ZERO CLOUD</div>
-          <h3 style="font-size: 16px; font-weight: 600;">Project as Learning Instance</h3>
-          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
-            Zero Notion databases and zero drawing board accounts. State resides 100% locally in <code>.system-design/</code>, committed with standard Git.
-          </p>
-        </div>
-
-        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent);">03 · COGNITIVE BRAIN</div>
-          <h3 style="font-size: 16px; font-weight: 600;">Living Cursor Context</h3>
-          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
-            Tracks causal backward anchors, forward hooks, examples taken, and deferred questions. Zero amnesia across sessions and model switches.
-          </p>
-        </div>
-
-        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
-          <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent);">04 · VISUAL PROOF</div>
-          <h3 style="font-size: 16px; font-weight: 600;">Interactive HTML Artifacts</h3>
-          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
-            Replaces superficial bullet points with standalone HTML lessons featuring step-through simulators, workload comparisons, and reality checks.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <!-- HARDWARE LATENCY HIERARCHY -->
-    <section class="surface-card p-6" style="display: flex; flex-direction: column; gap: 16px;">
+    <!-- THE PROBLEM VS THE SHIFT -->
+    <section id="architecture" style="display: flex; flex-direction: column; gap: 28px;">
       <div>
-        <h2 style="font-size: 18px; font-weight: 600;">The Physical Realities of Distributed Systems</h2>
-        <p style="font-size: 13px; color: var(--text-secondary); margin-top: 2px;">
-          System design begins with the speed of light and hardware limits. All mechanisms in the studio derive from these physical costs.
-        </p>
+        <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent); text-transform: uppercase;">
+          The Paradigm Shift
+        </div>
+        <h2 style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px;">
+          Engineered to eliminate cognitive amnesia
+        </h2>
       </div>
 
-      <div style="overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
-          <thead>
-            <tr style="border-bottom: 1px solid var(--border-hairline); font-family: ui-monospace, monospace; color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
-              <th style="padding: 10px 12px;">Physical Operation</th>
-              <th style="padding: 10px 12px;">Actual Latency</th>
-              <th style="padding: 10px 12px;">Human Scale (1 CPU cycle = 1 sec)</th>
-              <th style="padding: 10px 12px;">Architectural Consequence</th>
-            </tr>
-          </thead>
-          <tbody class="font-mono" style="color: var(--text-secondary);">
-            <tr style="border-bottom: 1px solid var(--border-hairline);">
-              <td style="padding: 10px 12px; color: var(--text-primary); font-family: sans-serif;">L1 Cache Reference</td>
-              <td style="padding: 10px 12px; color: var(--accent);">0.5 ns</td>
-              <td style="padding: 10px 12px;">0.5 s</td>
-              <td style="padding: 10px 12px; font-family: sans-serif;">CPU core bound</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border-hairline);">
-              <td style="padding: 10px 12px; color: var(--text-primary); font-family: sans-serif;">RAM Access (DDR5)</td>
-              <td style="padding: 10px 12px; color: var(--accent);">100 ns</td>
-              <td style="padding: 10px 12px;">1.7 min</td>
-              <td style="padding: 10px 12px; font-family: sans-serif;">In-memory key-value lookups</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border-hairline);">
-              <td style="padding: 10px 12px; color: var(--text-primary); font-family: sans-serif;">NVMe SSD Random Read</td>
-              <td style="padding: 10px 12px; color: var(--status-warn);">10–50 μs</td>
-              <td style="padding: 10px 12px;">2.8–14 hours</td>
-              <td style="padding: 10px 12px; font-family: sans-serif;">Requires LSM-tree sequential writes</td>
-            </tr>
-            <tr style="border-bottom: 1px solid var(--border-hairline);">
-              <td style="padding: 10px 12px; color: var(--text-primary); font-family: sans-serif;">Data Center Network RTT</td>
-              <td style="padding: 10px 12px; color: var(--status-warn);">500 μs</td>
-              <td style="padding: 10px 12px;">5.8 days</td>
-              <td style="padding: 10px 12px; font-family: sans-serif;">Cost of single-datacenter quorum (Raft)</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px 12px; color: var(--text-primary); font-family: sans-serif;">Transatlantic WAN RTT</td>
-              <td style="padding: 10px 12px; color: var(--status-err);">80 ms</td>
-              <td style="padding: 10px 12px;">2.5 years</td>
-              <td style="padding: 10px 12px; font-family: sans-serif;">Synchronous cross-region consensus is physically impossible for sub-10ms writes</td>
-            </tr>
-          </tbody>
-        </table>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        <!-- STATUS QUO -->
+        <div class="surface-card" style="padding: 28px; display: flex; flex-direction: column; gap: 16px; border-color: rgba(229, 72, 77, 0.2);">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-family: ui-monospace, monospace; color: var(--status-err); font-weight: 600;">THE STATUS QUO</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Ephemeral & Fragile</span>
+          </div>
+
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--text-secondary);">
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--status-err);">✕</span>
+              <span><strong>Chat Context Amnesia:</strong> Every new session, model change, or context truncation restarts your learning from scratch.</span>
+            </li>
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--status-err);">✕</span>
+              <span><strong>Buzzword Memorization:</strong> Treating tools like Kafka, Redis, or Cassandra as magic black boxes without understanding physical constraints.</span>
+            </li>
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--status-err);">✕</span>
+              <span><strong>Cloud Database Lock-in:</strong> Heavy dependencies on Notion APIs, third-party databases, and external drawing boards that fail offline.</span>
+            </li>
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--status-err);">✕</span>
+              <span><strong>Passive Multiple Choice:</strong> Superficial trivia quizzes that create an illusion of competence while starving you of architectural defense.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- SYSTEM DESIGN STUDIO -->
+        <div class="surface-card" style="padding: 28px; display: flex; flex-direction: column; gap: 16px; border-color: rgba(16, 185, 129, 0.3);">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span style="font-size: 12px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">SYSTEM DESIGN STUDIO</span>
+            <span style="font-size: 11px; color: var(--accent);">Stateful & Mechanical</span>
+          </div>
+
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 13px; color: var(--text-secondary);">
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--accent);">✓</span>
+              <span><strong>Living Cursor Memory:</strong> Tracks active focus, causal backward anchors, forward hooks, examples taken, and deferred questions.</span>
+            </li>
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--accent);">✓</span>
+              <span><strong>First-Principles Physics:</strong> Grounded in the speed of light, hardware latency hierarchies, memory access, and consensus costs.</span>
+            </li>
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--accent);">✓</span>
+              <span><strong>Pure Local State:</strong> Resides 100% in <code>.system-design/</code> in your repository. Version-controlled by standard Git with zero cloud tokens.</span>
+            </li>
+            <li style="display: flex; gap: 10px;">
+              <span style="color: var(--accent);">✓</span>
+              <span><strong>Interactive HTML Simulators:</strong> Delivered as standalone HTML artifacts with embedded step-through controls, failure injection, and reality checks.</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </section>
 
-    <!-- QUICKSTART CLI SECTION -->
-    <section id="quickstart" style="display: flex; flex-direction: column; gap: 20px;">
-      <h2 style="font-size: 20px; font-weight: 600;">1-Minute Setup in Any Project</h2>
-
-      <div class="terminal-window">
-        <div class="terminal-header">
-          <span>bash · zero pip dependencies</span>
-          <button onclick="copyCode(this, 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash')" class="surface-raised" style="padding: 2px 8px; font-size: 11px; color: var(--text-secondary); cursor: pointer; border: 1px solid var(--border-hairline);">Copy</button>
+    <!-- CORE FEATURES (THE 4 PILLARS) -->
+    <section id="features" style="display: flex; flex-direction: column; gap: 28px;">
+      <div>
+        <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent); text-transform: uppercase;">
+          The Architecture
         </div>
-        <pre class="p-6 font-mono" style="font-size: 13px; line-height: 1.6; color: var(--text-primary); overflow-x: auto;"><code><span style="color:var(--text-muted);"># 1. Initialize your project as a learning instance</span>
-git clone https://github.com/alph-a07/system-design-studio.git
-skills/system-design-studio/scripts/init-learning-instance.sh "My System Design Journey"
+        <h2 style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px;">
+          Designed around the developer's repository
+        </h2>
+      </div>
 
-<span style="color:var(--text-muted);"># 2. Inspect active focus & running context anytime</span>
-python3 skills/system-design-studio/scripts/sync-status.py .system-design
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="card-num">01 · UNIVERSAL</div>
+          <h3>Multi-Agent Portability</h3>
+          <p>
+            Zero proprietary lock-in. Adheres strictly to the open Agent Skills specification. Operates identically across Google Antigravity, Claude Code, Cursor, Codex, and Gemini CLI.
+          </p>
+        </div>
 
-<span style="color:var(--text-muted);"># 3. Verify health and schema integrity</span>
-python3 skills/system-design-studio/scripts/verify-instance.py .system-design</code></pre>
+        <div class="feature-card">
+          <div class="card-num">02 · LOCAL STATE</div>
+          <h3>Project as Learning Instance</h3>
+          <p>
+            Your codebase is your learning ground. All state is maintained in <code>.system-design/manifest.json</code>. No cloud databases, no external tokens, and no privacy leakage.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-num">03 · COGNITIVE LINEAGE</div>
+          <h3>The Living Cursor</h3>
+          <p>
+            The operational cognitive brain tracking what was taught, at what verified depth, what concrete examples were logged, and what future topics are deferred in the queue.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-num">04 · VISUAL PROOF</div>
+          <h3>Interactive HTML Artifacts</h3>
+          <p>
+            Lessons are generated as self-contained HTML artifacts with Tailwind styling, dynamic step-through simulators, sequence timelines, and production reality checks.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-num">05 · BYO ROADMAPS</div>
+          <h3>Bring-Your-Own Curriculum</h3>
+          <p>
+            Import any Markdown syllabus with <code>scripts/import-curriculum.py</code>. Configure custom domain flagships (Fintech, Autonomous Robotics, Healthcare) with zero code changes.
+          </p>
+        </div>
+
+        <div class="feature-card">
+          <div class="card-num">06 · DETERMINISTIC CLI</div>
+          <h3>Tested Automation Suite</h3>
+          <p>
+            Zero-dependency Python utilities for atomic state advancement, terminal diagnostic reporting, automated health verification, and HTML lesson rendering.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- INTERACTIVE PRODUCT INSPECTOR -->
+    <section class="surface-card p-8" style="display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent); text-transform: uppercase;">
+          Interactive Inspector
+        </div>
+        <h2 style="font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin-top: 4px;">
+          Examine the moving parts of the studio
+        </h2>
+      </div>
+
+      <div class="tabs-container">
+        <div class="tabs-header">
+          <button class="tab-btn active" data-tab="tab-cursor" onclick="switchTab('tab-cursor')">1. The Living Cursor (CURSOR.md)</button>
+          <button class="tab-btn" data-tab="tab-manifest" onclick="switchTab('tab-manifest')">2. Manifest State (manifest.json)</button>
+          <button class="tab-btn" data-tab="tab-cli" onclick="switchTab('tab-cli')">3. Diagnostic CLI (sync-status.py)</button>
+          <button class="tab-btn" data-tab="tab-byo" onclick="switchTab('tab-byo')">4. BYO Importer (import-curriculum.py)</button>
+        </div>
+
+        <!-- TAB 1: CURSOR.MD -->
+        <div id="tab-cursor" class="tab-content active">
+<pre><code># Living Teaching Cursor & Running Context
+
+> **Role**: The operational brain of this learning instance. Tracks active focus, causal continuity, depth of covered mechanisms, examples & mental models, deferred topics, and upcoming forward hooks across sessions, models, and agents. The Cursor and Curriculum are the sole shared context.
+
+---
+
+## 1. Active Focus & Immediate Pedagogical Horizon
+- **Curriculum**: System Design Mastery Roadmap — LLD, HLD & Mobile (curriculum.system-design-mastery)
+- **Active Cluster**: 1. [0.1] APIs & Network Transport for Design (cluster.0.1)
+- **Active Topic**: TCP vs UDP (topic.0.1.tcp-vs-udp)
+  - Topic Foundation Status: `not-started`
+  - Active Mechanism Group: `group.0.1.tcp-vs-udp`
+  - Next Action: Deliver Topic 1.1 Foundation as an interactive HTML artifact.
+
+---
+
+## 2. Connected Cognitive Lineage (Causal Anchors)
+- **Backward Anchor**: Grounding in physical network realities and hardware limits.
+- **Forward Hook**: Connecting to HTTP/2 stream multiplexing and QUIC stream independence.
+
+---
+
+## 3. Examples Registry & Metaphor Continuity (`examplesTaken`)
+- **Financial Ledger** (`example.01.financial-ledger`): Merchant payment retry idempotency on TCP timeout.
+  - *Tradeoff*: Strict linearizability vs availability under network partition.
+
+---
+
+## 4. Deferred Topics Queue (`deferredQueue`)
+- **Raft Log Compaction** (`defer.01.raft-log-compaction`): Target: `cluster.storage-engines-wal`.
+  - *Anchor*: Deferred until we cover LSM and WAL snapshots in Cluster 3.</code></pre>
+        </div>
+
+        <!-- TAB 2: MANIFEST.JSON -->
+        <div id="tab-manifest" class="tab-content">
+<pre><code>{
+  "$schemaVersion": "2.0",
+  "instanceName": "System Design Mastery — LLD, HLD & Mobile",
+  "createdAt": "2026-11-14T01:15:21.917Z",
+  "lastUpdated": "2026-11-14T01:30:10.412Z",
+  "curriculum": {
+    "id": "curriculum.system-design-mastery",
+    "activeClusterId": "cluster.0.1",
+    "activeTopicId": "topic.0.1.tcp-vs-udp",
+    "clusters": [
+      {
+        "id": "cluster.0.1",
+        "title": "1. [0.1] APIs & Network Transport for Design",
+        "topics": [
+          { "id": "topic.0.1.tcp-vs-udp", "title": "TCP vs UDP", "status": "completed" },
+          { "id": "topic.0.1.http-1-1-vs-http-2-vs-http-3", "title": "HTTP/1.1 vs HTTP/2 vs HTTP/3", "status": "unseen" }
+        ]
+      }
+    ]
+  },
+  "runningContext": {
+    "coveredConcepts": ["concept.0.1.tcp-vs-udp"],
+    "examplesTaken": [
+      {
+        "id": "example.01.financial-ledger",
+        "domain": "Financial Ledger",
+        "scenario": "Merchant payment idempotency key retry on TCP timeout"
+      }
+    ],
+    "deferredQueue": [
+      {
+        "id": "defer.01.raft-log-compaction",
+        "topic": "Raft log compaction and snapshotting",
+        "targetClusterId": "cluster.storage-engines-wal",
+        "status": "pending"
+      }
+    ]
+  }
+}</code></pre>
+        </div>
+
+        <!-- TAB 3: CLI -->
+        <div id="tab-cli" class="tab-content">
+<pre><code>$ python3 skills/system-design-studio/scripts/sync-status.py .system-design
+
+============================================================
+🧠 SYSTEM DESIGN STUDIO — INSTANCE DIAGNOSTIC
+============================================================
+Instance Name:    System Design Mastery — LLD, HLD & Mobile
+Curriculum:       System Design Mastery Roadmap — LLD, HLD & Mobile
+Overall Progress: 1 / 354 Topics (0.3%)
+------------------------------------------------------------
+Active Cluster:   1. [0.1] APIs & Network Transport for Design
+Active Topic:     HTTP/1.1 vs HTTP/2 vs HTTP/3
+Foundation:       not-started
+Mechanism Group:  group.0.1.http-1-1-vs-http-2-vs-http-3
+------------------------------------------------------------
+Examples Logged:  1
+  └─ Latest: [Financial Ledger] Merchant payment idempotency key retry on TCP timeout...
+Deferred Queue:   1 pending questions
+  └─ Next Due: [cluster.storage-engines-wal] Raft log compaction and snapshotting
+------------------------------------------------------------
+Immediate Next Action:
+  👉 Establish topic foundation for HTTP/1.1 vs HTTP/2 vs HTTP/3 (HOL blocking)
+============================================================</code></pre>
+        </div>
+
+        <!-- TAB 4: BYO -->
+        <div id="tab-byo" class="tab-content">
+<pre><code>$ python3 skills/system-design-studio/scripts/import-curriculum.py \
+    --input team-roadmaps/cloud-native-sharding.md \
+    --instance-dir .system-design \
+    --title "Cloud-Native Resiliency & Sharding" \
+    --domain "Global E-Commerce Logistics"
+
+🎉 Successfully imported custom curriculum 'Cloud-Native Resiliency & Sharding'!
+   Clusters: 4
+   Total Topics: 26
+   Scaffolded instance at: .system-design/
+   - Manifest:   .system-design/manifest.json
+   - Cursor:     .system-design/CURSOR.md
+   - Curriculum: .system-design/CURRICULUM.md
+   - Lessons:    .system-design/lessons/
+
+✨ Verified with 0 errors. Ready for agent execution.</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- THE 50-CLUSTER ROADMAP PREVIEW -->
+    <section style="display: flex; flex-direction: column; gap: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent); text-transform: uppercase;">
+            Comprehensive Coverage
+          </div>
+          <h2 style="font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin-top: 4px;">
+            The 50-Cluster Canonical Roadmap
+          </h2>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">
+            354 topics organized across 6 core engineering tiers. Every topic includes concrete tick-off rules.
+          </p>
+        </div>
+
+        <a href="curriculum.html" class="btn-secondary" style="font-size: 13px;">Explore Full Syllabus ➔</a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">TIER 0 · 4 CLUSTERS</div>
+          <h3 style="font-size: 16px; font-weight: 600;">APIs & Network Transport</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            TCP vs UDP, HTTP/2 multiplexing, QUIC/HTTP-3, TLS 1.3 0-RTT handshakes, gRPC vs REST vs GraphQL, WebSocket and SSE connections.
+          </p>
+        </div>
+
+        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">TIER 1 · 6 CLUSTERS</div>
+          <h3 style="font-size: 16px; font-weight: 600;">Low-Level Design & Concurrency</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Lockless queues, ring buffers, memory alignment, thread pool sizing, actor systems, epoll/io_uring event loops, and cache locality.
+          </p>
+        </div>
+
+        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">TIER 2 · 8 CLUSTERS</div>
+          <h3 style="font-size: 16px; font-weight: 600;">Storage Engines & Data Layouts</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            LSM-Trees vs B-Trees, Write-Ahead Logs (WAL), OS page cache flushes, SSTables, Bloom filters, compound indexing, and zero-downtime migrations.
+          </p>
+        </div>
+
+        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">TIER 3 · 10 CLUSTERS</div>
+          <h3 style="font-size: 16px; font-weight: 600;">Distributed Coordination & Consensus</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Raft and Multi-Paxos, Quorum replication (R+W > N), Vector clocks, CRDTs, Two-Phase Commit (2PC), Sagas, and split-brain resolution.
+          </p>
+        </div>
+
+        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">TIER 4 · 12 CLUSTERS</div>
+          <h3 style="font-size: 16px; font-weight: 600;">Flagship Production Architectures</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Payment ledgers, ride dispatch systems, real-time collaborative canvas (OT/CRDT), live video streaming, search indexing, and rate limiters.
+          </p>
+        </div>
+
+        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-size: 11px; font-family: ui-monospace, monospace; color: var(--accent); font-weight: 600;">TIER 5 · 10 CLUSTERS</div>
+          <h3 style="font-size: 16px; font-weight: 600;">Mobile & Edge Infrastructure</h3>
+          <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5;">
+            Offline sync engines, delta compression, battery consumption budgets, optimistic UI mutations, and local SQLite query optimization.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTALLATION & AGENT SUPPORT -->
+    <section id="install" class="surface-card p-8" style="display: flex; flex-direction: column; gap: 24px;">
+      <div>
+        <div style="font-size: 12px; font-weight: 600; font-family: ui-monospace, monospace; color: var(--accent); text-transform: uppercase;">
+          Agent Setup
+        </div>
+        <h2 style="font-size: 24px; font-weight: 600; letter-spacing: -0.01em; margin-top: 4px;">
+          Deploy in your preferred AI development environment
+        </h2>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+        <div class="surface-raised p-4" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Google Antigravity</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Install as native plugin or load into skill library. Side-pane HTML lesson rendering.</div>
+          <pre class="font-mono" style="font-size: 11px; background: var(--bg-deep); padding: 8px; border-radius: 4px; margin-top: 4px;"><code>agy plugin add https://github.com/alph-a07/system-design-studio.git</code></pre>
+        </div>
+
+        <div class="surface-raised p-4" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Claude Code</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Clone into your personal or workspace skills folder. Full CLI integration.</div>
+          <pre class="font-mono" style="font-size: 11px; background: var(--bg-deep); padding: 8px; border-radius: 4px; margin-top: 4px;"><code>git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio</code></pre>
+        </div>
+
+        <div class="surface-raised p-4" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">Cursor</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Add as workspace submodule or copy into project rules directory.</div>
+          <pre class="font-mono" style="font-size: 11px; background: var(--bg-deep); padding: 8px; border-radius: 4px; margin-top: 4px;"><code>git submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio</code></pre>
+        </div>
+
+        <div class="surface-raised p-4" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);">OpenAI Codex / Gemini CLI</div>
+          <div style="font-size: 12px; color: var(--text-secondary);">Drop the skill folder into your agent workspace. Universal filesystem tool execution.</div>
+          <pre class="font-mono" style="font-size: 11px; background: var(--bg-deep); padding: 8px; border-radius: 4px; margin-top: 4px;"><code>cp -r skills/system-design-studio ./skills/</code></pre>
+        </div>
       </div>
     </section>
 
   </main>
 
   <!-- QUIET FOOTER -->
-  <footer style="border-top: 1px solid var(--border-hairline); background-color: var(--bg-deep); padding: 40px 24px; font-size: 13px; color: var(--text-muted);">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <footer class="site-footer">
+    <div class="footer-inner">
       <div>
-        System Design Studio · Licensed under <a href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" style="color: var(--text-secondary); text-decoration: none;">MIT</a>
+        <span style="font-weight: 600; color: var(--text-primary);">System Design Studio</span> · Licensed under <a href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" style="color: var(--text-secondary);">MIT</a>
       </div>
-      <div style="display: flex; gap: 16px;">
-        <a href="curriculum.html" style="color: var(--text-secondary); text-decoration: none;">50-Cluster Syllabus</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" style="color: var(--text-secondary); text-decoration: none;">GitHub Repository</a>
-        <a href="https://agentskills.io" target="_blank" style="color: var(--text-secondary); text-decoration: none;">Agent Skills Specification</a>
+      <div style="display: flex; gap: 20px;">
+        <a href="curriculum.html" style="color: var(--text-secondary);">50-Cluster Syllabus</a>
+        <a href="docs.html" style="color: var(--text-secondary);">Documentation</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" style="color: var(--text-secondary);">GitHub</a>
+        <a href="https://agentskills.io" target="_blank" style="color: var(--text-secondary);">Agent Skills Standard</a>
       </div>
     </div>
   </footer>

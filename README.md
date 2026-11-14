@@ -170,13 +170,13 @@ System Design Studio bridges the two foundational schools of distributed archite
 
 ---
 
-## 🌐 Interactive Documentation & Simulator Site
+## 🌐 Product Documentation Site
 
-Visit the live GitHub Pages site: **[https://alph-a07.github.io/system-design-studio](https://alph-a07.github.io/system-design-studio)**
+Visit the live site: **[https://alph-a07.github.io/system-design-studio](https://alph-a07.github.io/system-design-studio)**
 
-* **Interactive 50-Cluster Syllabus Explorer**: Filter, search, and view all 354 topics and tick-off rules.
-* **Live Step-Through Simulator Demo**: Test packet drops, head-of-line blocking, and quorum state transitions directly in the browser.
-* **Architecture Decision Record (ADR) Viewer**: Inspect how accepted trade-offs are logged in `DECISIONS.md`.
+* **Interactive 50-Cluster Syllabus Explorer**: Filter, search, and view all 354 topics and tick-off rules across 6 engineering tiers.
+* **Architecture & Memory Hierarchy Guide**: Technical specifications of the Project Learning Instance and Living Cursor.
+* **CLI Reference & Guides**: Quickstart instructions for `init`, `advance`, `sync`, and `import-curriculum`.
 
 ---
 

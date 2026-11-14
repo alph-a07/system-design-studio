@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Curriculum Syllabus — System Design Studio</title>
+  <title>50-Cluster Syllabus — System Design Studio</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
   <!-- QUIET TOPBAR -->
   <header class="site-header">
-    <div style="max-width: 1200px; margin: 0 auto; padding: 0 24px; height: 100%; display: flex; align-items: center; justify-content: space-between;">
+    <div class="header-inner">
       <div style="display: flex; align-items: center; gap: 16px;">
-        <a href="index.html" style="font-weight: 600; font-size: 15px; color: var(--text-primary); text-decoration: none; letter-spacing: -0.01em;">
-          System Design Studio
+        <a href="index.html" class="site-logo">
+          <span class="mark">SDS</span>
+          <span>System Design Studio</span>
         </a>
         <span class="status-pill">
           <span class="status-dot"></span> 50 Clusters · 354 Topics
@@ -22,9 +23,13 @@
 
       <nav style="display: flex; align-items: center; gap: 8px;">
         <a href="index.html" class="nav-link">Overview</a>
-        <a href="curriculum.html" class="nav-link active">Syllabus</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" class="nav-link">GitHub</a>
-        <a href="index.html#quickstart" class="btn-primary" style="margin-left: 8px;">Quickstart</a>
+        <a href="curriculum.html" class="nav-link active">50-Cluster Syllabus</a>
+        <a href="docs.html" class="nav-link">Documentation</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" class="nav-link" style="display: flex; align-items: center; gap: 6px;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+          GitHub
+        </a>
+        <a href="index.html#install" class="btn-primary" style="margin-left: 8px;">Install</a>
       </nav>
     </div>
   </header>
@@ -33,27 +38,39 @@
 
     <!-- HEADER & SEARCH -->
     <div style="display: flex; flex-direction: column; gap: 16px;">
-      <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent);">
+      <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent);">
         Master Roadmap
       </div>
-      <h1 style="font-size: 32px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em;">
+      <h1 style="font-size: 34px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em;">
         The 50-Cluster System Design Syllabus
       </h1>
-      <p style="font-size: 16px; color: var(--text-secondary); max-width: 720px; line-height: 1.5;">
-        Every topic defines an exact physical constraint, causal mechanism, workload contrast, and tick-off criterion.
+      <p style="font-size: 16px; color: var(--text-secondary); max-width: 760px; line-height: 1.5;">
+        Every topic defines a physical hardware constraint, an architectural invariant, an opposing workload contrast, and an objective tick-off rule.
       </p>
 
-      <!-- SEARCH BAR -->
-      <div style="display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap;">
-        <input 
-          type="text" 
-          id="syllabus-search" 
-          placeholder="Search by topic, mechanism, or keyword (e.g. Raft, WAL, QUIC, Kafka)..." 
-          class="surface-raised"
-          style="flex: 1; min-width: 280px; padding: 10px 16px; font-size: 14px; color: var(--text-primary); border: 1px solid var(--border-hairline); outline: none;"
-          oninput="filterCurriculum()"
-        >
-        <button onclick="document.getElementById('syllabus-search').value = ''; filterCurriculum();" class="btn-secondary" style="padding: 10px 16px;">Clear</button>
+      <!-- SEARCH BAR & TIER FILTERS -->
+      <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 8px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+          <input 
+            type="text" 
+            id="syllabus-search" 
+            placeholder="Search by topic, mechanism, or keyword (e.g. Raft, WAL, QUIC, Kafka, B-Tree)..." 
+            class="surface-raised"
+            style="flex: 1; min-width: 280px; padding: 10px 16px; font-size: 14px; color: var(--text-primary); border: 1px solid var(--border-hairline); outline: none;"
+            oninput="filterCurriculum()"
+          >
+          <button onclick="document.getElementById('syllabus-search').value = ''; filterCurriculum();" class="btn-secondary" style="padding: 10px 16px;">Clear</button>
+        </div>
+
+        <div style="display: flex; gap: 6px; flex-wrap: wrap; font-size: 12px;" id="tier-filter-pills">
+          <button class="tier-pill active" onclick="setTierFilter('all', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-subtle); background: var(--bg-raised); color: var(--text-primary); cursor: pointer;">All (50 Clusters)</button>
+          <button class="tier-pill" onclick="setTierFilter('0', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); cursor: pointer;">Tier 0: Transport</button>
+          <button class="tier-pill" onclick="setTierFilter('1', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); cursor: pointer;">Tier 1: LLD & Concurrency</button>
+          <button class="tier-pill" onclick="setTierFilter('2', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); cursor: pointer;">Tier 2: Storage Engines</button>
+          <button class="tier-pill" onclick="setTierFilter('3', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); cursor: pointer;">Tier 3: Distributed Systems</button>
+          <button class="tier-pill" onclick="setTierFilter('4', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); cursor: pointer;">Tier 4: Production Flagships</button>
+          <button class="tier-pill" onclick="setTierFilter('5', this)" style="padding: 4px 12px; border-radius: 4px; border: 1px solid var(--border-hairline); background: transparent; color: var(--text-secondary); cursor: pointer;">Tier 5: Mobile & Edge</button>
+        </div>
       </div>
 
       <div id="filter-stats" style="font-size: 13px; color: var(--text-muted); font-family: ui-monospace, monospace;">
@@ -68,20 +85,36 @@
 
   </main>
 
-  <footer style="border-top: 1px solid var(--border-hairline); background-color: var(--bg-deep); padding: 40px 24px; font-size: 13px; color: var(--text-muted);">
-    <div style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+  <footer class="site-footer">
+    <div class="footer-inner">
       <div>
-        System Design Studio · Licensed under <a href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" style="color: var(--text-secondary); text-decoration: none;">MIT</a>
+        <span style="font-weight: 600; color: var(--text-primary);">System Design Studio</span> · Licensed under <a href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" style="color: var(--text-secondary);">MIT</a>
       </div>
-      <div style="display: flex; gap: 16px;">
-        <a href="index.html" style="color: var(--text-secondary); text-decoration: none;">Overview</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" style="color: var(--text-secondary); text-decoration: none;">GitHub Repository</a>
+      <div style="display: flex; gap: 20px;">
+        <a href="index.html" style="color: var(--text-secondary);">Overview</a>
+        <a href="docs.html" style="color: var(--text-secondary);">Documentation</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" style="color: var(--text-secondary);">GitHub</a>
       </div>
     </div>
   </footer>
 
   <script src="curriculum-data.js"></script>
   <script>
+    let activeTier = 'all';
+
+    function setTierFilter(tier, btn) {
+      activeTier = tier;
+      document.querySelectorAll('.tier-pill').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = 'var(--text-secondary)';
+        b.style.borderColor = 'var(--border-hairline)';
+      });
+      btn.style.background = 'var(--bg-raised)';
+      btn.style.color = 'var(--text-primary)';
+      btn.style.borderColor = 'var(--border-subtle)';
+      filterCurriculum();
+    }
+
     function renderCurriculumList(clustersToRender) {
       const container = document.getElementById('clusters-container');
       const stats = document.getElementById('filter-stats');
@@ -99,7 +132,7 @@
         card.style.gap = '16px';
 
         let topicsHtml = cluster.topics.map(t => `
-          <div style="display:flex; align-items:flex-start; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(238,240,245,0.04); gap:12px;">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between; padding:10px 0; border-bottom:1px solid rgba(238,240,245,0.04); gap:12px;">
             <div style="display:flex; align-items:flex-start; gap:10px;">
               <span style="display:inline-block; width:14px; height:14px; border:1px solid var(--border-subtle); border-radius:3px; margin-top:3px; flex-shrink:0;"></span>
               <div>
@@ -114,7 +147,7 @@
         `).join('');
 
         card.innerHTML = `
-          <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-hairline); padding-bottom:12px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-hairline); padding-bottom:12px; flex-wrap:wrap; gap:8px;">
             <div style="display:flex; align-items:center; gap:12px;">
               <span style="font-size:12px; font-weight:600; font-family:ui-monospace, monospace; color:var(--accent);">
                 CLUSTER ${cluster.code}
@@ -139,19 +172,21 @@
 
     function filterCurriculum() {
       const query = document.getElementById('syllabus-search').value.toLowerCase().trim();
-      if (!query) {
-        renderCurriculumList(CURRICULUM_CLUSTERS);
-        return;
-      }
 
       const filtered = [];
       CURRICULUM_CLUSTERS.forEach(cluster => {
+        // Tier filter check (by cluster code e.g. 0.1, 1.2, 2.3)
+        if (activeTier !== 'all') {
+          const firstDigit = cluster.code.split('.')[0];
+          if (firstDigit !== activeTier) return;
+        }
+
         const clusterMatch = cluster.title.toLowerCase().includes(query) || cluster.id.toLowerCase().includes(query);
         const matchingTopics = cluster.topics.filter(t => 
           t.title.toLowerCase().includes(query) || t.id.toLowerCase().includes(query)
         );
 
-        if (clusterMatch) {
+        if (!query || clusterMatch) {
           filtered.push(cluster);
         } else if (matchingTopics.length > 0) {
           filtered.push({
