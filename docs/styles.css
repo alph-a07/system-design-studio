@@ -246,16 +246,116 @@ html.dark .bauhaus-checkbox:checked::after {
 }
 
 
-/* High-Contrast Readability Enhancements for Light and Dark Modes */
-.text-primary-fixed {
+/* ==========================================================================
+   HIGH-CONTRAST INTERACTIVE STATE ENGINE (IDLE, HOVER, ACTIVE, FOCUS)
+   ========================================================================== */
+
+/* Universal Link & Button Transitions */
+a, button, input {
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+/* 1. Terminal Installation Box & Tabs */
+.tab-btn {
+  background-color: transparent;
+  color: #d6d1c9;
+  border-color: transparent;
+  cursor: pointer;
+}
+
+.tab-btn:hover {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.tab-btn:active {
+  transform: translateY(1px);
+}
+
+/* Active Tab in Light Mode */
+.tab-btn.bg-surface,
+.tab-btn.tab-active {
+  background-color: #f5f0e8 !important;
+  color: #1a1a1a !important;
+  border-top: 2px solid #1a1a1a !important;
+  border-left: 2px solid #1a1a1a !important;
+  border-right: 2px solid #1a1a1a !important;
+}
+
+/* Active Tab in Dark Mode */
+html.dark .tab-btn.bg-surface,
+html.dark .tab-btn.tab-active {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+  font-weight: 700;
+}
+
+/* Copy Button States */
+#copy-btn {
+  background-color: #f5f0e8;
+  color: #1a1a1a;
+  border: 1.5px solid #1a1a1a;
+  cursor: pointer;
+}
+
+#copy-btn:hover {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+}
+
+#copy-btn:active {
+  background-color: #e6b800 !important;
+  color: #1a1a1a !important;
+  transform: scale(0.97);
+}
+
+html.dark #copy-btn {
+  background-color: #262626 !important;
+  color: #f5f0e8 !important;
+  border-color: #444444 !important;
+}
+
+html.dark #copy-btn:hover {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+}
+
+html.dark #copy-btn:active {
+  background-color: #e6b800 !important;
   color: #1a1a1a !important;
 }
 
-html.dark .text-primary-fixed {
+/* 2. Top Navigation Links (Light & Dark) */
+header nav a {
+  color: #4a4a4a;
+}
+
+header nav a:hover {
+  color: #1a1a1a !important;
+  background-color: #e8e3da;
+}
+
+header nav a:active {
+  transform: translateY(1px);
+}
+
+html.dark header nav a {
+  color: #a8a398 !important;
+}
+
+html.dark header nav a:hover {
+  color: #f5f0e8 !important;
+  background-color: #282828 !important;
+}
+
+html.dark header nav a:active {
   color: #ffcc00 !important;
 }
 
-/* Ensure text on primary container is always sharp charcoal in both modes */
+/* Primary Yellow Badges & Active Links */
 .bg-primary-container {
   color: #1a1a1a !important;
 }
@@ -263,40 +363,160 @@ html.dark .text-primary-fixed {
   color: #1a1a1a !important;
 }
 
-/* In dark mode, ensure active buttons / tabs with bg-primary have dark backgrounds and crisp light text */
-html.dark .bg-primary {
+/* 3. Hero & Action Buttons */
+/* Primary Black CTA Button */
+.bg-primary {
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+a.bg-primary:hover, button.bg-primary:hover {
+  background-color: #e63b2e !important;
+  color: #ffffff !important;
+  border-color: #1a1a1a !important;
+}
+
+a.bg-primary:active, button.bg-primary:active {
+  background-color: #cc291d !important;
+  color: #ffffff !important;
+  transform: translate(2px, 2px);
+}
+
+html.dark a.bg-primary, html.dark button.bg-primary {
   background-color: #222222 !important;
   color: #f5f0e8 !important;
-}
-
-html.dark .text-on-primary {
-  color: #f5f0e8 !important;
-}
-
-html.dark .border-primary {
   border-color: #444444 !important;
 }
 
-/* Ensure tab buttons in install section remain high-contrast in dark mode */
-html.dark .tab-btn.bg-surface {
+html.dark a.bg-primary:hover, html.dark button.bg-primary:hover {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
   border-color: #ffcc00 !important;
 }
 
-html.dark .filter-pill.bg-primary,
-html.dark .tier-tab.bg-primary {
+html.dark a.bg-primary:active, html.dark button.bg-primary:active {
+  background-color: #e6b800 !important;
+  color: #1a1a1a !important;
+}
+
+/* Secondary Red Buttons */
+.bg-secondary {
+  background-color: #e63b2e !important;
+  color: #ffffff !important;
+}
+
+a.bg-secondary:hover, button.bg-secondary:hover {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+a.bg-secondary:active, button.bg-secondary:active {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  transform: translate(2px, 2px);
+}
+
+html.dark a.bg-secondary:hover, html.dark button.bg-secondary:hover {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #ffffff !important;
+}
+
+/* 4. Curriculum Filter Pills & Tier Tabs */
+.tier-tab, .filter-pill {
+  cursor: pointer;
+}
+
+.tier-tab:hover, .filter-pill:hover {
+  background-color: #e8e3da !important;
+  color: #1a1a1a !important;
+}
+
+.tier-tab:active, .filter-pill:active {
+  transform: translateY(1px);
+}
+
+/* Active Tier Tab / Filter Pill (Light Mode) */
+.tier-tab.bg-primary, .filter-pill.bg-primary {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+.tier-tab.bg-primary:hover, .filter-pill.bg-primary:hover {
+  background-color: #333333 !important;
+  color: #ffffff !important;
+}
+
+/* Active Tier Tab / Filter Pill (Dark Mode) */
+html.dark .tier-tab, html.dark .filter-pill {
+  background-color: #202020 !important;
+  color: #f5f0e8 !important;
+  border-color: #444444 !important;
+}
+
+html.dark .tier-tab:hover, html.dark .filter-pill:hover {
+  background-color: #2a2a2a !important;
+  color: #ffcc00 !important;
+}
+
+html.dark .tier-tab.bg-primary, html.dark .filter-pill.bg-primary {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
   border-color: #ffcc00 !important;
+}
+
+html.dark .tier-tab.bg-primary:hover, html.dark .filter-pill.bg-primary:hover {
+  background-color: #e6b800 !important;
+  color: #1a1a1a !important;
+}
+
+/* 5. Topic Accordion Items (Curriculum Page) */
+.topic-item {
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.topic-item:hover {
+  background-color: #e8e3da !important;
+}
+
+.topic-item:active {
+  background-color: #ddd8cf !important;
+}
+
+html.dark .topic-item {
+  background-color: #181818 !important;
+  border-color: #2d2d2d !important;
+}
+
+html.dark .topic-item:hover {
+  background-color: #222222 !important;
+  border-color: #444444 !important;
+}
+
+html.dark .topic-item:active {
+  background-color: #2a2a2a !important;
+}
+
+/* 6. Contrast Accents in Dark Mode */
+html.dark .text-primary-fixed {
+  color: #ffcc00 !important;
+}
+
+html.dark .text-on-surface-variant {
+  color: #a8a398 !important;
+}
+
+html.dark .text-on-surface {
+  color: #f5f0e8 !important;
 }
 
 html.dark #topic-search-input {
   color: #f5f0e8 !important;
+  background-color: transparent !important;
 }
 
 html.dark #topic-search-input::placeholder {
-  color: #888888 !important;
+  color: #777777 !important;
 }
 
 html.dark .cluster-badge {

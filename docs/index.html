@@ -272,7 +272,7 @@
               POSIX Shell (1-Line)
             </button>
 </div>
-<span class="text-[11px] font-mono text-primary-fixed hidden md:inline-block pb-2">Target: Antigravity Plugin Engine + local .system-design/</span>
+<span class="text-[11px] font-mono text-primary-fixed hidden md:inline-block pb-2" id="install-target-label">Target: Google Antigravity Plugin Engine + local .system-design/</span>
 </div>
 <!-- Terminal Body -->
 <div class="p-6 font-mono text-sm">
@@ -542,115 +542,110 @@
       localStorage.setItem('theme', isDark ? 'dark' : 'light');
     }
 
-    // Hero left terminal tab switcher
+    // Terminal installation tabs data
+    const installCommands = {
+      antigravity: {
+        target: "Target: Google Antigravity Plugin Engine + local .system-design/",
+        html: `<p class="text-surface-dim"># Step 1: Install skill into Antigravity</p>
+<p class="text-primary-fixed font-bold py-1 select-all">agy plugin add alph-a07/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "agy plugin add alph-a07/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      claude: {
+        target: "Target: Anthropic Claude Code Skills Directory",
+        html: `<p class="text-surface-dim"># Step 1: Clone skill into Claude Code skills folder</p>
+<p class="text-primary-fixed font-bold py-1 select-all">git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      cursor: {
+        target: "Target: Cursor IDE .cursorrules & workspace",
+        html: `<p class="text-surface-dim"># Step 1: Fetch skill rules into your project .cursorrules</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      codex: {
+        target: "Target: OpenAI Codex / CLI Agents",
+        html: `<p class="text-surface-dim"># Step 1: Clone skill into Codex directory</p>
+<p class="text-primary-fixed font-bold py-1 select-all">git clone https://github.com/alph-a07/system-design-studio.git .codex/skills/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "git clone https://github.com/alph-a07/system-design-studio.git .codex/skills/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      curl: {
+        target: "Target: POSIX Shell / Standalone (Zero-Config)",
+        html: `<p class="text-surface-dim"># Standalone 1-line installation with bash (scaffolds .system-design/ and fetches templates)</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>
+<p class="text-surface-dim mt-3"># Inspect source: <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener" class="text-emerald-300 underline font-semibold">init-learning-instance.sh</a></p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      }
+    };
+
+    let currentTab = 'antigravity';
+
     function selectInstallTab(tabKey) {
       currentTab = tabKey;
       document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.remove('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary');
+        btn.classList.remove('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary', 'tab-active');
         btn.classList.add('text-surface-dim');
       });
       const activeBtn = document.getElementById('tab-' + tabKey);
       if (activeBtn) {
-        activeBtn.classList.add('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary');
+        activeBtn.classList.add('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary', 'tab-active');
         activeBtn.classList.remove('text-surface-dim');
       }
       const data = installCommands[tabKey];
       if (data) {
-        document.getElementById('cmd-display').innerHTML = data.html;
+        const cmdDisplay = document.getElementById('cmd-display');
+        if (cmdDisplay) cmdDisplay.innerHTML = data.html;
+        const targetLabel = document.getElementById('install-target-label');
+        if (targetLabel) targetLabel.textContent = data.target;
       }
+    }
+
+    function fallbackCopy(text) {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      textarea.style.top = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy failed', err);
+      }
+      document.body.removeChild(textarea);
     }
 
     function copyCommand() {
       const data = installCommands[currentTab];
-      if (data && navigator.clipboard) {
-        navigator.clipboard.writeText(data.raw).then(() => {
-          const btn = document.getElementById('copy-btn');
-          btn.innerHTML = `<span class="material-symbols-outlined text-sm">check</span><span>Copied!</span>`;
-          setTimeout(() => {
-            btn.innerHTML = `<span class="material-symbols-outlined text-sm">content_copy</span><span>Copy</span>`;
-          }, 2000);
+      if (!data) return;
+      const copyText = data.raw;
+      const btn = document.getElementById('copy-btn');
+
+      const showCopied = () => {
+        if (!btn) return;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600">check</span><span class="text-emerald-600 font-bold">Copied!</span>`;
+        setTimeout(() => {
+          btn.innerHTML = `<span class="material-symbols-outlined text-sm">content_copy</span><span>Copy</span>`;
+        }, 2000);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(copyText).then(showCopied).catch(() => {
+          fallbackCopy(copyText);
+          showCopied();
         });
-      }
-    }
-
-    // Interactive Packet Simulator logic
-    function retransmitPkt2() {
-      const pkt2 = document.getElementById('pkt-2');
-      const pkt3 = document.getElementById('pkt-3');
-      const pkt4 = document.getElementById('pkt-4');
-      const status = document.getElementById('sim-status');
-      const penalty = document.getElementById('penalty-badge');
-
-      pkt2.className = "border-2 border-primary bg-primary-container p-2 flex flex-col items-center transition-all duration-300";
-      pkt2.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">RE-ACK'D</span><span class="font-bold text-on-surface mt-1">Packet 2</span><span class="text-[9px] text-on-surface">Retransmitted</span>`;
-
-      setTimeout(() => {
-        pkt3.className = "border-2 border-primary bg-surface-container p-2 flex flex-col items-center";
-        pkt3.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">DELIVERED</span><span class="font-bold text-on-surface mt-1">Packet 3</span><span class="text-[9px] text-on-surface">Buffer flushed</span>`;
-        
-        pkt4.className = "border-2 border-primary bg-surface-container p-2 flex flex-col items-center";
-        pkt4.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">DELIVERED</span><span class="font-bold text-on-surface mt-1">Packet 4</span><span class="text-[9px] text-on-surface">Buffer flushed</span>`;
-
-        status.className = "text-emerald-700 font-bold flex items-center gap-1";
-        status.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-600"></span> BUFFER DRAINED`;
-
-        penalty.innerText = "0ms (Recovered)";
-        penalty.className = "font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-primary";
-      }, 400);
-    }
-
-    function resetSim() {
-      const pkt2 = document.getElementById('pkt-2');
-      const pkt3 = document.getElementById('pkt-3');
-      const pkt4 = document.getElementById('pkt-4');
-      const status = document.getElementById('sim-status');
-      const penalty = document.getElementById('penalty-badge');
-
-      pkt2.className = "border-2 border-primary bg-secondary-container text-secondary p-2 flex flex-col items-center animate-pulse";
-      pkt2.innerHTML = `<span class="text-[10px] font-bold uppercase">LOST</span><span class="font-bold text-on-surface mt-1">Packet 2</span><span class="text-[9px] text-secondary">Drop in transit</span>`;
-
-      pkt3.className = "border-2 border-dashed border-primary bg-surface-dim/40 p-2 flex flex-col items-center opacity-60";
-      pkt3.innerHTML = `<span class="text-[10px] text-on-surface-variant font-bold uppercase">BLOCKED</span><span class="font-bold text-on-surface mt-1">Packet 3</span><span class="text-[9px] text-on-surface-variant">In OS Buffer</span>`;
-
-      pkt4.className = "border-2 border-dashed border-primary bg-surface-dim/40 p-2 flex flex-col items-center opacity-60";
-      pkt4.innerHTML = `<span class="text-[10px] text-on-surface-variant font-bold uppercase">BLOCKED</span><span class="font-bold text-on-surface mt-1">Packet 4</span><span class="text-[9px] text-on-surface-variant">In OS Buffer</span>`;
-
-      status.className = "text-secondary font-bold flex items-center gap-1";
-      status.innerHTML = `<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span> HOL BLOCKING ACTIVE`;
-
-      penalty.innerText = "+84ms RTT Penalty";
-      penalty.className = "font-bold text-secondary bg-surface-container-high px-2 py-0.5 border border-primary";
-    }
-
-    function switchSimMode(mode) {
-      const btnTcp = document.getElementById('mode-tcp');
-      const btnQuic = document.getElementById('mode-quic');
-      const label = document.getElementById('stream-label');
-      const status = document.getElementById('sim-status');
-      const penalty = document.getElementById('penalty-badge');
-      const pkt3 = document.getElementById('pkt-3');
-      const pkt4 = document.getElementById('pkt-4');
-
-      if (mode === 'quic') {
-        btnQuic.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-primary text-white shadow-[2px_2px_0px_#1a1a1a]";
-        btnTcp.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-surface-container text-on-surface hover:bg-primary-container transition-colors";
-        label.innerText = "QUIC Independent Streams (Multiplexed)";
-        status.className = "text-tertiary font-bold flex items-center gap-1";
-        status.innerHTML = `<span class="w-2 h-2 rounded-full bg-tertiary"></span> NO HEAD-OF-LINE STALL`;
-
-        pkt3.className = "border-2 border-primary bg-primary-container p-2 flex flex-col items-center";
-        pkt3.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">STREAM 2</span><span class="font-bold text-on-surface mt-1">Packet 3</span><span class="text-[9px] text-on-surface">Delivered 0ms</span>`;
-
-        pkt4.className = "border-2 border-primary bg-primary-container p-2 flex flex-col items-center";
-        pkt4.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">STREAM 3</span><span class="font-bold text-on-surface mt-1">Packet 4</span><span class="text-[9px] text-on-surface">Delivered 0ms</span>`;
-
-        penalty.innerText = "0ms (Independent Streams)";
-        penalty.className = "font-bold text-tertiary bg-tertiary-container px-2 py-0.5 border border-primary";
       } else {
-        btnTcp.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-primary text-white shadow-[2px_2px_0px_#1a1a1a]";
-        btnQuic.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-surface-container text-on-surface hover:bg-primary-container transition-colors";
-        label.innerText = "TCP Stream 1 (Head-of-Line Pipeline)";
-        resetSim();
+        fallbackCopy(copyText);
+        showCopied();
       }
     }
   </script>
@@ -660,5 +655,3 @@
   <a class="hover:text-tertiary transition-colors" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
   <a class="hover:text-tertiary transition-colors" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">Sponsor</a>
 </div><div class="text-xs font-mono text-on-surface-variant">© 2025 FORM FOLLOWS FUNCTION.</div></div></footer></body></html>
-
-<!-- Curriculum — Tier-Based Learning Home (Bauhaus) -->

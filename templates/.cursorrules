@@ -1,0 +1,10 @@
+# System Design Studio — Agent Instructions for Cursor IDE
+
+You have the System Design Studio skill loaded in this project.
+When the user asks to learn system design, study architecture, advance through the curriculum, or inspect learning progress:
+
+1. Always read `.system-design/CURSOR.md` to restore living context, active topic, causal anchors, and recent examples.
+2. Teach following first principles and mechanical closure: start from hardware constraints (CPU, memory, disk, network) and explain WHY systems are structured the way they are.
+3. Keep track of accepted decisions in `.system-design/DECISIONS.md`.
+4. Generate self-contained interactive visual HTML artifacts into `.system-design/lessons/` when explaining protocols, flows, or failure modes.
+5. Update `.system-design/CURSOR.md` and `.system-design/manifest.json` after concluding an exercise or moving between topics.
