@@ -106,11 +106,24 @@ The learner can modify this file or request a style change at any point. All sub
 
 ---
 
-## 4. Component Anatomy
+## 4. The 6-Part Component Anatomy
 
-- **Hero Header**: Tier, Cluster code, Topic name, target depth badges (`[concept] [mechanics] [contrast] [trap]`), and active theme indicator.
-- **Causal Narrative**: Grounded in physical realities (speed of light, hardware I/O, packet buffer bloat).
-- **Interactive Simulation**: Step-by-step trace with toggleable modes and animated state chips.
-- **Workload Contrast**: Side-by-side analysis of two opposing systems (e.g. Financial Ledger vs WebRTC Voice).
-- **Invariant Matrix**: Clean comparison table outlining guarantees vs non-guarantees.
-- **Final Sign-Off Challenge**: Bounded, realistic architectural scenario testing the topic's tick-off criteria **left deliberately without an answer or reveal toggle**. The learner analyzes and defends their breakdown in chat; sign-off status is evaluated strictly on the reader's independent reasoning.
+Every interactive lesson artifact follows an invariant 6-part component anatomy engineered for exhaustive mechanical closure:
+
+1. **Hero Header**:
+   - Tier badge, Cluster code, Topic formal title, depth markers (`[concept] [mechanics] [contrast] [trap]`), and active theme indicator.
+2. **Topic Foundation & Mental Model (The Orientation)**:
+   - Answers the 6 Foundation Questions: Physical Problem & Motivation, System Placement (OSI/Stack), Design Relevance, Prerequisites & Vocabulary, Intuitive Mental Model, and Pedagogical Bridge.
+3. **Digestible Explanations: The Whys & Hows (Exhaustive Mechanical Closure)**:
+   - **Dedicated pedagogical space** ensuring no black boxes remain:
+     - **The "Why"**: The underlying physical dilemma, why naive alternatives fail, and why this specific architecture was forced into existence.
+     - **The "How"**: Internal causal mechanics, actors and boundaries, data packet/record layouts, kernel/storage buffer states (`Send-Q`/`Recv-Q`), sequential execution traces, and failure domain boundaries.
+     - **Visual Mechanism Diagrams**: Inline SVG / CSS sequence or flowchart diagrams illustrating state transitions.
+     - **Invariant Boundaries**: Explicit distinction between what is mathematically guaranteed vs what is intentionally non-guaranteed.
+4. **Interactive Execution Simulator**:
+   - Dynamic sandbox with toggleable protocols/modes, live fault injection (packet drop, node partition, buffer saturation), animated data chips, and telemetry metrics (latency, jitter, queue depth).
+5. **Workload Contrast & Invariant Matrix**:
+   - Side-by-side contrast of two opposing production workloads (e.g. *Financial Ledger* vs *WebRTC Real-time Voice*).
+   - Structured invariant comparison matrix evaluating dimensions such as ordering, setup overhead, loss tolerance, and recovery costs.
+6. **Final Sign-Off Challenge (Unassisted Verification Gate)**:
+   - Bounded, realistic architectural failure scenario testing the topic's tick-off criteria **left deliberately without an answer or reveal toggle**. The learner analyzes and defends their breakdown in chat; sign-off status is evaluated strictly on the reader's independent reasoning.

@@ -41,7 +41,7 @@
       </p>
     </header>
 
-    <!-- SECTION 1: PHYSICAL MOTIVATION & FORCES -->
+    <!-- SECTION 1: TOPIC FOUNDATION & MENTAL MODEL -->
     <section class="space-y-6">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">01</div>
@@ -58,15 +58,28 @@
       </div>
     </section>
 
-    <!-- SECTION 2: MECHANISTIC CORE & TRACE -->
-    <section class="space-y-6">
+    <!-- SECTION 2: DIGESTIBLE EXPLANATIONS — THE WHYS & HOWS (EXHAUSTIVE MECHANICAL CLOSURE) -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">02</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SECTION_2_TITLE}}</h2>
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-sm">02</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{EXPLANATION_TITLE}}</h2>
+      </div>
+
+      <!-- DEEP EXPLANATIONS CONTAINER -->
+      <div class="space-y-6 text-sm leading-relaxed text-[var(--foreground)]">
+        {{EXPLANATION_BODY}}
+      </div>
+    </section>
+
+    <!-- SECTION 3: MECHANISTIC CORE & INTERACTIVE SIMULATOR -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">03</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SIMULATOR_SECTION_TITLE}}</h2>
       </div>
 
       <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">
-        {{SECTION_2_BODY}}
+        {{SIMULATOR_SECTION_BODY}}
       </div>
 
       <!-- INTERACTIVE SIMULATOR CONTAINER -->
@@ -92,10 +105,10 @@
       </div>
     </section>
 
-    <!-- SECTION 3: WORKLOAD CONTRAST & TRADE-OFF MATRIX -->
-    <section class="space-y-6">
+    <!-- SECTION 4: WORKLOAD CONTRAST & TRADE-OFF MATRIX -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm">03</div>
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm">04</div>
         <h2 class="text-xl md:text-2xl font-bold tracking-tight">Workload Comparison: The Architectural Invariant</h2>
       </div>
 
@@ -120,10 +133,10 @@
       </div>
     </section>
 
-    <!-- SECTION 4: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
+    <!-- SECTION 5: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
     <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm">04</div>
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm">05</div>
         <h2 class="text-xl md:text-2xl font-bold tracking-tight">Final Sign-Off Challenge: Active Verification</h2>
       </div>
 

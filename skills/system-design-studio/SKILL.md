@@ -221,7 +221,17 @@ By combining (1) Cursor Context, (2) Outcome Specification, and (3) Tick-off Cri
 > Delivering a long markdown explanation in chat while producing an HTML artifact is strictly forbidden. Leaking or embedding the answer to the sign-off scenario inside the artifact is strictly forbidden.
 
 - **Topic Entry (First Turn on a Topic)**:
-  - The comprehensive lesson—including the 6 foundation questions, hardware physics, deep causal mechanics, interactive simulators, SVG/CSS sequence diagrams, workload comparisons, invariant matrices, and the **unanswered final sign-off challenge scenario**—is delivered **strictly inside the standalone interactive HTML artifact**.
+  - The comprehensive lesson is delivered **strictly inside the standalone interactive HTML artifact**, strictly adhering to the **6-Part Component Anatomy**:
+    1. **Hero Header**: Tier, cluster, topic, depth tags, and visual theme.
+    2. **Topic Foundation & Orientation**: The 6 Foundation Questions (Physical Motivation, System Placement, Design Relevance, Vocabulary, Mental Model, Bridge).
+    3. **Dedicated Digestible Explanations (The Whys & Hows)**: Non-negotiable space for exhaustive mechanical closure:
+       - *The "Why"*: Physical dilemma, why naive approaches fail, why this exact design arose.
+       - *The "How"*: Causal mechanics, actors and boundaries, data packet/record layouts, kernel/storage buffer states (`Send-Q`/`Recv-Q`), sequential execution traces, failure domain boundaries.
+       - *Visual Mechanism Diagrams*: SVG/CSS architecture or sequence flowcharts.
+       - *Invariant Boundaries*: Precise guarantees provided vs explicit non-guarantees.
+    4. **Interactive Execution Simulator**: Active sandbox with protocol toggles, fault injection, animated data transit, and live telemetry.
+    5. **Workload Contrast & Trade-Off Matrix**: Opposing production workloads and invariant comparison table.
+    6. **Final Sign-Off Challenge (Active Verification Gate)**: Realistic engineering scenario testing the tick-off criteria **left deliberately without an answer or reveal toggle**.
   - Artifact files must be saved in two locations:
     1. `<appDataDir>/brain/<conversation-id>/<topic-slug>.html` (renders directly in the agent's side pane with `UserFacing: true`).
     2. `.system-design/lessons/<topic-slug>.html` (committed to git in the project instance).

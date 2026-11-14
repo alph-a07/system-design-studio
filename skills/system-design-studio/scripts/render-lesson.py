@@ -148,7 +148,7 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">{{LESSON_SUBTITLE}}</p>
     </header>
 
-    <!-- SECTION 1: PHYSICAL MOTIVATION -->
+    <!-- SECTION 1: PHYSICAL MOTIVATION & FORCES -->
     <section class="space-y-6">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">01</div>
@@ -158,13 +158,24 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">{{METRIC_CARDS}}</div>
     </section>
 
-    <!-- SECTION 2: MECHANISTIC CORE & SIMULATOR -->
-    <section class="space-y-6">
+    <!-- SECTION 2: DIGESTIBLE EXPLANATIONS — THE WHYS & HOWS (EXHAUSTIVE MECHANICAL CLOSURE) -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">02</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SECTION_2_TITLE}}</h2>
+        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-500/20">02</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{EXPLANATION_TITLE}}</h2>
       </div>
-      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">{{SECTION_2_BODY}}</div>
+      <div class="space-y-6 text-sm leading-relaxed text-[var(--foreground)]">
+        {{EXPLANATION_BODY}}
+      </div>
+    </section>
+
+    <!-- SECTION 3: MECHANISTIC CORE & INTERACTIVE SIMULATOR -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm border border-emerald-500/20">03</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SIMULATOR_SECTION_TITLE}}</h2>
+      </div>
+      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">{{SIMULATOR_SECTION_BODY}}</div>
       <div class="rounded-2xl bg-[var(--card)] border border-[var(--card-border)] p-6 shadow-sm space-y-6">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
           <div>
@@ -183,10 +194,10 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- SECTION 3: WORKLOAD COMPARISON & INVARIANTS -->
-    <section class="space-y-6">
+    <!-- SECTION 4: WORKLOAD COMPARISON & INVARIANTS -->
+    <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm">03</div>
+        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm border border-purple-500/20">04</div>
         <h2 class="text-xl md:text-2xl font-bold tracking-tight">Workload Comparison: The Architectural Invariant</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">{{WORKLOAD_CARDS}}</div>
@@ -206,10 +217,10 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- SECTION 4: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
+    <!-- SECTION 5: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
     <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm border border-rose-500/20">04</div>
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm border border-rose-500/20">05</div>
         <h2 class="text-xl md:text-2xl font-bold tracking-tight">Final Sign-Off Challenge: Active Verification</h2>
       </div>
       <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-4">
@@ -268,8 +279,8 @@ def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_i
         "CLUSTER_BADGE": cluster or "Foundation Mechanism",
         "LESSON_TITLE": clean_title,
         "LESSON_SUBTITLE": "A first-principles, causal breakdown of physical constraints, failure modes, and architectural trade-offs.",
-        "SECTION_1_TITLE": "Physical Motivation & The Speed of Light",
-        "SECTION_1_BODY": f"<p>Every distributed system begins with the laws of physics. When designing <strong>{clean_title}</strong>, we face non-negotiable hardware limits: speed of light through medium, disk I/O seek times, and network queue bufferbloat.</p>",
+        "SECTION_1_TITLE": "Physical Motivation & Hardware Invariants",
+        "SECTION_1_BODY": f"<p>Every distributed system begins with the laws of physics. When designing <strong>{clean_title}</strong>, we face non-negotiable hardware limits: speed of light through medium (~5 μs/km), disk I/O seek times, and network queue bufferbloat.</p>",
         "METRIC_CARDS": """
         <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-1">
           <div class="text-xs uppercase font-mono text-[var(--muted-foreground)]">Propagation Limit</div>
@@ -287,8 +298,46 @@ def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_i
           <div class="text-xs text-[var(--muted-foreground)]">Guaranteeing consistency requires communication; avoiding communication forfeits coordination.</div>
         </div>
         """,
-        "SECTION_2_TITLE": "Mechanistic Core & Invariant Preservation",
-        "SECTION_2_BODY": f"<p>How does the protocol guarantee its state invariants across independent failure domains? Below is the interactive execution trace for <strong>{clean_title}</strong>.</p>",
+        "EXPLANATION_TITLE": "Digestible Explanations: The Whys & Hows (Exhaustive Mechanical Closure)",
+        "EXPLANATION_BODY": f"""
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
+            <div class="text-xs font-mono font-bold text-[var(--primary)] uppercase flex items-center gap-2">
+              <span>🔍 The "Why": Physical Dilemma & Naive Failure</span>
+            </div>
+            <h3 class="text-base font-bold text-[var(--foreground)]">Why Does This Mechanism Exist?</h3>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+              Networks are fundamentally unreliable packet-switched meshes. Routers drop packets when ingress queues saturate. If an application requires ordered bytes, a naive approach of waiting for an ACK on every single packet produces catastrophic throughput collapse (bounded to 1 packet per RTT).
+            </p>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+              To solve this without stalling the wire, sliding window protocols pipeline in-flight packets. But pipelining creates a severe physical consequence: <strong>if packet N is dropped, packets N+1 and N+2 cannot be delivered to user space</strong> without violating sequential ordering guarantees.
+            </p>
+          </div>
+
+          <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
+            <div class="text-xs font-mono font-bold text-emerald-400 uppercase flex items-center gap-2">
+              <span>⚙️ The "How": Causal Mechanics & State Trace</span>
+            </div>
+            <h3 class="text-base font-bold text-[var(--foreground)]">How Does The Kernel Enforce It?</h3>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+              The operating system maintains two distinct buffers per connection: the <code>Send-Q</code> (unacknowledged transmitted bytes) and <code>Recv-Q</code> (received out-of-order bytes waiting for assembly).
+            </p>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+              When a gap occurs, the receiver emits duplicate cumulative ACKs. The sender triggers fast retransmit or backs off via Retransmission Timeout (RTO). The application thread calling <code>read()</code> is put to sleep by the kernel scheduler until the sequence gap is closed, directly manifesting as P99 tail latency.
+            </p>
+          </div>
+        </div>
+
+        <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+          <h4 class="text-xs font-mono font-bold uppercase text-[var(--primary)]">Architectural Invariant Boundary:</h4>
+          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            <strong>Guaranteed:</strong> 100% byte fidelity and monotonic ordering across the connection. If a byte is delivered to user space, every preceding byte was delivered exactly once without corruption.<br/>
+            <strong>Explicit Non-Guarantee:</strong> Bounded delivery latency. Under non-zero packet loss, delivery jitter is mathematically unbounded.
+          </p>
+        </div>
+        """,
+        "SIMULATOR_SECTION_TITLE": "Mechanistic Core & Interactive Simulator",
+        "SIMULATOR_SECTION_BODY": f"<p>Experience the mechanical divergence firsthand. Step through state transitions, packet transmission, and failure recovery for <strong>{clean_title}</strong> in the sandbox below.</p>",
         "SIMULATOR_TITLE": f"Execution Simulator: {clean_title}",
         "SIMULATOR_SUBTITLE": "Step through state transitions, packet transmission, and failure recovery.",
         "SIMULATOR_CONTROLS": """
