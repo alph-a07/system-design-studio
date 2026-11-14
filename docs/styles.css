@@ -519,81 +519,209 @@ html.dark #topic-search-input::placeholder {
   color: #777777 !important;
 }
 
-html.dark .cluster-badge {
-  background-color: #ffcc00 !important;
-  color: #1a1a1a !important;
-  border-color: #ffcc00 !important;
-}
-
-
-/* Ensure text-primary in dark mode is bright readable linen/cream, NOT black */
-html.dark .text-primary {
+/* Ensure text-primary in dark mode is bright readable linen/cream, EXCEPT inside yellow containers or buttons */
+html.dark .text-primary:not(.bg-primary-container):not(.bg-primary-container *):not(header nav a.bg-primary-container) {
   color: #f5f0e8 !important;
 }
 
-/* Ensure text on primary-container elements is always jet black #1a1a1a in BOTH light and dark modes */
+/* ==========================================================================
+   HIGH-SPECIFICITY CONTRAST & ACCESSIBILITY GUARDS (LIGHT & DARK MODES)
+   ========================================================================== */
+
+/* 1. Yellow Containers (bg-primary-container / #ffcc00):
+   All text and icons directly inside MUST be deep charcoal #1a1a1a,
+   EXCEPT explicit CTA buttons (.bg-primary) which have dark background and white text. */
 .bg-primary-container,
-.bg-primary-container a,
-.bg-primary-container span,
-.bg-primary-container div,
-.bg-primary-container h1,
-.bg-primary-container h2,
-.bg-primary-container h3,
-.bg-primary-container p,
-.bg-primary-container th,
-.bg-primary-container td {
-  color: #1a1a1a !important;
-}
-
+.bg-primary-container :not(.bg-primary):not(.bg-primary *):not(.bg-secondary):not(.bg-secondary *),
 html.dark .bg-primary-container,
-html.dark .bg-primary-container a,
-html.dark .bg-primary-container span,
-html.dark .bg-primary-container div,
-html.dark .bg-primary-container h1,
-html.dark .bg-primary-container h2,
-html.dark .bg-primary-container h3,
-html.dark .bg-primary-container p,
-html.dark .bg-primary-container th,
-html.dark .bg-primary-container td {
+html.dark .bg-primary-container :not(.bg-primary):not(.bg-primary *):not(.bg-secondary):not(.bg-secondary *) {
   color: #1a1a1a !important;
 }
 
-/* Header nav active state in dark mode */
-html.dark header nav a.bg-primary-container {
+.bg-primary-container h1, .bg-primary-container h2, .bg-primary-container h3, .bg-primary-container h4,
+.bg-primary-container p, .bg-primary-container div:not(.bg-primary *),
+html.dark .bg-primary-container h1, html.dark .bg-primary-container h2, html.dark .bg-primary-container h3, html.dark .bg-primary-container h4,
+html.dark .bg-primary-container p, html.dark .bg-primary-container div:not(.bg-primary *) {
+  color: #1a1a1a !important;
+}
+
+/* 2. Dark CTA Button inside Yellow Containers (e.g., 'Browse Full Syllabus') */
+.bg-primary-container a.bg-primary,
+.bg-primary-container button.bg-primary,
+html.dark .bg-primary-container a.bg-primary,
+html.dark .bg-primary-container button.bg-primary,
+.bg-primary-container a[href="curriculum.html"],
+html.dark .bg-primary-container a[href="curriculum.html"] {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #1a1a1a !important;
+}
+
+.bg-primary-container a.bg-primary *,
+.bg-primary-container button.bg-primary *,
+html.dark .bg-primary-container a.bg-primary *,
+html.dark .bg-primary-container button.bg-primary *,
+.bg-primary-container a[href="curriculum.html"] *,
+html.dark .bg-primary-container a[href="curriculum.html"] * {
+  color: #ffffff !important;
+}
+
+.bg-primary-container a.bg-primary:hover,
+.bg-primary-container button.bg-primary:hover,
+html.dark .bg-primary-container a.bg-primary:hover,
+html.dark .bg-primary-container button.bg-primary:hover,
+.bg-primary-container a[href="curriculum.html"]:hover,
+html.dark .bg-primary-container a[href="curriculum.html"]:hover {
+  background-color: #e63b2e !important;
+  color: #ffffff !important;
+  border-color: #e63b2e !important;
+}
+
+.bg-primary-container a.bg-primary:hover *,
+.bg-primary-container button.bg-primary:hover *,
+html.dark .bg-primary-container a.bg-primary:hover *,
+html.dark .bg-primary-container button.bg-primary:hover *,
+.bg-primary-container a[href="curriculum.html"]:hover *,
+html.dark .bg-primary-container a[href="curriculum.html"]:hover * {
+  color: #ffffff !important;
+}
+
+/* 3. Header Navigation (Active & Inactive in Light and Dark) */
+header nav a.bg-primary-container,
+html.dark header nav a.bg-primary-container,
+header nav a.bg-primary-container:hover,
+html.dark header nav a.bg-primary-container:hover {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+  font-weight: 700 !important;
+}
+
+/* 4. Terminal & Installer Tabs (Light & Dark) */
+.tab-btn {
+  color: #8c8c8c !important;
+  background-color: transparent !important;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: #ffffff !important;
+  background-color: #262626 !important;
+}
+
+.tab-btn.tab-active,
+.tab-btn.bg-surface {
+  color: #1a1a1a !important;
+  background-color: #f5f0e8 !important;
+  border-color: #1a1a1a !important;
+}
+
+html.dark .tab-btn.tab-active,
+html.dark .tab-btn.bg-surface {
+  color: #1a1a1a !important;
+  background-color: #ffcc00 !important;
   border-color: #ffcc00 !important;
   font-weight: 700 !important;
 }
 
-/* Fix Browse Full Syllabus card in dark mode */
-html.dark .bg-primary-container a.bg-primary {
-  background-color: #1a1a1a !important;
-  color: #ffffff !important;
-  border-color: #1a1a1a !important;
+/* Terminal comment lines inside dark terminal/code blocks */
+.text-surface-dim,
+html.dark .text-surface-dim {
+  color: #9ca3af !important;
 }
 
-html.dark .bg-primary-container a.bg-primary:hover {
-  background-color: #e63b2e !important;
-  color: #ffffff !important;
-  border-color: #1a1a1a !important;
+/* Copy Buttons */
+#copy-btn, #copy-cli-btn {
+  transition: all 0.15s ease;
 }
 
-/* Comparison table in dark mode */
+#copy-btn:hover, #copy-cli-btn:hover {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+}
+
+html.dark #copy-btn {
+  background-color: #262626 !important;
+  color: #f5f0e8 !important;
+  border-color: #444444 !important;
+}
+
+html.dark #copy-btn:hover {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+}
+
+/* 5. Comparison Table in Light & Dark Mode */
+table tbody tr td {
+  color: #1a1a1a;
+}
+
+table tbody tr:hover td {
+  background-color: #e8e3da !important;
+  color: #1a1a1a !important;
+}
+
 html.dark table tbody tr td {
+  background-color: #181818 !important;
+  color: #f5f0e8 !important;
+  border-color: #2d2d2d !important;
+}
+
+html.dark table tbody tr td.bg-surface-container-lowest {
+  background-color: #141414 !important;
   color: #f5f0e8 !important;
 }
 
-html.dark table tbody tr:hover {
-  background-color: #222222 !important;
+html.dark table tbody tr:hover td,
+html.dark table tbody tr:hover td.bg-surface-container-lowest,
+html.dark table tbody tr.hover\:bg-surface-container-high:hover td,
+html.dark .hover\:bg-surface-container-high:hover {
+  background-color: #282828 !important;
+  color: #ffffff !important;
+}
+
+html.dark table tbody tr td code {
+  background-color: #262626 !important;
+  color: #ffcc00 !important;
+  border: 1px solid #383838;
 }
 
 html.dark table thead tr th {
-  background-color: #1a1a1a !important;
+  background-color: #141414 !important;
   color: #f5f0e8 !important;
+  border-color: #383838 !important;
 }
 
 html.dark table thead tr th.bg-primary-container {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
+}
+
+/* 6. Curriculum Cluster Cards & Badges Wrapping */
+.cluster-badge {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border: 1px solid #1a1a1a !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  display: inline-block !important;
+  line-height: 1.4 !important;
+}
+
+html.dark .cluster-badge {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border: 1px solid #ffcc00 !important;
+}
+
+.topic-item .font-mono {
+  word-break: break-all !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  line-height: 1.3 !important;
 }

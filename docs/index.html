@@ -5,7 +5,15 @@
 <meta name="description" content="An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch."/>
 <link rel="stylesheet" href="styles.css"/>
 <script>
-  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  const params = new URLSearchParams(window.location.search);
+  const themeParam = params.get('theme');
+  if (themeParam === 'light') {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  } else if (themeParam === 'dark') {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  } else if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
@@ -241,7 +249,7 @@
           </h2>
 </div>
 <p class="font-body text-sm text-on-surface-variant max-w-md">
-          Two-step setup: install the skill into your AI agent, then scaffold the learning instance in your repository.
+          Single 1-line setup: install the verified skill for your AI agents with one command, ready to use in any chat.
         </p>
 </div>
 <!-- Callout warning banner -->
@@ -256,7 +264,10 @@
 <!-- Tabs Bar -->
 <div class="flex flex-wrap items-center justify-between border-b-2 border-surface-variant/30 bg-primary px-4 pt-3">
 <div class="flex flex-wrap gap-1">
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase border-t-2 border-x-2 border-primary bg-surface text-on-surface" id="tab-antigravity" onclick="selectInstallTab('antigravity')">
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase border-t-2 border-x-2 border-primary bg-surface text-on-surface" id="tab-quickstart" onclick="selectInstallTab('quickstart')">
+              ⚡ Universal 1-Line Installer
+            </button>
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-antigravity" onclick="selectInstallTab('antigravity')">
               Google Antigravity
             </button>
 <button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-claude" onclick="selectInstallTab('claude')">
@@ -268,11 +279,8 @@
 <button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-codex" onclick="selectInstallTab('codex')">
               OpenAI Codex
             </button>
-<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-curl" onclick="selectInstallTab('curl')">
-              POSIX Shell (1-Line)
-            </button>
 </div>
-<span class="text-[11px] font-mono text-primary-fixed hidden md:inline-block pb-2" id="install-target-label">Target: Google Antigravity Plugin Engine + local .system-design/</span>
+<span class="text-[11px] font-mono text-primary-fixed hidden md:inline-block pb-2" id="install-target-label">Target: Auto-Detects & Installs For All Supported Agents</span>
 </div>
 <!-- Terminal Body -->
 <div class="p-6 font-mono text-sm">
@@ -284,10 +292,9 @@
 </button>
 </div>
 <div class="leading-relaxed" id="cmd-display">
-<p class="text-surface-dim"># Step 1: Install skill into Antigravity</p>
-<p class="text-primary-fixed font-bold py-1">agy plugin add alph-a07/system-design-studio</p>
-<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
-<p class="text-emerald-300 font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>
+<p class="text-surface-dim"># Universal 1-line installer: detects your coding agents and installs the verified skill</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</p>
+<p class="text-surface-dim mt-3"># Ready to use in any chat! On first prompt, the agent automatically initializes the hidden .system-design/ state directory.</p>
 </div>
 <div class="mt-6 pt-4 border-t border-surface-variant/20 flex flex-wrap items-center justify-between text-xs text-surface-dim">
 <span>Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.</span>
@@ -411,17 +418,17 @@
 <!-- Tier Action Banner -->
 <div class="border-[3px] border-primary bg-primary-container p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
 <div>
-<div class="font-headline font-bold text-xs uppercase text-on-primary-container mb-2">Full Syllabus</div>
-<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
+<div class="font-headline font-bold text-xs uppercase text-neutral-900 mb-2">Full Syllabus</div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-neutral-900 mb-2">
               Explore 50 Clusters
             </h3>
-<p class="font-body text-xs text-on-surface-variant">
+<p class="font-body text-xs text-neutral-800 leading-relaxed">
               Browse the complete hierarchical syllabus grid, learning paths, and prerequisite graphs.
             </p>
 </div>
-<a class="mt-6 inline-flex items-center justify-between px-4 py-3 bg-primary text-white font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[2px_2px_0px_#1a1a1a] hover:bg-secondary hover:text-white transition-all" href="curriculum.html">
-<span>Browse Full Syllabus</span>
-<span class="material-symbols-outlined text-sm">arrow_forward</span>
+<a class="mt-6 inline-flex items-center justify-between px-4 py-3 bg-[#1a1a1a] text-white font-headline text-xs font-bold uppercase tracking-wider border-2 border-[#1a1a1a] shadow-[2px_2px_0px_#1a1a1a] hover:bg-secondary hover:text-white hover:border-secondary transition-all" href="curriculum.html">
+<span class="text-white font-bold">Browse Full Syllabus</span>
+<span class="material-symbols-outlined text-sm text-white">arrow_forward</span>
 </a>
 </div>
 </div>
@@ -448,7 +455,7 @@
 <tr class="border-b-[3px] border-primary bg-primary text-surface font-headline text-xs uppercase tracking-wider">
 <th class="p-4 border-r-2 border-surface/20 w-1/4">Dimension</th>
 <th class="p-4 border-r-2 border-surface/20 w-1/3">A Plain AI Chat</th>
-<th class="p-4 bg-primary-container text-primary font-bold w-5/12">System Design Studio</th>
+<th class="p-4 bg-primary-container text-neutral-900 font-bold w-5/12">System Design Studio</th>
 </tr>
 </thead>
 <tbody class="font-body text-xs divide-y-2 divide-primary">
@@ -544,48 +551,45 @@
 
     // Terminal installation tabs data
     const installCommands = {
+      quickstart: {
+        target: "Target: Auto-Detects & Installs For All Supported Agents",
+        html: `<p class="text-surface-dim"># Universal installer: places skill into verified paths for your active agents</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</p>
+<p class="text-surface-dim mt-3"># Or specify agents explicitly: curl ... | bash -s -- --antigravity --claude --cursor --codex</p>
+<p class="text-emerald-300 font-bold py-1 select-all"># Works in any chat: automatically scaffolds hidden .system-design/ on first use</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash"
+      },
       antigravity: {
-        target: "Target: Google Antigravity Plugin Engine + local .system-design/",
-        html: `<p class="text-surface-dim"># Step 1: Install skill into Antigravity</p>
-<p class="text-primary-fixed font-bold py-1 select-all">agy plugin add alph-a07/system-design-studio</p>
-<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
-<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
-        raw: "agy plugin add alph-a07/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+        target: "Target: Google Antigravity (~/.gemini/antigravity/skills/)",
+        html: `<p class="text-surface-dim"># Install skill directly into Antigravity skills directory</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity</p>
+<p class="text-surface-dim mt-3"># Ready to use in Antigravity chat: automatically creates .system-design/ at workspace root</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity"
       },
       claude: {
-        target: "Target: Anthropic Claude Code Skills Directory",
-        html: `<p class="text-surface-dim"># Step 1: Clone skill into Claude Code skills folder</p>
-<p class="text-primary-fixed font-bold py-1 select-all">git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio</p>
-<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
-<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
-        raw: "git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+        target: "Target: Anthropic Claude Code (~/.claude/skills/)",
+        html: `<p class="text-surface-dim"># Install skill directly into Claude Code skills directory</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude</p>
+<p class="text-surface-dim mt-3"># Ready to use in Claude Code: automatically creates .system-design/ at workspace root</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude"
       },
       cursor: {
-        target: "Target: Cursor IDE .cursorrules & workspace",
-        html: `<p class="text-surface-dim"># Step 1: Fetch skill rules into your project .cursorrules</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules</p>
-<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
-<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+        target: "Target: Cursor IDE (~/.cursor/skills/ & .cursorrules)",
+        html: `<p class="text-surface-dim"># Install skill directly into Cursor IDE skills directory</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor</p>
+<p class="text-surface-dim mt-3"># In your workspace: curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor"
       },
       codex: {
-        target: "Target: OpenAI Codex / CLI Agents",
-        html: `<p class="text-surface-dim"># Step 1: Clone skill into Codex directory</p>
-<p class="text-primary-fixed font-bold py-1 select-all">git clone https://github.com/alph-a07/system-design-studio.git .codex/skills/system-design-studio</p>
-<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
-<p class="text-emerald-300 font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
-        raw: "git clone https://github.com/alph-a07/system-design-studio.git .codex/skills/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
-      },
-      curl: {
-        target: "Target: POSIX Shell / Standalone (Zero-Config)",
-        html: `<p class="text-surface-dim"># Standalone 1-line installation with bash (scaffolds .system-design/ and fetches templates)</p>
-<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>
-<p class="text-surface-dim mt-3"># Inspect source: <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener" class="text-emerald-300 underline font-semibold">init-learning-instance.sh</a></p>`,
-        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+        target: "Target: OpenAI Codex (~/.codex/skills/)",
+        html: `<p class="text-surface-dim"># Install skill directly into Codex directory</p>
+<p class="text-primary-fixed font-bold py-1 select-all">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex</p>
+<p class="text-surface-dim mt-3"># Ready to use in Codex: automatically creates .system-design/ at workspace root</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex"
       }
     };
 
-    let currentTab = 'antigravity';
+    let currentTab = 'quickstart';
 
     function selectInstallTab(tabKey) {
       currentTab = tabKey;

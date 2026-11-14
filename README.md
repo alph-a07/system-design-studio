@@ -66,14 +66,24 @@ my-project/
 
 ---
 
-## Quickstart (30 Seconds)
+## Quickstart (Universal 1-Line Installer)
 
-### 1. Initialize a Learning Instance
-Run the scaffolding script inside any new or existing project repository:
+Install the skill for all your AI coding agents in a single command:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash
 ```
+
+Or install for specific agents:
+```bash
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity --claude --cursor --codex
+```
+
+### Ready to Use in Any Chat
+Open a chat in any supported AI agent and ask:
+> *"Let's learn system design topic 0.1"*
+
+On first use, the skill automatically initializes the hidden `.system-design/` workspace folder at your repository root to persist `CURSOR.md` and your learning progress across sessions.
 
 Or run directly from a local clone:
 ```bash
@@ -111,30 +121,35 @@ python3 skills/system-design-studio/scripts/advance-cursor.py \
 
 ## Installation Across AI Agent Platforms
 
+Use the unified installer with platform flags to place the verified skill at each agent's standard path:
+
 ### Google Antigravity
-Install via the Antigravity Plugin Manager:
+Places skill in `~/.gemini/antigravity/skills/system-design-studio`:
 ```bash
-agy plugin add alph-a07/system-design-studio
-```
-Or copy into your local skills directory:
-```bash
-cp -r skills/system-design-studio ~/.gemini/antigravity/skills/
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity
 ```
 
 ### Anthropic Claude Code
-Clone into your personal or workspace skills directory:
+Places skill in `~/.claude/skills/system-design-studio`:
 ```bash
-git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude
 ```
 
 ### Cursor IDE
-Add as a project skill or workspace submodule:
+Places skill in `~/.cursor/skills/system-design-studio`:
 ```bash
-git submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor
+```
+And add steering rules to your project `.cursorrules`:
+```bash
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules
 ```
 
-### OpenAI Codex / Gemini CLI
-Copy `skills/system-design-studio` into your active agent workspace or path.
+### OpenAI Codex
+Places skill in `~/.codex/skills/system-design-studio`:
+```bash
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex
+```
 
 ---
 

@@ -38,35 +38,35 @@ const saveMasteredTopicIds = saveCompletedTopicIds;
 
 // INSTALLATION METHOD CONFIGURATION
 const INSTALL_COMMANDS = {
+  quickstart: {
+    command: `# Universal 1-line installer: detects agents and installs verified skill\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash`,
+    target: 'Target: Universal Installer (Antigravity, Claude, Cursor, Codex)',
+    orderNote: 'Installs verified skill to global agent discovery paths and auto-scaffolds .system-design/ on first chat prompt.',
+    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
+  },
   agy: {
-    command: `# Step 1: Install skill into Antigravity\nagy plugin add alph-a07/system-design-studio\n\n# Step 2: Scaffold instance in your learning repo\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash`,
-    target: 'Target: Antigravity Plugin Engine + local .system-design/',
-    orderNote: 'Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.',
-    viewScriptUrl: null
+    command: `# Install skill into Google Antigravity\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity`,
+    target: 'Target: Google Antigravity (~/.gemini/antigravity/skills/ & ~/.gemini/config/skills/)',
+    orderNote: 'Places skill in Antigravity global paths; auto-scaffolds .system-design/ on first chat prompt.',
+    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
   },
   claude: {
-    command: `# Step 1: Clone skill to Claude Code skills directory\ngit clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio\n\n# Step 2: Scaffold instance in your learning repo\nbash ~/.claude/skills/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh`,
-    target: 'Target: ~/.claude/skills/system-design-studio + local .system-design/',
-    orderNote: 'Step 1 clones the skill to ~/.claude/skills/. Step 2 runs scaffolding in your repository.',
-    viewScriptUrl: null
+    command: `# Install skill to Claude Code skills directory\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude`,
+    target: 'Target: Anthropic Claude Code (~/.claude/skills/system-design-studio)',
+    orderNote: 'Places skill into ~/.claude/skills/; ready to use in any Claude Code chat.',
+    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
   },
   cursor: {
-    command: `# Step 1: Add skill submodule into your learning repo\ngit submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio\n\n# Step 2: Scaffold instance in your repo\nbash .cursor/skills/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh`,
-    target: 'Target: .cursor/skills/ + local .system-design/',
-    orderNote: 'Step 1 vendors the skill into .cursor/skills/. Step 2 populates .system-design/.',
-    viewScriptUrl: null
+    command: `# Step 1: Install skill into Cursor IDE skills directory\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor\n\n# Step 2: Append project rules into your active workspace\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules`,
+    target: 'Target: Cursor IDE (~/.cursor/skills/ & .cursorrules)',
+    orderNote: 'Places skill into ~/.cursor/skills/ and configures project .cursorrules.',
+    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/templates/.cursorrules'
   },
   codex: {
-    command: `# Step 1: Clone repo and append interaction contract to AGENTS.md\ngit clone https://github.com/alph-a07/system-design-studio.git /tmp/system-design-studio\ncat /tmp/system-design-studio/skills/system-design-studio/references/interaction-contract.md >> AGENTS.md\n\n# Step 2: Scaffold instance in your repo\nbash /tmp/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh`,
-    target: 'Target: AGENTS.md + local .system-design/',
-    orderNote: 'Step 1 adds the interaction contract to AGENTS.md. Step 2 scaffolds .system-design/.',
-    viewScriptUrl: null
-  },
-  curl: {
-    command: `curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash`,
-    target: 'Target: Current directory (.system-design/)',
-    orderNote: 'Scaffolds local .system-design/ only. Does not register skill with agents automatically.',
-    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh'
+    command: `# Install skill into OpenAI Codex directory\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex`,
+    target: 'Target: OpenAI Codex (~/.codex/skills/system-design-studio)',
+    orderNote: 'Places skill into ~/.codex/skills/; ready to use in any Codex chat.',
+    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
   }
 };
 

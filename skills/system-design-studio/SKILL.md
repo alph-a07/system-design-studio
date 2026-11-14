@@ -49,6 +49,25 @@ flowchart TD
 
 ---
 
+
+## Automatic Workspace Bootstrap (First Use in Any Chat)
+
+When the user asks to learn or study system design in any workspace or project:
+
+1. **Check for `.system-design/` Directory**:
+   - Inspect if `.system-design/CURSOR.md` exists in the current project root.
+2. **First Use Auto-Initialization**:
+   - If `.system-design/` does **not** exist yet, the agent immediately runs the bundled initialization script to scaffold it:
+     ```bash
+     bash <skill-dir>/scripts/init-learning-instance.sh "My System Design Journey"
+     ```
+     *(or executes the equivalent logic to create `.system-design/manifest.json`, `.system-design/CURSOR.md`, `.system-design/CURRICULUM.md`, `.system-design/DECISIONS.md`, and `.system-design/lessons/`)*.
+   - If in a git repository with other teammates, add `.system-design/` to `.gitignore` if requested.
+3. **Subsequent Chats & Turns**:
+   - Always read `.system-design/CURSOR.md` at the start of each topic to recover living state, recent examples, active causal anchors, and pending deferred questions.
+
+---
+
 ## Part I — Architecture: The Project Learning Instance
 
 ### 1. The Local Learning Instance Directory (`.system-design/`)

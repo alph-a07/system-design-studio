@@ -24,7 +24,15 @@
 tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright":"#faf7f2","surface":"#f5f0e8","surface-container-high":"#e8e3da","surface-dim":"#d6d1c9","inverse-on-surface":"#f5f0e8","surface-variant":"#e8e3da","tertiary-fixed":"#d6e3ff","secondary":"#e63b2e","on-tertiary":"#ffffff","primary-fixed":"#ffcc00","background":"#f5f0e8","on-tertiary-fixed-variant":"#1a1a1a","error-container":"#ffdad6","on-secondary":"#1a1a1a","on-secondary-container":"#1a1a1a","on-surface":"#1a1a1a","on-primary-container":"#1a1a1a","inverse-surface":"#1a1a1a","on-tertiary-fixed":"#1a1a1a","tertiary-fixed-dim":"#a8c6ff","secondary-fixed-dim":"#ffb3ab","secondary-container":"#ffdad6","on-primary":"#ffffff","on-surface-variant":"#4a4a4a","on-primary-fixed":"#1a1a1a","secondary-fixed":"#ffdad6","on-primary-fixed-variant":"#1a1a1a","inverse-primary":"#f5f0e8","surface-container-low":"#f2ede5","outline":"#1a1a1a","on-tertiary-container":"#1a1a1a","on-error-container":"#93000a","on-secondary-fixed":"#1a1a1a","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#1a1a1a","error":"#cc0000","on-background":"#1a1a1a","surface-tint":"#1a1a1a","on-error":"#ffffff","tertiary-container":"#d6e3ff","tertiary":"#0055ff","surface-container":"#eee9e0","outline-variant":"#d0cbc3","surface-container-highest":"#e2ddd4","primary-fixed-dim":"#e6b800","primary-container":"#ffcc00","primary":"#1a1a1a"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{},"fontFamily":{"headline":["Space Grotesk"],"display":["Space Grotesk"],"body":["Inter"],"label":["Space Grotesk"]},"fontSize":{}}}};
 </script>
 <script>
-  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+  const params = new URLSearchParams(window.location.search);
+  const themeParam = params.get('theme');
+  if (themeParam === 'light') {
+    document.documentElement.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  } else if (themeParam === 'dark') {
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  } else if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
     document.documentElement.classList.add('dark');
   } else {
     document.documentElement.classList.remove('dark');
@@ -47,7 +55,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
       </div>
       <nav class="hidden md:flex items-center gap-2">
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html">Home</a>
-        <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-primary font-bold border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="curriculum.html">Curriculum</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-neutral-900 border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="curriculum.html">Curriculum</a>
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html#how-it-works">How it works</a>
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html#install">Install</a>
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="docs.html">Docs</a>
@@ -3631,22 +3639,22 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b-2 border-primary-container pb-4">
             <div>
               <div class="text-[11px] font-mono text-primary-container font-bold uppercase tracking-widest">DEVELOPER WORKSPACE SYNC</div>
-              <h3 class="text-xl font-headline font-bold uppercase tracking-tight text-white">Scaffold Learning Instance in Your Repository</h3>
+              <h3 class="text-xl font-headline font-bold uppercase tracking-tight text-white">Universal 1-Line Installer For All Agents</h3>
             </div>
-            <button class="px-4 py-2 bg-primary-container text-primary font-headline text-xs font-bold uppercase tracking-wider border-2 border-white shadow-[3px_3px_0px_#ffffff] hover:bg-white transition-all active:translate-x-[1px] active:translate-y-[1px]" id="copy-cli-btn">
+            <button class="px-4 py-2 bg-primary-container text-neutral-900 font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[3px_3px_0px_#1a1a1a] hover:bg-secondary hover:text-white transition-all active:translate-x-[1px] active:translate-y-[1px]" id="copy-cli-btn">
               Copy Command
             </button>
           </div>
           <div class="bg-surface text-on-surface p-4 border-2 border-primary font-mono text-xs overflow-x-auto select-all">
-            <span class="text-secondary font-bold">$</span> curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash
+            <span class="text-secondary font-bold">$</span> curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash
           </div>
           <div class="flex flex-wrap items-center justify-between gap-4 text-[11px] font-mono text-surface-container-high pt-1">
             <div class="flex items-center gap-2">
               <span class="material-symbols-outlined text-[16px] text-primary-container">check_circle</span>
-              <span>Installs .system-design/ and fetches templates from GitHub</span>
+              <span>Installs verified skill for Antigravity, Claude, Cursor &amp; Codex</span>
             </div>
-            <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener" class="text-primary-container font-bold underline hover:text-white">
-              View init script source →
+            <a href="https://github.com/alph-a07/system-design-studio/blob/main/install.sh" target="_blank" rel="noopener" class="text-primary-container font-bold underline hover:text-white">
+              View install.sh source →
             </a>
           </div>
         </section>
@@ -3892,20 +3900,46 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
         });
       }
 
+      // Fallback clipboard helper
+      function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        textarea.style.top = '0';
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          console.error('Fallback copy failed', err);
+        }
+        document.body.removeChild(textarea);
+      }
+
       // Copy CLI command listener
       if (copyCliBtn) {
         copyCliBtn.addEventListener('click', () => {
-          const cmd = 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash';
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(cmd).then(() => {
-              const orig = copyCliBtn.textContent;
-              copyCliBtn.textContent = 'COPIED TO CLIPBOARD!';
-              copyCliBtn.classList.add('bg-secondary', 'text-white');
-              setTimeout(() => {
-                copyCliBtn.textContent = orig;
-                copyCliBtn.classList.remove('bg-secondary', 'text-white');
-              }, 2000);
+          const cmd = 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash';
+          const showCopied = () => {
+            const orig = copyCliBtn.textContent;
+            copyCliBtn.textContent = 'COPIED TO CLIPBOARD!';
+            copyCliBtn.classList.add('bg-secondary', 'text-white');
+            setTimeout(() => {
+              copyCliBtn.textContent = orig;
+              copyCliBtn.classList.remove('bg-secondary', 'text-white');
+            }, 2000);
+          };
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(cmd).then(showCopied).catch(() => {
+              fallbackCopy(cmd);
+              showCopied();
             });
+          } else {
+            fallbackCopy(cmd);
+            showCopied();
           }
         });
       }
