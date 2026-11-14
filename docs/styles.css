@@ -335,7 +335,7 @@ header nav a {
 
 header nav a:hover {
   color: #1a1a1a !important;
-  background-color: #e8e3da;
+  background-color: #e8e3da !important;
 }
 
 header nav a:active {
@@ -353,14 +353,6 @@ html.dark header nav a:hover {
 
 html.dark header nav a:active {
   color: #ffcc00 !important;
-}
-
-/* Primary Yellow Badges & Active Links */
-.bg-primary-container {
-  color: #1a1a1a !important;
-}
-.bg-primary-container * {
-  color: #1a1a1a !important;
 }
 
 /* 3. Hero & Action Buttons */
@@ -529,72 +521,114 @@ html.dark .text-primary:not(.bg-primary-container):not(.bg-primary-container *):
    ========================================================================== */
 
 /* 1. Yellow Containers (bg-primary-container / #ffcc00):
-   All text and icons directly inside MUST be deep charcoal #1a1a1a,
-   EXCEPT explicit CTA buttons (.bg-primary) which have dark background and white text. */
+   All titles, paragraphs, and inner text MUST be deep charcoal #1a1a1a in BOTH light & dark modes.
+   This overrides any html.dark h1..h6 or html.dark p rules. */
 .bg-primary-container,
-.bg-primary-container :not(.bg-primary):not(.bg-primary *):not(.bg-secondary):not(.bg-secondary *),
-html.dark .bg-primary-container,
-html.dark .bg-primary-container :not(.bg-primary):not(.bg-primary *):not(.bg-secondary):not(.bg-secondary *) {
+html.dark .bg-primary-container {
+  background-color: #ffcc00 !important;
   color: #1a1a1a !important;
 }
 
-.bg-primary-container h1, .bg-primary-container h2, .bg-primary-container h3, .bg-primary-container h4,
-.bg-primary-container p, .bg-primary-container div:not(.bg-primary *),
-html.dark .bg-primary-container h1, html.dark .bg-primary-container h2, html.dark .bg-primary-container h3, html.dark .bg-primary-container h4,
-html.dark .bg-primary-container p, html.dark .bg-primary-container div:not(.bg-primary *) {
+.bg-primary-container h1, .bg-primary-container h2, .bg-primary-container h3, .bg-primary-container h4, .bg-primary-container h5, .bg-primary-container h6,
+.bg-primary-container p,
+.bg-primary-container div,
+.bg-primary-container > span,
+html.dark .bg-primary-container h1, html.dark .bg-primary-container h2, html.dark .bg-primary-container h3, html.dark .bg-primary-container h4, html.dark .bg-primary-container h5, html.dark .bg-primary-container h6,
+html.dark .bg-primary-container p,
+html.dark .bg-primary-container div,
+html.dark .bg-primary-container > span {
   color: #1a1a1a !important;
 }
 
-/* 2. Dark CTA Button inside Yellow Containers (e.g., 'Browse Full Syllabus') */
-.bg-primary-container a.bg-primary,
-.bg-primary-container button.bg-primary,
-html.dark .bg-primary-container a.bg-primary,
-html.dark .bg-primary-container button.bg-primary,
+/* 2. Explicit Buttons / Action Links inside Yellow Containers (e.g., 'Browse Full Syllabus')
+   MUST ALWAYS have dark background (#1a1a1a) with crisp white text (#ffffff) in BOTH modes. */
+.syllabus-cta-btn,
+.bg-primary-container a,
 .bg-primary-container a[href="curriculum.html"],
+html.dark .syllabus-cta-btn,
+html.dark .bg-primary-container a,
 html.dark .bg-primary-container a[href="curriculum.html"] {
   background-color: #1a1a1a !important;
   color: #ffffff !important;
   border-color: #1a1a1a !important;
 }
 
-.bg-primary-container a.bg-primary *,
-.bg-primary-container button.bg-primary *,
-html.dark .bg-primary-container a.bg-primary *,
-html.dark .bg-primary-container button.bg-primary *,
+.syllabus-cta-btn *,
+.bg-primary-container a *,
 .bg-primary-container a[href="curriculum.html"] *,
+html.dark .syllabus-cta-btn *,
+html.dark .bg-primary-container a *,
 html.dark .bg-primary-container a[href="curriculum.html"] * {
   color: #ffffff !important;
 }
 
-.bg-primary-container a.bg-primary:hover,
-.bg-primary-container button.bg-primary:hover,
-html.dark .bg-primary-container a.bg-primary:hover,
-html.dark .bg-primary-container button.bg-primary:hover,
+.syllabus-cta-btn:hover,
+.bg-primary-container a:hover,
 .bg-primary-container a[href="curriculum.html"]:hover,
+html.dark .syllabus-cta-btn:hover,
+html.dark .bg-primary-container a:hover,
 html.dark .bg-primary-container a[href="curriculum.html"]:hover {
   background-color: #e63b2e !important;
   color: #ffffff !important;
   border-color: #e63b2e !important;
 }
 
-.bg-primary-container a.bg-primary:hover *,
-.bg-primary-container button.bg-primary:hover *,
-html.dark .bg-primary-container a.bg-primary:hover *,
-html.dark .bg-primary-container button.bg-primary:hover *,
+.syllabus-cta-btn:hover *,
+.bg-primary-container a:hover *,
 .bg-primary-container a[href="curriculum.html"]:hover *,
+html.dark .syllabus-cta-btn:hover *,
+html.dark .bg-primary-container a:hover *,
 html.dark .bg-primary-container a[href="curriculum.html"]:hover * {
   color: #ffffff !important;
 }
 
 /* 3. Header Navigation (Active & Inactive in Light and Dark) */
+header nav a {
+  color: #4a4a4a;
+}
+
+header nav a:hover {
+  color: #1a1a1a !important;
+  background-color: #e8e3da !important;
+}
+
+html.dark header nav a {
+  color: #a8a398 !important;
+}
+
+html.dark header nav a:hover {
+  color: #f5f0e8 !important;
+  background-color: #282828 !important;
+}
+
+/* Active navigation link in BOTH light and dark mode: Solid yellow box with black text */
 header nav a.bg-primary-container,
 html.dark header nav a.bg-primary-container,
 header nav a.bg-primary-container:hover,
-html.dark header nav a.bg-primary-container:hover {
+html.dark header nav a.bg-primary-container:hover,
+header nav a[aria-current="page"],
+html.dark header nav a[aria-current="page"],
+header nav a[aria-current="page"]:hover,
+html.dark header nav a[aria-current="page"]:hover,
+aside nav a.bg-primary-container,
+html.dark aside nav a.bg-primary-container,
+aside nav a[aria-current="page"],
+html.dark aside nav a[aria-current="page"] {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
   border-color: #1a1a1a !important;
   font-weight: 700 !important;
+}
+
+header nav a.bg-primary-container *,
+html.dark header nav a.bg-primary-container *,
+header nav a[aria-current="page"] *,
+html.dark header nav a[aria-current="page"] *,
+aside nav a.bg-primary-container *,
+html.dark aside nav a.bg-primary-container *,
+aside nav a[aria-current="page"] *,
+html.dark aside nav a[aria-current="page"] * {
+  color: #1a1a1a !important;
 }
 
 /* 4. Terminal & Installer Tabs (Light & Dark) */
@@ -637,7 +671,7 @@ html.dark .text-surface-dim {
   transition: all 0.15s ease;
 }
 
-#copy-btn:hover, #copy-cli-btn:hover {
+#copy-btn:hover {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
   border-color: #ffcc00 !important;
@@ -652,20 +686,60 @@ html.dark #copy-btn {
 html.dark #copy-btn:hover {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
-  border-color: #ffcc00 !important;
+}
+
+#copy-cli-btn,
+html.dark #copy-cli-btn {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+}
+
+#copy-cli-btn:hover,
+html.dark #copy-cli-btn:hover {
+  background-color: #e63b2e !important;
+  color: #ffffff !important;
+  border-color: #e63b2e !important;
 }
 
 /* 5. Comparison Table in Light & Dark Mode */
+table thead tr th {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+
+table thead tr th.bg-primary-container,
+html.dark table thead tr th.bg-primary-container {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  font-weight: 700 !important;
+}
+
+/* Light mode table tbody */
 table tbody tr td {
+  background-color: transparent;
   color: #1a1a1a;
 }
 
-table tbody tr:hover td {
+table tbody tr td.bg-surface-container-lowest {
+  background-color: #ffffff;
+}
+
+table tbody tr:hover td,
+table tbody tr:hover td * {
   background-color: #e8e3da !important;
   color: #1a1a1a !important;
 }
 
-html.dark table tbody tr td {
+table tbody tr:hover td code {
+  background-color: #d6d1c9 !important;
+  color: #1a1a1a !important;
+}
+
+/* Dark mode table tbody */
+html.dark table tbody tr td,
+html.dark table tbody tr td.text-on-surface,
+html.dark table tbody tr td.text-on-surface-variant {
   background-color: #181818 !important;
   color: #f5f0e8 !important;
   border-color: #2d2d2d !important;
@@ -676,46 +750,65 @@ html.dark table tbody tr td.bg-surface-container-lowest {
   color: #f5f0e8 !important;
 }
 
+html.dark table tbody tr td code {
+  background-color: #262626 !important;
+  color: #ffcc00 !important;
+  border: 1px solid #383838 !important;
+}
+
+/* Dark mode table hover: MUST stay dark background (#282828) with crisp bright white/cream text */
 html.dark table tbody tr:hover td,
+html.dark table tbody tr:hover td *,
+html.dark table tbody tr:hover td.text-on-surface,
+html.dark table tbody tr:hover td.text-on-surface-variant,
 html.dark table tbody tr:hover td.bg-surface-container-lowest,
 html.dark table tbody tr.hover\:bg-surface-container-high:hover td,
-html.dark .hover\:bg-surface-container-high:hover {
+html.dark table tbody tr.hover\:bg-surface-container-high:hover td * {
   background-color: #282828 !important;
   color: #ffffff !important;
 }
 
-html.dark table tbody tr td code {
-  background-color: #262626 !important;
+html.dark table tbody tr:hover td code {
+  background-color: #383838 !important;
   color: #ffcc00 !important;
-  border: 1px solid #383838;
-}
-
-html.dark table thead tr th {
-  background-color: #141414 !important;
-  color: #f5f0e8 !important;
-  border-color: #383838 !important;
-}
-
-html.dark table thead tr th.bg-primary-container {
-  background-color: #ffcc00 !important;
-  color: #1a1a1a !important;
 }
 
 /* 6. Curriculum Cluster Cards & Badges Wrapping */
 .cluster-badge {
-  background-color: #ffcc00 !important;
-  color: #1a1a1a !important;
-  border: 1px solid #1a1a1a !important;
   white-space: nowrap !important;
+  word-break: keep-all !important;
   flex-shrink: 0 !important;
-  display: inline-block !important;
-  line-height: 1.4 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1.2 !important;
+  min-width: max-content !important;
 }
 
-html.dark .cluster-badge {
+.cluster-badge.bg-surface-container-lowest {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+}
+
+html.dark .cluster-badge.bg-surface-container-lowest {
+  background-color: #222222 !important;
+  color: #f5f0e8 !important;
+  border-color: #555555 !important;
+}
+
+.cluster-badge.bg-primary-container,
+html.dark .cluster-badge.bg-primary-container {
   background-color: #ffcc00 !important;
   color: #1a1a1a !important;
-  border: 1px solid #ffcc00 !important;
+  border-color: #1a1a1a !important;
+}
+
+.cluster-badge.bg-emerald-400,
+html.dark .cluster-badge.bg-emerald-400 {
+  background-color: #34d399 !important;
+  color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
 }
 
 .topic-item .font-mono {
@@ -724,4 +817,37 @@ html.dark .cluster-badge {
   overflow: visible !important;
   text-overflow: clip !important;
   line-height: 1.3 !important;
+}
+
+/* 7. Search Input Leading Icon in Light & Dark Mode */
+#search-icon-wrap,
+#search-icon-wrap .material-symbols-outlined {
+  color: #1a1a1a !important;
+}
+
+html.dark #search-icon-wrap,
+html.dark #search-icon-wrap .material-symbols-outlined {
+  color: #f5f0e8 !important;
+}
+
+/* 8. Mobile Responsiveness Guards */
+*, *::before, *::after {
+  max-width: 100%;
+}
+
+body {
+  overflow-x: hidden !important;
+  position: relative;
+  width: 100%;
+}
+
+@media (max-width: 640px) {
+  html, body {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+  }
+  .cluster-badge {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
+  }
 }
