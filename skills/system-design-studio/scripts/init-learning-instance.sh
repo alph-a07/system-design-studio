@@ -1,6 +1,9 @@
-#!/usr/bin/env bash
-# Initialize a project as a System Design Studio Learning Instance
-set -euo pipefail
+#!/bin/sh
+# System Design Studio — Learning Instance Initializer
+# Scaffolds .system-design/ state directory in current project workspace.
+# Fully POSIX sh compliant for macOS, Linux, BSD, and Windows (Git Bash/WSL).
+set -e
+(set -o pipefail) 2>/dev/null && set -o pipefail || true
 
 INSTANCE_DIR=".system-design"
 LESSONS_DIR="${INSTANCE_DIR}/lessons"
@@ -11,21 +14,29 @@ echo "🚀 Initializing System Design Studio Learning Instance..."
 
 mkdir -p "${LESSONS_DIR}"
 
+# Locate resources directory relative to script or fallback to remote download
+SCRIPT_PATH="${0:-}"
 SCRIPT_DIR=""
-if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
-  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ]; then
+  SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" 2>/dev/null && pwd || echo "")"
 fi
 RESOURCES_DIR="${SCRIPT_DIR}/../resources"
 
 fetch_or_copy() {
-  local filename="$1"
-  local target_path="$2"
+  filename="$1"
+  target_path="$2"
 
-  if [[ -n "${SCRIPT_DIR}" && -f "${RESOURCES_DIR}/${filename}" ]]; then
+  if [ -n "${SCRIPT_DIR}" ] && [ -f "${RESOURCES_DIR}/${filename}" ]; then
     cp "${RESOURCES_DIR}/${filename}" "${target_path}"
-  else
+  elif command -v curl >/dev/null 2>&1; then
     echo "   📥 Fetching ${filename} from GitHub..."
     curl -fsSL "${RAW_BASE}/${filename}" -o "${target_path}"
+  elif command -v wget >/dev/null 2>&1; then
+    echo "   📥 Fetching ${filename} from GitHub (wget)..."
+    wget -qO "${target_path}" "${RAW_BASE}/${filename}"
+  else
+    echo "❌ Error: curl or wget is required to fetch ${filename}" >&2
+    exit 1
   fi
 }
 
@@ -45,7 +56,7 @@ cat <<EOF > "${INSTANCE_DIR}/DECISIONS.md"
 *No decisions accepted yet. Decisions will be recorded as architectural trade-offs are evaluated and defended in workshops.*
 EOF
 
-chmod +x "${INSTANCE_DIR}/manifest.json" 2>/dev/null || true
+chmod -R u+rwX,go+rX "${INSTANCE_DIR}" 2>/dev/null || true
 
 echo "✅ Learning instance initialized at ${INSTANCE_DIR}/"
 echo "   - Manifest:   ${INSTANCE_DIR}/manifest.json"

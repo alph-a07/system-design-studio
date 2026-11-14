@@ -59,3 +59,31 @@ jobs:
             --input $GITHUB_WORKSPACE/skills/system-design-studio/resources/custom-curriculum-example.md \
             --instance-dir .system-design
           python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/verify-instance.py .system-design
+
+      - name: Test Universal Cross-OS & Cross-Agent Installer
+        run: |
+          # 1. Test POSIX sh
+          rm -rf /tmp/test-sh-home && mkdir -p /tmp/test-sh-home
+          HOME=/tmp/test-sh-home sh $GITHUB_WORKSPACE/install.sh --all
+          test -f /tmp/test-sh-home/.gemini/antigravity/skills/system-design-studio/SKILL.md
+          test -f /tmp/test-sh-home/.claude/skills/system-design-studio/SKILL.md
+          test -f /tmp/test-sh-home/.cursor/skills/system-design-studio/SKILL.md
+          test -f /tmp/test-sh-home/.codex/skills/system-design-studio/SKILL.md
+          test -f /tmp/test-sh-home/.agents/skills/system-design-studio/SKILL.md
+
+          # 2. Test bash
+          rm -rf /tmp/test-bash-home && mkdir -p /tmp/test-bash-home
+          HOME=/tmp/test-bash-home bash $GITHUB_WORKSPACE/install.sh --all
+          test -f /tmp/test-bash-home/.gemini/antigravity/skills/system-design-studio/SKILL.md
+
+          # 3. Test dash (Debian/Ubuntu POSIX shell)
+          if command -v dash >/dev/null 2>&1; then
+            rm -rf /tmp/test-dash-home && mkdir -p /tmp/test-dash-home
+            HOME=/tmp/test-dash-home dash $GITHUB_WORKSPACE/install.sh --all
+            test -f /tmp/test-dash-home/.gemini/antigravity/skills/system-design-studio/SKILL.md
+          fi
+
+          # 4. Test piped execution (curl ... | bash)
+          rm -rf /tmp/test-pipe-home && mkdir -p /tmp/test-pipe-home
+          cat $GITHUB_WORKSPACE/install.sh | HOME=/tmp/test-pipe-home sh -s -- --all
+          test -f /tmp/test-pipe-home/.gemini/antigravity/skills/system-design-studio/SKILL.md
