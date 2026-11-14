@@ -1,542 +1,997 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Design Studio: learn system design with your AI coding agent</title>
-  <meta name="description" content="An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch.">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
 
-  <!-- SITE MASTHEAD -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <div class="brand-lockup">
-        <a href="index.html" class="brand-lockup">
-          <span class="brand-badge">SD</span>
-          <span class="brand-title">System Design Studio</span>
-        </a>
-        <span class="version-tag">
-          <span class="version-dot"></span> v2.1.0 · <span data-stat="total-topics">354</span> topics
+<html lang="en"><head>
+<title>System Design Studio: learn system design with your AI coding agent</title>
+<meta name="description" content="An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch."/>
+<link rel="stylesheet" href="styles.css"/>
+<script>
+  if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+</script><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright":"#faf7f2","surface":"#f5f0e8","surface-container-high":"#e8e3da","surface-dim":"#d6d1c9","inverse-on-surface":"#f5f0e8","surface-variant":"#e8e3da","tertiary-fixed":"#d6e3ff","secondary":"#e63b2e","on-tertiary":"#ffffff","primary-fixed":"#ffcc00","background":"#f5f0e8","on-tertiary-fixed-variant":"#1a1a1a","error-container":"#ffdad6","on-secondary":"#1a1a1a","on-secondary-container":"#1a1a1a","on-surface":"#1a1a1a","on-primary-container":"#1a1a1a","inverse-surface":"#1a1a1a","on-tertiary-fixed":"#1a1a1a","tertiary-fixed-dim":"#a8c6ff","secondary-fixed-dim":"#ffb3ab","secondary-container":"#ffdad6","on-primary":"#ffffff","on-surface-variant":"#4a4a4a","on-primary-fixed":"#1a1a1a","secondary-fixed":"#ffdad6","on-primary-fixed-variant":"#1a1a1a","inverse-primary":"#f5f0e8","surface-container-low":"#f2ede5","outline":"#1a1a1a","on-tertiary-container":"#1a1a1a","on-error-container":"#93000a","on-secondary-fixed":"#1a1a1a","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#1a1a1a","error":"#cc0000","on-background":"#1a1a1a","surface-tint":"#1a1a1a","on-error":"#ffffff","tertiary-container":"#d6e3ff","tertiary":"#0055ff","surface-container":"#eee9e0","outline-variant":"#d0cbc3","surface-container-highest":"#e2ddd4","primary-fixed-dim":"#e6b800","primary-container":"#ffcc00","primary":"#1a1a1a"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{},"fontFamily":{"headline":["Space Grotesk"],"display":["Space Grotesk"],"body":["Inter"],"label":["Space Grotesk"]},"fontSize":{}}}}</script></head><body class="bg-surface font-body text-on-surface antialiased min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface border-b-[3px] border-primary"><div class="h-16 w-full max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-4"><a class="flex items-center gap-2 group" href="index.html"><div class="w-8 h-8 bg-primary-container border-2 border-primary flex items-center justify-center font-headline font-bold text-xs text-primary shadow-[2px_2px_0px_#1a1a1a]">SD</div><span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface group-hover:text-tertiary transition-colors">System Design Studio</span></a></div><nav class="hidden md:flex items-center gap-2">
+  <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-on-primary border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="index.html">Home</a>
+  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="curriculum.html">Curriculum</a>
+  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#how-it-works">How it works</a>
+  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#install">Install</a>
+  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="docs.html">Docs</a>
+  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
+</nav><div class="flex items-center gap-3"><button aria-label="Toggle color mode" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" onclick="toggleDarkMode()" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a class="hidden sm:inline-flex items-center px-4 py-2 border-2 border-primary bg-secondary text-white font-headline text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" href="#install">Start Studio</a><a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" aria-label="GitHub Repository" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a]"><span class="material-symbols-outlined text-[18px]">terminal</span></a></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
+<!-- HERO SECTION -->
+<section class="w-full border-b-[3px] border-primary px-6 lg:px-12 py-16 lg:py-24 bg-surface relative">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+<!-- Top Tag & Monospace Meta -->
+<div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-primary pb-4 font-headline uppercase text-xs tracking-wider">
+<div class="flex items-center gap-2">
+<span class="inline-block w-3 h-3 bg-secondary"></span>
+<span class="font-bold text-on-surface">OPEN-SOURCE AGENT SKILL • SPEC v2.1.0</span>
+</div>
+<div class="flex items-center gap-6 text-on-surface-variant font-mono">
+<span>TARGETS: CLAUDE CODE • CURSOR • CODEX • ANTIGRAVITY</span>
+<span class="hidden sm:inline-block bg-primary-container text-on-primary-container px-2 py-0.5 border border-primary font-bold">STATE: CURSOR.MD</span>
+</div>
+</div>
+<!-- Hero Typography -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<div class="lg:col-span-8 flex flex-col gap-6">
+<h1 class="font-headline font-bold text-4xl sm:text-6xl lg:text-7xl tracking-tighter uppercase leading-[0.95] text-on-surface">
+            Learn system design with the agent <span class="bg-primary-container px-2 inline-block -rotate-1 border-2 border-primary">you already use.</span>
+</h1>
+<p class="font-body text-lg lg:text-xl text-on-surface-variant max-w-2xl leading-relaxed">
+            An open-source skill that teaches distributed systems topic by topic, commits state in your repository file <code class="font-mono font-bold bg-surface-container-high px-1.5 py-0.5 border border-primary text-on-surface">CURSOR.md</code>, and picks up exactly where you left off across chat resets and LLM switches.
+          </p>
+<div class="flex flex-wrap items-center gap-4 pt-2">
+<a class="px-6 py-3.5 bg-primary text-on-primary font-headline text-sm font-bold uppercase tracking-wider border-2 border-primary shadow-[4px_4px_0px_#ffcc00] hover:bg-secondary hover:text-white hover:border-primary transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center gap-2" href="#install">
+<span class="material-symbols-outlined text-lg">terminal</span>
+              Install Agent Skill
+            </a>
+<a class="px-6 py-3.5 bg-surface-container-lowest text-on-surface font-headline text-sm font-bold uppercase tracking-wider border-2 border-primary shadow-[4px_4px_0px_#1a1a1a] hover:bg-primary-container transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center gap-2" href="#simulator">
+<span class="material-symbols-outlined text-lg">play_arrow</span>
+              Run Interactive Demo
+            </a>
+<span class="font-mono text-xs text-on-surface-variant flex items-center gap-1.5 ml-2">
+<span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+              354 Topics Indexed • 50 Clusters
+            </span>
+</div>
+</div>
+<!-- Metric Bauhaus Stamp -->
+<div class="lg:col-span-4 bg-primary text-on-primary p-6 border-[3px] border-primary shadow-[6px_6px_0px_#ffcc00] flex flex-col justify-between self-stretch">
+<div class="flex justify-between items-start border-b border-surface/20 pb-4">
+<span class="font-mono text-xs tracking-widest text-primary-fixed uppercase font-bold">STATE PARADIGM</span>
+<span class="font-headline font-bold text-xs bg-secondary text-white px-2 py-0.5">ZERO-CLOUD</span>
+</div>
+<div class="my-6">
+<div class="font-headline font-bold text-5xl tracking-tight text-white mb-1">100%</div>
+<div class="font-headline text-sm font-bold uppercase text-surface-dim">Repo-Native Tutoring</div>
+<p class="font-body text-xs text-surface-variant mt-2 leading-relaxed">
+              No remote database lock-in. Your progress, active analogies, and causal anchors live in clean Git-tracked markdown.
+            </p>
+</div>
+<div class="pt-4 border-t border-surface/20 flex items-center justify-between text-xs font-mono text-primary-fixed">
+<span>RESILIENT TO CHAT RESETS</span>
+<span>•••</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SPLIT PREVIEW: TERMINAL STATE VS GENERATED INTERACTIVE SIMULATOR -->
+<section class="w-full border-b-[3px] border-primary bg-surface-container-low px-6 lg:px-12 py-16" id="simulator">
+<div class="max-w-7xl mx-auto flex flex-col gap-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<div class="font-headline text-xs font-bold uppercase tracking-widest text-secondary flex items-center gap-1.5 mb-2">
+<span class="material-symbols-outlined text-base">play_circle</span>
+            Sample lesson the agent generates. Try it.
+          </div>
+<h2 class="font-headline font-bold text-3xl sm:text-4xl uppercase tracking-tight text-on-surface">
+            Persistent File State → Executable Artifacts
+          </h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-md">
+          The agent reads <span class="font-mono text-on-surface font-semibold">CURSOR.md</span> on every prompt, builds mental scaffolding, and spits out live sandboxed HTML simulations directly into your project.
+        </p>
+</div>
+<!-- Split Screen Workbench -->
+<div class="grid grid-cols-1 lg:grid-cols-12 border-[3px] border-primary bg-surface shadow-[8px_8px_0px_#1a1a1a]">
+<!-- Left: CURSOR.md View -->
+<div class="lg:col-span-6 border-b-[3px] lg:border-b-0 lg:border-r-[3px] border-primary bg-primary text-surface p-6 flex flex-col justify-between font-mono text-xs">
+<div>
+<!-- Terminal Header -->
+<div class="flex items-center justify-between border-b border-surface-variant/30 pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-secondary inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-primary-container inline-block"></span>
+<span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span>
+<div class="flex items-center gap-1 ml-2">
+  <button id="tab-btn-cursormd" onclick="switchHeroTab('cursor')" class="px-2 py-0.5 font-bold text-surface uppercase font-headline text-xs border-b-2 border-primary-container">CURSOR.md (sample)</button>
+  <button id="tab-btn-syncstatus" onclick="switchHeroTab('sync')" class="px-2 py-0.5 font-bold text-surface-dim uppercase font-headline text-xs hover:text-surface">sync-status.py (sample)</button>
+</div>
+</div>
+<span id="hero-tab-indicator" class="text-[10px] text-surface-dim uppercase tracking-wider font-mono">active: 0.1</span>
+</div>
+<!-- YAML / Markdown Code Block -->
+<div id="hero-pane-cursor">
+<pre class="overflow-x-auto text-[11px] leading-relaxed text-surface font-mono"><code class="text-surface-dim"><span class="text-surface-variant"># .system-design/CURSOR.md (sample output)</span>
+<span class="text-primary-fixed font-bold">activeFocus:</span>
+  <span class="text-secondary-fixed">topicId:</span> <span class="text-emerald-300">"topic.0.1.tcp-vs-udp"</span>
+  <span class="text-secondary-fixed">tier:</span> <span class="text-surface">"Tier 0 — HLD Building Blocks (Prerequisite Slice)"</span>
+  <span class="text-secondary-fixed">phase:</span> <span class="text-primary-fixed">"foundation-complete"</span>
+  <span class="text-secondary-fixed">depthLevel:</span> <span class="text-emerald-300">"physical-mechanics"</span>
+
+<span class="text-primary-fixed font-bold">causalAnchors:</span>
+  - <span class="text-tertiary-fixed">"Cold TCP + TLS 1.3 (no 0-RTT/resumption): 3 round trips before first byte"</span>
+  - <span class="text-tertiary-fixed">"Head-of-Line blocking in single-stream TCP socket buffers"</span>
+  - <span class="text-tertiary-fixed">"UDP has zero transport state; congestion control runs in user-space"</span>
+
+<span class="text-primary-fixed font-bold">examplesTaken:</span>
+  - <span class="text-amber-200">"financial-ledger-wal"</span>
+  - <span class="text-amber-200">"live-webrtc-audio"</span>
+
+<span class="text-primary-fixed font-bold">deferredQueue:</span>
+  - <span class="text-surface-variant">"QUIC connection migration across cellular handoffs"</span></code></pre>
+</div>
+<div id="hero-pane-sync" class="hidden">
+<pre class="overflow-x-auto text-[11px] leading-relaxed text-surface font-mono"><code class="text-surface-dim"><span class="text-surface-variant"># sync-status.py output (sample output)</span>
+<span class="text-primary-fixed font-bold">$ python3 .system-design/scripts/sync-status.py</span>
+<span class="text-surface">Status:</span> <span class="text-emerald-300">In Progress</span>
+<span class="text-surface">Active Topic:</span> <span class="text-primary-fixed">topic.0.1.tcp-vs-udp</span>
+<span class="text-surface">Tier:</span> <span class="text-surface">Tier 0 — HLD Building Blocks (Prerequisite Slice)</span>
+
+<span class="text-primary-fixed font-bold">Curriculum Progress:</span>
+  <span class="text-secondary-fixed">Completed:</span>  <span class="text-emerald-300">28 topics</span>
+  <span class="text-secondary-fixed">Active:</span>      <span class="text-primary-fixed">1 topic</span>
+  <span class="text-secondary-fixed">Remaining:</span> <span class="text-surface-dim">325 topics</span>
+  <span class="text-surface-variant">---------------------------------------</span>
+  <span class="text-secondary-fixed">Total:</span>     <span class="text-surface font-bold">354 topics (50 clusters)</span>
+
+<span class="text-primary-fixed font-bold">Validation Checks:</span>
+  <span class="text-emerald-400">✓</span> Prerequisite DAG validated against manifest.json
+  <span class="text-emerald-400">✓</span> 3 hardware latency anchors anchored to physical limits
+  <span class="text-emerald-400">✓</span> Next topic in sequence: topic.0.1.http-v1-v2-v3</code></pre>
+</div>
+</div>
+<div class="mt-6 pt-3 border-t border-surface-variant/30 flex items-center justify-between text-[11px] text-surface-dim">
+<span>READ &amp; WRITE BY AGENT HOOK</span>
+<span class="text-primary-container font-bold font-headline uppercase tracking-wider">• Git Native</span>
+</div>
+</div>
+<!-- Right: Interactive Live Simulation Artifact -->
+<div class="lg:col-span-6 bg-surface-container-lowest p-6 flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<div class="flex items-center gap-2">
+<span class="font-headline font-bold text-xs uppercase tracking-wide bg-primary-container px-2 py-0.5 border border-primary text-on-primary">
+                  Generated Artifact
+                </span>
+<span class="font-headline text-xs font-bold uppercase text-on-surface">HOL Blocking Simulator</span>
+</div>
+<span class="font-mono text-[10px] text-on-surface-variant">.system-design/lessons/tcp-hol.html</span>
+</div>
+<!-- Simulator Description -->
+<p class="text-xs text-on-surface-variant mb-4">
+              Single-stream TCP socket buffer stall. Packets 3 and 4 cannot be consumed by the application layer until Packet 2 is retransmitted and acknowledged.
+            </p>
+<!-- Mode selector -->
+<div class="flex gap-2 mb-4">
+<button class="px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-primary text-white shadow-[2px_2px_0px_#1a1a1a]" id="mode-tcp" onclick="switchSimMode('tcp')">TCP (HTTP/1.1)</button>
+<button class="px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-surface-container text-on-surface hover:bg-primary-container transition-colors" id="mode-quic" onclick="switchSimMode('quic')">QUIC / HTTP/3</button>
+</div>
+<!-- Visual Stream Pipeline -->
+<div class="bg-surface border-2 border-primary p-4 mb-4">
+<div class="flex justify-between items-center text-[11px] font-mono font-bold uppercase mb-2">
+<span id="stream-label">TCP Stream 1 (Head-of-Line Pipeline)</span>
+<span class="text-secondary font-bold flex items-center gap-1" id="sim-status">
+<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span>
+                  HOL BLOCKING ACTIVE
+                </span>
+</div>
+<!-- Packets Grid -->
+<div class="grid grid-cols-4 gap-2 text-center font-mono text-xs">
+<!-- Packet 1 -->
+<div class="border-2 border-primary bg-surface-container p-2 flex flex-col items-center">
+<span class="text-[10px] text-emerald-700 font-bold uppercase">ACK'D</span>
+<span class="font-bold text-on-surface mt-1">Packet 1</span>
+<span class="text-[9px] text-on-surface-variant">Offset: 0B</span>
+</div>
+<!-- Packet 2 (Lost) -->
+<div class="border-2 border-primary bg-secondary-container text-secondary p-2 flex flex-col items-center animate-pulse" id="pkt-2">
+<span class="text-[10px] font-bold uppercase">LOST</span>
+<span class="font-bold text-on-surface mt-1">Packet 2</span>
+<span class="text-[9px] text-secondary">Drop in transit</span>
+</div>
+<!-- Packet 3 (Blocked) -->
+<div class="border-2 border-dashed border-primary bg-surface-dim/40 p-2 flex flex-col items-center opacity-60" id="pkt-3">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase">BLOCKED</span>
+<span class="font-bold text-on-surface mt-1">Packet 3</span>
+<span class="text-[9px] text-on-surface-variant">In OS Buffer</span>
+</div>
+<!-- Packet 4 (Blocked) -->
+<div class="border-2 border-dashed border-primary bg-surface-dim/40 p-2 flex flex-col items-center opacity-60" id="pkt-4">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase">BLOCKED</span>
+<span class="font-bold text-on-surface mt-1">Packet 4</span>
+<span class="text-[9px] text-on-surface-variant">In OS Buffer</span>
+</div>
+</div>
+<!-- Latency penalty meter -->
+<div class="mt-4 pt-3 border-t border-primary/20 flex items-center justify-between text-xs font-mono">
+<span class="text-on-surface-variant">Transport Head Stall:</span>
+<span class="font-bold text-secondary bg-surface-container-high px-2 py-0.5 border border-primary" id="penalty-badge">+84ms RTT Penalty</span>
+</div>
+</div>
+<!-- Interactive Trigger Buttons -->
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 bg-primary-container text-on-primary font-headline text-xs font-bold uppercase border-2 border-primary shadow-[2px_2px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all" onclick="retransmitPkt2()">
+                Retransmit Packet 2
+              </button>
+<button class="px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-primary hover:bg-surface-container-high transition-all" onclick="resetSim()">
+                Reset Packet Loss
+              </button>
+</div>
+</div>
+<div class="mt-6 pt-3 border-t-2 border-primary flex items-center justify-between text-[11px] font-mono text-on-surface-variant">
+<span>SELF-CONTAINED INLINE HTML</span>
+<span class="font-bold uppercase text-on-surface">No external servers</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- LATENCY COMPARISON: HARDWARE BENCHMARKS -->
+<section class="w-full border-b-[3px] border-primary bg-surface px-6 lg:px-12 py-16">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-tertiary">Anchor 00 • Hardware Realism</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+            Every lesson starts from real latency numbers
+          </h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-sm">
+          If 1 CPU cycle (0.5 ns) were normalized to 1 human second, cross-datacenter WAN transfer would take almost a decade.
+        </p>
+</div>
+<!-- Latency Bar visualization -->
+<div class="flex flex-col gap-3 font-mono">
+<!-- Row 1: L1 CPU Cache -->
+<div class="border-2 border-primary bg-surface-container-lowest p-4 shadow-[4px_4px_0px_#1a1a1a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="w-64 shrink-0">
+<div class="font-headline font-bold text-sm uppercase text-on-surface flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-emerald-500 inline-block border border-primary"></span>
+              L1 CPU Cache
+            </div>
+<div class="text-[11px] text-on-surface-variant">Registers and L1 instruction/data fetch</div>
+</div>
+<div class="flex-1 w-full bg-surface-container-high h-6 border-2 border-primary relative overflow-hidden flex items-center">
+<div class="bg-primary h-full w-[2%]"></div>
+<span class="absolute left-2 text-[10px] font-bold uppercase text-on-surface">0.5 ns</span>
+</div>
+<div class="w-36 text-right shrink-0">
+<span class="bg-primary-container px-2 py-1 text-xs font-bold border border-primary">1 second</span>
+</div>
+</div>
+<!-- Row 2: Mutex Lock/Unlock -->
+<div class="border-2 border-primary bg-surface-container-lowest p-4 shadow-[4px_4px_0px_#1a1a1a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="w-64 shrink-0">
+<div class="font-headline font-bold text-sm uppercase text-on-surface flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-tertiary-container inline-block border border-primary"></span>
+              Mutex Lock/Unlock
+            </div>
+<div class="text-[11px] text-on-surface-variant">Uncontended pthread mutex or atomic CAS</div>
+</div>
+<div class="flex-1 w-full bg-surface-container-high h-6 border-2 border-primary relative overflow-hidden flex items-center">
+<div class="bg-primary h-full w-[8%]"></div>
+<span class="absolute left-2 text-[10px] font-bold uppercase text-on-surface">20 ns</span>
+</div>
+<div class="w-36 text-right shrink-0">
+<span class="bg-surface-container px-2 py-1 text-xs font-bold border border-primary">40 seconds</span>
+</div>
+</div>
+<!-- Row 3: Main Memory (DRAM) -->
+<div class="border-2 border-primary bg-surface-container-lowest p-4 shadow-[4px_4px_0px_#1a1a1a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="w-64 shrink-0">
+<div class="font-headline font-bold text-sm uppercase text-on-surface flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-primary-container inline-block border border-primary"></span>
+              Main Memory (DRAM)
+            </div>
+<div class="text-[11px] text-on-surface-variant">Memory bus transaction, 200x slower than L1</div>
+</div>
+<div class="flex-1 w-full bg-surface-container-high h-6 border-2 border-primary relative overflow-hidden flex items-center">
+<div class="bg-tertiary h-full w-[22%]"></div>
+<span class="absolute left-2 text-[10px] font-bold uppercase text-white">100 ns</span>
+</div>
+<div class="w-36 text-right shrink-0">
+<span class="bg-primary-container px-2 py-1 text-xs font-bold border border-primary">~3.3 minutes</span>
+</div>
+</div>
+<!-- Row 4: NVMe SSD 4KB Read -->
+<div class="border-2 border-primary bg-surface-container-lowest p-4 shadow-[4px_4px_0px_#1a1a1a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="w-64 shrink-0">
+<div class="font-headline font-bold text-sm uppercase text-on-surface flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-secondary-container inline-block border border-primary"></span>
+              NVMe SSD 4KB Read
+            </div>
+<div class="text-[11px] text-on-surface-variant">Random 4KB block read over PCIe bus</div>
+</div>
+<div class="flex-1 w-full bg-surface-container-high h-6 border-2 border-primary relative overflow-hidden flex items-center">
+<div class="bg-secondary h-full w-[54%]"></div>
+<span class="absolute left-2 text-[10px] font-bold uppercase text-white">20 μs</span>
+</div>
+<div class="w-36 text-right shrink-0">
+<span class="bg-secondary text-white px-2 py-1 text-xs font-bold border border-primary">~11 hours</span>
+</div>
+</div>
+<!-- Row 5: Cross-Datacenter WAN -->
+<div class="border-2 border-primary bg-surface-container-lowest p-4 shadow-[4px_4px_0px_#1a1a1a] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+<div class="w-64 shrink-0">
+<div class="font-headline font-bold text-sm uppercase text-on-surface flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-primary inline-block border border-primary"></span>
+              Cross-Datacenter WAN
+            </div>
+<div class="text-[11px] text-on-surface-variant">Speed-of-light optical fiber round trip</div>
+</div>
+<div class="flex-1 w-full bg-surface-container-high h-6 border-2 border-primary relative overflow-hidden flex items-center">
+<div class="bg-primary h-full w-[100%]"></div>
+<span class="absolute left-2 text-[10px] font-bold uppercase text-on-primary">150 ms</span>
+</div>
+<div class="w-36 text-right shrink-0">
+<span class="bg-primary text-on-primary px-2 py-1 text-xs font-bold border border-primary">~9.5 YEARS</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- HOW IT WORKS: 3-COLUMN BRUTALIST TILES -->
+<section class="w-full border-b-[3px] border-primary bg-surface-container px-6 lg:px-12 py-16" id="how-it-works">
+<div class="max-w-7xl mx-auto flex flex-col gap-12">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Operational Mechanism</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+          How it works
+        </h2>
+<p class="font-body text-base text-on-surface-variant mt-2 max-w-2xl">
+          Three phases turn your AI coding agent into a stateful systems tutor that retains progress across sessions and model switches. Duration and depth are on-demand per topic: explore or deep dive repeatedly at your own pace.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Phase 1 -->
+<div class="border-[3px] border-primary bg-surface p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<span class="font-headline font-bold text-xs uppercase bg-primary-container px-2 py-0.5 border border-primary">Phase 1</span>
+<span class="font-mono text-xs text-on-surface-variant">01 / SETUP</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              Repository Scaffolding
+            </h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+              The scaffolding script installs the <code class="font-mono bg-surface-container-high px-1">.system-design/</code> directory into your local repository. 100% local files; zero external cloud services or databases.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs text-on-surface-variant">
+            Target: <code class="text-primary font-bold">.system-design/manifest.json</code>
+</div>
+</div>
+<!-- Phase 2 -->
+<div class="border-[3px] border-primary bg-surface p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<span class="font-headline font-bold text-xs uppercase bg-secondary text-white px-2 py-0.5 border border-primary">Phase 2</span>
+<span class="font-mono text-xs text-on-surface-variant">02 / STATE</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              Your progress lives in a file
+            </h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+<code class="font-mono bg-surface-container-high px-1">CURSOR.md</code> records the active topic, verified prerequisites, hardware invariants, and previous analogies. When your AI context resets, progress is preserved.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs text-on-surface-variant">
+            Target: <code class="text-secondary font-bold">.system-design/CURSOR.md</code>
+</div>
+</div>
+<!-- Phase 3 -->
+<div class="border-[3px] border-primary bg-surface p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<span class="font-headline font-bold text-xs uppercase bg-tertiary text-white px-2 py-0.5 border border-primary">Phase 3</span>
+<span class="font-mono text-xs text-on-surface-variant">03 / ARTIFACTS</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              Interactive HTML Lessons
+            </h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+              The agent generates self-contained interactive HTML artifacts directly inside <code class="font-mono bg-surface-container-high px-1">.system-design/lessons/</code> with failure simulators and packet visualizers.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs text-on-surface-variant">
+            Target: <code class="text-tertiary font-bold">.system-design/lessons/*.html</code>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- THE FOUR LAYERS OF CURSOR.MD -->
+<section class="w-full border-b-[3px] border-primary bg-surface px-6 lg:px-12 py-16">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-primary-fixed-dim">Schema Architecture</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+            The four layers of CURSOR.md
+          </h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-sm">
+          File-backed state on disk outlasts ephemeral AI chat context windows.
+        </p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono">
+<!-- Layer 1 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-secondary">
+<span class="material-symbols-outlined text-base">pin_drop</span>
+              Layer 01 • Execution Focus
+            </div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
+              1. activeFocus
+            </h3>
+<p class="font-body text-xs text-on-surface-variant mb-4">
+              Tracks topic ID, depth tier, and active mechanism group. Ensures the tutor stays on the active objective without hallucinating tangents.
+            </p>
+</div>
+<pre class="bg-surface-container p-3 border-2 border-primary text-[11px] overflow-x-auto"><code>topicId: topic.0.1.tcp-vs-udp • depthLevel: physical-mechanics</code></pre>
+</div>
+<!-- Layer 2 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-tertiary">
+<span class="material-symbols-outlined text-base">anchor</span>
+              Layer 02 • Invariant Rules
+            </div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
+              2. causalAnchors
+            </h3>
+<p class="font-body text-xs text-on-surface-variant mb-4">
+              Records physical latency numbers and network boundaries verified during lessons so subsequent prompts reason from concrete bounds.
+            </p>
+</div>
+<pre class="bg-surface-container p-3 border-2 border-primary text-[11px] overflow-x-auto"><code>"Cold TCP + TLS 1.3 (no 0-RTT): 3 round trips before first byte"</code></pre>
+</div>
+<!-- Layer 3 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-primary">
+<span class="material-symbols-outlined text-base">history_edu</span>
+              Layer 03 • Analogy Registry
+            </div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
+              3. examplesTaken
+            </h3>
+<p class="font-body text-xs text-on-surface-variant mb-4">
+              Registry of system domains used (financial ledger, audio streaming) to maintain continuity without repeating outdated analogies.
+            </p>
+</div>
+<pre class="bg-surface-container p-3 border-2 border-primary text-[11px] overflow-x-auto"><code>['financial-ledger-wal', 'live-webrtc-audio']</code></pre>
+</div>
+<!-- Layer 4 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 border-b-[3px] shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-secondary">
+<span class="material-symbols-outlined text-base">queue_play_next</span>
+              Layer 04 • Tangent Buffer
+            </div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
+              4. deferredQueue
+            </h3>
+<p class="font-body text-xs text-on-surface-variant mb-4">
+              Tracks tangent questions for upcoming clusters without breaking current topic focus. Processed only when foundation phase closes.
+            </p>
+</div>
+<pre class="bg-surface-container p-3 border-2 border-primary text-[11px] overflow-x-auto"><code>['QUIC connection migration across cellular handoffs']</code></pre>
+</div>
+</div>
+</div>
+</section>
+<!-- INSTALL FOR YOUR AGENT (TERMINAL INSTALLER TABS) -->
+<section class="w-full border-b-[3px] border-primary bg-surface-container-low px-6 lg:px-12 py-16" id="install">
+<div class="max-w-7xl mx-auto flex flex-col gap-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Quickstart Command</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+            Install for your agent
+          </h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-md">
+          Two-step setup: install the skill into your AI agent, then scaffold the learning instance in your repository.
+        </p>
+</div>
+<!-- Callout warning banner -->
+<div class="border-2 border-primary bg-primary-container p-4 font-mono text-xs flex items-center gap-3">
+<span class="material-symbols-outlined text-base font-bold text-on-primary">info</span>
+<span>
+<strong>Where to install:</strong> We recommend a dedicated learning repository (for example, <code class="font-bold underline">mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If you scaffold inside an existing work repository, add <code class="font-bold underline">.system-design/</code> to your <code class="font-bold underline">.gitignore</code> so personal progress files stay out of team commits.
         </span>
-      </div>
-
-      <nav class="nav-menu">
-        <a href="curriculum.html" class="nav-link">Syllabus</a>
-        <a href="#how-it-works" class="nav-link">How it works</a>
-        <a href="docs.html" class="nav-link">Docs</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="nav-link" style="display: inline-flex; align-items: center; gap: 6px;">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
-          GitHub
+</div>
+<!-- Terminal widget box -->
+<div class="border-[3px] border-primary bg-primary text-surface shadow-[8px_8px_0px_#1a1a1a]">
+<!-- Tabs Bar -->
+<div class="flex flex-wrap items-center justify-between border-b-2 border-surface-variant/30 bg-primary px-4 pt-3">
+<div class="flex flex-wrap gap-1">
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase border-t-2 border-x-2 border-primary bg-surface text-on-surface" id="tab-antigravity" onclick="selectInstallTab('antigravity')">
+              Google Antigravity
+            </button>
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-claude" onclick="selectInstallTab('claude')">
+              Claude Code
+            </button>
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-cursor" onclick="selectInstallTab('cursor')">
+              Cursor
+            </button>
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-codex" onclick="selectInstallTab('codex')">
+              OpenAI Codex
+            </button>
+<button class="tab-btn px-4 py-2 font-headline text-xs font-bold uppercase text-surface-dim hover:text-white" id="tab-curl" onclick="selectInstallTab('curl')">
+              POSIX Shell (1-Line)
+            </button>
+</div>
+<span class="text-[11px] font-mono text-primary-fixed hidden md:inline-block pb-2">Target: Antigravity Plugin Engine + local .system-design/</span>
+</div>
+<!-- Terminal Body -->
+<div class="p-6 font-mono text-sm">
+<div class="flex items-center justify-between pb-3 mb-4 border-b border-surface-variant/20">
+<span class="text-xs text-surface-dim uppercase">Run in your terminal</span>
+<button class="flex items-center gap-1.5 px-3 py-1 bg-surface text-on-surface font-headline text-xs font-bold uppercase border border-surface hover:bg-primary-container transition-colors" id="copy-btn" onclick="copyCommand()">
+<span class="material-symbols-outlined text-sm">content_copy</span>
+<span>Copy</span>
+</button>
+</div>
+<div class="leading-relaxed" id="cmd-display">
+<p class="text-surface-dim"># Step 1: Install skill into Antigravity</p>
+<p class="text-primary-fixed font-bold py-1">agy plugin add alph-a07/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>
+</div>
+<div class="mt-6 pt-4 border-t border-surface-variant/20 flex flex-wrap items-center justify-between text-xs text-surface-dim">
+<span>Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.</span>
+<span class="text-surface font-bold uppercase">Ready to launch</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FIVE TIERS OF SYSTEMS ENGINEERING -->
+<section class="w-full border-b-[3px] border-primary bg-surface px-6 lg:px-12 py-16">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Curriculum Topology</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+            Five tiers of systems engineering
+          </h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-sm">
+          From network transport and object modeling to distributed systems and mobile client sync across 354 topics.
+        </p>
+</div>
+<!-- 5 Tiers Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Tier 0 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
+<span class="font-headline text-xs font-bold uppercase bg-surface-container-high px-2 py-0.5 border border-primary">Tier 0 — HLD Building Blocks (Prerequisite Slice)</span>
+<span class="font-mono text-xs font-bold text-secondary">PREREQUISITE</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              HLD Building Blocks
+            </h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+              APIs and transport foundations, database fundamentals, caching patterns, queues and quantitative estimation.
+            </p>
+</div>
+<div class="mt-6 pt-3 border-t-2 border-primary font-mono text-[11px] text-on-surface-variant flex justify-between">
+<span>Clusters 0.1 - 0.5</span>
+<span class="font-bold text-on-surface">37 Topics</span>
+</div>
+</div>
+<!-- Tier 1 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
+<span class="font-headline text-xs font-bold uppercase bg-primary-container px-2 py-0.5 border border-primary text-on-primary">Tier 1 • 14 Clusters</span>
+<span class="font-mono text-xs font-bold text-primary">OBJECT MODELING</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              Low-Level Design &amp; Modeling
+            </h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+              Entity invariants, LRU/LFU cache evictions, connection poolers, rate limiting algorithms and thread executors.
+            </p>
+</div>
+<div class="mt-6 pt-3 border-t-2 border-primary font-mono text-[11px] text-on-surface-variant flex justify-between">
+<span>Clusters 1.1 - 1.14</span>
+<span class="font-bold text-on-surface">94 Topics</span>
+</div>
+</div>
+<!-- Tier 2 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
+<span class="font-headline text-xs font-bold uppercase bg-secondary text-white px-2 py-0.5 border border-primary">Tier 2 • 18 Clusters</span>
+<span class="font-mono text-xs font-bold text-secondary">DISTRIBUTED</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              HLD &amp; Distributed Infra
+            </h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+              Consistent hashing, write amplification (B-Tree vs LSM), consensus quorums, event sourcing, CDC and partition rebalancing.
+            </p>
+</div>
+<div class="mt-6 pt-3 border-t-2 border-primary font-mono text-[11px] text-on-surface-variant flex justify-between">
+<span>Clusters 2.1 - 2.18</span>
+<span class="font-bold text-on-surface">134 Topics</span>
+</div>
+</div>
+<!-- Tier 3 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
+<span class="font-headline text-xs font-bold uppercase bg-tertiary text-white px-2 py-0.5 border border-primary">Tier 3 • 11 Clusters</span>
+<span class="font-mono text-xs font-bold text-tertiary">CLIENT SYNC</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              Mobile Systems &amp; Offline Sync
+            </h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+              Battery limits, offline mutation queues, optimistic UI reconciliation, SQLite caching, push notification delivery and telemetry.
+            </p>
+</div>
+<div class="mt-6 pt-3 border-t-2 border-primary font-mono text-[11px] text-on-surface-variant flex justify-between">
+<span>Clusters 3.1 - 3.11</span>
+<span class="font-bold text-on-surface">76 Topics</span>
+</div>
+</div>
+<!-- Tier 4 -->
+<div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-3">
+<span class="font-headline text-xs font-bold uppercase bg-primary text-white px-2 py-0.5 border border-primary">Tier 4 • 2 Clusters</span>
+<span class="font-mono text-xs font-bold text-primary-fixed">PRODUCTION</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              ADRs, Reviews &amp; Spaced Gaps
+            </h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+              Architecture Decision Records (ADRs), production trade-off defense, mock design reviews and spaced review loops.
+            </p>
+</div>
+<div class="mt-6 pt-3 border-t-2 border-primary font-mono text-[11px] text-on-surface-variant flex justify-between">
+<span>Clusters 4.1 - 4.2</span>
+<span class="font-bold text-on-surface">13 Topics</span>
+</div>
+</div>
+<!-- Tier Action Banner -->
+<div class="border-[3px] border-primary bg-primary-container p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="font-headline font-bold text-xs uppercase text-on-primary-container mb-2">Full Syllabus</div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
+              Explore 50 Clusters
+            </h3>
+<p class="font-body text-xs text-on-surface-variant">
+              Browse the complete hierarchical syllabus grid, learning paths, and prerequisite graphs.
+            </p>
+</div>
+<a class="mt-6 inline-flex items-center justify-between px-4 py-3 bg-primary text-white font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[2px_2px_0px_#1a1a1a] hover:bg-secondary hover:text-white transition-all" data-path="curriculum" href="#">
+<span>Browse Full Syllabus</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- COMPARISON TABLE: PERSISTENT FILE-BASED VS PLAIN CHAT -->
+<section class="w-full border-b-[3px] border-primary bg-surface-container px-6 lg:px-12 py-16">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Design Contrast</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+            Comparison
+          </h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-sm">
+          How persistent file-based tutoring compares to a plain conversational chat.
+        </p>
+</div>
+<!-- Brutalist Table -->
+<div class="overflow-x-auto border-[3px] border-primary bg-surface shadow-[6px_6px_0px_#1a1a1a]">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b-[3px] border-primary bg-primary text-surface font-headline text-xs uppercase tracking-wider">
+<th class="p-4 border-r-2 border-surface/20 w-1/4">Dimension</th>
+<th class="p-4 border-r-2 border-surface/20 w-1/3">A Plain AI Chat</th>
+<th class="p-4 bg-primary-container text-on-primary-container font-bold w-5/12">System Design Studio</th>
+</tr>
+</thead>
+<tbody class="font-body text-xs divide-y-2 divide-primary">
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                State Across Sessions
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                Kept in conversational context window; lost when thread resets or model changes.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                Saved to <code class="font-mono bg-surface-container px-1 font-bold">CURSOR.md</code> in Git; preserved across sessions and model switches.
+              </td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                Teaching Approach
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                Text summaries and definitions generated per prompt.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                Step-by-step topic curriculum anchored in hardware latency numbers.
+              </td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                Delivery Artifacts
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                Markdown codeblocks and text replies in chat.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                Standalone interactive HTML files with state and packet simulators in <code class="font-mono bg-surface-container px-1 font-bold">.system-design/lessons/</code>.
+              </td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                Example Tracking
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                No record of previous analogies or examples across sessions.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                Logged in <code class="font-mono bg-surface-container px-1 font-bold">examplesTaken</code> within CURSOR.md to avoid repeating scenarios.
+              </td>
+</tr>
+<tr class="hover:bg-surface-container-high transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                Curriculum Scope
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                Ad-hoc question answering based on user prompts.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                Indexed 50 clusters and 354 topics in <code class="font-mono bg-surface-container px-1 font-bold">.system-design/CURRICULUM.md</code>.
+              </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- CTA BANNER SECTION -->
+<section class="w-full bg-secondary text-white px-6 lg:px-12 py-16 border-b-[3px] border-primary relative overflow-hidden">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
+<div class="flex flex-col gap-2">
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-primary-fixed">Ready to turn your agent into a tutor?</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-white leading-tight">
+          Initialize your studio in 30 seconds.
+        </h2>
+<p class="font-body text-sm text-surface-container max-w-xl">
+          Zero dependencies besides Git and Bash. Free and open source under MIT.
+        </p>
+</div>
+<div class="flex flex-wrap items-center gap-4 shrink-0">
+<a class="px-6 py-4 bg-primary text-white font-headline text-sm font-bold uppercase tracking-wider border-2 border-white shadow-[4px_4px_0px_#ffffff] hover:bg-white hover:text-primary transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" href="#install">
+          Get Started Now
         </a>
-        <a href="#install" class="btn-primary">Install</a>
-      </nav>
-    </div>
-  </header>
-
-  <!-- HERO WORKBENCH -->
-  <div class="hero-workbench-wrapper">
-    <div class="container">
-      <section class="hero-workbench">
-        <div class="hero-editorial">
-          <h1 class="hero-headline">
-            Learn system design with the agent you already use
-          </h1>
-          <p class="hero-subhead">
-            An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch.
-          </p>
-        </div>
-
-        <!-- HERO CONSOLE & SIMULATOR INSTRUMENT -->
-        <div class="console-instrument">
-          <div class="console-titlebar">
-            <div class="console-nav-tabs" role="tablist">
-              <button class="console-tab active" onclick="switchConsoleTab('cursor', this)" role="tab" aria-selected="true">CURSOR.md (sample)</button>
-              <button class="console-tab" onclick="switchConsoleTab('terminal', this)" role="tab" aria-selected="false">sync-status.py (sample)</button>
-            </div>
-            <div class="console-meta">
-              <span>Instance: Active</span> &middot; <span>Branch: main</span>
-            </div>
-          </div>
-
-          <div class="console-viewports">
-            <!-- VIEWPORT LEFT: LIVING STATE CODE -->
-            <div class="viewport-left">
-              <div id="console-view-cursor">
-                <pre class="instrument-codeblock"><code><span class="token-comment"># .system-design/CURSOR.md (sample output)</span>
-<span class="token-key">activeFocus:</span>
-  <span class="token-key">topicId:</span> <span class="token-str">"topic.0.1.tcp-vs-udp"</span>
-  <span class="token-key">tier:</span> <span class="token-str">"Tier 0 — HLD Building Blocks (Prerequisite Slice)"</span>
-  <span class="token-key">phase:</span> <span class="token-str">"foundation-complete"</span>
-  <span class="token-key">depthLevel:</span> <span class="token-str">"physical-mechanics"</span>
-
-<span class="token-key">causalAnchors:</span>
-  <span class="token-bullet">-</span> <span class="token-str">"Cold TCP + TLS 1.3 (no 0-RTT/resumption): 3 round trips before first byte"</span>
-  <span class="token-bullet">-</span> <span class="token-str">"Head-of-Line blocking in single-stream TCP socket buffers"</span>
-  <span class="token-bullet">-</span> <span class="token-str">"UDP has zero transport state; congestion control runs in user-space"</span>
-
-<span class="token-key">examplesTaken:</span>
-  <span class="token-bullet">-</span> <span class="token-str">"financial-ledger-wal"</span>
-  <span class="token-bullet">-</span> <span class="token-str">"live-webrtc-audio"</span>
-
-<span class="token-key">deferredQueue:</span>
-  <span class="token-bullet">-</span> <span class="token-str">"QUIC connection migration across cellular handoffs"</span></code></pre>
-              </div>
-
-              <div id="console-view-terminal" style="display: none;">
-                <pre class="instrument-codeblock"><code><span class="token-comment">$ python3 skills/system-design-studio/scripts/sync-status.py .system-design/ (sample output)</span>
-============================================================
-SYSTEM DESIGN STUDIO — INSTANCE DIAGNOSTIC
-============================================================
-Instance Name:    System Design Learning Instance
-Curriculum:       System Design Roadmap (curriculum.system-design)
-Overall Progress: 28 / 354 Topics (7.9%)
-Breakdown:        Completed=28 | In-Progress=1 | Unseen=325 (Sum: 354)
-------------------------------------------------------------
-Active Tier:     Tier 0 — HLD Building Blocks (Prerequisite Slice)
-Active Cluster:  1. [0.1] APIs &amp; Network Transport for Design
-Active Topic:    TCP vs UDP — what reliability costs, and why real-time media often picks UDP
-Foundation:      complete
-Mechanism Group: group.0.1.tcp-udp-foundations
-------------------------------------------------------------
-Examples Logged: 2
-  └─ Latest: [financial-ledger-wal] Strict sequence ordering vs datagram drops...
-Deferred Queue:  1 pending questions
-  └─ Next Due: [cluster.0.1] QUIC connection migration across cellular handoffs
-------------------------------------------------------------
-Immediate Next Action:
-  👉 Evaluate checkpoint.0.1.tcp-head-of-line-blocking response
-============================================================</code></pre>
-              </div>
-            </div>
-
-            <!-- VIEWPORT RIGHT: INTERACTIVE SIMULATOR PREVIEW -->
-            <div class="viewport-right">
-              <div class="simulator-panel">
-                <div class="sim-header">
-                  <span class="sim-showcase-title">Sample lesson the agent generates. Try it.</span>
-                  <div class="sim-mode-toggle" role="tablist">
-                    <button id="sim-btn-tcp" class="sim-mode-btn active" onclick="setSimulatorProtocol('tcp')" role="tab" aria-selected="true" aria-label="Simulate TCP with head-of-line blocking">TCP (HTTP/1.1)</button>
-                    <button id="sim-btn-quic" class="sim-mode-btn" onclick="setSimulatorProtocol('quic')" role="tab" aria-selected="false" aria-label="Simulate QUIC with independent streams">QUIC (HTTP/3)</button>
-                  </div>
-                </div>
-
-                <div class="sim-body">
-                  <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                      <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Head-of-Line Blocking Simulation</span>
-                      <span id="sim-status-badge" style="font-size: 11px; font-family: var(--font-mono); color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px;" aria-live="polite">HOL BLOCKING ACTIVE</span>
-                    </div>
-
-                    <!-- PACKET STREAM DIAGRAM -->
-                    <div class="sim-stream-visual" role="region" aria-label="Packet stream visualization">
-                      <div class="sim-packet-box status-acked" id="sim-pkt-1" aria-label="Packet 1: Acknowledged">
-                        <div class="sim-packet-tag" style="color: var(--accent-diode);">ACK</div>
-                        <div class="sim-packet-label">Packet 1</div>
-                      </div>
-                      <div class="sim-packet-box status-lost" id="sim-pkt-2" aria-label="Packet 2: Lost">
-                        <div class="sim-packet-tag" style="color: #ef4444;">LOST</div>
-                        <div class="sim-packet-label">Packet 2</div>
-                      </div>
-                      <div class="sim-packet-box status-blocked" id="sim-pkt-3" aria-label="Packet 3: Blocked">
-                        <div class="sim-packet-tag" style="color: var(--text-muted);">BLOCKED</div>
-                        <div class="sim-packet-label">Packet 3</div>
-                      </div>
-                      <div class="sim-packet-box status-blocked" id="sim-pkt-4" aria-label="Packet 4: Blocked">
-                        <div class="sim-packet-tag" style="color: var(--text-muted);">BLOCKED</div>
-                        <div class="sim-packet-label">Packet 4</div>
-                      </div>
-                    </div>
-
-                    <p class="sim-explain-text" id="sim-explain-text" style="margin-top: 14px;">
-                      Single-stream TCP socket buffer stall: Packets 3 and 4 cannot be consumed by the application layer until Packet 2 is retransmitted and acknowledged.
-                    </p>
-                  </div>
-
-                  <div class="sim-actions-row">
-                    <button id="sim-action-btn" class="sim-control-btn" onclick="togglePacket2Drop()" aria-label="Retransmit Packet 2 to unblock socket stream">Retransmit Packet 2</button>
-                    <div id="sim-penalty-pill" class="sim-telemetry-pill">
-                      <span style="color: #ef4444;">Transport Stall: +84ms RTT penalty</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </section>
-    </div>
-  </div>
-
-  <main class="container" style="padding-top: 48px;">
-
-    <!-- HARDWARE LATENCY SECTION -->
-    <section class="telemetry-strip">
-      <div class="telemetry-header">
-        <div>
-          <h2 class="telemetry-title">Every lesson starts from real latency numbers</h2>
-          <span class="telemetry-sub">If L1 CPU cache access (0.5 ns) were 1 second, cross-datacenter latency would be 9.5 years:</span>
-        </div>
-      </div>
-
-      <div class="latency-bars-container">
-        <div class="latency-bar-item">
-          <div class="latency-bar-header">
-            <div class="latency-bar-title-wrap">
-              <span class="latency-bar-name">L1 CPU Cache</span>
-              <span class="latency-bar-desc">Registers and L1 instruction/data fetch</span>
-            </div>
-            <div class="latency-bar-metrics">
-              <span class="latency-real-val">0.5 ns</span>
-              <span class="latency-scaled-badge">1 second</span>
-            </div>
-          </div>
-          <div class="latency-bar-track">
-            <div class="latency-bar-fill" style="width: 8%;"></div>
-          </div>
-        </div>
-
-        <div class="latency-bar-item">
-          <div class="latency-bar-header">
-            <div class="latency-bar-title-wrap">
-              <span class="latency-bar-name">Mutex Lock/Unlock</span>
-              <span class="latency-bar-desc">Uncontended pthread mutex or atomic CAS</span>
-            </div>
-            <div class="latency-bar-metrics">
-              <span class="latency-real-val">20 ns</span>
-              <span class="latency-scaled-badge">40 seconds</span>
-            </div>
-          </div>
-          <div class="latency-bar-track">
-            <div class="latency-bar-fill" style="width: 28%;"></div>
-          </div>
-        </div>
-
-        <div class="latency-bar-item">
-          <div class="latency-bar-header">
-            <div class="latency-bar-title-wrap">
-              <span class="latency-bar-name">Main Memory (DRAM)</span>
-              <span class="latency-bar-desc">Memory bus transaction. 200x slower than L1 cache</span>
-            </div>
-            <div class="latency-bar-metrics">
-              <span class="latency-real-val">100 ns</span>
-              <span class="latency-scaled-badge">~3.3 minutes</span>
-            </div>
-          </div>
-          <div class="latency-bar-track">
-            <div class="latency-bar-fill" style="width: 44%;"></div>
-          </div>
-        </div>
-
-        <div class="latency-bar-item">
-          <div class="latency-bar-header">
-            <div class="latency-bar-title-wrap">
-              <span class="latency-bar-name">NVMe SSD 4KB Read</span>
-              <span class="latency-bar-desc">Random 4KB block read over PCIe bus</span>
-            </div>
-            <div class="latency-bar-metrics">
-              <span class="latency-real-val">20 &micro;s</span>
-              <span class="latency-scaled-badge">~11 hours</span>
-            </div>
-          </div>
-          <div class="latency-bar-track">
-            <div class="latency-bar-fill" style="width: 70%;"></div>
-          </div>
-        </div>
-
-        <div class="latency-bar-item">
-          <div class="latency-bar-header">
-            <div class="latency-bar-title-wrap">
-              <span class="latency-bar-name">Cross-Datacenter WAN</span>
-              <span class="latency-bar-desc">Speed-of-light optical fiber round trip between continents</span>
-            </div>
-            <div class="latency-bar-metrics">
-              <span class="latency-real-val">150 ms</span>
-              <span class="latency-scaled-badge">~9.5 years</span>
-            </div>
-          </div>
-          <div class="latency-bar-track">
-            <div class="latency-bar-fill" style="width: 100%;"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS SECTION -->
-    <section class="workflow-section" id="how-it-works">
-      <div class="section-editorial">
-        <h2>How it works</h2>
-        <p>Three phases turn your AI coding agent into a stateful systems tutor that retains progress across sessions and model switches. Duration and depth are on-demand per topic: explore or deep dive repeatedly at your own pace.</p>
-      </div>
-
-      <div class="stages-flow">
-        <div class="stage-panel">
-          <div class="stage-role">Phase 1</div>
-          <h3 class="stage-title">Repository Scaffolding</h3>
-          <p class="stage-desc">
-            The scaffolding script installs the <code>.system-design/</code> directory into your local repository. 100% local files; zero external cloud services or databases.
-          </p>
-          <div class="stage-snippet">
-            <code>.system-design/manifest.json</code>
-          </div>
-        </div>
-
-        <div class="stage-panel">
-          <div class="stage-role">Phase 2</div>
-          <h3 class="stage-title">Your progress lives in a file</h3>
-          <p class="stage-desc">
-            <code>CURSOR.md</code> records the active topic, verified prerequisites, hardware invariants, and previous analogies. When your AI context resets, progress is preserved.
-          </p>
-          <div class="stage-snippet">
-            <code>.system-design/CURSOR.md</code>
-          </div>
-        </div>
-
-        <div class="stage-panel">
-          <div class="stage-role">Phase 3</div>
-          <h3 class="stage-title">Interactive HTML Lessons</h3>
-          <p class="stage-desc">
-            The agent generates self-contained interactive HTML artifacts directly inside <code>.system-design/lessons/</code> with failure simulators and packet visualizers.
-          </p>
-          <div class="stage-snippet">
-            <code>.system-design/lessons/*.html</code>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- LIVING CURSOR ARCHITECTURE -->
-    <section class="cursor-architecture-section">
-      <div class="section-editorial">
-        <h2>The four layers of CURSOR.md</h2>
-        <p>File-backed state on disk outlasts ephemeral AI chat context windows.</p>
-      </div>
-
-      <div class="cursor-layers-grid">
-        <div class="cursor-layer-card">
-          <div class="cursor-layer-name">1. activeFocus</div>
-          <div class="cursor-layer-summary">
-            Tracks topic ID, depth tier, and active mechanism group. Ensures the tutor stays on the active objective.
-          </div>
-          <div class="cursor-layer-preview">
-            topicId: topic.0.1.tcp-vs-udp &middot; depthLevel: physical-mechanics
-          </div>
-        </div>
-
-        <div class="cursor-layer-card">
-          <div class="cursor-layer-name">2. causalAnchors</div>
-          <div class="cursor-layer-summary">
-            Records physical latency numbers and network boundaries verified during lessons.
-          </div>
-          <div class="cursor-layer-preview">
-            "Cold TCP + TLS 1.3 (no 0-RTT): 3 round trips before first byte"
-          </div>
-        </div>
-
-        <div class="cursor-layer-card">
-          <div class="cursor-layer-name">3. examplesTaken</div>
-          <div class="cursor-layer-summary">
-            Registry of system domains used (financial ledger, audio streaming) to maintain continuity without repeating analogies.
-          </div>
-          <div class="cursor-layer-preview">
-            ["financial-ledger-wal", "live-webrtc-audio"]
-          </div>
-        </div>
-
-        <div class="cursor-layer-card">
-          <div class="cursor-layer-name">4. deferredQueue</div>
-          <div class="cursor-layer-summary">
-            Tracks tangent questions for upcoming clusters without breaking topic focus.
-          </div>
-          <div class="cursor-layer-preview">
-            ["QUIC connection migration across cellular handoffs"]
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CONSOLIDATED INSTALL SECTION -->
-    <section class="install-section" id="install">
-      <div class="section-editorial">
-        <h2>Install for your agent</h2>
-        <p>Two-step setup: install the skill into your AI agent, then scaffold the learning instance in your repository.</p>
-      </div>
-
-      <div class="install-advisory-box">
-        <strong>Where to install:</strong> We recommend a dedicated learning repository (for example, <code>mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If you scaffold inside an existing work repository, add <code>.system-design/</code> to your <code>.gitignore</code> so personal progress files stay out of team commits.
-      </div>
-
-      <div class="install-instrument">
-        <div class="install-header">
-          <div class="install-tabs" role="tablist">
-            <button class="install-tab active" onclick="switchInstallTab('agy', this)" role="tab">Google Antigravity</button>
-            <button class="install-tab" onclick="switchInstallTab('claude', this)" role="tab">Claude Code</button>
-            <button class="install-tab" onclick="switchInstallTab('cursor', this)" role="tab">Cursor</button>
-            <button class="install-tab" onclick="switchInstallTab('codex', this)" role="tab">OpenAI Codex</button>
-            <button class="install-tab" onclick="switchInstallTab('curl', this)" role="tab">1-Line Scaffolding (Curl)</button>
-          </div>
-          <span class="install-target-note" id="install-target-label">Target: Antigravity Plugin Engine + local .system-design/</span>
-        </div>
-
-        <div class="install-command-row">
-          <code class="install-code" id="install-command-text"># Step 1: Install skill into Antigravity
-agy plugin add alph-a07/system-design-studio
-
-# Step 2: Scaffold instance in your learning repo
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
-          <button class="copy-action-btn" onclick="copySnippet(this, 'install-command-text')">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <span>Copy</span>
-          </button>
-        </div>
-
-        <div class="install-footer-row">
-          <span class="install-order-note" id="install-order-note">Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.</span>
-          <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener noreferrer" class="install-view-script" id="install-view-script-link" style="display: none;">
-            <span>View script first</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- 5-TIER SYLLABUS PREVIEW -->
-    <section class="syllabus-preview-section">
-      <div class="section-editorial">
-        <h2>Five tiers of systems engineering</h2>
-        <p>From network transport and object modeling to distributed systems and mobile client sync across <span data-stat="total-topics">354</span> topics.</p>
-      </div>
-
-      <div class="tier-matrix-grid">
-        <a href="curriculum.html?tier=0" class="tier-matrix-card">
-          <div class="tier-tag">Tier 0 &middot; <span data-stat="tier-cluster-count" data-tier="0">5</span> Clusters</div>
-          <h3 class="tier-name" data-stat="tier-title" data-tier="0">HLD Building Blocks (Prerequisite Slice)</h3>
-          <p class="tier-summary">
-            APIs and transport foundations, database fundamentals, caching patterns, queues and quantitative estimation.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 0.1 &ndash; 0.5 &middot; <span data-stat="tier-topic-count" data-tier="0">37</span> Topics
-          </div>
+<a class="px-6 py-4 bg-transparent text-white font-headline text-sm font-bold uppercase tracking-wider border-2 border-white hover:bg-white/10 transition-all" href="curriculum.html">
+          View Curriculum Grid
         </a>
+</div>
+</div>
+</section>
+<!-- CLIENT-SIDE SCRIPT FOR INTERACTION -->
+<script>
+    // Theme toggle
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
 
-        <a href="curriculum.html?tier=1" class="tier-matrix-card">
-          <div class="tier-tag">Tier 1 &middot; <span data-stat="tier-cluster-count" data-tier="1">14</span> Clusters</div>
-          <h3 class="tier-name" data-stat="tier-title" data-tier="1">Low-Level Design &amp; Object Modeling</h3>
-          <p class="tier-summary">
-            Entity invariants, LRU/LFU cache evictions, connection poolers, rate limiting algorithms and thread executors.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 1.1 &ndash; 1.14 &middot; <span data-stat="tier-topic-count" data-tier="1">94</span> Topics
-          </div>
-        </a>
+    // Hero left terminal tab switcher
+    function switchHeroTab(tab) {
+      const btnCursor = document.getElementById('tab-btn-cursormd');
+      const btnSync = document.getElementById('tab-btn-syncstatus');
+      const paneCursor = document.getElementById('hero-pane-cursor');
+      const paneSync = document.getElementById('hero-pane-sync');
+      const indicator = document.getElementById('hero-tab-indicator');
 
-        <a href="curriculum.html?tier=2" class="tier-matrix-card">
-          <div class="tier-tag">Tier 2 &middot; <span data-stat="tier-cluster-count" data-tier="2">18</span> Clusters</div>
-          <h3 class="tier-name" data-stat="tier-title" data-tier="2">High-Level Design &amp; Distributed Infra</h3>
-          <p class="tier-summary">
-            Consistent hashing, write amplification (B-Tree vs LSM), consensus quorums, event sourcing, CDC and partition rebalancing.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 2.1 &ndash; 2.18 &middot; <span data-stat="tier-topic-count" data-tier="2">134</span> Topics
-          </div>
-        </a>
+      if (tab === 'sync') {
+        btnCursor.className = 'px-2 py-0.5 font-bold text-surface-dim uppercase font-headline text-xs hover:text-surface';
+        btnSync.className = 'px-2 py-0.5 font-bold text-surface uppercase font-headline text-xs border-b-2 border-primary-container';
+        paneCursor.classList.add('hidden');
+        paneSync.classList.remove('hidden');
+        if (indicator) indicator.textContent = 'checks: DAG + hardware';
+      } else {
+        btnCursor.className = 'px-2 py-0.5 font-bold text-surface uppercase font-headline text-xs border-b-2 border-primary-container';
+        btnSync.className = 'px-2 py-0.5 font-bold text-surface-dim uppercase font-headline text-xs hover:text-surface';
+        paneCursor.classList.remove('hidden');
+        paneSync.classList.add('hidden');
+        if (indicator) indicator.textContent = 'active topic: 0.1';
+      }
+    }
 
-        <a href="curriculum.html?tier=3" class="tier-matrix-card">
-          <div class="tier-tag">Tier 3 &middot; <span data-stat="tier-cluster-count" data-tier="3">11</span> Clusters</div>
-          <h3 class="tier-name" data-stat="tier-title" data-tier="3">Mobile Systems &amp; Offline Client Sync</h3>
-          <p class="tier-summary">
-            Battery limits, offline mutation queues, optimistic UI reconciliation, SQLite caching, push notification delivery and telemetry.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 3.1 &ndash; 3.11 &middot; <span data-stat="tier-topic-count" data-tier="3">76</span> Topics
-          </div>
-        </a>
+    // Tab switching for installation commands
+    const installCommands = {
+      antigravity: {
+        target: "Target: Google Antigravity Plugin Engine + local .system-design/",
+        html: `<p class="text-surface-dim"># Step 1: Install skill into Antigravity</p>
+<p class="text-primary-fixed font-bold py-1">agy plugin add alph-a07/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "agy plugin add alph-a07/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      claude: {
+        target: "Target: Claude Code Skills Directory",
+        html: `<p class="text-surface-dim"># Step 1: Clone skill into Claude Code skills folder</p>
+<p class="text-primary-fixed font-bold py-1">git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      cursor: {
+        target: "Target: Cursor IDE .cursorrules & workspace",
+        html: `<p class="text-surface-dim"># Step 1: Append skill rules into .cursorrules</p>
+<p class="text-primary-fixed font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      codex: {
+        target: "Target: OpenAI Codex / CLI Agents",
+        html: `<p class="text-surface-dim"># Step 1: Clone skill into Codex directory</p>
+<p class="text-primary-fixed font-bold py-1">git clone https://github.com/alph-a07/system-design-studio.git .codex/skills/system-design-studio</p>
+<p class="text-surface-dim mt-3"># Step 2: Scaffold instance in your learning repo</p>
+<p class="text-emerald-300 font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>`,
+        raw: "git clone https://github.com/alph-a07/system-design-studio.git .codex/skills/system-design-studio && curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      },
+      curl: {
+        target: "Target: POSIX Shell / Any Agent",
+        html: `<p class="text-surface-dim"># Standalone 1-line installation with bash (scaffolds .system-design/ and fetches templates)</p>
+<p class="text-primary-fixed font-bold py-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</p>
+<p class="text-surface-dim mt-3"># View script before running: <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener" class="text-emerald-300 underline font-semibold">init-learning-instance.sh</a></p>`,
+        raw: "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash"
+      }
+    };
 
-        <a href="curriculum.html?tier=4" class="tier-matrix-card">
-          <div class="tier-tag">Tier 4 &middot; <span data-stat="tier-cluster-count" data-tier="4">2</span> Clusters</div>
-          <h3 class="tier-name" data-stat="tier-title" data-tier="4">ADRs, Reviews &amp; Spaced Gap Tracking</h3>
-          <p class="tier-summary">
-            Architecture Decision Records (ADRs), production trade-off defense, mock design reviews and spaced review loops.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 4.1 &ndash; 4.2 &middot; <span data-stat="tier-topic-count" data-tier="4">13</span> Topics
-          </div>
-        </a>
-      </div>
-    </section>
+    let currentTab = 'antigravity';
 
-    <!-- COMPARISON TABLE -->
-    <section class="comparison-section">
-      <div class="section-editorial">
-        <h2>Comparison</h2>
-        <p>How persistent file-based tutoring compares to a plain conversational chat.</p>
-      </div>
+    function selectInstallTab(tabKey) {
+      currentTab = tabKey;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary');
+        btn.classList.add('text-surface-dim');
+      });
+      const activeBtn = document.getElementById('tab-' + tabKey);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-surface', 'text-on-surface', 'border-t-2', 'border-x-2', 'border-primary');
+        activeBtn.classList.remove('text-surface-dim');
+      }
+      const data = installCommands[tabKey];
+      if (data) {
+        document.getElementById('cmd-display').innerHTML = data.html;
+      }
+    }
 
-      <div class="comparison-table-wrapper">
-        <table class="comparison-table">
-          <thead>
-            <tr>
-              <th>Dimension</th>
-              <th>A plain AI chat</th>
-              <th>System Design Studio</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td class="comparison-dimension">State Across Sessions</td>
-              <td class="comparison-status-quo">Kept in conversational context window; lost when thread resets or model changes.</td>
-              <td class="comparison-studio">Saved to <code>CURSOR.md</code> in Git; preserved across sessions and model switches.</td>
-            </tr>
-            <tr>
-              <td class="comparison-dimension">Teaching Approach</td>
-              <td class="comparison-status-quo">Text summaries and definitions generated per prompt.</td>
-              <td class="comparison-studio">Step-by-step topic curriculum anchored in hardware latency numbers.</td>
-            </tr>
-            <tr>
-              <td class="comparison-dimension">Delivery Artifacts</td>
-              <td class="comparison-status-quo">Markdown codeblocks and text replies in chat.</td>
-              <td class="comparison-studio">Standalone interactive HTML files with state and packet simulators in <code>.system-design/lessons/</code>.</td>
-            </tr>
-            <tr>
-              <td class="comparison-dimension">Example Tracking</td>
-              <td class="comparison-status-quo">No record of previous analogies or examples across sessions.</td>
-              <td class="comparison-studio">Logged in <code>examplesTaken</code> within <code>CURSOR.md</code> to avoid repeating scenarios.</td>
-            </tr>
-            <tr>
-              <td class="comparison-dimension">Curriculum Scope</td>
-              <td class="comparison-status-quo">Ad-hoc question answering based on user prompts.</td>
-              <td class="comparison-studio">Indexed 50 clusters and 354 topics in <code>.system-design/CURRICULUM.md</code>.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    function copyCommand() {
+      const data = installCommands[currentTab];
+      if (data && navigator.clipboard) {
+        navigator.clipboard.writeText(data.raw).then(() => {
+          const btn = document.getElementById('copy-btn');
+          btn.innerHTML = `<span class="material-symbols-outlined text-sm">check</span><span>Copied!</span>`;
+          setTimeout(() => {
+            btn.innerHTML = `<span class="material-symbols-outlined text-sm">content_copy</span><span>Copy</span>`;
+          }, 2000);
+        });
+      }
+    }
 
-  </main>
+    // Interactive Packet Simulator logic
+    function retransmitPkt2() {
+      const pkt2 = document.getElementById('pkt-2');
+      const pkt3 = document.getElementById('pkt-3');
+      const pkt4 = document.getElementById('pkt-4');
+      const status = document.getElementById('sim-status');
+      const penalty = document.getElementById('penalty-badge');
 
-  <!-- SITE FOOTER -->
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div class="footer-left">
-        <span class="brand-badge">SD</span>
-        <span class="footer-desc">System Design Studio &middot; Open-source under MIT</span>
-      </div>
-      <div class="footer-links">
-        <a href="curriculum.html" class="footer-link">Syllabus</a>
-        <a href="docs.html" class="footer-link">Documentation</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
-        <a href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener noreferrer" class="footer-link" style="display: inline-flex; align-items: center; gap: 6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>
-          Buy Me a Coffee
-        </a>
-        <a href="https://github.com/alph-a07/system-design-studio/issues" target="_blank" rel="noopener noreferrer" class="footer-link">Issues</a>
-      </div>
-    </div>
-  </footer>
+      pkt2.className = "border-2 border-primary bg-primary-container p-2 flex flex-col items-center transition-all duration-300";
+      pkt2.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">RE-ACK'D</span><span class="font-bold text-on-surface mt-1">Packet 2</span><span class="text-[9px] text-on-surface">Retransmitted</span>`;
 
-  <script src="curriculum-data.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+      setTimeout(() => {
+        pkt3.className = "border-2 border-primary bg-surface-container p-2 flex flex-col items-center";
+        pkt3.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">DELIVERED</span><span class="font-bold text-on-surface mt-1">Packet 3</span><span class="text-[9px] text-on-surface">Buffer flushed</span>`;
+        
+        pkt4.className = "border-2 border-primary bg-surface-container p-2 flex flex-col items-center";
+        pkt4.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">DELIVERED</span><span class="font-bold text-on-surface mt-1">Packet 4</span><span class="text-[9px] text-on-surface">Buffer flushed</span>`;
+
+        status.className = "text-emerald-700 font-bold flex items-center gap-1";
+        status.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-600"></span> BUFFER DRAINED`;
+
+        penalty.innerText = "0ms (Recovered)";
+        penalty.className = "font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-primary";
+      }, 400);
+    }
+
+    function resetSim() {
+      const pkt2 = document.getElementById('pkt-2');
+      const pkt3 = document.getElementById('pkt-3');
+      const pkt4 = document.getElementById('pkt-4');
+      const status = document.getElementById('sim-status');
+      const penalty = document.getElementById('penalty-badge');
+
+      pkt2.className = "border-2 border-primary bg-secondary-container text-secondary p-2 flex flex-col items-center animate-pulse";
+      pkt2.innerHTML = `<span class="text-[10px] font-bold uppercase">LOST</span><span class="font-bold text-on-surface mt-1">Packet 2</span><span class="text-[9px] text-secondary">Drop in transit</span>`;
+
+      pkt3.className = "border-2 border-dashed border-primary bg-surface-dim/40 p-2 flex flex-col items-center opacity-60";
+      pkt3.innerHTML = `<span class="text-[10px] text-on-surface-variant font-bold uppercase">BLOCKED</span><span class="font-bold text-on-surface mt-1">Packet 3</span><span class="text-[9px] text-on-surface-variant">In OS Buffer</span>`;
+
+      pkt4.className = "border-2 border-dashed border-primary bg-surface-dim/40 p-2 flex flex-col items-center opacity-60";
+      pkt4.innerHTML = `<span class="text-[10px] text-on-surface-variant font-bold uppercase">BLOCKED</span><span class="font-bold text-on-surface mt-1">Packet 4</span><span class="text-[9px] text-on-surface-variant">In OS Buffer</span>`;
+
+      status.className = "text-secondary font-bold flex items-center gap-1";
+      status.innerHTML = `<span class="w-2 h-2 rounded-full bg-secondary animate-ping"></span> HOL BLOCKING ACTIVE`;
+
+      penalty.innerText = "+84ms RTT Penalty";
+      penalty.className = "font-bold text-secondary bg-surface-container-high px-2 py-0.5 border border-primary";
+    }
+
+    function switchSimMode(mode) {
+      const btnTcp = document.getElementById('mode-tcp');
+      const btnQuic = document.getElementById('mode-quic');
+      const label = document.getElementById('stream-label');
+      const status = document.getElementById('sim-status');
+      const penalty = document.getElementById('penalty-badge');
+      const pkt3 = document.getElementById('pkt-3');
+      const pkt4 = document.getElementById('pkt-4');
+
+      if (mode === 'quic') {
+        btnQuic.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-primary text-white shadow-[2px_2px_0px_#1a1a1a]";
+        btnTcp.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-surface-container text-on-surface hover:bg-primary-container transition-colors";
+        label.innerText = "QUIC Independent Streams (Multiplexed)";
+        status.className = "text-tertiary font-bold flex items-center gap-1";
+        status.innerHTML = `<span class="w-2 h-2 rounded-full bg-tertiary"></span> NO HEAD-OF-LINE STALL`;
+
+        pkt3.className = "border-2 border-primary bg-primary-container p-2 flex flex-col items-center";
+        pkt3.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">STREAM 2</span><span class="font-bold text-on-surface mt-1">Packet 3</span><span class="text-[9px] text-on-surface">Delivered 0ms</span>`;
+
+        pkt4.className = "border-2 border-primary bg-primary-container p-2 flex flex-col items-center";
+        pkt4.innerHTML = `<span class="text-[10px] text-emerald-800 font-bold uppercase">STREAM 3</span><span class="font-bold text-on-surface mt-1">Packet 4</span><span class="text-[9px] text-on-surface">Delivered 0ms</span>`;
+
+        penalty.innerText = "0ms (Independent Streams)";
+        penalty.className = "font-bold text-tertiary bg-tertiary-container px-2 py-0.5 border border-primary";
+      } else {
+        btnTcp.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-primary text-white shadow-[2px_2px_0px_#1a1a1a]";
+        btnQuic.className = "px-3 py-1 font-headline text-xs font-bold uppercase border-2 border-primary bg-surface-container text-on-surface hover:bg-primary-container transition-colors";
+        label.innerText = "TCP Stream 1 (Head-of-Line Pipeline)";
+        resetSim();
+      }
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-container border-t-[3px] border-primary py-12 mt-20"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-3"><div class="w-7 h-7 bg-primary text-on-primary border border-primary font-headline font-bold text-xs flex items-center justify-center">SD</div><span class="font-headline font-bold uppercase tracking-wider text-sm text-on-surface">System Design Studio • Bauhaus Neo-Brutalist Edition</span></div><div class="flex flex-wrap items-center gap-6 font-headline text-xs font-bold uppercase text-on-surface-variant">
+  <a class="hover:text-tertiary transition-colors" href="docs.html">Architecture Spec</a>
+  <a class="hover:text-tertiary transition-colors" href="curriculum.html">Syllabus Grid</a>
+  <a class="hover:text-tertiary transition-colors" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
+  <a class="hover:text-tertiary transition-colors" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">Sponsor</a>
+</div><div class="text-xs font-mono text-on-surface-variant">© 2025 FORM FOLLOWS FUNCTION.</div></div></footer></body></html>
+
+<!-- Curriculum — Tier-Based Learning Home (Bauhaus) -->
