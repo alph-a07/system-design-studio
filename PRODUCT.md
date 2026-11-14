@@ -20,8 +20,7 @@ System Design Studio runs directly inside the user's project repository under `.
 
 ## Core Surfaces
 1. Landing / Product Showcase (`index.html`): High-craft technical product presentation demonstrating the `.system-design/` repository workflow, the living cursor architecture, hardware physics telemetry, and universal agent drop-in setups.
-2. 50-Cluster Syllabus Browser (`curriculum.html`): Interactive filterable catalog across 5 engineering tiers (Tier 0: Transport, Tier 1: LLD & Object Modeling, Tier 2: HLD & Distributed Infra, Tier 3: Mobile & Offline Sync, Tier 4: ADRs & System Defense) with real-time search and browser storage progress tracking.
-3. Technical Manual & Architecture Docs (`docs.html`): Filesystem contracts, CLI command reference, multi-agent setup guides, and BYO curriculum importer.
+2. 50-Cluster Syllabus Browser (`curriculum.html`): Interactive filterable catalog across 5 engineering tiers (Tier 0: Transport, Tier 1: LLD & Object Modeling, Tier 2: HLD & Distributed Infra, Tier 3: Mobile & Offline Sync, Tier 4: ADRs & System Defense) with real-time search, collapsible tiers, and browser storage progress tracking.
 
 ## Non-Negotiable Commitments
 - 100% local and file-based (`.system-design/`); zero cloud lock-in, zero external SaaS/database dependencies.

@@ -24,7 +24,6 @@
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="curriculum.html">Curriculum</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#how-it-works">How it works</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#install">Install</a>
-  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="docs.html">Docs</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
 </nav><div class="flex items-center gap-3"><button aria-label="Toggle color mode" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" onclick="toggleDarkMode()" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a class="hidden sm:inline-flex items-center px-4 py-2 border-2 border-primary bg-secondary text-white font-headline text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" href="#install">Start Studio</a><a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" aria-label="GitHub Repository" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a]"><span class="material-symbols-outlined text-[18px]">terminal</span></a></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
 <!-- HERO SECTION -->
@@ -238,12 +237,12 @@
 </div>
 </div>
 </section>
-<!-- INSTALL FOR YOUR AGENT (SIMPLIFIED SINGLE COMMAND) -->
+<!-- INSTALL FOR YOUR AGENT (SIMPLIFIED SINGLE COMMAND + NEED-TO-KNOW POST-INSTALL GUIDE) -->
 <section class="w-full border-b-[3px] border-primary bg-surface-container-low px-6 lg:px-12 py-16" id="install">
-<div class="max-w-5xl mx-auto flex flex-col gap-8">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
 <div>
-<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Quickstart</span>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Quickstart Command</span>
 <h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
             Install For Your Agent
           </h2>
@@ -287,6 +286,103 @@
 <span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
 <span><strong>Offline &amp; Git Native:</strong> State lives in <code class="text-primary-fixed">.system-design/</code> in your repo.</span>
 </div>
+</div>
+</div>
+</div>
+
+<!-- POST-INSTALLATION: HOW TO USE & NEED-TO-KNOW INFO -->
+<div class="border-[3px] border-primary bg-surface p-6 sm:p-8 shadow-[6px_6px_0px_#1a1a1a] flex flex-col gap-6">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b-2 border-primary pb-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 bg-secondary text-white font-headline font-bold text-xs flex items-center justify-center border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]">02</div>
+<h3 class="font-headline font-bold text-xl sm:text-2xl uppercase tracking-tight text-on-surface">
+        How to Use Post-Installation
+      </h3>
+</div>
+<span class="font-mono text-xs text-secondary font-bold uppercase tracking-wider">Need-to-Know Workflow</span>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Step 1 -->
+<div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
+<div>
+<div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
+<span class="font-mono text-[11px] font-bold text-secondary">PHASE 01</span>
+<span class="material-symbols-outlined text-lg text-on-surface">chat</span>
+</div>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Prompt in Any Chat</h4>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
+          Open your agent (Claude Code, Cursor, Antigravity, or Codex) and start with any natural prompt:
+        </p>
+<div class="bg-surface-container p-2.5 border border-primary/40 font-mono text-[11px] text-on-surface font-semibold">
+          "Let's learn system design"
+        </div>
+</div>
+<div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
+        Or target a specific topic: <code class="font-bold">"Start topic 0.1"</code>
+</div>
+</div>
+
+<!-- Step 2 -->
+<div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
+<div>
+<div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
+<span class="font-mono text-[11px] font-bold text-primary-container-on bg-primary-container px-1">AUTO-SCAFFOLD</span>
+<span class="material-symbols-outlined text-lg text-on-surface">folder_special</span>
+</div>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Local State Engine</h4>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
+          On your first prompt, the agent automatically initializes the hidden <code class="font-mono font-bold bg-surface-container px-1">.system-design/</code> directory in your workspace:
+        </p>
+<ul class="text-[11px] font-mono space-y-1 text-on-surface">
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">CURSOR.md</code> (living context)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">CURRICULUM.md</code> (50 clusters)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">DECISIONS.md</code> (ADR portfolio)</li>
+</ul>
+</div>
+<div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
+        Zero manual setup or third-party databases.
+      </div>
+</div>
+
+<!-- Step 3 -->
+<div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
+<div>
+<div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
+<span class="font-mono text-[11px] font-bold text-tertiary">PERSISTENCE</span>
+<span class="material-symbols-outlined text-lg text-on-surface">swap_horiz</span>
+</div>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Switch Agents &amp; Models</h4>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
+          Clear your chat, switch from Claude 3.7 to Gemini 2.0 or GPT-4o, or reopen in Cursor.
+        </p>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+          Every agent reads <code class="font-mono font-bold bg-surface-container px-1">CURSOR.md</code> on cold start, inheriting your active topic, logged examples, and deferred queue seamlessly.
+        </p>
+</div>
+<div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
+        Zero conversational amnesia.
+      </div>
+</div>
+
+<!-- Step 4 -->
+<div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
+<div>
+<div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
+<span class="font-mono text-[11px] font-bold text-emerald-600">ARTIFACTS</span>
+<span class="material-symbols-outlined text-lg text-on-surface">html</span>
+</div>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Interactive Simulators</h4>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
+          The studio generates standalone, interactive HTML simulators directly in <code class="font-mono font-bold bg-surface-container px-1">.system-design/lessons/</code>.
+        </p>
+<div class="bg-surface-container p-2.5 border border-primary/40 font-mono text-[11px] text-on-surface">
+          open .system-design/lessons/*.html
+        </div>
+</div>
+<div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
+        Step through packets, quorums &amp; failure states.
+      </div>
 </div>
 </div>
 </div>
@@ -455,7 +551,7 @@
 </tr>
 </thead>
 <tbody class="font-body text-xs divide-y-2 divide-primary">
-<tr class="hover:bg-surface-container-high transition-colors">
+<tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 State Across Sessions
               </td>
@@ -466,7 +562,7 @@
                 Saved to <code class="font-mono bg-surface-container px-1 font-bold">CURSOR.md</code> in Git; preserved across sessions and model switches.
               </td>
 </tr>
-<tr class="hover:bg-surface-container-high transition-colors">
+<tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 Teaching Approach
               </td>
@@ -477,7 +573,7 @@
                 Step-by-step topic curriculum anchored in hardware latency numbers.
               </td>
 </tr>
-<tr class="hover:bg-surface-container-high transition-colors">
+<tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 Delivery Artifacts
               </td>
@@ -488,7 +584,7 @@
                 Standalone interactive HTML files with state and packet simulators in <code class="font-mono bg-surface-container px-1 font-bold">.system-design/lessons/</code>.
               </td>
 </tr>
-<tr class="hover:bg-surface-container-high transition-colors">
+<tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 Example Tracking
               </td>
@@ -499,7 +595,7 @@
                 Logged in <code class="font-mono bg-surface-container px-1 font-bold">examplesTaken</code> within CURSOR.md to avoid repeating scenarios.
               </td>
 </tr>
-<tr class="hover:bg-surface-container-high transition-colors">
+<tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 Curriculum Scope
               </td>
@@ -587,8 +683,7 @@
     }
   </script>
 </div></main><footer class="w-full bg-surface-container border-t-[3px] border-primary py-12 mt-20"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-3"><div class="w-7 h-7 bg-primary text-on-primary border border-primary font-headline font-bold text-xs flex items-center justify-center">SD</div><span class="font-headline font-bold uppercase tracking-wider text-sm text-on-surface">System Design Studio • Bauhaus Neo-Brutalist Edition</span></div><div class="flex flex-wrap items-center gap-6 font-headline text-xs font-bold uppercase text-on-surface-variant">
-  <a class="hover:text-tertiary transition-colors" href="docs.html">Architecture Spec</a>
-  <a class="hover:text-tertiary transition-colors" href="curriculum.html">Syllabus Grid</a>
+  <a class="hover:text-tertiary transition-colors" href="curriculum.html">Curriculum Syllabus</a>
   <a class="hover:text-tertiary transition-colors" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
   <a class="hover:text-tertiary transition-colors" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">Sponsor</a>
 </div><div class="text-xs font-mono text-on-surface-variant">© 2025 FORM FOLLOWS FUNCTION.</div></div></footer></body></html>
