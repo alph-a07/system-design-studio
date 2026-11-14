@@ -120,11 +120,11 @@
       </div>
     </section>
 
-    <!-- SECTION 4: ENGINEERING REALITY CHECK -->
+    <!-- SECTION 4: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
     <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
         <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm">04</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Engineering Reality Check: Active Verification</h2>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Final Sign-Off Challenge: Active Verification</h2>
       </div>
 
       <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-4">
@@ -133,17 +133,21 @@
           <div class="space-y-2">
             <h3 class="font-bold text-[var(--foreground)] text-base">The Scenario Challenge</h3>
             <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
-              {{REALITY_CHECK_SCENARIO}}
+              {{SIGN_OFF_SCENARIO}}
             </p>
           </div>
         </div>
 
-        <div class="pt-4 border-t border-[var(--border)]">
-          <button id="toggle-solution-btn" onclick="toggleSolution()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">
-            Reveal Architectural Breakdown & Trade-off
-          </button>
-          <div id="solution-box" class="hidden mt-4 p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm space-y-3">
-            {{REALITY_CHECK_SOLUTION}}
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
+          <div class="font-bold text-[var(--primary)] flex items-center gap-2">
+            <span>🎯 Sign-Off Gate Criteria:</span>
+          </div>
+          <p class="leading-relaxed">
+            {{SIGN_OFF_CRITERIA}}
+          </p>
+          <div class="pt-2 text-[11px] font-mono text-[var(--muted-foreground)] flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+            <span>No solution is provided in this artifact. Analyze and defend your breakdown in chat to complete topic sign-off.</span>
           </div>
         </div>
       </div>
@@ -164,18 +168,6 @@
   </div>
 
   <script>
-    function toggleSolution() {
-      const box = document.getElementById('solution-box');
-      const btn = document.getElementById('toggle-solution-btn');
-      if (box.classList.contains('hidden')) {
-        box.classList.remove('hidden');
-        btn.textContent = 'Hide Architectural Breakdown';
-      } else {
-        box.classList.add('hidden');
-        btn.textContent = 'Reveal Architectural Breakdown & Trade-off';
-      }
-    }
-
     {{EMBEDDED_JAVASCRIPT}}
   </script>
 </body>

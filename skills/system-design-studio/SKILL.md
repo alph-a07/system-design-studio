@@ -155,16 +155,73 @@ When a forward-looking question arises:
 
 ---
 
-## Part III — Teaching Delivery Protocol: Strictly Artifact-First
+## Part III — Teaching Delivery Protocol: Strictly Artifact-First & Sign-Off Gated
 
-### 1. The Core Rule: Strictly HTML Artifact-Based Teaching For New Topics
+### 1. Topic Verbatim Anatomy: Outcome Specification vs Sign-Off Gate
+
+Every topic checklist item in `CURRICULUM.md` follows a strict three-part verbatim structure:
+
+```text
+- [ ] <Topic Title> — <What Reader Needs to Understand Specification> — *Tick off when: <Tick-off Criteria>*
+```
+
+#### Strict Separation of Concerns:
+1. **`<Topic Title>`**:
+   - The formal technical identifier of the component, protocol, or architectural mechanism.
+2. **`What Reader Needs to Understand Specification` (Everything BEFORE `— *Tick off when:*`)**:
+   - Specifies the **target invariant outcome and conceptual comprehension** the reader must walk away with.
+   - **CRITICAL**: This is **NOT what needs to be taught directly or recited as a lecture**. It defines the target destination of understanding, not the pedagogical journey.
+3. **`Tick-off Criteria` (Everything AFTER `— *Tick off when:*`)**:
+   - **CRITICAL**: Tick-off criteria is **STRICTLY NOT part of the teaching scope**.
+   - It is strictly the **Final Sign-off Verification Gate**.
+   - The lesson artifact and explanation must **NEVER** answer or reveal the tick-off scenario. There are no reveal buttons, solution accordions, or pre-baked answers in the lesson artifact.
+   - Instead, the artifact leaves the learner with a **suitable, relevant engineering scenario WITHOUT AN ANSWER**.
+   - The sign-off status (marking the checkbox in `CURRICULUM.md`, logging evidence in `manifest.json`, and advancing `CURSOR.md`) is evaluated **strictly and exclusively based on the reader's independent answer and defense during chat discussion**.
+
+---
+
+### 2. Pre-Drafting Synthesis Engine: Determining "What Needs to Be Taught"
+
+Before drafting any lesson artifact or explaining a topic, the agent MUST evaluate and gauge **what needs to be taught** by synthesizing three distinct inputs:
+
+```mermaid
+flowchart LR
+    C1["1. Living Cursor Context<br/>(Tier, Lineage Anchor, examplesTaken, deferredQueue)"] --> GAUGE["Pre-Drafting Synthesis Engine"]
+    C2["2. Topic Specification<br/>(What the Reader Needs to Understand)"] --> GAUGE
+    C3["3. Tick-off Criteria<br/>(Sign-Off Defense Standard)"] --> GAUGE
+
+    GAUGE --> DEPTH["Depth & Coverage Specification"]
+    DEPTH --> ARTIFACT["Interactive HTML Lesson Artifact<br/>(6 Foundation Pillars + Simulator + Workloads + Unanswered Scenario)"]
+```
+
+1. **Living Cursor Context**:
+   - **Active Tier & Cluster Depth Target**: (`[concept]`, `[mechanics]`, `[contrast]`, `[pattern]`, `[trap]`).
+   - **Connected Lineage (Backward Anchor)**: What physical facts, hardware constraints, protocols, or storage invariants were already grounded in previous topics? Never re-explain from zero what was already verified.
+   - **Examples Registry (`examplesTaken`)**: What concrete domain metaphors are established? Extend existing domains (e.g. *Financial Ledger*) where continuity helps, or deliberately contrast with an opposing workload (e.g. *WebRTC Audio*).
+   - **Deferred Queue (`deferredQueue`)**: Are there parked forward questions that this topic naturally resolves?
+2. **Topic's "What Reader Needs to Understand" Specification**:
+   - The core mental models, physical constraints, failure modes, and invariant boundaries that must be grasped.
+3. **Tick-off Criteria**:
+   - What unprompted explanation, quantitative derivation, or failure analysis the reader must be able to deliver cold.
+
+#### Determining Depth & Coverage:
+By combining (1) Cursor Context, (2) Outcome Specification, and (3) Tick-off Criteria, the agent deterministically gauges:
+- What underlying physical constraints / hardware bounds must be grounded first.
+- What 3 to 5 interrelated causal mechanisms must be traced step-by-step.
+- What interactive simulation scenario will make the reader *experience* the failure mode.
+- What contrasting workloads expose the non-negotiable architectural trade-off.
+- What realistic, unassisted scenario will be left as the final sign-off challenge without giving away the answer.
+
+---
+
+### 3. The Core Rule: Strictly HTML Artifact-Based Teaching For New Topics
 
 > [!IMPORTANT]
-> **NO HYBRID LECTURE DUPLICATION IN CHAT.**
-> Delivering a long markdown explanation in chat while simultaneously producing an HTML artifact is strictly forbidden. It causes severe cognitive clutter, duplicates reading, and undermines the visual artifact format.
+> **NO HYBRID LECTURE DUPLICATION IN CHAT & NO PRE-BAKED SOLUTION LEAKS.**
+> Delivering a long markdown explanation in chat while producing an HTML artifact is strictly forbidden. Leaking or embedding the answer to the sign-off scenario inside the artifact is strictly forbidden.
 
 - **Topic Entry (First Turn on a Topic)**:
-  - The comprehensive lesson—including the 6 foundation questions, hardware physics, deep causal mechanics, interactive simulators, SVG/CSS sequence diagrams, workload comparisons, invariant matrices, and reality check challenges—is delivered **strictly inside the standalone interactive HTML artifact**.
+  - The comprehensive lesson—including the 6 foundation questions, hardware physics, deep causal mechanics, interactive simulators, SVG/CSS sequence diagrams, workload comparisons, invariant matrices, and the **unanswered final sign-off challenge scenario**—is delivered **strictly inside the standalone interactive HTML artifact**.
   - Artifact files must be saved in two locations:
     1. `<appDataDir>/brain/<conversation-id>/<topic-slug>.html` (renders directly in the agent's side pane with `UserFacing: true`).
     2. `.system-design/lessons/<topic-slug>.html` (committed to git in the project instance).
@@ -173,14 +230,22 @@ When a forward-looking question arises:
     2. Provide a clickable link to the generated artifact.
     3. State the core physical force or architectural problem in 2–3 sentences.
     4. Direct the learner to open the artifact in the side pane to interact with the simulator.
-    5. Conclude with an opening discussion hook or reality check prompt to invite discussion when ready.
+    5. Present the final sign-off scenario prompt to invite the learner's analysis and discussion when ready.
 
 - **Same-Topic Follow-ups (Subsequent Turns on the Same Topic)**:
-  - Once the topic artifact has been delivered, all follow-up discussions, Q&A, drill-downs, code traces, trade-off debates, and evaluation of the reality check happen **directly inline within the chat conversation**.
+  - Once the topic artifact has been delivered, all follow-up discussions, Q&A, drill-downs, code traces, trade-off debates, and evaluation of the sign-off scenario happen **directly inline within the chat conversation**.
   - Do NOT generate another HTML artifact for follow-up conversational turns on the same topic.
-  - When the topic invariants are established and the learner advances to the **next topic**, the strictly artifact-first rule triggers again for the new topic's foundation.
+  - The conversation flows naturally in chat: the learner analyzes the scenario, asks questions, or proposes architectural solutions; the tutor evaluates reasoning, stress-tests edge cases, and provides causal closure directly in chat.
 
-### 2. The 5 Visual Artifact Themes & `settings.json`
+- **Sign-Off Evaluation & Advancing to Next Topic**:
+  - The tutor evaluates the learner's independent response against the tick-off criteria:
+    - **Demonstrated Mastery**: If the learner correctly identifies the causal invariants, failure modes, and costs without prompting, the tutor validates their reasoning, logs verified evidence in `manifest.json`, ticks off the topic in `CURRICULUM.md`, and advances the cursor via `advance-cursor.py`.
+    - **Partial / Shaky Understanding**: The tutor provides targeted causal repair directly in chat and tests with a related failure scenario until the invariant is solid. The checkbox remains unchecked until mastery is demonstrated.
+  - Only upon successful sign-off does the tutor advance to the **next topic**, triggering the artifact-first rule for the next topic's foundation.
+
+---
+
+### 4. The 5 Visual Artifact Themes & `settings.json`
 
 Every rendered HTML artifact adopts the theme configured in `.system-design/settings.json`:
 
@@ -194,7 +259,9 @@ Every rendered HTML artifact adopts the theme configured in `.system-design/sett
 
 The styling engine injects CSS custom properties (`:root`) into each generated artifact. When the learner switches styles in `settings.json`, all subsequent lessons immediately render in the chosen aesthetic.
 
-### 3. Mandatory Topic Foundation Inside the Artifact
+---
+
+### 5. Mandatory Topic Foundation Inside the Artifact
 Every topic's HTML artifact begins by answering:
 1. **Physical Problem & Motivation**: What physical limit forces this mechanism into existence?
 2. **System Placement**: Where does this component sit in the architectural stack?

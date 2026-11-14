@@ -206,26 +206,30 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- SECTION 4: ENGINEERING REALITY CHECK -->
+    <!-- SECTION 4: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
     <section class="space-y-6 border-t border-[var(--border)] pt-8">
       <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm">04</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Engineering Reality Check: Active Verification</h2>
+        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm border border-rose-500/20">04</div>
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Final Sign-Off Challenge: Active Verification</h2>
       </div>
       <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-4">
         <div class="flex items-start gap-3">
           <div class="text-rose-500 font-bold text-lg mt-0.5">⚠️</div>
           <div class="space-y-2">
             <h3 class="font-bold text-[var(--foreground)] text-base">The Scenario Challenge</h3>
-            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">{{REALITY_CHECK_SCENARIO}}</p>
+            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">{{SIGN_OFF_SCENARIO}}</p>
           </div>
         </div>
-        <div class="pt-4 border-t border-[var(--border)]">
-          <button id="toggle-solution-btn" onclick="toggleSolution()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">
-            Reveal Architectural Breakdown & Trade-off
-          </button>
-          <div id="solution-box" class="hidden mt-4 p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-sm space-y-3">
-            {{REALITY_CHECK_SOLUTION}}
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
+          <div class="font-bold text-[var(--primary)] flex items-center gap-2">
+            <span>🎯 Sign-Off Gate Criteria:</span>
+          </div>
+          <p class="leading-relaxed">
+            {{SIGN_OFF_CRITERIA}}
+          </p>
+          <div class="pt-2 text-[11px] font-mono text-[var(--muted-foreground)] flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+            <span>No solution is provided in this artifact. Analyze and defend your breakdown in chat to complete topic sign-off.</span>
           </div>
         </div>
       </div>
@@ -245,17 +249,6 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
   </div>
 
   <script>
-    function toggleSolution() {
-      const box = document.getElementById('solution-box');
-      const btn = document.getElementById('toggle-solution-btn');
-      if (box.classList.contains('hidden')) {
-        box.classList.remove('hidden');
-        btn.textContent = 'Hide Architectural Breakdown';
-      } else {
-        box.classList.add('hidden');
-        btn.textContent = 'Reveal Architectural Breakdown & Trade-off';
-      }
-    }
     {{EMBEDDED_JAVASCRIPT}}
   </script>
 </body>
@@ -356,13 +349,8 @@ def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_i
           <td class="p-4 text-[var(--muted-foreground)]">Drop in-flight buffer window</td>
         </tr>
         """,
-        "REALITY_CHECK_SCENARIO": f"A developer observes that under 99th percentile load, requests in {clean_title} experience a 10x tail-latency spike, even though CPU and RAM utilization are under 40%. Where is the queue hiding, and how would you verify it?",
-        "REALITY_CHECK_SOLUTION": """
-        <p class="font-bold text-emerald-500">Solution & Root-Cause Trace:</p>
-        <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-          The queue is sitting in kernel socket buffers (TCP receive window exhaustion) or connection pool thread starvation. When downstream services stall, the sender buffer fills, triggering TCP zero-window probes or connection pool wait-time inflation. Verify using <code>ss -ti</code> or thread pool saturation metrics.
-        </p>
-        """,
+        "SIGN_OFF_SCENARIO": f"A developer observes that under 99th percentile load, requests in {clean_title} experience a 10x tail-latency spike, even though CPU and RAM utilization are under 40%. Where is the queue hiding, why did latency spike, and how would you verify it?",
+        "SIGN_OFF_CRITERIA": f"Tick off when: you can explain this out loud or defend in chat without notes, isolating the queue location, the underlying causal mechanism, and the exact verification command.",
         "BACKWARD_ANCHOR": "Physical network constraints & hardware bounds",
         "FORWARD_HOOK": "Distributed consensus & fault recovery",
         "EMBEDDED_JAVASCRIPT": """
@@ -460,6 +448,12 @@ def main():
         with open(args.spec) as f:
             spec_data = json.load(f)
             data.update(spec_data)
+
+    # Backwards compatibility fallback
+    if "REALITY_CHECK_SCENARIO" in data and "SIGN_OFF_SCENARIO" not in data:
+        data["SIGN_OFF_SCENARIO"] = data["REALITY_CHECK_SCENARIO"]
+    if "SIGN_OFF_CRITERIA" not in data:
+        data["SIGN_OFF_CRITERIA"] = "Tick off when: you can explain this out loud or defend in chat in your own words, including why it exists and what it costs."
 
     # Ensure theme variables are bound
     data["THEME_CSS_VARS"] = theme["css_vars"]

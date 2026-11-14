@@ -113,4 +113,4 @@ The learner can modify this file or request a style change at any point. All sub
 - **Interactive Simulation**: Step-by-step trace with toggleable modes and animated state chips.
 - **Workload Contrast**: Side-by-side analysis of two opposing systems (e.g. Financial Ledger vs WebRTC Voice).
 - **Invariant Matrix**: Clean comparison table outlining guarantees vs non-guarantees.
-- **Engineering Reality Check**: Bounded architectural problem with revealable solution.
+- **Final Sign-Off Challenge**: Bounded, realistic architectural scenario testing the topic's tick-off criteria **left deliberately without an answer or reveal toggle**. The learner analyzes and defends their breakdown in chat; sign-off status is evaluated strictly on the reader's independent reasoning.
