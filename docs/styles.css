@@ -275,8 +275,39 @@ code, pre, .mono {
   border-color: var(--border-subtle);
 }
 
-/* HERO SECTION */
+/* HERO WORKBENCH & AMBIENT CANVAS BACKGROUND */
+.hero-workbench-wrapper {
+  position: relative;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border-wire);
+  background-color: var(--bg-void);
+}
+
+.hero-ambient-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero-radial-glow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 540px;
+  background: radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.07) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
 .hero-workbench {
+  position: relative;
+  z-index: 2;
   padding: 72px 0 48px;
 }
 
@@ -367,6 +398,11 @@ code, pre, .mono {
   color: var(--accent-diode);
   overflow-x: auto;
   white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.install-code::-webkit-scrollbar {
+  display: none;
 }
 
 .copy-action-btn {
@@ -1076,18 +1112,18 @@ code, pre, .mono {
 
 .topics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 12px;
 }
 
 .topic-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 12px;
   background: var(--bg-void);
   border: 1px solid var(--border-wire);
   border-radius: var(--radius-sm);
-  padding: 8px 12px;
+  padding: 10px 14px;
   transition: all 0.15s ease;
 }
 
@@ -1106,6 +1142,7 @@ code, pre, .mono {
   align-items: center;
   cursor: pointer;
   margin: 0;
+  margin-top: 2px;
   user-select: none;
   flex-shrink: 0;
 }
@@ -1154,22 +1191,30 @@ code, pre, .mono {
   margin-bottom: 2px;
 }
 
-.topic-id-tag {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--text-muted);
-  flex-shrink: 0;
+.topic-info-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-grow: 1;
+  min-width: 0;
 }
 
 .topic-name {
-  font-size: 13.5px;
+  font-size: 14px;
   color: var(--text-primary);
-  font-weight: 400;
-  flex-grow: 1;
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: break-word;
 }
 
 .topic-row.is-mastered .topic-name {
   color: var(--text-secondary);
+}
+
+.topic-id-tag {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 /* DOCUMENTATION PAGE SPECIFICS */

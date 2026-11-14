@@ -291,8 +291,10 @@ function renderCurriculum() {
             <input type="checkbox" class="topic-checkbox" ${isMastered ? 'checked' : ''} onchange="toggleTopicMastery('${topic.id}', this.checked)">
             <span class="topic-checkmark"></span>
           </label>
-          <span class="topic-id-tag">${topic.id.replace('topic.', '')}</span>
-          <span class="topic-name">${topic.title}</span>
+          <div class="topic-info-col">
+            <span class="topic-name">${topic.title}</span>
+            <span class="topic-id-tag">${topic.id.replace('topic.', '')}</span>
+          </div>
         </div>
       `;
     }).join('');
@@ -314,9 +316,179 @@ function renderCurriculum() {
   }).join('');
 }
 
+// IMMERSIVE SYSTEMS TOPOLOGY NETWORK CANVAS
+function initSystemsNetworkCanvas() {
+  const canvas = document.getElementById('systems-mesh-canvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  let width = (canvas.width = canvas.offsetWidth);
+  let height = (canvas.height = canvas.offsetHeight);
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = width * dpr;
+  canvas.height = height * dpr;
+  ctx.scale(dpr, dpr);
+
+  const NODE_COUNT = Math.max(18, Math.floor(width / 45));
+  const nodes = [];
+  const packets = [];
+
+  for (let i = 0; i < NODE_COUNT; i++) {
+    nodes.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      radius: Math.random() > 0.8 ? 3.5 : 2,
+      pulse: Math.random() * Math.PI,
+      ip: `10.${Math.floor(Math.random() * 4)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 254 + 1)}`
+    });
+  }
+
+  let mouseX = -1000;
+  let mouseY = -1000;
+  const heroWrapper = canvas.closest('.hero-workbench-wrapper');
+  if (heroWrapper) {
+    heroWrapper.addEventListener('mousemove', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouseX = e.clientX - rect.left;
+      mouseY = e.clientY - rect.top;
+    });
+    heroWrapper.addEventListener('mouseleave', () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    });
+  }
+
+  // Periodic packet routing pulse
+  setInterval(() => {
+    if (nodes.length < 2 || document.hidden) return;
+    const srcIdx = Math.floor(Math.random() * nodes.length);
+    let targetIdx = Math.floor(Math.random() * nodes.length);
+    while (targetIdx === srcIdx) {
+      targetIdx = Math.floor(Math.random() * nodes.length);
+    }
+    const dist = Math.hypot(nodes[srcIdx].x - nodes[targetIdx].x, nodes[srcIdx].y - nodes[targetIdx].y);
+    if (dist < 260) {
+      packets.push({
+        src: nodes[srcIdx],
+        target: nodes[targetIdx],
+        progress: 0,
+        speed: 0.012 + Math.random() * 0.018
+      });
+    }
+  }, 400);
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+
+    // Architectural topology links
+    const maxLinkDist = 180;
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const dx = nodes[i].x - nodes[j].x;
+        const dy = nodes[i].y - nodes[j].y;
+        const dist = Math.hypot(dx, dy);
+
+        if (dist < maxLinkDist) {
+          const alpha = (1 - dist / maxLinkDist) * 0.07;
+          ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Packet transit pulses
+    for (let i = packets.length - 1; i >= 0; i--) {
+      const p = packets[i];
+      p.progress += p.speed;
+      if (p.progress >= 1) {
+        packets.splice(i, 1);
+        continue;
+      }
+      const curX = p.src.x + (p.target.x - p.src.x) * p.progress;
+      const curY = p.src.y + (p.target.y - p.src.y) * p.progress;
+
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.85)';
+      ctx.beginPath();
+      ctx.arc(curX, curY, 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Node updates and rendering
+    let nearestNode = null;
+    let nearestDist = 120;
+
+    for (let i = 0; i < nodes.length; i++) {
+      const n = nodes[i];
+      n.x += n.vx;
+      n.y += n.vy;
+
+      if (n.x < 10 || n.x > width - 10) n.vx *= -1;
+      if (n.y < 10 || n.y > height - 10) n.vy *= -1;
+
+      n.pulse += 0.025;
+      const pulseFactor = Math.sin(n.pulse) * 0.5 + 0.5;
+
+      const distToMouse = Math.hypot(n.x - mouseX, n.y - mouseY);
+      if (distToMouse < nearestDist) {
+        nearestDist = distToMouse;
+        nearestNode = n;
+      }
+
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.radius, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (n.radius > 3) {
+        ctx.fillStyle = `rgba(16, 185, 129, ${0.4 + pulseFactor * 0.4})`;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    // Cursor telemetry crosshair on nearest active node
+    if (nearestNode) {
+      ctx.strokeStyle = 'rgba(16, 185, 129, 0.5)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(nearestNode.x, nearestNode.y, 7, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.85)';
+      ctx.font = '10px "Red Hat Mono", monospace';
+      ctx.fillText(`${nearestNode.ip} [LIVE]`, nearestNode.x + 12, nearestNode.y + 4);
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  window.addEventListener('resize', () => {
+    width = canvas.offsetWidth;
+    height = canvas.offsetHeight;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+  });
+}
+
 // INITIALIZATION ON DOM READY
 document.addEventListener('DOMContentLoaded', () => {
   const masteredSet = getMasteredTopicIds();
+
+  // Initialize systems topology canvas on landing
+  initSystemsNetworkCanvas();
 
   // Update topbar tag on all pages
   updateGlobalProgressUI(masteredSet);
