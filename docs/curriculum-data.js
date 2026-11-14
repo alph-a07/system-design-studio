@@ -2170,3 +2170,73 @@ const CURRICULUM_CLUSTERS = [
     ]
   }
 ];
+
+
+// CANONICAL TIER METADATA
+const CURRICULUM_TIER_META = {
+  '0': {
+    code: '0',
+    name: 'Tier 0 — HLD Building Blocks (Prerequisite Slice)',
+    shortName: 'Tier 0: HLD Building Blocks',
+    title: 'HLD Building Blocks (Prerequisite Slice)',
+    summary: 'APIs and transport foundations, database fundamentals, caching patterns, queues and quantitative estimation.'
+  },
+  '1': {
+    code: '1',
+    name: 'Tier 1 — Low-Level Design (LLD)',
+    shortName: 'Tier 1: LLD & Modeling',
+    title: 'Low-Level Design & Object Modeling',
+    summary: 'Entity invariants, cache evictions, connection poolers, rate limiting algorithms and thread executors.'
+  },
+  '2': {
+    code: '2',
+    name: 'Tier 2 — High-Level Design (HLD)',
+    shortName: 'Tier 2: HLD & Infra',
+    title: 'High-Level Design & Distributed Infra',
+    summary: 'Consistent hashing, write amplification (B-Tree vs LSM), consensus quorums, event sourcing, CDC and partition rebalancing.'
+  },
+  '3': {
+    code: '3',
+    name: 'Tier 3 — Mobile System Design',
+    shortName: 'Tier 3: Mobile & Offline',
+    title: 'Mobile Systems & Offline Client Sync',
+    summary: 'Battery limits, offline mutation queues, optimistic UI reconciliation, SQLite caching, push notification delivery and telemetry.'
+  },
+  '4': {
+    code: '4',
+    name: 'Tier 4 — Applying It: Reviews, Decisions & the Practice Loop',
+    shortName: 'Tier 4: Practice & ADRs',
+    title: 'ADRs, Reviews & Spaced Gap Tracking',
+    summary: 'Architecture Decision Records (ADRs), production trade-off defense, mock design reviews and spaced review loops.'
+  }
+};
+
+function getCurriculumStats() {
+  const clusters = typeof CURRICULUM_CLUSTERS !== 'undefined' ? CURRICULUM_CLUSTERS : [];
+  const totalClusters = clusters.length;
+  const totalTopics = clusters.reduce((acc, c) => acc + c.topics.length, 0);
+
+  const tiers = {};
+  ['0', '1', '2', '3', '4'].forEach(tierKey => {
+    tiers[tierKey] = {
+      key: tierKey,
+      meta: CURRICULUM_TIER_META[tierKey],
+      clusterCount: 0,
+      topicCount: 0
+    };
+  });
+
+  clusters.forEach(c => {
+    const t = c.code.split('.')[0];
+    if (tiers[t]) {
+      tiers[t].clusterCount += 1;
+      tiers[t].topicCount += c.topics.length;
+    }
+  });
+
+  return {
+    totalClusters,
+    totalTopics,
+    tiers
+  };
+}

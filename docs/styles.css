@@ -274,9 +274,6 @@ code, pre, .mono {
   .nav-link {
     font-size: 13px;
   }
-  .header-sponsor-link {
-    display: none !important;
-  }
 }
 
 @media (max-width: 520px) {
@@ -299,12 +296,12 @@ code, pre, .mono {
 }
 
 .hero-workbench {
-  padding: 56px 0 36px;
+  padding: 56px 0 40px;
 }
 
 .hero-editorial {
-  max-width: 800px;
-  margin-bottom: 28px;
+  max-width: 820px;
+  margin-bottom: 32px;
 }
 
 .hero-headline {
@@ -315,7 +312,7 @@ code, pre, .mono {
   font-size: clamp(1.02rem, 1.6vw, 1.18rem);
   color: var(--text-secondary);
   line-height: 1.6;
-  max-width: 720px;
+  max-width: 740px;
 }
 
 @media (max-width: 640px) {
@@ -323,134 +320,17 @@ code, pre, .mono {
     padding: 36px 0 24px;
   }
   .hero-editorial {
-    margin-bottom: 20px;
+    margin-bottom: 24px;
   }
 }
 
-/* INSTALLATION BAR */
-.install-instrument {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-wire);
-  border-radius: var(--radius-md);
-  padding: 12px 16px;
-  margin-bottom: 36px;
-  max-width: 760px;
-}
-
-.install-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-wire);
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.install-tabs {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.install-tab {
-  background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-secondary);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.install-tab:hover {
-  color: var(--text-primary);
-}
-
-.install-tab.active {
-  background: var(--bg-raised);
-  border-color: var(--border-subtle);
-  color: var(--text-primary);
-}
-
-.install-target-note {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-
-.install-command-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: var(--bg-void);
-  border: 1px solid var(--border-wire);
-  border-radius: var(--radius-sm);
-  padding: 8px 12px;
-}
-
-.install-code {
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  color: var(--accent-diode);
-  overflow-x: auto;
-  white-space: nowrap;
-  scrollbar-width: none;
-  min-width: 0;
-}
-
-.install-code::-webkit-scrollbar {
-  display: none;
-}
-
-.copy-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: var(--bg-raised);
-  border: 1px solid var(--border-wire);
-  color: var(--text-primary);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 5px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-}
-
-.copy-action-btn:hover {
-  background: var(--bg-hover);
-  border-color: var(--border-subtle);
-}
-
-@media (max-width: 600px) {
-  .install-instrument {
-    padding: 10px 12px;
-  }
-  .install-command-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
-  }
-  .copy-action-btn {
-    align-self: flex-start;
-  }
-}
-
-/* HERO CONSOLE INSTRUMENT */
+/* HERO CONSOLE & SIMULATOR INSTRUMENT */
 .console-instrument {
   background: var(--bg-surface);
   border: 1px solid var(--border-wire);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  margin-bottom: 48px;
+  margin-bottom: 40px;
 }
 
 .console-titlebar {
@@ -506,7 +386,7 @@ code, pre, .mono {
 .console-viewports {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
-  min-height: 420px;
+  min-height: 440px;
 }
 
 @media (max-width: 900px) {
@@ -529,6 +409,10 @@ code, pre, .mono {
   .viewport-left {
     border-right: none;
     border-bottom: 1px solid var(--border-wire);
+    order: 2;
+  }
+  .viewport-right {
+    order: 1;
   }
 }
 
@@ -575,6 +459,13 @@ code, pre, .mono {
   font-size: 12px;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.sim-showcase-title {
+  color: var(--accent-diode);
+  font-weight: 600;
+  font-size: 12px;
+  font-family: var(--font-mono);
 }
 
 .sim-mode-toggle {
@@ -682,7 +573,7 @@ code, pre, .mono {
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 11.5px;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
@@ -691,6 +582,11 @@ code, pre, .mono {
 .sim-control-btn:hover {
   background: var(--bg-hover);
   border-color: var(--border-subtle);
+}
+
+.sim-control-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
 }
 
 .sim-telemetry-pill {
@@ -703,10 +599,10 @@ code, pre, .mono {
   font-variant-numeric: tabular-nums;
 }
 
-/* HARDWARE TELEMETRY SPEC SHEET */
+/* HARDWARE TELEMETRY SPEC SHEET & LOG-SCALED BARS */
 .telemetry-strip {
   margin-bottom: 56px;
-  padding: 20px;
+  padding: 24px;
   background: var(--bg-surface);
   border: 1px solid var(--border-wire);
   border-radius: var(--radius-md);
@@ -716,70 +612,109 @@ code, pre, .mono {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 8px;
 }
 
 .telemetry-title {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: 4px;
 }
 
 .telemetry-sub {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--text-muted);
 }
 
-.latency-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
-  gap: 10px;
+.latency-bars-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-@media (max-width: 480px) {
-  .latency-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-.latency-item {
+.latency-bar-item {
   background: var(--bg-void);
   border: 1px solid var(--border-wire);
   border-radius: var(--radius-sm);
   padding: 12px 14px;
 }
 
-.latency-metric {
-  font-family: var(--font-mono);
-  font-size: 16px;
+.latency-bar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.latency-bar-title-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.latency-bar-name {
+  font-size: 13.5px;
   font-weight: 600;
-  color: var(--accent-diode);
-  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+
+.latency-bar-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.latency-bar-metrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
-.latency-label {
-  font-size: 12.5px;
-  font-weight: 500;
+.latency-real-val {
+  color: var(--accent-diode);
+  font-weight: 600;
+}
+
+.latency-scaled-badge {
   color: var(--text-primary);
-  margin-bottom: 2px;
-}
-
-.latency-desc {
+  background: var(--bg-raised);
+  border: 1px solid var(--border-wire);
+  padding: 2px 8px;
+  border-radius: 4px;
   font-size: 11.5px;
-  color: var(--text-muted);
-  line-height: 1.4;
 }
 
-/* LIFECYCLE STAGES */
+.latency-bar-track {
+  height: 6px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-wire);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.latency-bar-fill {
+  height: 100%;
+  background: var(--accent-diode);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* HOW IT WORKS / LIFECYCLE STAGES */
 .workflow-section {
   margin-bottom: 56px;
+  scroll-margin-top: 84px;
 }
 
 .section-editorial {
-  max-width: 680px;
+  max-width: 720px;
   margin-bottom: 24px;
 }
 
@@ -886,6 +821,163 @@ code, pre, .mono {
   font-size: 11.5px;
   color: var(--text-muted);
   overflow-x: auto;
+}
+
+/* CONSOLIDATED INSTALL SECTION */
+.install-section {
+  margin-bottom: 56px;
+  scroll-margin-top: 84px;
+}
+
+.install-instrument {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-wire);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.install-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-wire);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.install-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.install-tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.install-tab:hover {
+  color: var(--text-primary);
+}
+
+.install-tab.active {
+  background: var(--bg-raised);
+  border-color: var(--border-subtle);
+  color: var(--text-primary);
+}
+
+.install-target-note {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.install-command-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg-void);
+  border: 1px solid var(--border-wire);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.install-code {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--accent-diode);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 0;
+  flex-grow: 1;
+}
+
+.copy-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border-wire);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.copy-action-btn:hover {
+  background: var(--bg-hover);
+  border-color: var(--border-subtle);
+}
+
+.install-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.install-advisory-box {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-wire);
+  border-left: 3px solid var(--accent-diode);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.install-view-script {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--accent-diode);
+  text-decoration: underline;
+  transition: color 0.15s ease;
+}
+
+.install-view-script:hover {
+  color: var(--text-primary);
+}
+
+@media (max-width: 600px) {
+  .install-instrument {
+    padding: 12px;
+  }
+  .install-command-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .copy-action-btn {
+    align-self: flex-start;
+  }
 }
 
 /* COMPARISON TABLE */
@@ -1000,70 +1092,6 @@ code, pre, .mono {
   font-family: var(--font-mono);
   font-size: 11.5px;
   color: var(--text-muted);
-}
-
-/* UNIVERSAL AGENTS GRID */
-.agents-compatibility-section {
-  margin-bottom: 56px;
-}
-
-.agents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-.agent-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-wire);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.agent-name-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-  gap: 8px;
-}
-
-.agent-name {
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-primary);
-}
-
-.agent-status {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--accent-diode);
-  background: var(--accent-diode-surface);
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-
-.agent-contract {
-  font-size: 12.5px;
-  color: var(--text-secondary);
-  line-height: 1.45;
-  margin-bottom: 10px;
-}
-
-.agent-config-code {
-  margin-top: auto;
-  background: var(--bg-void);
-  border: 1px solid var(--border-wire);
-  border-radius: var(--radius-sm);
-  padding: 6px 8px;
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  color: var(--text-muted);
-  overflow-x: auto;
-  white-space: nowrap;
 }
 
 /* PROGRESS TRACKER INSTRUMENT */
@@ -1331,7 +1359,7 @@ code, pre, .mono {
   background: var(--bg-surface);
 }
 
-.topic-row.is-mastered {
+.topic-row.is-completed, .topic-row.is-mastered {
   background: rgba(16, 185, 129, 0.04);
   border-color: rgba(16, 185, 129, 0.25);
 }
@@ -1404,6 +1432,7 @@ code, pre, .mono {
   word-break: break-word;
 }
 
+.topic-row.is-completed .topic-name,
 .topic-row.is-mastered .topic-name {
   color: var(--text-secondary);
 }

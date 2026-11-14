@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>System Design Studio — Systems Architecture Mastery for AI Agents</title>
-  <meta name="description" content="An open-source agentic skill that equips AI coding agents to teach distributed systems through first principles, Git-backed living state, and interactive visual artifacts.">
+  <title>System Design Studio: learn system design with your AI coding agent</title>
+  <meta name="description" content="An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,21 +18,17 @@
           <span class="brand-title">System Design Studio</span>
         </a>
         <span class="version-tag">
-          <span class="version-dot"></span> v2.1.0 · 354 topics
+          <span class="version-dot"></span> v2.1.0 · <span data-stat="total-topics">354</span> topics
         </span>
       </div>
 
       <nav class="nav-menu">
         <a href="curriculum.html" class="nav-link">Syllabus</a>
-        <a href="#cursor" class="nav-link">Architecture</a>
+        <a href="#how-it-works" class="nav-link">How it works</a>
         <a href="docs.html" class="nav-link">Docs</a>
         <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="nav-link" style="display: inline-flex; align-items: center; gap: 6px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
           GitHub
-        </a>
-        <a href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener noreferrer" class="nav-link header-sponsor-link" style="display: inline-flex; align-items: center; gap: 6px;" title="Support on Buy Me a Coffee">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>
-          Sponsor
         </a>
         <a href="#install" class="btn-primary">Install</a>
       </nav>
@@ -40,47 +36,27 @@
   </header>
 
   <!-- HERO WORKBENCH -->
-  <div class="hero-workbench-wrapper" id="install">
+  <div class="hero-workbench-wrapper">
     <div class="container">
       <section class="hero-workbench">
         <div class="hero-editorial">
           <h1 class="hero-headline">
-            System design mastery inside your repository
+            Learn system design with the agent you already use
           </h1>
           <p class="hero-subhead">
-            A stateful agentic skill that eliminates AI context amnesia. Runs directly in <code>.system-design/</code> with a Git-backed living cursor, hardware physics grounding, and interactive visual artifacts.
+            An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch.
           </p>
         </div>
 
-        <!-- INSTALLATION INSTRUMENT -->
-        <div class="install-instrument">
-          <div class="install-header">
-            <div class="install-tabs">
-              <button class="install-tab active" onclick="switchInstallTab('curl', this)">1-Line Scaffolding</button>
-              <button class="install-tab" onclick="switchInstallTab('agy', this)">Antigravity Plugin</button>
-              <button class="install-tab" onclick="switchInstallTab('git', this)">Git Clone</button>
-            </div>
-            <span class="install-target-note" id="install-target-label">Target: .system-design/</span>
-          </div>
-          <div class="install-command-row">
-            <code class="install-code" id="install-command-text">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
-            <button class="copy-action-btn" onclick="copySnippet(this, 'install-command-text')">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <span>Copy</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- HERO CONSOLE INSTRUMENT -->
+        <!-- HERO CONSOLE & SIMULATOR INSTRUMENT -->
         <div class="console-instrument">
           <div class="console-titlebar">
-            <div class="console-nav-tabs">
-              <button class="console-tab active" onclick="switchConsoleTab('cursor', this)">CURSOR.md (Living State)</button>
-              <button class="console-tab" onclick="switchConsoleTab('terminal', this)">Terminal (sync-status.py)</button>
-              <button class="console-tab" onclick="switchConsoleTab('artifact', this)">Artifact (HTML Source)</button>
+            <div class="console-nav-tabs" role="tablist">
+              <button class="console-tab active" onclick="switchConsoleTab('cursor', this)" role="tab" aria-selected="true">CURSOR.md (sample)</button>
+              <button class="console-tab" onclick="switchConsoleTab('terminal', this)" role="tab" aria-selected="false">sync-status.py (sample)</button>
             </div>
             <div class="console-meta">
-              <span>Branch: main</span> &middot; <span>Instance: Active</span>
+              <span>Instance: Active</span> &middot; <span>Branch: main</span>
             </div>
           </div>
 
@@ -88,62 +64,61 @@
             <!-- VIEWPORT LEFT: LIVING STATE CODE -->
             <div class="viewport-left">
               <div id="console-view-cursor">
-                <pre class="instrument-codeblock"><code><span class="token-comment"># .system-design/CURSOR.md &middot; Real-time Lineage</span>
+                <pre class="instrument-codeblock"><code><span class="token-comment"># .system-design/CURSOR.md (sample output)</span>
 <span class="token-key">activeFocus:</span>
   <span class="token-key">topicId:</span> <span class="token-str">"topic.0.1.tcp-vs-udp"</span>
-  <span class="token-key">tier:</span> <span class="token-str">"Tier 0: Transport"</span>
-  <span class="token-key">phase:</span> <span class="token-str">"mental-model-verified"</span>
+  <span class="token-key">tier:</span> <span class="token-str">"Tier 0 — HLD Building Blocks (Prerequisite Slice)"</span>
+  <span class="token-key">phase:</span> <span class="token-str">"foundation-complete"</span>
   <span class="token-key">depthLevel:</span> <span class="token-str">"physical-mechanics"</span>
 
 <span class="token-key">causalAnchors:</span>
-  <span class="token-bullet">-</span> <span class="token-str">"100ms WAN RTT = 3 round trips before first byte on cold TCP+TLS"</span>
-  <span class="token-bullet">-</span> <span class="token-str">"Head-of-Line blocking is physical in single-stream TCP sockets"</span>
-  <span class="token-bullet">-</span> <span class="token-str">"UDP has zero transport state; congestion control lives in user-space"</span>
+  <span class="token-bullet">-</span> <span class="token-str">"Cold TCP + TLS 1.3 (no 0-RTT/resumption): 3 round trips before first byte"</span>
+  <span class="token-bullet">-</span> <span class="token-str">"Head-of-Line blocking in single-stream TCP socket buffers"</span>
+  <span class="token-bullet">-</span> <span class="token-str">"UDP has zero transport state; congestion control runs in user-space"</span>
 
 <span class="token-key">examplesTaken:</span>
-  <span class="token-bullet">-</span> <span class="token-str">"postal-packet-delivery"</span>
   <span class="token-bullet">-</span> <span class="token-str">"financial-ledger-wal"</span>
+  <span class="token-bullet">-</span> <span class="token-str">"live-webrtc-audio"</span>
 
 <span class="token-key">deferredQueue:</span>
-  <span class="token-bullet">-</span> <span class="token-str">"QUIC connection migration across WiFi/Cellular shifts"</span></code></pre>
+  <span class="token-bullet">-</span> <span class="token-str">"QUIC connection migration across cellular handoffs"</span></code></pre>
               </div>
 
               <div id="console-view-terminal" style="display: none;">
-                <pre class="instrument-codeblock"><code><span class="token-comment">$ python3 skills/system-design-studio/scripts/sync-status.py .system-design/</span>
-[SDS] Verified workspace structure: OK
-[SDS] Manifest: instance-id=sds-core-alpha | version=2.1.0
-[SDS] Topics: Total=354 | Mastered=28 | In-Progress=1 | Unseen=325
-[SDS] Active Cursor:
-      &gt; Topic: topic.0.1.tcp-vs-udp (APIs &amp; Transport)
-      &gt; Focus: Head-of-line blocking vs multiplexed streams
-      &gt; Causal Anchors: 3 verified
-      &gt; Artifact: .system-design/lessons/0.1-tcp-vs-udp.html
-[SDS] Status: Clean &middot; Zero unanchored claims detected.</code></pre>
-              </div>
-
-              <div id="console-view-artifact" style="display: none;">
-                <pre class="instrument-codeblock"><code><span class="token-comment">&lt;!-- Generated Artifact: topic-0.1-tcp-vs-udp.html --&gt;</span>
-<span class="token-key">&lt;div</span> <span class="token-str">class="packet-simulator-workbench"</span><span class="token-key">&gt;</span>
-  <span class="token-key">&lt;header</span> <span class="token-str">class="telemetry-bar"</span><span class="token-key">&gt;</span>
-    <span class="token-str">TCP Stream (Seq 1..4) &middot; Loss Rate: 2.4% &middot; HOL Blocking: ACTIVE</span>
-  <span class="token-key">&lt;/header&gt;</span>
-  <span class="token-key">&lt;div</span> <span class="token-str">class="stream-grid"</span><span class="token-key">&gt;</span>
-    <span class="token-key">&lt;div</span> <span class="token-str">class="pkt ack"</span><span class="token-key">&gt;</span>Pkt 1 [ACK]<span class="token-key">&lt;/div&gt;</span>
-    <span class="token-key">&lt;div</span> <span class="token-str">class="pkt lost"</span><span class="token-key">&gt;</span>Pkt 2 [LOST]<span class="token-key">&lt;/div&gt;</span>
-    <span class="token-key">&lt;div</span> <span class="token-str">class="pkt blocked"</span><span class="token-key">&gt;</span>Pkt 3 [BLOCKED]<span class="token-key">&lt;/div&gt;</span>
-  <span class="token-key">&lt;/div&gt;</span>
-<span class="token-key">&lt;/div&gt;</span></code></pre>
+                <pre class="instrument-codeblock"><code><span class="token-comment">$ python3 skills/system-design-studio/scripts/sync-status.py .system-design/ (sample output)</span>
+============================================================
+SYSTEM DESIGN STUDIO — INSTANCE DIAGNOSTIC
+============================================================
+Instance Name:    System Design Learning Instance
+Curriculum:       System Design Roadmap (curriculum.system-design)
+Overall Progress: 28 / 354 Topics (7.9%)
+Breakdown:        Completed=28 | In-Progress=1 | Unseen=325 (Sum: 354)
+------------------------------------------------------------
+Active Tier:     Tier 0 — HLD Building Blocks (Prerequisite Slice)
+Active Cluster:  1. [0.1] APIs &amp; Network Transport for Design
+Active Topic:    TCP vs UDP — what reliability costs, and why real-time media often picks UDP
+Foundation:      complete
+Mechanism Group: group.0.1.tcp-udp-foundations
+------------------------------------------------------------
+Examples Logged: 2
+  └─ Latest: [financial-ledger-wal] Strict sequence ordering vs datagram drops...
+Deferred Queue:  1 pending questions
+  └─ Next Due: [cluster.0.1] QUIC connection migration across cellular handoffs
+------------------------------------------------------------
+Immediate Next Action:
+  👉 Evaluate checkpoint.0.1.tcp-head-of-line-blocking response
+============================================================</code></pre>
               </div>
             </div>
 
-            <!-- VIEWPORT RIGHT: INTERACTIVE SIMULATOR ARTIFACT PREVIEW -->
+            <!-- VIEWPORT RIGHT: INTERACTIVE SIMULATOR PREVIEW -->
             <div class="viewport-right">
               <div class="simulator-panel">
                 <div class="sim-header">
-                  <span style="color: var(--accent-diode); font-weight: 500;">Protocol Simulator Viewport</span>
-                  <div class="sim-mode-toggle">
-                    <button id="sim-btn-tcp" class="sim-mode-btn active" onclick="setSimulatorProtocol('tcp')">TCP (HTTP/1.1)</button>
-                    <button id="sim-btn-quic" class="sim-mode-btn" onclick="setSimulatorProtocol('quic')">QUIC (HTTP/3)</button>
+                  <span class="sim-showcase-title">Sample lesson the agent generates. Try it.</span>
+                  <div class="sim-mode-toggle" role="tablist">
+                    <button id="sim-btn-tcp" class="sim-mode-btn active" onclick="setSimulatorProtocol('tcp')" role="tab" aria-selected="true" aria-label="Simulate TCP with head-of-line blocking">TCP (HTTP/1.1)</button>
+                    <button id="sim-btn-quic" class="sim-mode-btn" onclick="setSimulatorProtocol('quic')" role="tab" aria-selected="false" aria-label="Simulate QUIC with independent streams">QUIC (HTTP/3)</button>
                   </div>
                 </div>
 
@@ -151,24 +126,24 @@
                   <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                       <span style="font-size: 13px; font-weight: 600; color: var(--text-primary);">Head-of-Line Blocking Simulation</span>
-                      <span id="sim-status-badge" style="font-size: 11px; font-family: var(--font-mono); color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px;">HOL BLOCKING ACTIVE</span>
+                      <span id="sim-status-badge" style="font-size: 11px; font-family: var(--font-mono); color: #ef4444; background: rgba(239, 68, 68, 0.1); padding: 2px 6px; border-radius: 4px;" aria-live="polite">HOL BLOCKING ACTIVE</span>
                     </div>
 
                     <!-- PACKET STREAM DIAGRAM -->
-                    <div class="sim-stream-visual">
-                      <div class="sim-packet-box status-acked" id="sim-pkt-1">
+                    <div class="sim-stream-visual" role="region" aria-label="Packet stream visualization">
+                      <div class="sim-packet-box status-acked" id="sim-pkt-1" aria-label="Packet 1: Acknowledged">
                         <div class="sim-packet-tag" style="color: var(--accent-diode);">ACK</div>
                         <div class="sim-packet-label">Packet 1</div>
                       </div>
-                      <div class="sim-packet-box status-lost" id="sim-pkt-2">
+                      <div class="sim-packet-box status-lost" id="sim-pkt-2" aria-label="Packet 2: Lost">
                         <div class="sim-packet-tag" style="color: #ef4444;">LOST</div>
                         <div class="sim-packet-label">Packet 2</div>
                       </div>
-                      <div class="sim-packet-box status-blocked" id="sim-pkt-3">
+                      <div class="sim-packet-box status-blocked" id="sim-pkt-3" aria-label="Packet 3: Blocked">
                         <div class="sim-packet-tag" style="color: var(--text-muted);">BLOCKED</div>
                         <div class="sim-packet-label">Packet 3</div>
                       </div>
-                      <div class="sim-packet-box status-blocked" id="sim-pkt-4">
+                      <div class="sim-packet-box status-blocked" id="sim-pkt-4" aria-label="Packet 4: Blocked">
                         <div class="sim-packet-tag" style="color: var(--text-muted);">BLOCKED</div>
                         <div class="sim-packet-label">Packet 4</div>
                       </div>
@@ -180,7 +155,7 @@
                   </div>
 
                   <div class="sim-actions-row">
-                    <button id="sim-action-btn" class="sim-control-btn" onclick="togglePacket2Drop()">Retransmit Packet 2</button>
+                    <button id="sim-action-btn" class="sim-control-btn" onclick="togglePacket2Drop()" aria-label="Retransmit Packet 2 to unblock socket stream">Retransmit Packet 2</button>
                     <div id="sim-penalty-pill" class="sim-telemetry-pill">
                       <span style="color: #ef4444;">Transport Stall: +84ms RTT penalty</span>
                     </div>
@@ -190,55 +165,110 @@
             </div>
           </div>
         </div>
+
       </section>
     </div>
   </div>
 
   <main class="container" style="padding-top: 48px;">
-    <!-- HARDWARE PHYSICS TELEMETRY SPEC SHEET -->
+
+    <!-- HARDWARE LATENCY SECTION -->
     <section class="telemetry-strip">
       <div class="telemetry-header">
         <div>
-          <h2 class="telemetry-title">Hardware constraints govern architectural truth</h2>
-          <span class="telemetry-sub">System design is applied physics. Every trade-off in the studio is anchored in physical latency numbers:</span>
+          <h2 class="telemetry-title">Every lesson starts from real latency numbers</h2>
+          <span class="telemetry-sub">If L1 CPU cache access (0.5 ns) were 1 second, cross-datacenter latency would be 9.5 years:</span>
         </div>
-        <span style="font-family: var(--font-mono); font-size: 12px; color: var(--accent-diode);">Latency Reference Scale</span>
       </div>
 
-      <div class="latency-grid">
-        <div class="latency-item">
-          <div class="latency-metric">0.5 &ndash; 1 ns</div>
-          <div class="latency-label">L1 CPU Cache</div>
-          <div class="latency-desc">Registers and L1 instruction/data fetch. Zero bus latency.</div>
+      <div class="latency-bars-container">
+        <div class="latency-bar-item">
+          <div class="latency-bar-header">
+            <div class="latency-bar-title-wrap">
+              <span class="latency-bar-name">L1 CPU Cache</span>
+              <span class="latency-bar-desc">Registers and L1 instruction/data fetch</span>
+            </div>
+            <div class="latency-bar-metrics">
+              <span class="latency-real-val">0.5 ns</span>
+              <span class="latency-scaled-badge">1 second</span>
+            </div>
+          </div>
+          <div class="latency-bar-track">
+            <div class="latency-bar-fill" style="width: 8%;"></div>
+          </div>
         </div>
-        <div class="latency-item">
-          <div class="latency-metric">20 ns</div>
-          <div class="latency-label">Mutex Lock/Unlock</div>
-          <div class="latency-desc">Uncontended pthread mutex or atomic CAS operation.</div>
+
+        <div class="latency-bar-item">
+          <div class="latency-bar-header">
+            <div class="latency-bar-title-wrap">
+              <span class="latency-bar-name">Mutex Lock/Unlock</span>
+              <span class="latency-bar-desc">Uncontended pthread mutex or atomic CAS</span>
+            </div>
+            <div class="latency-bar-metrics">
+              <span class="latency-real-val">20 ns</span>
+              <span class="latency-scaled-badge">40 seconds</span>
+            </div>
+          </div>
+          <div class="latency-bar-track">
+            <div class="latency-bar-fill" style="width: 28%;"></div>
+          </div>
         </div>
-        <div class="latency-item">
-          <div class="latency-metric">100 ns</div>
-          <div class="latency-label">Main Memory (DRAM)</div>
-          <div class="latency-desc">Memory bus transaction. 200x slower than L1 cache.</div>
+
+        <div class="latency-bar-item">
+          <div class="latency-bar-header">
+            <div class="latency-bar-title-wrap">
+              <span class="latency-bar-name">Main Memory (DRAM)</span>
+              <span class="latency-bar-desc">Memory bus transaction. 200x slower than L1 cache</span>
+            </div>
+            <div class="latency-bar-metrics">
+              <span class="latency-real-val">100 ns</span>
+              <span class="latency-scaled-badge">~3.3 minutes</span>
+            </div>
+          </div>
+          <div class="latency-bar-track">
+            <div class="latency-bar-fill" style="width: 44%;"></div>
+          </div>
         </div>
-        <div class="latency-item">
-          <div class="latency-metric">20 &micro;s</div>
-          <div class="latency-label">NVMe SSD Read</div>
-          <div class="latency-desc">Random 4KB block read over PCIe. 200x slower than RAM.</div>
+
+        <div class="latency-bar-item">
+          <div class="latency-bar-header">
+            <div class="latency-bar-title-wrap">
+              <span class="latency-bar-name">NVMe SSD 4KB Read</span>
+              <span class="latency-bar-desc">Random 4KB block read over PCIe bus</span>
+            </div>
+            <div class="latency-bar-metrics">
+              <span class="latency-real-val">20 &micro;s</span>
+              <span class="latency-scaled-badge">~11 hours</span>
+            </div>
+          </div>
+          <div class="latency-bar-track">
+            <div class="latency-bar-fill" style="width: 70%;"></div>
+          </div>
         </div>
-        <div class="latency-item">
-          <div class="latency-metric">150 ms</div>
-          <div class="latency-label">Cross-Datacenter WAN</div>
-          <div class="latency-desc">Speed-of-light optical fiber round trip between continents.</div>
+
+        <div class="latency-bar-item">
+          <div class="latency-bar-header">
+            <div class="latency-bar-title-wrap">
+              <span class="latency-bar-name">Cross-Datacenter WAN</span>
+              <span class="latency-bar-desc">Speed-of-light optical fiber round trip between continents</span>
+            </div>
+            <div class="latency-bar-metrics">
+              <span class="latency-real-val">150 ms</span>
+              <span class="latency-scaled-badge">~9.5 years</span>
+            </div>
+          </div>
+          <div class="latency-bar-track">
+            <div class="latency-bar-fill" style="width: 100%;"></div>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- LIFECYCLE SECTION -->
-    <section class="workflow-section" id="lifecycle">
+    <!-- HOW IT WORKS SECTION -->
+    <section class="workflow-section" id="how-it-works">
       <div class="section-editorial">
-        <h2>How System Design Studio operates</h2>
-        <p>Three discrete phases turn any AI coding agent into a rigorous systems engineering tutor that maintains state across model changes.</p>
+        <h2>How it works</h2>
+        <p>Three phases turn your AI coding agent into a stateful systems tutor that retains progress across sessions and model switches. Duration and depth are on-demand per topic: explore or deep dive repeatedly at your own pace.</p>
       </div>
 
       <div class="stages-flow">
@@ -246,7 +276,7 @@
           <div class="stage-role">Phase 1</div>
           <h3 class="stage-title">Repository Scaffolding</h3>
           <p class="stage-desc">
-            A single shell script installs the <code>.system-design/</code> directory directly into your working codebase. 100% local files; zero third-party cloud services or databases.
+            The scaffolding script installs the <code>.system-design/</code> directory into your local repository. 100% local files; zero external cloud services or databases.
           </p>
           <div class="stage-snippet">
             <code>.system-design/manifest.json</code>
@@ -255,9 +285,9 @@
 
         <div class="stage-panel">
           <div class="stage-role">Phase 2</div>
-          <h3 class="stage-title">Cognitive Lineage Retained</h3>
+          <h3 class="stage-title">Your progress lives in a file</h3>
           <p class="stage-desc">
-            <code>CURSOR.md</code> tracks the active topic, proven prerequisites, hardware invariants, and previous analogies. When your AI context resets, progress is never lost.
+            <code>CURSOR.md</code> records the active topic, verified prerequisites, hardware invariants, and previous analogies. When your AI context resets, progress is preserved.
           </p>
           <div class="stage-snippet">
             <code>.system-design/CURSOR.md</code>
@@ -266,9 +296,9 @@
 
         <div class="stage-panel">
           <div class="stage-role">Phase 3</div>
-          <h3 class="stage-title">Visual Artifact Generation</h3>
+          <h3 class="stage-title">Interactive HTML Lessons</h3>
           <p class="stage-desc">
-            Rather than walls of abstract text, the agent generates self-contained interactive HTML artifacts directly inside your repo to let you explore packet flows and failure modes.
+            The agent generates self-contained interactive HTML artifacts directly inside <code>.system-design/lessons/</code> with failure simulators and packet visualizers.
           </p>
           <div class="stage-snippet">
             <code>.system-design/lessons/*.html</code>
@@ -278,17 +308,17 @@
     </section>
 
     <!-- LIVING CURSOR ARCHITECTURE -->
-    <section class="cursor-architecture-section" id="cursor">
+    <section class="cursor-architecture-section">
       <div class="section-editorial">
         <h2>The four layers of CURSOR.md</h2>
-        <p>Why plain-text Git state outlasts ephemeral AI chat context windows.</p>
+        <p>File-backed state on disk outlasts ephemeral AI chat context windows.</p>
       </div>
 
       <div class="cursor-layers-grid">
         <div class="cursor-layer-card">
           <div class="cursor-layer-name">1. activeFocus</div>
           <div class="cursor-layer-summary">
-            Tracks the exact topic ID, depth tier, prerequisites verified, and current mastery milestone. Ensures the tutor never wanders without clear goal completion.
+            Tracks topic ID, depth tier, and active mechanism group. Ensures the tutor stays on the active objective.
           </div>
           <div class="cursor-layer-preview">
             topicId: topic.0.1.tcp-vs-udp &middot; depthLevel: physical-mechanics
@@ -298,27 +328,27 @@
         <div class="cursor-layer-card">
           <div class="cursor-layer-name">2. causalAnchors</div>
           <div class="cursor-layer-summary">
-            Records non-negotiable physical laws and latency boundaries that the agent must hold the learner accountable to in subsequent architectural reviews.
+            Records physical latency numbers and network boundaries verified during lessons.
           </div>
           <div class="cursor-layer-preview">
-            "WAN RTT = 3 round trips before first byte on cold TCP+TLS"
+            "Cold TCP + TLS 1.3 (no 0-RTT): 3 round trips before first byte"
           </div>
         </div>
 
         <div class="cursor-layer-card">
           <div class="cursor-layer-name">3. examplesTaken</div>
           <div class="cursor-layer-summary">
-            A deduplication registry of real-world metaphors and systems analogies already used. Prevents the AI tutor from repeating generic analogies across sessions.
+            Registry of system domains used (financial ledger, audio streaming) to maintain continuity without repeating analogies.
           </div>
           <div class="cursor-layer-preview">
-            ["postal-packet-delivery", "financial-ledger-wal"]
+            ["financial-ledger-wal", "live-webrtc-audio"]
           </div>
         </div>
 
         <div class="cursor-layer-card">
           <div class="cursor-layer-name">4. deferredQueue</div>
           <div class="cursor-layer-summary">
-            Captures tangential topics, deep-dive rabbit holes, and edge cases discovered during discussion so they can be explored methodically without derailing focus.
+            Tracks tangent questions for upcoming clusters without breaking topic focus.
           </div>
           <div class="cursor-layer-preview">
             ["QUIC connection migration across cellular handoffs"]
@@ -327,11 +357,121 @@
       </div>
     </section>
 
-    <!-- COMPARISON TABLE: STATUS QUO VS STUDIO -->
+    <!-- CONSOLIDATED INSTALL SECTION -->
+    <section class="install-section" id="install">
+      <div class="section-editorial">
+        <h2>Install for your agent</h2>
+        <p>Two-step setup: install the skill into your AI agent, then scaffold the learning instance in your repository.</p>
+      </div>
+
+      <div class="install-advisory-box">
+        <strong>Where to install:</strong> We recommend a dedicated learning repository (for example, <code>mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If you scaffold inside an existing work repository, add <code>.system-design/</code> to your <code>.gitignore</code> so personal progress files stay out of team commits.
+      </div>
+
+      <div class="install-instrument">
+        <div class="install-header">
+          <div class="install-tabs" role="tablist">
+            <button class="install-tab active" onclick="switchInstallTab('agy', this)" role="tab">Google Antigravity</button>
+            <button class="install-tab" onclick="switchInstallTab('claude', this)" role="tab">Claude Code</button>
+            <button class="install-tab" onclick="switchInstallTab('cursor', this)" role="tab">Cursor</button>
+            <button class="install-tab" onclick="switchInstallTab('codex', this)" role="tab">OpenAI Codex</button>
+            <button class="install-tab" onclick="switchInstallTab('curl', this)" role="tab">1-Line Scaffolding (Curl)</button>
+          </div>
+          <span class="install-target-note" id="install-target-label">Target: Antigravity Plugin Engine + local .system-design/</span>
+        </div>
+
+        <div class="install-command-row">
+          <code class="install-code" id="install-command-text"># Step 1: Install skill into Antigravity
+agy plugin add alph-a07/system-design-studio
+
+# Step 2: Scaffold instance in your learning repo
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
+          <button class="copy-action-btn" onclick="copySnippet(this, 'install-command-text')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+
+        <div class="install-footer-row">
+          <span class="install-order-note" id="install-order-note">Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.</span>
+          <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener noreferrer" class="install-view-script" id="install-view-script-link" style="display: none;">
+            <span>View script first</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5-TIER SYLLABUS PREVIEW -->
+    <section class="syllabus-preview-section">
+      <div class="section-editorial">
+        <h2>Five tiers of systems engineering</h2>
+        <p>From network transport and object modeling to distributed systems and mobile client sync across <span data-stat="total-topics">354</span> topics.</p>
+      </div>
+
+      <div class="tier-matrix-grid">
+        <a href="curriculum.html?tier=0" class="tier-matrix-card">
+          <div class="tier-tag">Tier 0 &middot; <span data-stat="tier-cluster-count" data-tier="0">5</span> Clusters</div>
+          <h3 class="tier-name" data-stat="tier-title" data-tier="0">HLD Building Blocks (Prerequisite Slice)</h3>
+          <p class="tier-summary">
+            APIs and transport foundations, database fundamentals, caching patterns, queues and quantitative estimation.
+          </p>
+          <div class="tier-clusters-list">
+            Clusters 0.1 &ndash; 0.5 &middot; <span data-stat="tier-topic-count" data-tier="0">37</span> Topics
+          </div>
+        </a>
+
+        <a href="curriculum.html?tier=1" class="tier-matrix-card">
+          <div class="tier-tag">Tier 1 &middot; <span data-stat="tier-cluster-count" data-tier="1">14</span> Clusters</div>
+          <h3 class="tier-name" data-stat="tier-title" data-tier="1">Low-Level Design &amp; Object Modeling</h3>
+          <p class="tier-summary">
+            Entity invariants, LRU/LFU cache evictions, connection poolers, rate limiting algorithms and thread executors.
+          </p>
+          <div class="tier-clusters-list">
+            Clusters 1.1 &ndash; 1.14 &middot; <span data-stat="tier-topic-count" data-tier="1">94</span> Topics
+          </div>
+        </a>
+
+        <a href="curriculum.html?tier=2" class="tier-matrix-card">
+          <div class="tier-tag">Tier 2 &middot; <span data-stat="tier-cluster-count" data-tier="2">18</span> Clusters</div>
+          <h3 class="tier-name" data-stat="tier-title" data-tier="2">High-Level Design &amp; Distributed Infra</h3>
+          <p class="tier-summary">
+            Consistent hashing, write amplification (B-Tree vs LSM), consensus quorums, event sourcing, CDC and partition rebalancing.
+          </p>
+          <div class="tier-clusters-list">
+            Clusters 2.1 &ndash; 2.18 &middot; <span data-stat="tier-topic-count" data-tier="2">134</span> Topics
+          </div>
+        </a>
+
+        <a href="curriculum.html?tier=3" class="tier-matrix-card">
+          <div class="tier-tag">Tier 3 &middot; <span data-stat="tier-cluster-count" data-tier="3">11</span> Clusters</div>
+          <h3 class="tier-name" data-stat="tier-title" data-tier="3">Mobile Systems &amp; Offline Client Sync</h3>
+          <p class="tier-summary">
+            Battery limits, offline mutation queues, optimistic UI reconciliation, SQLite caching, push notification delivery and telemetry.
+          </p>
+          <div class="tier-clusters-list">
+            Clusters 3.1 &ndash; 3.11 &middot; <span data-stat="tier-topic-count" data-tier="3">76</span> Topics
+          </div>
+        </a>
+
+        <a href="curriculum.html?tier=4" class="tier-matrix-card">
+          <div class="tier-tag">Tier 4 &middot; <span data-stat="tier-cluster-count" data-tier="4">2</span> Clusters</div>
+          <h3 class="tier-name" data-stat="tier-title" data-tier="4">ADRs, Reviews &amp; Spaced Gap Tracking</h3>
+          <p class="tier-summary">
+            Architecture Decision Records (ADRs), production trade-off defense, mock design reviews and spaced review loops.
+          </p>
+          <div class="tier-clusters-list">
+            Clusters 4.1 &ndash; 4.2 &middot; <span data-stat="tier-topic-count" data-tier="4">13</span> Topics
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- COMPARISON TABLE -->
     <section class="comparison-section">
       <div class="section-editorial">
-        <h2>The architectural shift</h2>
-        <p>How persistent file-based tutoring replaces superficial chat interactions.</p>
+        <h2>Comparison</h2>
+        <p>How persistent file-based tutoring compares to a plain conversational chat.</p>
       </div>
 
       <div class="comparison-table-wrapper">
@@ -339,165 +479,38 @@
           <thead>
             <tr>
               <th>Dimension</th>
-              <th>Status Quo (Generic Chat)</th>
+              <th>A plain AI chat</th>
               <th>System Design Studio</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td class="comparison-dimension">Cognitive State</td>
-              <td class="comparison-status-quo">Ephemeral context window; forgotten when thread resets or model changes.</td>
-              <td class="comparison-studio">Committed to Git via <code>CURSOR.md</code>; permanent across weeks and models.</td>
+              <td class="comparison-dimension">State Across Sessions</td>
+              <td class="comparison-status-quo">Kept in conversational context window; lost when thread resets or model changes.</td>
+              <td class="comparison-studio">Saved to <code>CURSOR.md</code> in Git; preserved across sessions and model switches.</td>
             </tr>
             <tr>
-              <td class="comparison-dimension">Pedagogical Rigor</td>
-              <td class="comparison-status-quo">Superficial buzzwords, hand-waving summaries, and generic bullet points.</td>
-              <td class="comparison-studio">First-principles hardware physics, latency numbers, and packet-level mechanics.</td>
+              <td class="comparison-dimension">Teaching Approach</td>
+              <td class="comparison-status-quo">Text summaries and definitions generated per prompt.</td>
+              <td class="comparison-studio">Step-by-step topic curriculum anchored in hardware latency numbers.</td>
             </tr>
             <tr>
-              <td class="comparison-dimension">Delivery Format</td>
-              <td class="comparison-status-quo">Passive markdown text blocks with no interactive mental models.</td>
-              <td class="comparison-studio">Self-contained interactive HTML artifacts, flow visualizers, and state simulators.</td>
+              <td class="comparison-dimension">Delivery Artifacts</td>
+              <td class="comparison-status-quo">Markdown codeblocks and text replies in chat.</td>
+              <td class="comparison-studio">Standalone interactive HTML files with state and packet simulators in <code>.system-design/lessons/</code>.</td>
             </tr>
             <tr>
-              <td class="comparison-dimension">Analogies &amp; Metaphors</td>
-              <td class="comparison-status-quo">Repeats the same stock car/library analogies every three prompts.</td>
-              <td class="comparison-studio">Deduplicated <code>examplesTaken</code> registry enforces fresh, varied contexts.</td>
+              <td class="comparison-dimension">Example Tracking</td>
+              <td class="comparison-status-quo">No record of previous analogies or examples across sessions.</td>
+              <td class="comparison-studio">Logged in <code>examplesTaken</code> within <code>CURSOR.md</code> to avoid repeating scenarios.</td>
             </tr>
             <tr>
               <td class="comparison-dimension">Curriculum Scope</td>
-              <td class="comparison-status-quo">Unstructured Q&amp;A dependent entirely on learner prompt formulation.</td>
-              <td class="comparison-studio">Canonical 50-cluster, 354-topic systems engineering matrix.</td>
+              <td class="comparison-status-quo">Ad-hoc question answering based on user prompts.</td>
+              <td class="comparison-studio">Indexed 50 clusters and 354 topics in <code>.system-design/CURRICULUM.md</code>.</td>
             </tr>
           </tbody>
         </table>
-      </div>
-    </section>
-
-    <!-- 5-TIER SYLLABUS PREVIEW -->
-    <section class="syllabus-preview-section">
-      <div class="section-editorial">
-        <h2>Five tiers of production systems engineering</h2>
-        <p>From network wire protocols and object modeling to distributed infrastructure and mobile systems across 354 topics.</p>
-      </div>
-
-      <div class="tier-matrix-grid">
-        <a href="curriculum.html?tier=0" class="tier-matrix-card">
-          <div class="tier-tag">Tier 0 &middot; 5 Clusters</div>
-          <h3 class="tier-name">Foundations &amp; Network Transport</h3>
-          <p class="tier-summary">
-            TCP socket states, TLS 1.3 handshake costs, HTTP multiplexing, QUIC packet formats, and quantitative hardware estimation.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 0.1 &ndash; 0.5 &middot; 37 Topics
-          </div>
-        </a>
-
-        <a href="curriculum.html?tier=1" class="tier-matrix-card">
-          <div class="tier-tag">Tier 1 &middot; 14 Clusters</div>
-          <h3 class="tier-name">Low-Level Design &amp; Object Modeling</h3>
-          <p class="tier-summary">
-            Entity invariants, LRU/LFU cache evictions, connection poolers, rate limiting algorithms (Token/Leaky Bucket), and thread executors.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 1.1 &ndash; 1.14 &middot; 94 Topics
-          </div>
-        </a>
-
-        <a href="curriculum.html?tier=2" class="tier-matrix-card">
-          <div class="tier-tag">Tier 2 &middot; 18 Clusters</div>
-          <h3 class="tier-name">High-Level Design &amp; Distributed Infra</h3>
-          <p class="tier-summary">
-            Consistent hashing rings, write amplification (B-Tree vs LSM), consensus quorums, event sourcing, CDC, and partition rebalancing.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 2.1 &ndash; 2.18 &middot; 134 Topics
-          </div>
-        </a>
-
-        <a href="curriculum.html?tier=3" class="tier-matrix-card">
-          <div class="tier-tag">Tier 3 &middot; 11 Clusters</div>
-          <h3 class="tier-name">Mobile Systems &amp; Offline Client Sync</h3>
-          <p class="tier-summary">
-            Device battery limits, offline mutation queues, optimistic UI reconciliation, SQLite caching, push notification delivery, and telemetry.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 3.1 &ndash; 3.11 &middot; 76 Topics
-          </div>
-        </a>
-
-        <a href="curriculum.html?tier=4" class="tier-matrix-card">
-          <div class="tier-tag">Tier 4 &middot; 2 Clusters</div>
-          <h3 class="tier-name">ADRs, Reviews &amp; Spaced Gap Tracking</h3>
-          <p class="tier-summary">
-            Architectural Decision Records (ADRs), production trade-off articulation, mock design defense reviews, and spaced review loops.
-          </p>
-          <div class="tier-clusters-list">
-            Clusters 4.1 &ndash; 4.2 &middot; 13 Topics
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <!-- UNIVERSAL AGENTS COMPATIBILITY -->
-    <section class="agents-compatibility-section">
-      <div class="section-editorial">
-        <h2>Universal agent drop-in configuration</h2>
-        <p>Native compatibility with every major AI coding harness. Single-command setup.</p>
-      </div>
-
-      <div class="agents-grid">
-        <div class="agent-card">
-          <div class="agent-name-row">
-            <span class="agent-name">Google Antigravity</span>
-            <span class="agent-status">Built-in Plugin</span>
-          </div>
-          <p class="agent-contract">
-            Runs as a native plugin with automated workspace hooks and background verification.
-          </p>
-          <div class="agent-config-code">
-            <code>agy plugin add alph-a07/system-design-studio</code>
-          </div>
-        </div>
-
-        <div class="agent-card">
-          <div class="agent-name-row">
-            <span class="agent-name">Anthropic Claude Code</span>
-            <span class="agent-status">CLAUDE.md Hook</span>
-          </div>
-          <p class="agent-contract">
-            Inherits pedagogical guidelines and state synchronizer directly via project instruction file.
-          </p>
-          <div class="agent-config-code">
-            <code>git clone ... ~/.claude/skills/system-design-studio</code>
-          </div>
-        </div>
-
-        <div class="agent-card">
-          <div class="agent-name-row">
-            <span class="agent-name">Cursor IDE</span>
-            <span class="agent-status">.cursorrules</span>
-          </div>
-          <p class="agent-contract">
-            Configures Cursor agent to read <code>CURSOR.md</code> on every prompt and advance topics cleanly.
-          </p>
-          <div class="agent-config-code">
-            <code>git submodule add ... .cursor/skills/system-design-studio</code>
-          </div>
-        </div>
-
-        <div class="agent-card">
-          <div class="agent-name-row">
-            <span class="agent-name">OpenAI Codex</span>
-            <span class="agent-status">AGENTS.md Contract</span>
-          </div>
-          <p class="agent-contract">
-            Multi-agent standard instruction block detailing the filesystem contract and CLI tools.
-          </p>
-          <div class="agent-config-code">
-            <code>cat .system-design/agent-rules &gt;&gt; AGENTS.md</code>
-          </div>
-        </div>
       </div>
     </section>
 
@@ -523,6 +536,7 @@
     </div>
   </footer>
 
+  <script src="curriculum-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>50-Cluster Syllabus — System Design Studio</title>
-  <meta name="description" content="Complete 50-cluster, 354-topic systems architecture curriculum spanning network transport, storage engines, consensus algorithms, and distributed flagships.">
+  <meta name="description" content="Complete 50-cluster, 354-topic systems architecture curriculum spanning network transport, storage engines, consensus algorithms, and distributed systems.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -18,21 +18,17 @@
           <span class="brand-title">System Design Studio</span>
         </a>
         <span class="version-tag">
-          <span class="version-dot"></span> v2.1.0 · 354 topics
+          <span class="version-dot"></span> v2.1.0 · <span data-stat="total-topics">354</span> topics
         </span>
       </div>
 
       <nav class="nav-menu">
         <a href="curriculum.html" class="nav-link active">Syllabus</a>
-        <a href="index.html#cursor" class="nav-link">Architecture</a>
+        <a href="index.html#how-it-works" class="nav-link">How it works</a>
         <a href="docs.html" class="nav-link">Docs</a>
         <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="nav-link" style="display: inline-flex; align-items: center; gap: 6px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
           GitHub
-        </a>
-        <a href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener noreferrer" class="nav-link header-sponsor-link" style="display: inline-flex; align-items: center; gap: 6px;" title="Support on Buy Me a Coffee">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>
-          Sponsor
         </a>
         <a href="index.html#install" class="btn-primary">Install</a>
       </nav>
@@ -45,7 +41,7 @@
     <div style="max-width: 800px; margin-bottom: 28px;">
       <h1 style="margin-bottom: 12px;">The 50-cluster systems engineering syllabus</h1>
       <p style="font-size: 1.1rem; color: var(--text-secondary); line-height: 1.6;">
-        354 granular topics spanning foundational transport protocols, component modeling, consensus mechanisms, and distributed infrastructure across 5 tiers.
+        <span data-stat="total-topics">354</span> topics across <span data-stat="total-clusters">50</span> clusters in 5 tiers, spanning transport protocols, component modeling, consensus mechanisms, and distributed infrastructure.
       </p>
     </div>
 
@@ -55,7 +51,7 @@
         <div class="progress-stats-col">
           <div class="progress-title-row">
             <span class="progress-headline">Curriculum Progress</span>
-            <span class="progress-badge" id="progress-percentage-badge">0.0% Mastered</span>
+            <span class="progress-badge" id="progress-percentage-badge">0.0% Complete</span>
           </div>
           <div class="progress-sub-row">
             <span id="progress-topics-ratio">0 of 354 topics completed</span>
@@ -69,7 +65,7 @@
           <div class="status-filter-pills" style="display: flex; gap: 6px;">
             <button class="filter-pill active" data-status="all" onclick="filterByStatus('all', this)">All Topics</button>
             <button class="filter-pill" data-status="remaining" onclick="filterByStatus('remaining', this)">Remaining</button>
-            <button class="filter-pill" data-status="mastered" onclick="filterByStatus('mastered', this)">Mastered</button>
+            <button class="filter-pill" data-status="completed" onclick="filterByStatus('completed', this)">Completed</button>
           </div>
           <button class="btn-subtle" onclick="resetCurriculumProgress()" title="Clear all local progress checkboxes">Reset</button>
         </div>
@@ -83,11 +79,11 @@
     <div class="filter-toolbar">
       <div class="tier-filter-pills" id="tier-filters">
         <button class="filter-pill active" data-tier="all" onclick="filterByTier('all', this)">All Clusters (50)</button>
-        <button class="filter-pill" data-tier="0" onclick="filterByTier('0', this)">Tier 0: Transport (5)</button>
+        <button class="filter-pill" data-tier="0" onclick="filterByTier('0', this)">Tier 0: HLD Building Blocks (Prerequisite Slice) (5)</button>
         <button class="filter-pill" data-tier="1" onclick="filterByTier('1', this)">Tier 1: LLD &amp; Modeling (14)</button>
         <button class="filter-pill" data-tier="2" onclick="filterByTier('2', this)">Tier 2: HLD &amp; Infra (18)</button>
         <button class="filter-pill" data-tier="3" onclick="filterByTier('3', this)">Tier 3: Mobile &amp; Offline (11)</button>
-        <button class="filter-pill" data-tier="4" onclick="filterByTier('4', this)">Tier 4: ADRs &amp; Practice (2)</button>
+        <button class="filter-pill" data-tier="4" onclick="filterByTier('4', this)">Tier 4: Practice &amp; ADRs (2)</button>
       </div>
 
       <div class="search-input-wrapper">
@@ -113,7 +109,7 @@
     <div style="margin-top: 56px; background: var(--bg-surface); border: 1px solid var(--border-wire); border-radius: var(--radius-md); padding: 24px;">
       <h2 style="font-size: 1.2rem; margin-bottom: 8px;">Bring your own custom curriculum</h2>
       <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 14px; max-width: 680px;">
-        Have an internal engineering syllabus, onboarding roadmap, or specialized architecture topics? System Design Studio includes an automated parser that transforms any structured markdown document into a fully indexed learning instance.
+        Have an internal engineering syllabus, onboarding roadmap, or specialized architecture topics? System Design Studio includes a script that converts structured markdown into an indexed learning instance.
       </p>
       <div style="background: var(--bg-void); border: 1px solid var(--border-wire); border-radius: var(--radius-sm); padding: 10px 14px; display: inline-flex; align-items: center; gap: 10px; max-width: 100%; overflow-x: auto;">
         <code style="font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-diode); white-space: nowrap;">python3 skills/system-design-studio/scripts/import-curriculum.py path/to/syllabus.md</code>

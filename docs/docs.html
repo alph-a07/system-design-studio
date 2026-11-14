@@ -18,21 +18,17 @@
           <span class="brand-title">System Design Studio</span>
         </a>
         <span class="version-tag">
-          <span class="version-dot"></span> v2.1.0 · 354 topics
+          <span class="version-dot"></span> v2.1.0 · <span data-stat="total-topics">354</span> topics
         </span>
       </div>
 
       <nav class="nav-menu">
         <a href="curriculum.html" class="nav-link">Syllabus</a>
-        <a href="index.html#cursor" class="nav-link">Architecture</a>
+        <a href="index.html#how-it-works" class="nav-link">How it works</a>
         <a href="docs.html" class="nav-link active">Docs</a>
         <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="nav-link" style="display: inline-flex; align-items: center; gap: 6px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
           GitHub
-        </a>
-        <a href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener noreferrer" class="nav-link header-sponsor-link" style="display: inline-flex; align-items: center; gap: 6px;" title="Support on Buy Me a Coffee">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line></svg>
-          Sponsor
         </a>
         <a href="index.html#install" class="btn-primary">Install</a>
       </nav>
@@ -48,6 +44,7 @@
           <div class="docs-sidebar-title">Getting Started</div>
           <a href="#overview" class="docs-sidebar-link active">Overview &amp; Philosophy</a>
           <a href="#quickstart" class="docs-sidebar-link">Quickstart Installation</a>
+          <a href="#repo-guidance" class="docs-sidebar-link">Repository Placement</a>
         </div>
 
         <div class="docs-sidebar-group">
@@ -72,15 +69,15 @@
         <section class="docs-section" id="overview">
           <h1>System Design Studio Manual</h1>
           <p style="font-size: 1.1rem; color: var(--text-secondary); margin-top: 8px;">
-            A complete technical reference for embedding stateful systems architecture pedagogy into AI coding agents.
+            Technical reference for stateful systems architecture pedagogy with AI coding agents.
           </p>
 
           <h2>Architectural Philosophy</h2>
           <p>
-            System Design Studio is built on a single realization: <strong>ephemeral AI chat threads are fundamentally incapable of teaching systems design</strong>. Systems engineering requires progressive cognitive lineage—remembering what hardware trade-offs were previously established, what failure modes the learner already struggled with, and what real-world analogies have already been exhausted.
+            Ephemeral AI chat threads lose context over time. Systems engineering requires cognitive continuity: remembering previous hardware trade-offs, past failure scenarios, and tested system domains.
           </p>
           <p>
-            By anchoring state to local Git files inside <code>.system-design/</code>, learning persists across model upgrades, context window resets, and development session breaks.
+            By anchoring state to local files inside <code>.system-design/</code>, learning persists across model upgrades, context window resets, and development breaks.
           </p>
         </section>
 
@@ -88,13 +85,30 @@
         <section class="docs-section" id="quickstart">
           <h2>Quickstart Installation</h2>
           <p>
-            Initialize a learning instance in your current working repository using the bootstrap installer:
+            Scaffold a learning instance in your current working repository using the bootstrap installer:
           </p>
           <div class="docs-codeblock">
             <code>curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
           </div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+            <a href="https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh" target="_blank" rel="noopener noreferrer" style="color: var(--accent-diode); text-decoration: underline;">View script first on GitHub</a>
+          </p>
           <p>
-            The script creates the <code>.system-design/</code> folder hierarchy, populates the 50-cluster syllabus, configures the living cursor, and automatically configures your AI agent instruction files (such as <code>CLAUDE.md</code>, <code>AGENTS.md</code>, or <code>.cursorrules</code>).
+            The script creates the <code>.system-design/</code> folder hierarchy, copies the 50-cluster syllabus, populates the initial cursor, and creates the decision log. Note that <code>init-learning-instance.sh</code> scaffolds local files only; you must also register the skill with your AI agent as detailed in the Multi-Agent Integration guide below.
+          </p>
+        </section>
+
+        <!-- SECTION: REPO PLACEMENT -->
+        <section class="docs-section" id="repo-guidance">
+          <h2>Where to Place the Learning Instance</h2>
+          <p>
+            <strong>Do I put this in my work repo?</strong> We recommend creating a dedicated learning repository:
+          </p>
+          <div class="docs-codeblock">
+            <code>mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>
+          </div>
+          <p>
+            This keeps your personal study notes, architecture decisions, and generated HTML lessons in their own Git history. If you choose to scaffold inside an existing company or work repository, add <code>.system-design/</code> to your <code>.gitignore</code> so your personal practice files stay out of team commits.
           </p>
         </section>
 
@@ -108,7 +122,7 @@
 <code>.system-design/
 ├── manifest.json       # Instance metadata, schema version, active curriculum
 ├── CURSOR.md           # The living cognitive state engine (read on every prompt)
-├── CURRICULUM.md       # Complete topic index with status (unseen/in-progress/mastered)
+├── CURRICULUM.md       # Complete topic index with status (unseen/in-progress/completed)
 ├── DECISIONS.md        # Architectural decision records (ADRs) authored by the learner
 ├── notes/              # Learner personal markdown notes and study summaries
 └── lessons/            # Interactive self-contained HTML visual artifacts generated by agents</code>
@@ -116,9 +130,9 @@
 
           <h3>Core Files Specification</h3>
           <ul>
-            <li><strong>manifest.json:</strong> Stores the instance UUID, creation timestamp, curriculum version, and verification hashes.</li>
-            <li><strong>CURSOR.md:</strong> The single source of truth for conversational context. Contains the active topic, verified causal anchors, used examples, and deferred tangents.</li>
-            <li><strong>CURRICULUM.md:</strong> The indexed syllabus checklist. Topic statuses transition strictly from <code>unseen</code> &rarr; <code>in-progress</code> &rarr; <code>mastered</code>.</li>
+            <li><strong>manifest.json:</strong> Stores instance UUID, creation timestamp, curriculum version, and verification metadata.</li>
+            <li><strong>CURSOR.md:</strong> The authoritative file for conversational context. Contains the active topic, verified causal anchors, used examples, and deferred tangents.</li>
+            <li><strong>CURRICULUM.md:</strong> The indexed syllabus checklist. Topic statuses transition from <code>unseen</code> &rarr; <code>in-progress</code> &rarr; <code>completed</code>.</li>
             <li><strong>DECISIONS.md:</strong> Persistent ADR log capturing architectural trade-offs resolved during hands-on exercises.</li>
           </ul>
         </section>
@@ -131,33 +145,34 @@
           </p>
           
           <div class="docs-codeblock">
-<code>activeFocus:
+<code># Sample CURSOR.md
+activeFocus:
   topicId: "topic.0.1.tcp-vs-udp"
-  tier: "Tier 0: Transport"
-  phase: "mental-model-verified"
+  tier: "Tier 0 — HLD Building Blocks (Prerequisite Slice)"
+  phase: "foundation-complete"
   depthLevel: "physical-mechanics"
 
 causalAnchors:
-  - "100ms WAN RTT = 3 round trips before first byte on cold TCP+TLS"
-  - "Head-of-Line blocking is physical in single-stream TCP sockets"
-  - "UDP has zero transport state; congestion control lives in user-space"
+  - "Cold TCP + TLS 1.3 (no 0-RTT/resumption): 3 round trips before first byte"
+  - "Head-of-Line blocking in single-stream TCP socket buffers"
+  - "UDP has zero transport state; congestion control runs in user-space"
 
 examplesTaken:
-  - "postal-packet-delivery"
   - "financial-ledger-wal"
+  - "live-webrtc-audio"
 
 deferredQueue:
-  - "QUIC connection migration across WiFi/Cellular shifts"</code>
+  - "QUIC connection migration across cellular handoffs"</code>
           </div>
 
           <h3>State Mutation Rules</h3>
           <p>
-            Agents update <code>CURSOR.md</code> only when tangible milestones occur:
+            Agents update <code>CURSOR.md</code> when tangible milestones occur:
           </p>
           <ol>
-            <li><strong>Active Topic Advancement:</strong> Triggered via <code>advance-cursor.py</code> only after the learner successfully passes Socratic trade-off validation.</li>
-            <li><strong>Causal Anchor Addition:</strong> Recorded immediately when a physical constraint (e.g. latency, disk write amplification) is proved.</li>
-            <li><strong>Example Registration:</strong> Logged whenever an analogy is drawn to guarantee pedagogical variety.</li>
+            <li><strong>Active Topic Advancement:</strong> Triggered via <code>advance-cursor.py</code> after the learner verifies the causal invariants.</li>
+            <li><strong>Causal Anchor Addition:</strong> Recorded immediately when a physical constraint (latency, disk write amplification) is proved.</li>
+            <li><strong>Example Registration:</strong> Logged whenever an analogy is drawn to maintain varied contexts.</li>
           </ol>
         </section>
 
@@ -165,15 +180,15 @@ deferredQueue:
         <section class="docs-section" id="pedagogy">
           <h2>Pedagogical Protocol &amp; Visual Artifacts</h2>
           <p>
-            System Design Studio enforces a strict pedagogical protocol designed to prevent AI agents from falling back into generic summarization.
+            System Design Studio enforces a structured pedagogical protocol to prevent agents from defaulting to generic summaries.
           </p>
 
           <h3>The Teaching Loop</h3>
           <ul>
-            <li><strong>1. Socratic Probe:</strong> The agent tests existing learner intuition with a concrete physical trade-off question before explaining concepts.</li>
-            <li><strong>2. Mental Model &amp; Mechanics:</strong> The concept is explained through hardware constraints (CPU, RAM, Disk, Network) rather than abstract architecture buzzwords.</li>
+            <li><strong>1. Socratic Probe:</strong> The agent tests existing learner intuition with a physical trade-off question before explaining concepts.</li>
+            <li><strong>2. Mental Model &amp; Mechanics:</strong> The concept is explained through hardware constraints (CPU, RAM, disk, network).</li>
             <li><strong>3. Interactive Visual Artifact:</strong> The agent writes a self-contained HTML file to <code>.system-design/lessons/</code> with visual flow diagrams or failure simulators.</li>
-            <li><strong>4. Pressure Testing:</strong> The agent introduces an unexpected production failure (e.g. partition, packet drop, disk full) and asks the learner to defend their design.</li>
+            <li><strong>4. Pressure Testing:</strong> The agent introduces an unexpected production failure (partition, packet drop, disk full) and asks the learner to defend their design.</li>
           </ul>
         </section>
 
@@ -185,7 +200,7 @@ deferredQueue:
           </p>
 
           <h3>init-learning-instance.sh</h3>
-          <p>Initializes a fresh <code>.system-design/</code> instance in the target directory and links agent instruction rules.</p>
+          <p>Initializes a fresh <code>.system-design/</code> instance in the target directory with syllabus and cursor templates.</p>
           <div class="docs-codeblock">
             <code>bash skills/system-design-studio/scripts/init-learning-instance.sh [target_dir]</code>
           </div>
@@ -197,9 +212,31 @@ deferredQueue:
           </div>
 
           <h3>sync-status.py</h3>
-          <p>Validates instance consistency, reporting total progress, active focus, causal anchors count, and structural metrics.</p>
+          <p>Diagnostic tool that reads <code>.system-design/manifest.json</code> and reports active cluster, active topic, foundation status, mechanism group, logged examples, and pending deferred questions.</p>
           <div class="docs-codeblock">
-            <code>python3 skills/system-design-studio/scripts/sync-status.py .system-design/</code>
+<code>$ python3 skills/system-design-studio/scripts/sync-status.py .system-design/ (sample output)
+============================================================
+SYSTEM DESIGN STUDIO — INSTANCE DIAGNOSTIC
+============================================================
+Instance Name:    System Design Learning Instance
+Curriculum:       System Design Roadmap (curriculum.system-design)
+Overall Progress: 28 / 354 Topics (7.9%)
+Breakdown:        Completed=28 | In-Progress=1 | Unseen=325 (Sum: 354)
+------------------------------------------------------------
+Active Tier:     Tier 0 — HLD Building Blocks (Prerequisite Slice)
+Active Cluster:  1. [0.1] APIs &amp; Network Transport for Design
+Active Topic:    TCP vs UDP — what reliability costs, and why real-time media often picks UDP
+Foundation:      complete
+Mechanism Group: group.0.1.tcp-udp-foundations
+------------------------------------------------------------
+Examples Logged: 2
+  └─ Latest: [financial-ledger-wal] Strict sequence ordering vs datagram drops...
+Deferred Queue:  1 pending questions
+  └─ Next Due: [cluster.0.1] QUIC connection migration across cellular handoffs
+------------------------------------------------------------
+Immediate Next Action:
+  👉 Evaluate checkpoint.0.1.tcp-head-of-line-blocking response
+============================================================</code>
           </div>
 
           <h3>verify-instance.py</h3>
@@ -219,36 +256,48 @@ deferredQueue:
         <section class="docs-section" id="agents-setup">
           <h2>Multi-Agent Integration Guides</h2>
           <p>
-            System Design Studio works seamlessly across major agentic harnesses:
+            Setup involves two steps: installing the skill into your AI agent, then running the scaffolding script in your learning repository.
           </p>
 
           <h3>Google Antigravity</h3>
-          <p>Install via the Antigravity Plugin Manager or command line:</p>
+          <p>Install via the Antigravity Plugin Manager or CLI, then scaffold your instance:</p>
           <div class="docs-codeblock">
-            <code>agy plugin add alph-a07/system-design-studio</code>
+<code># Step 1: Install plugin into Antigravity
+agy plugin add alph-a07/system-design-studio
+
+# Step 2: Scaffold instance in your repo
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
           </div>
 
           <h3>Anthropic Claude Code</h3>
-          <p>Ensure your <code>CLAUDE.md</code> contains the System Design Studio instructions:</p>
+          <p>Clone the skill to your Claude Code skills directory and run scaffolding:</p>
           <div class="docs-codeblock">
-<code>## System Design Studio
-When the user asks to learn or review system design:
-1. Always read `.system-design/CURSOR.md` before responding.
-2. Ground all discussions in physical hardware mechanics and latency numbers.
-3. Deliver interactive HTML artifacts to `.system-design/lessons/`.
-4. Run `python3 skills/system-design-studio/scripts/sync-status.py` to confirm state.</code>
+<code># Step 1: Clone skill to Claude Code skills directory
+git clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio
+
+# Step 2: Scaffold instance in your repo
+bash ~/.claude/skills/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh</code>
           </div>
 
           <h3>Cursor IDE</h3>
-          <p>Add the rules to your repository's <code>.cursorrules</code> file to ensure Cursor agents respect the cursor lineage across conversations.</p>
+          <p>Add the skill as a git submodule and initialize the workspace:</p>
           <div class="docs-codeblock">
-            <code>git submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio</code>
+<code># Step 1: Add submodule in your learning repo
+git submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio
+
+# Step 2: Scaffold instance in your repo
+bash .cursor/skills/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh</code>
           </div>
 
           <h3>OpenAI Codex</h3>
-          <p>Add the instruction contract to <code>AGENTS.md</code> in your project root:</p>
+          <p>Clone the repository, append the interaction contract to <code>AGENTS.md</code>, and run scaffolding:</p>
           <div class="docs-codeblock">
-            <code>cat skills/system-design-studio/references/interaction-contract.md &gt;&gt; AGENTS.md</code>
+<code># Step 1: Clone and add contract to AGENTS.md
+git clone https://github.com/alph-a07/system-design-studio.git /tmp/system-design-studio
+cat /tmp/system-design-studio/skills/system-design-studio/references/interaction-contract.md >> AGENTS.md
+
+# Step 2: Scaffold instance in your repo
+bash /tmp/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh</code>
           </div>
         </section>
 
@@ -256,7 +305,7 @@ When the user asks to learn or review system design:
         <section class="docs-section" id="byo-curriculum">
           <h2>Bring Your Own Curriculum (BYO)</h2>
           <p>
-            You can replace or augment the default 50-cluster syllabus with your company's internal engineering guidelines, architecture review checklists, or interview roadmaps.
+            You can replace or augment the default 50-cluster syllabus with company engineering guidelines, architecture review checklists, or interview roadmaps.
           </p>
           <p>Format your custom syllabus using standard Markdown heading levels:</p>
           <div class="docs-codeblock">
@@ -301,6 +350,7 @@ When the user asks to learn or review system design:
     </div>
   </footer>
 
+  <script src="curriculum-data.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

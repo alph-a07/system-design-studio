@@ -1,16 +1,19 @@
 /*
   System Design Studio — Interactive Application Engine
-  Handles console instruments, interactive protocol simulator,
-  installation switchers, syllabus filtering, and browser-persisted progress tracking.
+  Counts and tier metadata are derived from curriculum-data.js.
+  Persistent progress stored in browser local storage.
 */
 
-// STORAGE KEY FOR COMPLETED TOPICS
-const PROGRESS_STORAGE_KEY = 'sds_mastered_topics';
+// STORAGE KEY FOR COMPLETED TOPICS (with fallback for legacy key)
+const PROGRESS_STORAGE_KEY = 'sds_completed_topics';
+const LEGACY_STORAGE_KEY = 'sds_mastered_topics';
 
-// SAFE LOCAL STORAGE WRAPPERS
-function getMasteredTopicIds() {
+function getCompletedTopicIds() {
   try {
-    const raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    let raw = localStorage.getItem(PROGRESS_STORAGE_KEY);
+    if (!raw) {
+      raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    }
     if (!raw) return new Set();
     const parsed = JSON.parse(raw);
     return Array.isArray(parsed) ? new Set(parsed) : new Set();
@@ -20,7 +23,7 @@ function getMasteredTopicIds() {
   }
 }
 
-function saveMasteredTopicIds(topicSet) {
+function saveCompletedTopicIds(topicSet) {
   try {
     const arr = Array.from(topicSet);
     localStorage.setItem(PROGRESS_STORAGE_KEY, JSON.stringify(arr));
@@ -29,19 +32,41 @@ function saveMasteredTopicIds(topicSet) {
   }
 }
 
-// INSTALLATION METHOD TOGGLES
+// Backward-compatibility aliases
+const getMasteredTopicIds = getCompletedTopicIds;
+const saveMasteredTopicIds = saveCompletedTopicIds;
+
+// INSTALLATION METHOD CONFIGURATION
 const INSTALL_COMMANDS = {
-  curl: {
-    command: 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash',
-    target: 'Target: .system-design/'
-  },
   agy: {
-    command: 'agy plugin add alph-a07/system-design-studio',
-    target: 'Target: Antigravity Customization Engine'
+    command: `# Step 1: Install skill into Antigravity\nagy plugin add alph-a07/system-design-studio\n\n# Step 2: Scaffold instance in your learning repo\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash`,
+    target: 'Target: Antigravity Plugin Engine + local .system-design/',
+    orderNote: 'Step 1 registers the skill with your agent. Step 2 scaffolds .system-design/ in your repository.',
+    viewScriptUrl: null
   },
-  git: {
-    command: 'git clone https://github.com/alph-a07/system-design-studio.git && bash system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh',
-    target: 'Target: Local Clone & Scaffolding'
+  claude: {
+    command: `# Step 1: Clone skill to Claude Code skills directory\ngit clone https://github.com/alph-a07/system-design-studio.git ~/.claude/skills/system-design-studio\n\n# Step 2: Scaffold instance in your learning repo\nbash ~/.claude/skills/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh`,
+    target: 'Target: ~/.claude/skills/system-design-studio + local .system-design/',
+    orderNote: 'Step 1 clones the skill to ~/.claude/skills/. Step 2 runs scaffolding in your repository.',
+    viewScriptUrl: null
+  },
+  cursor: {
+    command: `# Step 1: Add skill submodule into your learning repo\ngit submodule add https://github.com/alph-a07/system-design-studio.git .cursor/skills/system-design-studio\n\n# Step 2: Scaffold instance in your repo\nbash .cursor/skills/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh`,
+    target: 'Target: .cursor/skills/ + local .system-design/',
+    orderNote: 'Step 1 vendors the skill into .cursor/skills/. Step 2 populates .system-design/.',
+    viewScriptUrl: null
+  },
+  codex: {
+    command: `# Step 1: Clone repo and append interaction contract to AGENTS.md\ngit clone https://github.com/alph-a07/system-design-studio.git /tmp/system-design-studio\ncat /tmp/system-design-studio/skills/system-design-studio/references/interaction-contract.md >> AGENTS.md\n\n# Step 2: Scaffold instance in your repo\nbash /tmp/system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh`,
+    target: 'Target: AGENTS.md + local .system-design/',
+    orderNote: 'Step 1 adds the interaction contract to AGENTS.md. Step 2 scaffolds .system-design/.',
+    viewScriptUrl: null
+  },
+  curl: {
+    command: `curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash`,
+    target: 'Target: Current directory (.system-design/)',
+    orderNote: 'Scaffolds local .system-design/ only. Does not register skill with agents automatically.',
+    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/skills/system-design-studio/scripts/init-learning-instance.sh'
   }
 };
 
@@ -51,8 +76,21 @@ function switchInstallTab(method, buttonEl) {
 
   const codeEl = document.getElementById('install-command-text');
   const targetEl = document.getElementById('install-target-label');
+  const orderNoteEl = document.getElementById('install-order-note');
+  const scriptLinkEl = document.getElementById('install-view-script-link');
+
   if (codeEl) codeEl.textContent = cfg.command;
   if (targetEl) targetEl.textContent = cfg.target;
+  if (orderNoteEl) orderNoteEl.textContent = cfg.orderNote;
+
+  if (scriptLinkEl) {
+    if (cfg.viewScriptUrl) {
+      scriptLinkEl.href = cfg.viewScriptUrl;
+      scriptLinkEl.style.display = 'inline-flex';
+    } else {
+      scriptLinkEl.style.display = 'none';
+    }
+  }
 
   const container = buttonEl.closest('.install-tabs');
   if (container) {
@@ -86,15 +124,13 @@ function copySnippet(buttonEl, sourceId) {
   });
 }
 
-// HERO CONSOLE TAB SWITCHER
+// HERO CONSOLE TAB SWITCHER (CURSOR.md vs sync-status.py)
 function switchConsoleTab(tabKey, buttonEl) {
   const viewCursor = document.getElementById('console-view-cursor');
   const viewTerminal = document.getElementById('console-view-terminal');
-  const viewArtifact = document.getElementById('console-view-artifact');
 
   if (viewCursor) viewCursor.style.display = tabKey === 'cursor' ? 'block' : 'none';
   if (viewTerminal) viewTerminal.style.display = tabKey === 'terminal' ? 'block' : 'none';
-  if (viewArtifact) viewArtifact.style.display = tabKey === 'artifact' ? 'block' : 'none';
 
   const container = buttonEl.closest('.console-nav-tabs');
   if (container) {
@@ -114,8 +150,14 @@ function setSimulatorProtocol(proto) {
   const btnTcp = document.getElementById('sim-btn-tcp');
   const btnQuic = document.getElementById('sim-btn-quic');
 
-  if (btnTcp) btnTcp.classList.toggle('active', proto === 'tcp');
-  if (btnQuic) btnQuic.classList.toggle('active', proto === 'quic');
+  if (btnTcp) {
+    btnTcp.classList.toggle('active', proto === 'tcp');
+    btnTcp.setAttribute('aria-selected', proto === 'tcp' ? 'true' : 'false');
+  }
+  if (btnQuic) {
+    btnQuic.classList.toggle('active', proto === 'quic');
+    btnQuic.setAttribute('aria-selected', proto === 'quic' ? 'true' : 'false');
+  }
 
   renderSimulatorUI();
 }
@@ -126,6 +168,7 @@ function togglePacket2Drop() {
 }
 
 function renderSimulatorUI() {
+  const pkt1El = document.getElementById('sim-pkt-1');
   const pkt2El = document.getElementById('sim-pkt-2');
   const pkt3El = document.getElementById('sim-pkt-3');
   const pkt4El = document.getElementById('sim-pkt-4');
@@ -139,24 +182,40 @@ function renderSimulatorUI() {
   const isTcp = simState.protocol === 'tcp';
   const dropped = simState.packet2Dropped;
 
+  if (pkt1El) {
+    pkt1El.setAttribute('aria-label', 'Packet 1: Acknowledged');
+  }
+
   if (actionBtn) {
-    actionBtn.textContent = dropped ? 'Retransmit Packet 2' : 'Inject Packet 2 Drop';
+    const actionLabel = dropped ? 'Retransmit Packet 2' : 'Inject Packet 2 Drop';
+    actionBtn.textContent = actionLabel;
+    actionBtn.setAttribute('aria-label', dropped ? 'Retransmit Packet 2 to unblock socket stream' : 'Simulate Packet 2 network drop');
   }
 
   if (dropped) {
     pkt2El.className = 'sim-packet-box status-lost';
-    pkt2El.querySelector('.sim-packet-tag').textContent = 'LOST';
-    pkt2El.querySelector('.sim-packet-tag').style.color = '#ef4444';
+    pkt2El.setAttribute('aria-label', 'Packet 2: Lost in transit');
+    const pkt2Tag = pkt2El.querySelector('.sim-packet-tag');
+    if (pkt2Tag) {
+      pkt2Tag.textContent = 'LOST';
+      pkt2Tag.style.color = '#ef4444';
+    }
 
     if (isTcp) {
-      // TCP HOL Blocking: Packets 3 & 4 blocked in socket queue
-      pkt3El.className = 'sim-packet-box status-blocked';
-      pkt3El.querySelector('.sim-packet-tag').textContent = 'BLOCKED';
-      pkt3El.querySelector('.sim-packet-tag').style.color = 'var(--text-muted)';
+      // TCP HOL Blocking: Packets 3 & 4 blocked in socket buffer
+      if (pkt3El) {
+        pkt3El.className = 'sim-packet-box status-blocked';
+        pkt3El.setAttribute('aria-label', 'Packet 3: Blocked by socket buffer');
+        const tag = pkt3El.querySelector('.sim-packet-tag');
+        if (tag) { tag.textContent = 'BLOCKED'; tag.style.color = 'var(--text-muted)'; }
+      }
 
-      pkt4El.className = 'sim-packet-box status-blocked';
-      pkt4El.querySelector('.sim-packet-tag').textContent = 'BLOCKED';
-      pkt4El.querySelector('.sim-packet-tag').style.color = 'var(--text-muted)';
+      if (pkt4El) {
+        pkt4El.className = 'sim-packet-box status-blocked';
+        pkt4El.setAttribute('aria-label', 'Packet 4: Blocked by socket buffer');
+        const tag = pkt4El.querySelector('.sim-packet-tag');
+        if (tag) { tag.textContent = 'BLOCKED'; tag.style.color = 'var(--text-muted)'; }
+      }
 
       if (statusBadge) {
         statusBadge.textContent = 'HOL BLOCKING ACTIVE';
@@ -171,13 +230,19 @@ function renderSimulatorUI() {
       }
     } else {
       // QUIC / HTTP/3: Independent streams continue without HOL blocking
-      pkt3El.className = 'sim-packet-box status-acked';
-      pkt3El.querySelector('.sim-packet-tag').textContent = 'DELIVERED';
-      pkt3El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+      if (pkt3El) {
+        pkt3El.className = 'sim-packet-box status-acked';
+        pkt3El.setAttribute('aria-label', 'Stream 3: Delivered over UDP frame');
+        const tag = pkt3El.querySelector('.sim-packet-tag');
+        if (tag) { tag.textContent = 'DELIVERED'; tag.style.color = 'var(--accent-diode)'; }
+      }
 
-      pkt4El.className = 'sim-packet-box status-acked';
-      pkt4El.querySelector('.sim-packet-tag').textContent = 'DELIVERED';
-      pkt4El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+      if (pkt4El) {
+        pkt4El.className = 'sim-packet-box status-acked';
+        pkt4El.setAttribute('aria-label', 'Stream 4: Delivered over UDP frame');
+        const tag = pkt4El.querySelector('.sim-packet-tag');
+        if (tag) { tag.textContent = 'DELIVERED'; tag.style.color = 'var(--accent-diode)'; }
+      }
 
       if (statusBadge) {
         statusBadge.textContent = 'NO HOL BLOCKING';
@@ -185,7 +250,7 @@ function renderSimulatorUI() {
         statusBadge.style.background = 'var(--accent-diode-surface)';
       }
       if (explainText) {
-        explainText.textContent = 'QUIC multiplexed independent streams: Stream 3 and 4 deliver immediately over UDP framing. Only Stream 2 waits for retransmission.';
+        explainText.textContent = 'QUIC multiplexed independent streams: Streams 3 and 4 deliver immediately over UDP framing. Only Stream 2 waits for retransmission.';
       }
       if (penaltyPill) {
         penaltyPill.innerHTML = '<span style="color: var(--accent-diode);">Stream Isolation: 0ms stall on streams 3/4</span>';
@@ -194,16 +259,26 @@ function renderSimulatorUI() {
   } else {
     // Healthy stream: all ACKed
     pkt2El.className = 'sim-packet-box status-acked';
-    pkt2El.querySelector('.sim-packet-tag').textContent = 'ACK';
-    pkt2El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+    pkt2El.setAttribute('aria-label', 'Packet 2: Acknowledged');
+    const pkt2Tag = pkt2El.querySelector('.sim-packet-tag');
+    if (pkt2Tag) {
+      pkt2Tag.textContent = 'ACK';
+      pkt2Tag.style.color = 'var(--accent-diode)';
+    }
 
-    pkt3El.className = 'sim-packet-box status-acked';
-    pkt3El.querySelector('.sim-packet-tag').textContent = 'ACK';
-    pkt3El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+    if (pkt3El) {
+      pkt3El.className = 'sim-packet-box status-acked';
+      pkt3El.setAttribute('aria-label', 'Packet 3: Acknowledged');
+      const tag = pkt3El.querySelector('.sim-packet-tag');
+      if (tag) { tag.textContent = 'ACK'; tag.style.color = 'var(--accent-diode)'; }
+    }
 
-    pkt4El.className = 'sim-packet-box status-acked';
-    pkt4El.querySelector('.sim-packet-tag').textContent = 'ACK';
-    pkt4El.querySelector('.sim-packet-tag').style.color = 'var(--accent-diode)';
+    if (pkt4El) {
+      pkt4El.className = 'sim-packet-box status-acked';
+      pkt4El.setAttribute('aria-label', 'Packet 4: Acknowledged');
+      const tag = pkt4El.querySelector('.sim-packet-tag');
+      if (tag) { tag.textContent = 'ACK'; tag.style.color = 'var(--accent-diode)'; }
+    }
 
     if (statusBadge) {
       statusBadge.textContent = 'STREAM NOMINAL';
@@ -211,7 +286,7 @@ function renderSimulatorUI() {
       statusBadge.style.background = 'var(--accent-diode-surface)';
     }
     if (explainText) {
-      explainText.textContent = 'All packets acknowledged sequentially. Socket receive buffer reading in continuous stream order.';
+      explainText.textContent = 'All packets acknowledged sequentially. Socket receive buffer reading in continuous byte-stream order.';
     }
     if (penaltyPill) {
       penaltyPill.innerHTML = '<span style="color: var(--text-secondary);">Latency: 84ms nominal WAN RTT</span>';
@@ -225,47 +300,54 @@ let currentActiveStatus = 'all';
 let currentSearchQuery = '';
 
 function getTotalCurriculumTopicsCount() {
-  if (typeof CURRICULUM_CLUSTERS === 'undefined') return 354;
-  return CURRICULUM_CLUSTERS.reduce((acc, c) => acc + c.topics.length, 0);
+  if (typeof getCurriculumStats === 'function') {
+    return getCurriculumStats().totalTopics;
+  }
+  if (typeof CURRICULUM_CLUSTERS !== 'undefined') {
+    return CURRICULUM_CLUSTERS.reduce((acc, c) => acc + c.topics.length, 0);
+  }
+  return 354;
 }
 
-function updateGlobalProgressUI(masteredSet) {
+function updateGlobalProgressUI(completedSet) {
   const totalTopics = getTotalCurriculumTopicsCount();
-  const completedCount = masteredSet ? masteredSet.size : getMasteredTopicIds().size;
+  const completedCount = completedSet ? completedSet.size : getCompletedTopicIds().size;
   const percentage = totalTopics > 0 ? ((completedCount / totalTopics) * 100).toFixed(1) : '0.0';
 
   const badgeEl = document.getElementById('progress-percentage-badge');
   const ratioEl = document.getElementById('progress-topics-ratio');
   const fillEl = document.getElementById('curriculum-progress-fill');
 
-  if (badgeEl) badgeEl.textContent = `${percentage}% Mastered`;
+  if (badgeEl) badgeEl.textContent = `${percentage}% Complete`;
   if (ratioEl) ratioEl.textContent = `${completedCount} of ${totalTopics} topics completed`;
   if (fillEl) fillEl.style.width = `${percentage}%`;
 
   const topbarTags = document.querySelectorAll('.version-tag');
   topbarTags.forEach(tag => {
     if (completedCount > 0) {
-      tag.innerHTML = `<span class="version-dot"></span> v2.1.0 · ${completedCount}/${totalTopics} mastered`;
+      tag.innerHTML = `<span class="version-dot"></span> v2.1.0 · ${completedCount}/${totalTopics} completed`;
+    } else {
+      tag.innerHTML = `<span class="version-dot"></span> v2.1.0 · ${totalTopics} topics`;
     }
   });
 }
 
-function toggleTopicMastery(topicId, isChecked) {
-  const masteredSet = getMasteredTopicIds();
+function toggleTopicCompletion(topicId, isChecked) {
+  const completedSet = getCompletedTopicIds();
   if (isChecked) {
-    masteredSet.add(topicId);
+    completedSet.add(topicId);
   } else {
-    masteredSet.delete(topicId);
+    completedSet.delete(topicId);
   }
-  saveMasteredTopicIds(masteredSet);
+  saveCompletedTopicIds(completedSet);
 
   const safeId = topicId.replace(/[^a-zA-Z0-9_-]/g, '_');
   const rowEl = document.getElementById(`topic-row-${safeId}`);
   if (rowEl) {
     if (isChecked) {
-      rowEl.classList.add('is-mastered');
+      rowEl.classList.add('is-completed', 'is-mastered');
     } else {
-      rowEl.classList.remove('is-mastered');
+      rowEl.classList.remove('is-completed', 'is-mastered');
     }
   }
 
@@ -274,31 +356,34 @@ function toggleTopicMastery(topicId, isChecked) {
     if (parentCluster) {
       const clusterCountEl = document.getElementById(`cluster-count-${parentCluster.code}`);
       if (clusterCountEl) {
-        const completedInCluster = parentCluster.topics.filter(t => masteredSet.has(t.id)).length;
-        clusterCountEl.textContent = `${completedInCluster}/${parentCluster.topics.length} mastered`;
+        const completedInCluster = parentCluster.topics.filter(t => completedSet.has(t.id)).length;
+        clusterCountEl.textContent = `${completedInCluster}/${parentCluster.topics.length} completed`;
       }
     }
   }
 
-  updateGlobalProgressUI(masteredSet);
+  updateGlobalProgressUI(completedSet);
 
   if (currentActiveStatus !== 'all') {
     renderCurriculum();
   }
 }
 
+
+
 function resetCurriculumProgress() {
-  const masteredSet = getMasteredTopicIds();
-  if (masteredSet.size === 0) {
+  const completedSet = getCompletedTopicIds();
+  if (completedSet.size === 0) {
     alert('No saved progress to reset.');
     return;
   }
 
-  const confirmed = confirm(`Are you sure you want to reset all ${masteredSet.size} completed topics in browser storage?`);
+  const confirmed = confirm(`Reset all ${completedSet.size} completed topics in browser storage?`);
   if (!confirmed) return;
 
   try {
     localStorage.removeItem(PROGRESS_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch (err) {
     console.warn(err);
   }
@@ -338,7 +423,7 @@ function renderCurriculum() {
   if (!displayEl || typeof CURRICULUM_CLUSTERS === 'undefined') return;
 
   const query = currentSearchQuery.toLowerCase().trim();
-  const masteredSet = getMasteredTopicIds();
+  const completedSet = getCompletedTopicIds();
 
   const processedClusters = [];
 
@@ -347,10 +432,11 @@ function renderCurriculum() {
     if (!tierMatch) return;
 
     const matchingTopics = cluster.topics.filter(topic => {
-      const isMastered = masteredSet.has(topic.id);
+      const isCompleted = completedSet.has(topic.id);
 
-      if (currentActiveStatus === 'mastered' && !isMastered) return false;
-      if (currentActiveStatus === 'remaining' && isMastered) return false;
+      if (currentActiveStatus === 'completed' && !isCompleted) return false;
+      if (currentActiveStatus === 'mastered' && !isCompleted) return false;
+      if (currentActiveStatus === 'remaining' && isCompleted) return false;
 
       if (!query) return true;
       const inTitle = topic.title.toLowerCase().includes(query);
@@ -365,7 +451,7 @@ function renderCurriculum() {
       processedClusters.push({
         cluster,
         visibleTopics: matchingTopics,
-        completedInCluster: cluster.topics.filter(t => masteredSet.has(t.id)).length
+        completedInCluster: cluster.topics.filter(t => completedSet.has(t.id)).length
       });
     }
   });
@@ -388,13 +474,13 @@ function renderCurriculum() {
 
   displayEl.innerHTML = processedClusters.map(({ cluster, visibleTopics, completedInCluster }) => {
     const topicsHtml = visibleTopics.map(topic => {
-      const isMastered = masteredSet.has(topic.id);
+      const isCompleted = completedSet.has(topic.id);
       const safeId = topic.id.replace(/[^a-zA-Z0-9_-]/g, '_');
 
       return `
-        <div class="topic-row ${isMastered ? 'is-mastered' : ''}" id="topic-row-${safeId}">
-          <label class="topic-check-label" title="${isMastered ? 'Mark as incomplete' : 'Mark as mastered'}">
-            <input type="checkbox" class="topic-checkbox" ${isMastered ? 'checked' : ''} onchange="toggleTopicMastery('${topic.id}', this.checked)">
+        <div class="topic-row ${isCompleted ? 'is-completed is-mastered' : ''}" id="topic-row-${safeId}">
+          <label class="topic-check-label" title="${isCompleted ? 'Mark as incomplete' : 'Mark as completed'}">
+            <input type="checkbox" class="topic-checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleTopicCompletion('${topic.id}', this.checked)">
             <span class="topic-checkmark"></span>
           </label>
           <div class="topic-info-col">
@@ -412,7 +498,7 @@ function renderCurriculum() {
             <span class="cluster-code-badge">${cluster.code}</span>
             <h2 class="cluster-title-text">${cluster.title.replace(/^([0-9]+\.\s*\[[0-9.]+\]\s*)/, '')}</h2>
           </div>
-          <span class="cluster-topic-count" id="cluster-count-${cluster.code}">${completedInCluster}/${cluster.topics.length} mastered</span>
+          <span class="cluster-topic-count" id="cluster-count-${cluster.code}">${completedInCluster}/${cluster.topics.length} completed</span>
         </div>
         <div class="topics-grid">
           ${topicsHtml}
@@ -420,6 +506,41 @@ function renderCurriculum() {
       </article>
     `;
   }).join('');
+}
+
+// BIND DATA ATTRIBUTES FROM CANONICAL DATASET
+function syncCurriculumCounts() {
+  if (typeof getCurriculumStats !== 'function') return;
+  const stats = getCurriculumStats();
+
+  document.querySelectorAll('[data-stat="total-topics"]').forEach(el => {
+    el.textContent = stats.totalTopics;
+  });
+
+  document.querySelectorAll('[data-stat="total-clusters"]').forEach(el => {
+    el.textContent = stats.totalClusters;
+  });
+
+  ['0', '1', '2', '3', '4'].forEach(tierKey => {
+    const tierData = stats.tiers[tierKey];
+    if (!tierData) return;
+
+    document.querySelectorAll(`[data-stat="tier-cluster-count"][data-tier="${tierKey}"]`).forEach(el => {
+      el.textContent = tierData.clusterCount;
+    });
+
+    document.querySelectorAll(`[data-stat="tier-topic-count"][data-tier="${tierKey}"]`).forEach(el => {
+      el.textContent = tierData.topicCount;
+    });
+
+    document.querySelectorAll(`[data-stat="tier-name"][data-tier="${tierKey}"]`).forEach(el => {
+      el.textContent = tierData.meta.name;
+    });
+
+    document.querySelectorAll(`[data-stat="tier-title"][data-tier="${tierKey}"]`).forEach(el => {
+      el.textContent = tierData.meta.title;
+    });
+  });
 }
 
 // DOCS SIDEBAR SCROLL SPY
@@ -458,16 +579,30 @@ function initDocsScrollSpy() {
 
 // INITIALIZATION
 document.addEventListener('DOMContentLoaded', () => {
-  const masteredSet = getMasteredTopicIds();
-  updateGlobalProgressUI(masteredSet);
+  // Sync all counts from canonical dataset
+  syncCurriculumCounts();
 
-  // Initialize interactive simulator if present on page
+  const completedSet = getCompletedTopicIds();
+  updateGlobalProgressUI(completedSet);
+
+  // Initialize interactive simulator if present
   renderSimulatorUI();
+
+  // Keyboard accessibility for action button in simulator
+  const simActionBtn = document.getElementById('sim-action-btn');
+  if (simActionBtn) {
+    simActionBtn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        togglePacket2Drop();
+      }
+    });
+  }
 
   // Initialize docs scroll spy if on docs page
   initDocsScrollSpy();
 
-  // Curriculum-specific setup
+  // Curriculum page filter setup
   if (document.getElementById('clusters-display')) {
     const params = new URLSearchParams(window.location.search);
     const tierParam = params.get('tier');
