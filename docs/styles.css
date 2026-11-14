@@ -244,3 +244,63 @@ html.dark .bauhaus-checkbox:checked {
 html.dark .bauhaus-checkbox:checked::after {
   background-color: #1a1a1a;
 }
+
+
+/* High-Contrast Readability Enhancements for Light and Dark Modes */
+.text-primary-fixed {
+  color: #1a1a1a !important;
+}
+
+html.dark .text-primary-fixed {
+  color: #ffcc00 !important;
+}
+
+/* Ensure text on primary container is always sharp charcoal in both modes */
+.bg-primary-container {
+  color: #1a1a1a !important;
+}
+.bg-primary-container * {
+  color: #1a1a1a !important;
+}
+
+/* In dark mode, ensure active buttons / tabs with bg-primary have dark backgrounds and crisp light text */
+html.dark .bg-primary {
+  background-color: #222222 !important;
+  color: #f5f0e8 !important;
+}
+
+html.dark .text-on-primary {
+  color: #f5f0e8 !important;
+}
+
+html.dark .border-primary {
+  border-color: #444444 !important;
+}
+
+/* Ensure tab buttons in install section remain high-contrast in dark mode */
+html.dark .tab-btn.bg-surface {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+}
+
+html.dark .filter-pill.bg-primary,
+html.dark .tier-tab.bg-primary {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+}
+
+html.dark #topic-search-input {
+  color: #f5f0e8 !important;
+}
+
+html.dark #topic-search-input::placeholder {
+  color: #888888 !important;
+}
+
+html.dark .cluster-badge {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+}

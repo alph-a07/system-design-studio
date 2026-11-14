@@ -33,81 +33,39 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
 </head>
 <body class="bg-surface font-body text-on-surface antialiased min-h-screen">
 
-  <!-- LEFT SIDEBAR ASIDE -->
-  <aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-low border-r-[3px] border-primary z-50 flex flex-col justify-between hidden md:flex">
-    <div class="p-6 border-b-[3px] border-primary">
-      <a href="index.html" class="flex items-center gap-3 group">
-        <div class="w-9 h-9 bg-primary-container border-2 border-primary flex items-center justify-center font-headline font-bold text-sm text-primary shadow-[2px_2px_0px_#1a1a1a]">SD</div>
-        <div>
-          <div class="font-headline font-bold text-sm tracking-tight uppercase text-on-surface group-hover:text-tertiary transition-colors">System Design</div>
-          <div class="text-[10px] font-mono uppercase tracking-widest text-on-surface-variant">Studio Syllabus</div>
-        </div>
-      </a>
-    </div>
 
-    <!-- Navigation Links -->
-    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-      <div class="text-[10px] font-headline uppercase font-bold tracking-widest text-on-surface-variant px-3 mb-2">Navigation</div>
-      <a class="flex items-center gap-3 px-3 py-2 text-xs font-headline uppercase font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="index.html">
-        <span class="material-symbols-outlined text-[18px]">home</span>
-        <span>Landing</span>
-      </a>
-      <a aria-current="page" class="flex items-center gap-3 px-3 py-2 text-xs uppercase transition-colors bg-primary-container text-on-primary font-bold border-2 border-primary shadow-[3px_3px_0px_#1a1a1a]" href="curriculum.html">
-        <span class="material-symbols-outlined text-[18px]">layers</span>
-        <span>Curriculum Tiers</span>
-      </a>
-      <a class="flex items-center gap-3 px-3 py-2 text-xs font-headline uppercase font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="docs.html">
-        <span class="material-symbols-outlined text-[18px]">menu_book</span>
-        <span>Docs &amp; Specs</span>
-      </a>
-      <a class="flex items-center gap-3 px-3 py-2 text-xs font-headline uppercase font-semibold text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">
-        <span class="material-symbols-outlined text-[18px]">code</span>
-        <span>GitHub Repo</span>
-      </a>
-
-      <div class="pt-6 pb-2">
-        <div class="text-[10px] font-headline uppercase font-bold tracking-widest text-on-surface-variant px-3 mb-2">Tier Shortcuts</div>
-        <div class="space-y-1 font-mono text-[11px]">
-          <a href="javascript:void(0)" onclick="filterByTier('0')" class="block px-3 py-1.5 hover:bg-surface-container text-on-surface-variant hover:text-on-surface">T0: HLD Prereq (35)</a>
-          <a href="javascript:void(0)" onclick="filterByTier('1')" class="block px-3 py-1.5 hover:bg-surface-container text-on-surface-variant hover:text-on-surface">T1: Single-Node (98)</a>
-          <a href="javascript:void(0)" onclick="filterByTier('2')" class="block px-3 py-1.5 hover:bg-surface-container text-on-surface-variant hover:text-on-surface">T2: Distributed (126)</a>
-          <a href="javascript:void(0)" onclick="filterByTier('3')" class="block px-3 py-1.5 hover:bg-surface-container text-on-surface-variant hover:text-on-surface">T3: Mobile &amp; Sync (81)</a>
-          <a href="javascript:void(0)" onclick="filterByTier('4')" class="block px-3 py-1.5 hover:bg-surface-container text-on-surface-variant hover:text-on-surface">T4: ADR &amp; Practice (14)</a>
-        </div>
-      </div>
-    </nav>
-
-    <!-- Sidebar Bottom Status Widget -->
-    <div class="p-4 border-t-[3px] border-primary bg-surface-container">
-      <div class="p-3 bg-primary text-on-primary border-2 border-primary shadow-[2px_2px_0px_#ffcc00]">
-        <div class="text-[10px] font-mono uppercase text-primary-container font-bold">STUDIO ENGINE</div>
-        <div class="text-xs font-headline font-bold uppercase mt-0.5">50 Clusters • 354 Topics</div>
-      </div>
-    </div>
-  </aside>
 
   <!-- MAIN WORKSPACE -->
-  <div class="md:pl-64">
+  <div class="w-full">
     <!-- Top Sticky Control Bar -->
-    <header class="fixed top-0 left-0 md:left-64 right-0 h-16 bg-surface border-b-[3px] border-primary z-40 px-6 lg:px-8 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <a href="index.html" class="md:hidden font-headline font-bold text-sm bg-primary-container px-2 py-1 border border-primary">SD</a>
-        <span class="px-2 py-0.5 bg-tertiary-container border border-primary text-[10px] font-mono font-bold uppercase text-on-surface">v2.1.0 Syllabus</span>
-        <span class="hidden sm:inline-block text-xs font-mono text-on-surface-variant">HARDWARE-GROUNDED • STATEFUL</span>
+    <header class="fixed top-0 left-0 right-0 h-16 bg-surface border-b-[3px] border-primary z-40 px-6 lg:px-12 flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <a class="flex items-center gap-2 group" href="index.html">
+          <div class="w-8 h-8 bg-primary-container border-2 border-primary flex items-center justify-center font-headline font-bold text-xs text-primary shadow-[2px_2px_0px_#1a1a1a]">SD</div>
+          <span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface group-hover:text-tertiary transition-colors">System Design Studio</span>
+        </a>
       </div>
+      <nav class="hidden md:flex items-center gap-2">
+        <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html">Home</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-primary font-bold border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="curriculum.html">Curriculum</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html#how-it-works">How it works</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html#install">Install</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="docs.html">Docs</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
+      </nav>
 
       <div class="flex items-center gap-3">
         <button aria-label="Toggle color mode" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" onclick="toggleDarkMode()" type="button">
           <span class="material-symbols-outlined text-[18px]">contrast</span>
         </button>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" class="px-3 py-1.5 border-2 border-primary bg-primary-container text-on-primary font-headline text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" class="px-3 py-1.5 border-2 border-primary bg-primary-container text-primary font-bold font-headline text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">
           GitHub
         </a>
       </div>
     </header>
 
-    <main class="relative pt-16 bg-surface w-full px-6 lg:px-8">
-      <div class="flex flex-col w-full pb-20 space-y-10">
+    <main class="relative pt-16 bg-surface w-full px-6 lg:px-12">
+      <div class="max-w-7xl mx-auto flex flex-col w-full pb-20 space-y-10">
 
         <!-- OVERVIEW & TITLE SECTION -->
         <section class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 border-b-[3px] border-primary pb-8 pt-4">
@@ -132,9 +90,9 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
         </section>
 
         <!-- PROGRESS DASHBOARD / CONTROL CONSOLE -->
-        <section class="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
+        <section class="w-full">
           <!-- Progress Gauge & Stats Card -->
-          <div class="xl:col-span-8 p-6 bg-surface-container-lowest border-[3px] border-primary shadow-[6px_6px_0px_#1a1a1a] flex flex-col justify-between space-y-6">
+          <div class="xl:col-span-12 p-6 bg-surface-container-lowest border-[3px] border-primary shadow-[6px_6px_0px_#1a1a1a] flex flex-col justify-between space-y-6">
             <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b-2 border-primary pb-4">
               <div>
                 <div class="text-[11px] font-mono uppercase font-bold tracking-wider text-on-surface-variant">SYLLABUS PROGRESS TRACKER</div>
@@ -186,42 +144,6 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
             </div>
           </div>
 
-          <!-- Quick Latency & System Architecture Cheatsheet Box -->
-          <div class="xl:col-span-4 p-5 bg-primary-container border-[3px] border-primary shadow-[6px_6px_0px_#1a1a1a] flex flex-col justify-between">
-            <div class="space-y-2">
-              <div class="flex items-center justify-between border-b-2 border-primary pb-2">
-                <span class="font-headline font-bold text-xs uppercase tracking-wider text-on-surface">Hardware Latencies</span>
-                <span class="text-[10px] font-mono bg-primary text-white px-1.5 py-0.5 font-bold">Anchor 00</span>
-              </div>
-              <p class="font-mono text-xs text-on-surface-variant">Orders of magnitude every senior systems engineer builds from:</p>
-              <div class="space-y-1.5 font-mono text-[11px] pt-1">
-                <div class="flex justify-between bg-surface-container-lowest/80 p-1.5 border border-primary">
-                  <span>L1 CPU Cache Hit</span>
-                  <span class="font-bold text-secondary">0.5 ns (1 sec scaled)</span>
-                </div>
-                <div class="flex justify-between bg-surface-container-lowest/80 p-1.5 border border-primary">
-                  <span>Mutex Lock/Unlock</span>
-                  <span class="font-bold">20 ns (40 sec scaled)</span>
-                </div>
-                <div class="flex justify-between bg-surface-container-lowest/80 p-1.5 border border-primary">
-                  <span>Main Memory (DRAM)</span>
-                  <span class="font-bold">100 ns (~3.3 min scaled)</span>
-                </div>
-                <div class="flex justify-between bg-surface-container-lowest/80 p-1.5 border border-primary">
-                  <span>NVMe SSD Random Read</span>
-                  <span class="font-bold">20 μs (~11 hrs scaled)</span>
-                </div>
-                <div class="flex justify-between bg-surface-container-lowest/80 p-1.5 border border-primary">
-                  <span>Cross-Datacenter WAN</span>
-                  <span class="font-bold text-secondary">150 ms (~9.5 yrs scaled)</span>
-                </div>
-              </div>
-            </div>
-            <div class="mt-4 pt-3 border-t-2 border-primary flex items-center justify-between text-[10px] font-headline uppercase font-bold text-on-surface">
-              <span>Rule of Thumb: 10^5 x Gap RAM vs Disk</span>
-              <a href="index.html#simulator" class="underline hover:text-secondary">View Simulator →</a>
-            </div>
-          </div>
         </section>
 
         <!-- SEARCH & TIER FILTER TAB NAVIGATION -->
