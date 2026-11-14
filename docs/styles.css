@@ -524,3 +524,76 @@ html.dark .cluster-badge {
   color: #1a1a1a !important;
   border-color: #ffcc00 !important;
 }
+
+
+/* Ensure text-primary in dark mode is bright readable linen/cream, NOT black */
+html.dark .text-primary {
+  color: #f5f0e8 !important;
+}
+
+/* Ensure text on primary-container elements is always jet black #1a1a1a in BOTH light and dark modes */
+.bg-primary-container,
+.bg-primary-container a,
+.bg-primary-container span,
+.bg-primary-container div,
+.bg-primary-container h1,
+.bg-primary-container h2,
+.bg-primary-container h3,
+.bg-primary-container p,
+.bg-primary-container th,
+.bg-primary-container td {
+  color: #1a1a1a !important;
+}
+
+html.dark .bg-primary-container,
+html.dark .bg-primary-container a,
+html.dark .bg-primary-container span,
+html.dark .bg-primary-container div,
+html.dark .bg-primary-container h1,
+html.dark .bg-primary-container h2,
+html.dark .bg-primary-container h3,
+html.dark .bg-primary-container p,
+html.dark .bg-primary-container th,
+html.dark .bg-primary-container td {
+  color: #1a1a1a !important;
+}
+
+/* Header nav active state in dark mode */
+html.dark header nav a.bg-primary-container {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+  border-color: #ffcc00 !important;
+  font-weight: 700 !important;
+}
+
+/* Fix Browse Full Syllabus card in dark mode */
+html.dark .bg-primary-container a.bg-primary {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border-color: #1a1a1a !important;
+}
+
+html.dark .bg-primary-container a.bg-primary:hover {
+  background-color: #e63b2e !important;
+  color: #ffffff !important;
+  border-color: #1a1a1a !important;
+}
+
+/* Comparison table in dark mode */
+html.dark table tbody tr td {
+  color: #f5f0e8 !important;
+}
+
+html.dark table tbody tr:hover {
+  background-color: #222222 !important;
+}
+
+html.dark table thead tr th {
+  background-color: #1a1a1a !important;
+  color: #f5f0e8 !important;
+}
+
+html.dark table thead tr th.bg-primary-container {
+  background-color: #ffcc00 !important;
+  color: #1a1a1a !important;
+}
