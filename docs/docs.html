@@ -3,29 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Documentation — System Design Studio</title>
+  <title>Technical Documentation — System Design Studio</title>
+  <meta name="description" content="Technical specification, filesystem contracts, CLI command reference, and multi-agent setup guides for System Design Studio.">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-  <!-- QUIET TOPBAR -->
+  <!-- SITE MASTHEAD -->
   <header class="site-header">
-    <div class="header-inner">
+    <div class="container header-inner">
       <div style="display: flex; align-items: center; gap: 16px;">
-        <a href="index.html" class="site-logo">
-          <span class="mark">SDS</span>
-          <span>System Design Studio</span>
+        <a href="index.html" class="brand-lockup">
+          <span class="brand-badge">SD</span>
+          <span class="brand-title">System Design Studio</span>
         </a>
-        <span class="status-pill">
-          <span class="status-dot"></span> Documentation
+        <span class="version-tag">
+          <span class="version-dot"></span> v2.1.0 · 354 topics
         </span>
       </div>
 
-      <nav style="display: flex; align-items: center; gap: 8px;">
-        <a href="index.html" class="nav-link">Overview</a>
+      <nav class="nav-menu">
         <a href="curriculum.html" class="nav-link">50-Cluster Syllabus</a>
+        <a href="index.html#lifecycle" class="nav-link">Lifecycle</a>
+        <a href="index.html#cursor" class="nav-link">CURSOR.md</a>
         <a href="docs.html" class="nav-link active">Documentation</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" class="nav-link" style="display: flex; align-items: center; gap: 6px;">
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="nav-link" style="display: flex; align-items: center; gap: 6px;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
           GitHub
         </a>
@@ -34,187 +36,251 @@
     </div>
   </header>
 
-  <main style="max-width: 1200px; margin: 0 auto; padding: 48px 24px 96px; display: grid; grid-template-columns: 240px 1fr; gap: 48px;">
-
-    <!-- SIDEBAR NAV -->
-    <aside style="display: flex; flex-direction: column; gap: 16px; position: sticky; top: 80px; height: fit-content;">
-      <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; font-family: ui-monospace, monospace; color: var(--text-muted);">
-        Documentation
-      </div>
-      <nav style="display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
-        <a href="#quickstart" class="nav-link">Quickstart</a>
-        <a href="#architecture" class="nav-link">Instance Architecture</a>
-        <a href="#cursor-spec" class="nav-link">Living Cursor Engine</a>
-        <a href="#cli-reference" class="nav-link">CLI Commands</a>
-        <a href="#byo-curriculum" class="nav-link">BYO Customization</a>
-        <a href="#agent-setup" class="nav-link">Agent Environments</a>
-      </nav>
-    </aside>
-
-    <!-- CONTENT BODY -->
-    <article style="display: flex; flex-direction: column; gap: 48px; max-width: 800px;">
-
-      <!-- SECTION 1: QUICKSTART -->
-      <section id="quickstart" style="display: flex; flex-direction: column; gap: 16px;">
-        <h1 style="font-size: 32px; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em;">
-          System Design Studio Quickstart
-        </h1>
-        <p style="color: var(--text-secondary); line-height: 1.6;">
-          System Design Studio operates on a <strong>Project-as-a-Learning-Instance</strong> model. Rather than relying on external cloud accounts or web portals, all progress and running context live inside a local <code>.system-design/</code> folder in your project repository.
-        </p>
-
-        <div class="terminal-window" style="margin-top: 8px;">
-          <div class="terminal-header">
-            <span>bash · 1-command setup</span>
-            <button class="copy-btn" onclick="copyText(this, 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash')">Copy</button>
-          </div>
-          <pre class="p-4 font-mono" style="font-size: 13px; line-height: 1.6;"><code><span style="color:var(--text-muted);"># 1. Initialize inside any existing project or new folder</span>
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash
-
-<span style="color:var(--text-muted);"># 2. Open with your AI coding agent (Antigravity, Cursor, Claude Code)</span>
-<span style="color:var(--accent);">Prompt:</span> "Let's continue our system design learning from where we left off."
-
-<span style="color:var(--text-muted);"># 3. Check status report anytime</span>
-python3 skills/system-design-studio/scripts/sync-status.py .system-design</code></pre>
+  <main class="container">
+    <div class="docs-layout">
+      
+      <!-- STICKY SIDEBAR -->
+      <aside class="docs-sidebar">
+        <div class="docs-sidebar-group">
+          <div class="docs-sidebar-title">Getting Started</div>
+          <a href="#overview" class="docs-sidebar-link">Overview &amp; Philosophy</a>
+          <a href="#quickstart" class="docs-sidebar-link">Quickstart Installation</a>
         </div>
-      </section>
 
-      <!-- SECTION 2: ARCHITECTURE -->
-      <section id="architecture" style="display: flex; flex-direction: column; gap: 16px;">
-        <h2 style="font-size: 22px; font-weight: 600;">The Project-as-a-Learning-Instance Architecture</h2>
-        <p style="color: var(--text-secondary); line-height: 1.6;">
-          When initialized, the studio scaffolds five distinct plain-text artifacts inside your repository:
-        </p>
-
-        <div class="surface-card p-6" style="display: flex; flex-direction: column; gap: 12px; font-size: 13px;">
-          <div><code style="color: var(--accent);">.system-design/manifest.json</code>: Machine-readable JSON tracking completion states, verified evidence, examples registry, and deferred queue.</div>
-          <div><code style="color: var(--accent);">.system-design/CURSOR.md</code>: The living operational brain read by AI agents on cold startup. Contains active focus, backward anchors, and next teaching actions.</div>
-          <div><code style="color: var(--accent);">.system-design/CURRICULUM.md</code>: The master 50-cluster syllabus with 354 topics and verified checkboxes (<code class="font-mono">- [x]</code>).</div>
-          <div><code style="color: var(--accent);">.system-design/DECISIONS.md</code>: Portfolio of accepted Architecture Decision Records (ADRs) defended by the learner during workshops.</div>
-          <div><code style="color: var(--accent);">.system-design/lessons/</code>: Standalone interactive HTML lesson artifacts with embedded JavaScript simulators.</div>
+        <div class="docs-sidebar-group">
+          <div class="docs-sidebar-title">Core Architecture</div>
+          <a href="#filesystem" class="docs-sidebar-link">Filesystem Contract</a>
+          <a href="#cursor-engine" class="docs-sidebar-link">CURSOR.md State Engine</a>
+          <a href="#pedagogy" class="docs-sidebar-link">Pedagogical Protocol</a>
         </div>
-      </section>
 
-      <!-- SECTION 3: LIVING CURSOR -->
-      <section id="cursor-spec" style="display: flex; flex-direction: column; gap: 16px;">
-        <h2 style="font-size: 22px; font-weight: 600;">The Living Cursor Engine</h2>
-        <p style="color: var(--text-secondary); line-height: 1.6;">
-          AI chat threads suffer from cognitive amnesia: context windows get compacted, chat sessions are cleared, or developers switch between models (e.g. Gemini ➔ Claude ➔ GPT-4o). The Living Cursor solves this by serializing cognitive continuity into four structured sections:
-        </p>
-
-        <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--text-secondary);">
-          <li style="display: flex; gap: 10px;">
-            <span style="color: var(--accent); font-weight: 600;">1.</span>
-            <span><strong>Active Focus:</strong> Exact cluster ID, active topic ID, topic foundation status, and the immediate next teaching action.</span>
-          </li>
-          <li style="display: flex; gap: 10px;">
-            <span style="color: var(--accent); font-weight: 600;">2.</span>
-            <span><strong>Connected Cognitive Lineage:</strong> Backward anchor (where we came from and what physical force forced the current mechanism) and forward hook (what is unlocked next).</span>
-          </li>
-          <li style="display: flex; gap: 10px;">
-            <span style="color: var(--accent); font-weight: 600;">3.</span>
-            <span><strong>Examples Registry (<code>examplesTaken</code>):</strong> Logs concrete engineering domains (e.g. Financial Ledger, Telemetry Stream) so the tutor can either deepen the same system or contrast against opposing workloads.</span>
-          </li>
-          <li style="display: flex; gap: 10px;">
-            <span style="color: var(--accent); font-weight: 600;">4.</span>
-            <span><strong>Deferred Topics Queue (<code>deferredQueue</code>):</strong> Logs advanced forward-looking questions asked by the learner. When the target cluster arrives, the queue rehydrates the question and closes the loop.</span>
-          </li>
-        </ul>
-      </section>
-
-      <!-- SECTION 4: CLI REFERENCE -->
-      <section id="cli-reference" style="display: flex; flex-direction: column; gap: 16px;">
-        <h2 style="font-size: 22px; font-weight: 600;">CLI Command Reference</h2>
-        <p style="color: var(--text-secondary); line-height: 1.6;">
-          All scripts are written in standard Python 3 and Bash with zero external pip dependencies.
-        </p>
-
-        <div style="display: flex; flex-direction: column; gap: 16px;">
-          <div class="surface-card p-6">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--accent);">advance-cursor.py</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-              Idempotently advances the cursor state, updates <code>manifest.json</code>, regenerates <code>CURSOR.md</code>, and marks completion in <code>CURRICULUM.md</code>.
-            </p>
-            <pre class="surface-raised p-4 font-mono" style="font-size: 12px; margin-top: 10px; overflow-x: auto;"><code>python3 scripts/advance-cursor.py \
-  --complete-topic topic.0.1.tcp-vs-udp \
-  --evidence "Learner traced TCP receive window bufferbloat" \
-  --log-example-domain "Financial Ledger" \
-  --log-example-scenario "Payment idempotency retry on socket timeout" \
-  --next-topic-id topic.0.1.http-1-1-vs-http-2-vs-http-3 \
-  --next-action "Establish topic foundation for HTTP/1.1 vs HTTP/2 vs HTTP/3" \
-  --lesson-artifact .system-design/lessons/topic-0.1-tcp-vs-udp.html</code></pre>
-          </div>
-
-          <div class="surface-card p-6">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--accent);">sync-status.py</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-              Instant terminal diagnostic reporting active topic, progress percentage, examples count, and pending deferred questions.
-            </p>
-            <pre class="surface-raised p-4 font-mono" style="font-size: 12px; margin-top: 10px;"><code>python3 scripts/sync-status.py .system-design</code></pre>
-          </div>
-
-          <div class="surface-card p-6">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--accent);">verify-instance.py</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-              Automated health-check testing JSON schemas, checkbox parity, lineage consistency, and HTML artifact validity.
-            </p>
-            <pre class="surface-raised p-4 font-mono" style="font-size: 12px; margin-top: 10px;"><code>python3 scripts/verify-instance.py .system-design</code></pre>
-          </div>
-
-          <div class="surface-card p-6">
-            <h3 style="font-size: 15px; font-weight: 600; color: var(--accent);">import-curriculum.py (BYO)</h3>
-            <p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">
-              Parses any custom Markdown syllabus and scaffolds a complete learning instance.
-            </p>
-            <pre class="surface-raised p-4 font-mono" style="font-size: 12px; margin-top: 10px;"><code>python3 scripts/import-curriculum.py --input my-team-syllabus.md --instance-dir .system-design</code></pre>
-          </div>
+        <div class="docs-sidebar-group">
+          <div class="docs-sidebar-title">Tooling &amp; Setup</div>
+          <a href="#cli-tools" class="docs-sidebar-link">CLI Commands Reference</a>
+          <a href="#agents-setup" class="docs-sidebar-link">Multi-Agent Integration</a>
+          <a href="#byo-curriculum" class="docs-sidebar-link">BYO Custom Curriculum</a>
         </div>
-      </section>
+      </aside>
 
-      <!-- SECTION 5: BYO -->
-      <section id="byo-curriculum" style="display: flex; flex-direction: column; gap: 16px;">
-        <h2 style="font-size: 22px; font-weight: 600;">Bring-Your-Own (BYO) Customization</h2>
-        <p style="color: var(--text-secondary); line-height: 1.6;">
-          System Design Studio is completely curriculum-agnostic. You can supply your own engineering syllabus using standard Markdown headers:
-        </p>
+      <!-- MAIN DOCUMENTATION CONTENT -->
+      <article class="docs-content">
 
-        <pre class="surface-card p-6 font-mono" style="font-size: 12px; line-height: 1.6;"><code># Cloud-Native Systems Engineering
+        <!-- SECTION: OVERVIEW -->
+        <section class="docs-section" id="overview">
+          <h1>System Design Studio Manual</h1>
+          <p style="font-size: 1.15rem; color: var(--text-secondary); margin-top: 12px;">
+            A complete technical reference for embedding stateful systems architecture pedagogy into AI coding agents.
+          </p>
 
-## Cluster 1: Service Mesh Architecture & Data Plane
-- [ ] Envoy filter chains, listener architecture, and thread models
-- [ ] Mutual TLS (mTLS) performance and SPIFFE/SPIRE workload identities
-- [ ] Circuit breaking thresholds, outlier detection, and panic routing
+          <h2 style="margin-top: 36px;">Architectural Philosophy</h2>
+          <p>
+            System Design Studio is built on a single realization: <strong>ephemeral AI chat threads are fundamentally incapable of teaching systems design</strong>. Systems engineering requires progressive cognitive lineage—remembering what hardware trade-offs were previously established, what failure modes the learner already struggled with, and what real-world analogies have already been exhausted.
+          </p>
+          <p>
+            By anchoring state to local Git files inside <code>.system-design/</code>, learning persists across model upgrades, context window resets, and development session breaks.
+          </p>
+        </section>
 
-## Cluster 2: Consensus & Sharding
-- [ ] Raft leader leases vs Paxos round-trip costs
-- [ ] Two-phase commit (2PC) vs Saga orchestration patterns</code></pre>
-      </section>
+        <!-- SECTION: QUICKSTART -->
+        <section class="docs-section" id="quickstart">
+          <h2>Quickstart Installation</h2>
+          <p>
+            Initialize a learning instance in your current working repository using the bootstrap installer:
+          </p>
+          <div class="docs-codeblock">
+            <code>curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/skills/system-design-studio/scripts/init-learning-instance.sh | bash</code>
+          </div>
+          <p>
+            The script creates the <code>.system-design/</code> folder hierarchy, populates the 50-cluster syllabus, configures the living cursor, and automatically configures your AI agent instruction files (such as <code>CLAUDE.md</code>, <code>AGENTS.md</code>, or <code>.cursorrules</code>).
+          </p>
+        </section>
 
-      <!-- SECTION 6: AGENT ENVIRONMENTS -->
-      <section id="agent-setup" style="display: flex; flex-direction: column; gap: 16px;">
-        <h2 style="font-size: 22px; font-weight: 600;">Agent Environments & Installation</h2>
+        <!-- SECTION: FILESYSTEM CONTRACT -->
+        <section class="docs-section" id="filesystem">
+          <h2>Filesystem Contract</h2>
+          <p>
+            All instance state is stored locally within the repository under <code>.system-design/</code>. No third-party servers, cloud databases, or API keys are required.
+          </p>
+          <div class="docs-codeblock">
+<code>.system-design/
+├── manifest.json       # Instance metadata, schema version, active curriculum
+├── CURSOR.md           # The living cognitive state engine (read on every prompt)
+├── CURRICULUM.md       # Complete topic index with status (unseen/in-progress/mastered)
+├── DECISIONS.md        # Architectural decision records (ADRs) authored by the learner
+├── notes/              # Learner's personal markdown notes and study summaries
+└── lessons/            # Interactive self-contained HTML visual artifacts generated by agents</code>
+          </div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: var(--text-secondary);">
-          <div><strong>Google Antigravity:</strong> Install via <code>agy plugin add https://github.com/alph-a07/system-design-studio.git</code>. Interactive HTML lessons render directly in the host side pane.</div>
-          <div><strong>Claude Code:</strong> Clone to <code>~/.claude/skills/system-design-studio</code>. Full CLI execution with automated git commits.</div>
-          <div><strong>Cursor:</strong> Add as submodule in <code>.cursor/skills/system-design-studio</code> or copy into workspace rules.</div>
-          <div><strong>OpenAI Codex & Gemini CLI:</strong> Drop the folder into your local repository workspace.</div>
-        </div>
-      </section>
+          <h3>Core Files Specification</h3>
+          <ul>
+            <li><strong>manifest.json:</strong> Stores the instance UUID, creation timestamp, curriculum version, and verification hashes.</li>
+            <li><strong>CURSOR.md:</strong> The single source of truth for conversational context. Contains the active topic, verified causal anchors, used examples, and deferred tangents.</li>
+            <li><strong>CURRICULUM.md:</strong> The indexed syllabus checklist. Topic statuses transition strictly from <code>unseen</code> &rarr; <code>in-progress</code> &rarr; <code>mastered</code>.</li>
+            <li><strong>DECISIONS.md:</strong> Persistent ADR log capturing architectural trade-offs resolved during hands-on exercises.</li>
+          </ul>
+        </section>
 
-    </article>
+        <!-- SECTION: CURSOR.MD STATE ENGINE -->
+        <section class="docs-section" id="cursor-engine">
+          <h2>The CURSOR.md State Engine</h2>
+          <p>
+            Every AI agent prompt session begins with reading <code>.system-design/CURSOR.md</code>. This replaces reliance on ephemeral LLM memory with deterministic file-backed state.
+          </p>
+          
+          <div class="docs-codeblock">
+<code>activeFocus:
+  topicId: "topic.0.1.tcp-vs-udp"
+  tier: "L0: Transport"
+  phase: "mental-model-verified"
+  depthLevel: "physical-mechanics"
+
+causalAnchors:
+  - "100ms WAN RTT = 3 round trips before first byte on cold TCP+TLS"
+  - "Head-of-Line blocking is physical in single-stream TCP sockets"
+  - "UDP has zero transport state; congestion control lives in user-space"
+
+examplesTaken:
+  - "postal-packet-delivery"
+  - "airport-security-handshake"
+
+deferredQueue:
+  - "QUIC connection migration across WiFi/Cellular shifts"</code>
+          </div>
+
+          <h3>State Mutation Rules</h3>
+          <p>
+            Agents are instructed to update <code>CURSOR.md</code> only when tangible milestones occur:
+          </p>
+          <ol>
+            <li><strong>Active Topic Advancement:</strong> Triggered via <code>advance-cursor.py</code> only after the learner successfully passes Socratic trade-off validation.</li>
+            <li><strong>Causal Anchor Addition:</strong> Recorded immediately when a physical constraint (e.g. latency, disk write amplification) is proved.</li>
+            <li><strong>Example Registration:</strong> Logged whenever an analogy is drawn to guarantee pedagogical variety.</li>
+          </ol>
+        </section>
+
+        <!-- SECTION: PEDAGOGY -->
+        <section class="docs-section" id="pedagogy">
+          <h2>Pedagogical Protocol &amp; Visual Artifacts</h2>
+          <p>
+            System Design Studio enforces a strict pedagogical protocol designed to prevent AI agents from falling back into generic summarization.
+          </p>
+
+          <h3>The Teaching Loop</h3>
+          <ul>
+            <li><strong>1. Socratic Probe:</strong> The agent tests existing learner intuition with a concrete physical trade-off question before explaining concepts.</li>
+            <li><strong>2. Mental Model &amp; Mechanics:</strong> The concept is explained through hardware constraints (CPU, RAM, Disk, Network) rather than abstract architecture buzzwords.</li>
+            <li><strong>3. Interactive Visual Artifact:</strong> The agent writes a self-contained HTML file to <code>.system-design/lessons/</code> with visual flow diagrams or failure simulators.</li>
+            <li><strong>4. Pressure Testing:</strong> The agent introduces an unexpected production failure (e.g. partition, packet drop, disk full) and asks the learner to defend their design.</li>
+          </ul>
+        </section>
+
+        <!-- SECTION: CLI TOOLS -->
+        <section class="docs-section" id="cli-tools">
+          <h2>CLI Tools Reference</h2>
+          <p>
+            System Design Studio provides standalone Python and Bash scripts inside <code>skills/system-design-studio/scripts/</code>:
+          </p>
+
+          <h3>init-learning-instance.sh</h3>
+          <p>Initializes a fresh <code>.system-design/</code> instance in the target directory and links agent instruction rules.</p>
+          <div class="docs-codeblock">
+            <code>bash skills/system-design-studio/scripts/init-learning-instance.sh [target_dir]</code>
+          </div>
+
+          <h3>advance-cursor.py</h3>
+          <p>Advances the cursor to the next sequential topic or a specified target topic ID, updating both <code>CURSOR.md</code> and <code>CURRICULUM.md</code>.</p>
+          <div class="docs-codeblock">
+            <code>python3 skills/system-design-studio/scripts/advance-cursor.py .system-design/ [optional_topic_id]</code>
+          </div>
+
+          <h3>sync-status.py</h3>
+          <p>Validates the consistency of the instance, reporting total progress, active focus, causal anchors count, and any structural warnings.</p>
+          <div class="docs-codeblock">
+            <code>python3 skills/system-design-studio/scripts/sync-status.py .system-design/</code>
+          </div>
+
+          <h3>verify-instance.py</h3>
+          <p>Audits <code>.system-design/</code> for schema compliance, unlinked topics, and missing cursor fields. Used in CI and automated hooks.</p>
+          <div class="docs-codeblock">
+            <code>python3 skills/system-design-studio/scripts/verify-instance.py .system-design/</code>
+          </div>
+
+          <h3>import-curriculum.py</h3>
+          <p>Parses an external markdown syllabus and imports it into the standard System Design Studio schema.</p>
+          <div class="docs-codeblock">
+            <code>python3 skills/system-design-studio/scripts/import-curriculum.py path/to/custom-syllabus.md .system-design/</code>
+          </div>
+        </section>
+
+        <!-- SECTION: AGENTS SETUP -->
+        <section class="docs-section" id="agents-setup">
+          <h2>Multi-Agent Integration Guides</h2>
+          <p>
+            System Design Studio works seamlessly across major agentic harnesses:
+          </p>
+
+          <h3>Google Antigravity</h3>
+          <p>Install via the Antigravity Plugin Manager or command line:</p>
+          <div class="docs-codeblock">
+            <code>agy plugin add system-design-studio</code>
+          </div>
+
+          <h3>Anthropic Claude Code</h3>
+          <p>Ensure your <code>CLAUDE.md</code> contains the System Design Studio instructions:</p>
+          <div class="docs-codeblock">
+<code>## System Design Studio
+When the user asks to learn or review system design:
+1. Always read `.system-design/CURSOR.md` before responding.
+2. Ground all discussions in physical hardware mechanics and latency numbers.
+3. Deliver interactive HTML artifacts to `.system-design/lessons/`.
+4. Run `python3 skills/system-design-studio/scripts/sync-status.py` to confirm state.</code>
+          </div>
+
+          <h3>Cursor IDE</h3>
+          <p>Add the rules to your repository's <code>.cursorrules</code> file to ensure Cursor agents respect the cursor lineage across conversations.</p>
+        </section>
+
+        <!-- SECTION: BYO CURRICULUM -->
+        <section class="docs-section" id="byo-curriculum">
+          <h2>Bring Your Own Curriculum (BYO)</h2>
+          <p>
+            You can replace or augment the default 50-cluster syllabus with your company's internal engineering guidelines, architecture review checklists, or interview roadmaps.
+          </p>
+          <p>Format your custom syllabus using standard Markdown heading levels:</p>
+          <div class="docs-codeblock">
+<code># Custom Architecture Syllabus
+
+## 1. Storage &amp; Database Layer
+- [ ] B-Tree vs LSM write amplification
+- [ ] Read-after-write consistency in multi-region setups
+- [ ] Connection pool exhaustion and backpressure
+
+## 2. Real-Time Streaming
+- [ ] Kafka consumer group rebalances
+- [ ] Exactly-once processing semantics</code>
+          </div>
+          <p>Then run the importer:</p>
+          <div class="docs-codeblock">
+            <code>python3 skills/system-design-studio/scripts/import-curriculum.py my-syllabus.md .system-design/</code>
+          </div>
+        </section>
+
+      </article>
+    </div>
   </main>
 
-  <!-- QUIET FOOTER -->
+  <!-- SITE FOOTER -->
   <footer class="site-footer">
-    <div class="footer-inner">
-      <div>
-        <span style="font-weight: 600; color: var(--text-primary);">System Design Studio</span> · Licensed under <a href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" style="color: var(--text-secondary);">MIT</a>
+    <div class="container footer-inner">
+      <div class="footer-left">
+        <span class="brand-badge">SD</span>
+        <span class="footer-desc">System Design Studio &middot; Open-source under Apache-2.0</span>
       </div>
-      <div style="display: flex; gap: 20px;">
-        <a href="index.html" style="color: var(--text-secondary);">Overview</a>
-        <a href="curriculum.html" style="color: var(--text-secondary);">50-Cluster Syllabus</a>
-        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" style="color: var(--text-secondary);">GitHub</a>
+      <div class="footer-links">
+        <a href="curriculum.html" class="footer-link">Syllabus</a>
+        <a href="docs.html" class="footer-link">Documentation</a>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub</a>
+        <a href="https://github.com/alph-a07/system-design-studio/issues" target="_blank" rel="noopener noreferrer" class="footer-link">Issues</a>
       </div>
     </div>
   </footer>
