@@ -2,8 +2,8 @@
 """
 sync-status.py
 Diagnostic tool for System Design Studio learning instances.
-Reads .system-design/manifest.json and reports active focus, running context,
-examples registry, and deferred queue health.
+Reads .system-design/manifest.json and .system-design/settings.json,
+reporting active focus, running context, artifact style preference, and deferred queue health.
 """
 
 import os
@@ -13,6 +13,7 @@ import json
 def main():
     instance_dir = sys.argv[1] if len(sys.argv) > 1 else ".system-design"
     manifest_path = os.path.join(instance_dir, "manifest.json")
+    settings_path = os.path.join(instance_dir, "settings.json")
 
     if not os.path.exists(manifest_path):
         print(f"❌ No System Design Studio instance found at '{instance_dir}/'. Run init-learning-instance.sh first.", file=sys.stderr)
@@ -20,6 +21,14 @@ def main():
 
     with open(manifest_path) as f:
         m = json.load(f)
+
+    settings = {}
+    if os.path.exists(settings_path):
+        try:
+            with open(settings_path) as sf:
+                settings = json.load(sf)
+        except Exception:
+            pass
 
     curriculum = m.get("curriculum", {})
     cursor = m.get("cursor", {})
@@ -41,6 +50,8 @@ def main():
     print(f"Instance Name:   {m.get('instanceName', 'Unknown')}")
     print(f"Curriculum:      {curriculum.get('title', 'Unknown')} ({curriculum.get('id', 'unknown')})")
     print(f"Overall Progress: {completed_topics} / {total_topics} Topics ({pct:.1f}%)")
+    style_val = settings.get("artifactStyle", "slate-clean")
+    print(f"Artifact Style:  {style_val}")
     print("-" * 60)
     print(f"Active Cluster:  {active_cluster.get('title', active_cluster_id) if active_cluster else active_cluster_id}")
     print(f"Active Topic:    {active_topic.get('title', active_topic_id) if active_topic else active_topic_id}")

@@ -16,6 +16,7 @@
     .interactive-element {
       transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    {{THEME_CSS_VARS}}
   </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8">
@@ -28,6 +29,7 @@
         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">[concept] [mechanics] [contrast] [trap]</span>
+        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--primary)] font-semibold">🎨 {{THEME_NAME}}</span>
       </div>
 
       <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">

@@ -40,3 +40,27 @@ A high-density, first-principles technical product aesthetic engineered for syst
   - Focus: Offset rings (`outline-offset: 3px`) preventing clipping.
 - **Elevation:** Declared strictly once via surface shade and crisp hairline wire borders. Zero-offset glowing shadows (`dark-glow`) and ghost cards (simultaneous border + large shadow) are forbidden.
 - **Scaffolding:** Strict refusal of kickers/eyebrows, non-sequential numbered prefixes, and gradient text masks. Headings stand on their own typographic weight.
+
+## Artifact Visual Styles (5 Studio Themes)
+
+Lesson artifacts support 5 user-configurable aesthetic palettes via `.system-design/settings.json`:
+
+1. **`slate-clean` (Modern Slate / Dark Tech):**
+   - Background: `#0f172a` | Card: `#1e293b` | Border: `#334155` | Text: `#f8fafc` | Accent: `#3b82f6` (Blue 500)
+   - Aesthetic: Modern developer IDE & cloud telemetry console. Default experience.
+
+2. **`editorial-paper` (Clean Editorial / Warm Light):**
+   - Background: `#fbfbfa` | Card: `#ffffff` | Border: `#e4e4e7` | Text: `#18181b` | Accent: `#2563eb` (Indigo Ink)
+   - Aesthetic: Bookish, high-readability off-white paper canvas with sharp editorial contrast.
+
+3. **`midnight-neon` (Cyber Obsidian / High Contrast):**
+   - Background: `#05070c` | Card: `#0d1117` | Border: `#21262d` | Text: `#f1f5f9` | Accent: `#06b6d4` (Cyan Neon)
+   - Aesthetic: Pure pitch-black obsidian with electric cyan and mint neon highlights.
+
+4. **`nordic-frost` (Nordic Frost / Polar Calm):**
+   - Background: `#2e3440` | Card: `#3b4252` | Border: `#4c566a` | Text: `#eceff4` | Accent: `#88c0d0` (Frost Teal)
+   - Aesthetic: Subdued arctic cool night palette with frosty teal and snow-storm text. Zero eye strain.
+
+5. **`warm-amber` (Warm Amber / Espresso Glow):**
+   - Background: `#1c1917` | Card: `#292524` | Border: `#44403c` | Text: `#fafaf9` | Accent: `#f59e0b` (Amber Gold)
+   - Aesthetic: Rich espresso and sepia tones with warm amber/copper embers for nighttime study.

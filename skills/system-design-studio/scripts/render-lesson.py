@@ -4,6 +4,7 @@ render-lesson.py
 Deterministic HTML lesson renderer for System Design Studio.
 Generates beautiful, accessible, interactive HTML lesson artifacts with embedded
 simulators, workload contrasts, invariant tables, and reality checks.
+Supports 5 distinct visual theme variants and respects .system-design/settings.json.
 """
 
 import os
@@ -11,6 +12,109 @@ import sys
 import json
 import argparse
 import re
+
+STYLE_THEMES = {
+    "slate-clean": {
+        "id": "slate-clean",
+        "name": "Modern Slate (Dark Tech)",
+        "theme_type": "dark",
+        "css_vars": """
+    :root {
+      --background: #0f172a;
+      --foreground: #f8fafc;
+      --card: #1e293b;
+      --card-border: #334155;
+      --border: #334155;
+      --muted-foreground: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --accent-badge: #1e3a8a;
+      --accent-badge-text: #93c5fd;
+    }
+""",
+        "badge_class": "bg-blue-600 text-white",
+    },
+    "editorial-paper": {
+        "id": "editorial-paper",
+        "name": "Clean Editorial (Warm Light)",
+        "theme_type": "light",
+        "css_vars": """
+    :root {
+      --background: #fbfbfa;
+      --foreground: #18181b;
+      --card: #ffffff;
+      --card-border: #e4e4e7;
+      --border: #e4e4e7;
+      --muted-foreground: #71717a;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-badge: #eff6ff;
+      --accent-badge-text: #1d4ed8;
+    }
+""",
+        "badge_class": "bg-blue-700 text-white",
+    },
+    "midnight-neon": {
+        "id": "midnight-neon",
+        "name": "Cyber Obsidian (High Contrast)",
+        "theme_type": "dark",
+        "css_vars": """
+    :root {
+      --background: #05070c;
+      --foreground: #f1f5f9;
+      --card: #0d1117;
+      --card-border: #21262d;
+      --border: #21262d;
+      --muted-foreground: #8b949e;
+      --primary: #06b6d4;
+      --primary-hover: #0891b2;
+      --accent-badge: #083344;
+      --accent-badge-text: #67e8f9;
+    }
+""",
+        "badge_class": "bg-cyan-500 text-black font-bold",
+    },
+    "nordic-frost": {
+        "id": "nordic-frost",
+        "name": "Nordic Frost (Polar Calm)",
+        "theme_type": "dark",
+        "css_vars": """
+    :root {
+      --background: #2e3440;
+      --foreground: #eceff4;
+      --card: #3b4252;
+      --card-border: #4c566a;
+      --border: #434c5e;
+      --muted-foreground: #d8dee9;
+      --primary: #88c0d0;
+      --primary-hover: #81a1c1;
+      --accent-badge: #434c5e;
+      --accent-badge-text: #88c0d0;
+    }
+""",
+        "badge_class": "bg-[#88c0d0] text-[#2e3440] font-bold",
+    },
+    "warm-amber": {
+        "id": "warm-amber",
+        "name": "Warm Amber (Espresso Glow)",
+        "theme_type": "dark",
+        "css_vars": """
+    :root {
+      --background: #1c1917;
+      --foreground: #fafaf9;
+      --card: #292524;
+      --card-border: #44403c;
+      --border: #44403c;
+      --muted-foreground: #a8a29e;
+      --primary: #f59e0b;
+      --primary-hover: #d97706;
+      --accent-badge: #451a03;
+      --accent-badge-text: #fcd34d;
+    }
+""",
+        "badge_class": "bg-amber-500 text-stone-900 font-bold",
+    },
+}
 
 DEFAULT_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -26,6 +130,7 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
     }
     .animate-pulse-subtle { animation: pulse-subtle 2s infinite ease-in-out; }
     .interactive-element { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    {{THEME_CSS_VARS}}
   </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8">
@@ -36,6 +141,7 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">[concept] [mechanics] [contrast] [trap]</span>
+        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--primary)] font-semibold">🎨 {{THEME_NAME}}</span>
       </div>
       <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">{{LESSON_TITLE}}</h1>
       <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">{{LESSON_SUBTITLE}}</p>
@@ -92,7 +198,9 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
               <th class="p-4">{{TABLE_COL_2_HEADER}}</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[var(--border)] text-xs md:text-sm">{{TABLE_ROWS}}</tbody>
+          <tbody class="divide-y divide-[var(--border)] text-xs md:text-sm">
+            {{TABLE_ROWS}}
+          </tbody>
         </table>
       </div>
     </section>
@@ -122,9 +230,11 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       </div>
     </section>
 
-    <!-- FOOTER -->
+    <!-- FOOTER NAV -->
     <footer class="border-t border-[var(--border)] pt-8 pb-12 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted-foreground)] gap-4">
-      <div>Part of the <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance</div>
+      <div>
+        Part of the <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance
+      </div>
       <div class="flex items-center gap-4">
         <span>Backward Anchor: <strong class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</strong></span>
         <span>•</span>
@@ -151,13 +261,17 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
-def generate_default_data(topic_id, title=None, cluster_title=None, tier=None):
-    slug = topic_id.replace("topic.", "").replace(".", "-")
-    clean_title = title or topic_id.replace("topic.", "").replace(".", " ").title()
+def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_id="slate-clean"):
+    clean_title = title or topic_id.replace("topic.", "").replace("-", " ").title()
+    theme = STYLE_THEMES.get(style_id, STYLE_THEMES["slate-clean"])
+
     return {
         "PAGE_TITLE": f"Topic — {clean_title}",
+        "THEME_CSS_VARS": theme["css_vars"],
+        "THEME_NAME": theme["name"],
+        "THEME_ID": theme["id"],
         "TIER_BADGE": tier or "Tier 0 · System Design Core",
-        "CLUSTER_BADGE": cluster_title or "Foundation Mechanism",
+        "CLUSTER_BADGE": cluster or "Foundation Mechanism",
         "LESSON_TITLE": clean_title,
         "LESSON_SUBTITLE": "A first-principles, causal breakdown of physical constraints, failure modes, and architectural trade-offs.",
         "SECTION_1_TITLE": "Physical Motivation & The Speed of Light",
@@ -180,22 +294,24 @@ def generate_default_data(topic_id, title=None, cluster_title=None, tier=None):
         </div>
         """,
         "SECTION_2_TITLE": "Mechanistic Core & Invariant Preservation",
-        "SECTION_2_BODY": f"<p>Let's trace how <strong>{clean_title}</strong> preserves state invariants across distributed boundaries when messages are delayed or dropped.</p>",
-        "SIMULATOR_TITLE": f"Interactive State Simulator: {clean_title}",
-        "SIMULATOR_SUBTITLE": "Step through event lifecycles and observe state mutations under injected faults.",
+        "SECTION_2_BODY": f"<p>How does the protocol guarantee its state invariants across independent failure domains? Below is the interactive execution trace for <strong>{clean_title}</strong>.</p>",
+        "SIMULATOR_TITLE": f"Execution Simulator: {clean_title}",
+        "SIMULATOR_SUBTITLE": "Step through state transitions, packet transmission, and failure recovery.",
         "SIMULATOR_CONTROLS": """
-        <button onclick="simStep()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">Step Forward</button>
-        <button onclick="simReset()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--border)] transition">Reset</button>
+        <button onclick="simStep()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">Step Forward →</button>
+        <button onclick="simReset()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--card)] transition">Reset</button>
         """,
         "SIMULATOR_CANVAS": """
-        <div class="p-8 rounded-xl bg-[var(--background)] border border-[var(--border)] flex items-center justify-around text-center" id="sim-canvas">
+        <div class="flex items-center justify-between p-6 rounded-xl bg-[var(--background)] border border-[var(--border)] min-h-[160px]" id="sim-canvas">
           <div class="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)] w-36">
-            <div class="text-xs font-bold text-[var(--primary)]">Sender / Client</div>
+            <div class="text-xs font-bold text-blue-500">Sender / Client</div>
             <div id="sim-sender-state" class="text-xs font-mono mt-1 text-[var(--muted-foreground)]">STATE: IDLE</div>
           </div>
-          <div class="flex-1 px-4 relative flex items-center justify-center">
-            <div class="w-full h-1 bg-[var(--border)] rounded"></div>
-            <div id="sim-transit-chip" class="absolute px-2.5 py-1 text-xs rounded-full bg-emerald-500 text-white font-mono scale-0 transition-transform">PAYLOAD</div>
+          <div class="flex-1 flex flex-col items-center justify-center px-4">
+            <div class="w-full h-1 bg-[var(--border)] relative flex items-center justify-center">
+              <div id="transit-chip" class="w-4 h-4 rounded-full bg-[var(--primary)] transition-all duration-300 transform scale-0"></div>
+            </div>
+            <div class="text-[10px] font-mono mt-2 text-[var(--muted-foreground)]">TRANSIT MEDIUM (UNRELIABLE)</div>
           </div>
           <div class="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)] w-36">
             <div class="text-xs font-bold text-emerald-500">Receiver / Node</div>
@@ -286,24 +402,62 @@ def generate_default_data(topic_id, title=None, cluster_title=None, tier=None):
         """
     }
 
+def resolve_style_preference(specified_style=None, settings_path=None):
+    if specified_style and specified_style in STYLE_THEMES:
+        return specified_style
+
+    # Check settings candidates
+    candidates = []
+    if settings_path:
+        candidates.append(settings_path)
+    candidates.extend([
+        ".system-design/settings.json",
+        "settings.json",
+        os.path.join(os.getcwd(), ".system-design", "settings.json")
+    ])
+
+    for p in candidates:
+        if p and os.path.exists(p):
+            try:
+                with open(p) as f:
+                    data = json.load(f)
+                    val = data.get("artifactStyle")
+                    if val in STYLE_THEMES:
+                        return val
+            except Exception:
+                pass
+
+    return "slate-clean"
+
 def main():
     parser = argparse.ArgumentParser(description="Render interactive HTML lesson artifact")
     parser.add_argument("--topic-id", required=True, help="Topic ID (e.g. topic.0.1.tcp-vs-udp)")
     parser.add_argument("--title", help="Lesson Title")
     parser.add_argument("--cluster", help="Cluster Title")
     parser.add_argument("--tier", help="Tier Title")
+    parser.add_argument("--style", choices=list(STYLE_THEMES.keys()), help="Artifact visual style theme")
+    parser.add_argument("--settings", help="Path to settings.json")
     parser.add_argument("--spec", help="Path to JSON file with lesson override tokens")
     parser.add_argument("--template", help="Path to custom HTML template")
     parser.add_argument("--output-dir", default=".system-design/lessons", help="Output directory")
     parser.add_argument("--brain-dir", help="App data artifact directory (<appDataDir>/brain/<id>)")
 
     args = parser.parse_args()
-    data = generate_default_data(args.topic_id, args.title, args.cluster, args.tier)
+
+    active_style = resolve_style_preference(args.style, args.settings)
+    theme = STYLE_THEMES[active_style]
+
+    data = generate_default_data(args.topic_id, args.title, args.cluster, args.tier, active_style)
 
     if args.spec and os.path.exists(args.spec):
         with open(args.spec) as f:
             spec_data = json.load(f)
             data.update(spec_data)
+
+    # Ensure theme variables are bound
+    data["THEME_CSS_VARS"] = theme["css_vars"]
+    data["THEME_NAME"] = theme["name"]
+    data["THEME_ID"] = theme["id"]
 
     template_str = DEFAULT_TEMPLATE
     if args.template and os.path.exists(args.template):
@@ -322,7 +476,7 @@ def main():
     with open(out_path, "w") as f:
         f.write(rendered)
 
-    print(f"✅ Lesson rendered to {out_path}")
+    print(f"✅ Lesson rendered to {out_path} [Style: {theme['name']}]")
 
     if args.brain_dir and os.path.exists(args.brain_dir):
         brain_path = os.path.join(args.brain_dir, filename)

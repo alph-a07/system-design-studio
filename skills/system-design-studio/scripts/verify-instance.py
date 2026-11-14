@@ -3,7 +3,7 @@
 verify-instance.py
 Automated health-check and integrity verification for System Design Studio instances.
 Validates manifest schemas, cursor lineage consistency, curriculum checkbox counts,
-and HTML lesson artifacts.
+settings.json configuration, and HTML lesson artifacts.
 """
 
 import os
@@ -18,20 +18,39 @@ def verify_instance(instance_dir=".system-design"):
 
     print(f"🔍 Verifying System Design Studio instance at: {instance_dir}")
 
-    # 1. Directory Structure
-    req_files = ["manifest.json", "CURSOR.md", "CURRICULUM.md", "DECISIONS.md"]
+    # 1. Directory Structure & Required Files
+    req_files = ["manifest.json", "CURSOR.md", "CURRICULUM.md", "DECISIONS.md", "settings.json"]
     for f in req_files:
         p = os.path.join(instance_dir, f)
         if os.path.exists(p):
             passes.append(f"File exists: {f}")
         else:
-            errors.append(f"Missing required file: {p}")
+            if f == "settings.json":
+                warnings.append(f"Optional or legacy instance missing {f} (defaults will be used)")
+            else:
+                errors.append(f"Missing required file: {p}")
 
     lessons_dir = os.path.join(instance_dir, "lessons")
     if os.path.isdir(lessons_dir):
         passes.append("Directory exists: lessons/")
     else:
         errors.append(f"Missing lessons directory: {lessons_dir}")
+
+    # 2. Settings Schema Validation
+    settings_path = os.path.join(instance_dir, "settings.json")
+    if os.path.exists(settings_path):
+        try:
+            with open(settings_path) as sf:
+                s = json.load(sf)
+            passes.append("settings.json is valid JSON")
+            style = s.get("artifactStyle")
+            valid_styles = ["slate-clean", "editorial-paper", "midnight-neon", "nordic-frost", "warm-amber"]
+            if style in valid_styles:
+                passes.append(f"settings.json defines recognized artifactStyle '{style}'")
+            else:
+                warnings.append(f"settings.json artifactStyle '{style}' not in standard roster ({valid_styles})")
+        except json.JSONDecodeError as e:
+            errors.append(f"settings.json has JSON syntax error: {e}")
 
     manifest_path = os.path.join(instance_dir, "manifest.json")
     if not os.path.exists(manifest_path):
@@ -40,7 +59,7 @@ def verify_instance(instance_dir=".system-design"):
             print(f"  ❌ {err}")
         sys.exit(1)
 
-    # 2. Manifest Schema Validation
+    # 3. Manifest Schema Validation
     with open(manifest_path) as mf:
         try:
             m = json.load(mf)
@@ -87,7 +106,7 @@ def verify_instance(instance_dir=".system-design"):
     else:
         errors.append(f"Active topic '{active_topic_id}' not found in curriculum topics")
 
-    # 3. Check CURRICULUM.md parity
+    # 4. Check CURRICULUM.md parity
     curriculum_path = os.path.join(instance_dir, "CURRICULUM.md")
     if os.path.exists(curriculum_path):
         with open(curriculum_path) as cf:
@@ -102,7 +121,7 @@ def verify_instance(instance_dir=".system-design"):
         else:
             warnings.append(f"CURRICULUM.md checked count ({checked_boxes}) != manifest completed count ({completed_manifest_topics})")
 
-    # 4. Check CURSOR.md
+    # 5. Check CURSOR.md
     cursor_path = os.path.join(instance_dir, "CURSOR.md")
     if os.path.exists(cursor_path):
         with open(cursor_path) as cur_f:
@@ -117,7 +136,7 @@ def verify_instance(instance_dir=".system-design"):
         else:
             passes.append("CURSOR.md is free of unrendered template tokens")
 
-    # 5. Check Lessons Directory
+    # 6. Check Lessons Directory
     if os.path.isdir(lessons_dir):
         lesson_files = [f for f in os.listdir(lessons_dir) if f.endswith(".html")]
         passes.append(f"Found {len(lesson_files)} HTML lesson artifacts in lessons/")

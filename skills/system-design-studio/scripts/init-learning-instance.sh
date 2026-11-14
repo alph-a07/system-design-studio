@@ -49,7 +49,10 @@ fetch_or_copy "manifest-template.json" "${INSTANCE_DIR}/manifest.json"
 # 3. CURSOR.md
 fetch_or_copy "CURSOR-template.md" "${INSTANCE_DIR}/CURSOR.md"
 
-# 4. Generate initial DECISIONS.md
+# 4. settings.json
+fetch_or_copy "settings-template.json" "${INSTANCE_DIR}/settings.json"
+
+# 5. Generate initial DECISIONS.md
 cat <<EOF > "${INSTANCE_DIR}/DECISIONS.md"
 # Architecture Decision Records (ADRs)
 
@@ -62,5 +65,6 @@ echo "✅ Learning instance initialized at ${INSTANCE_DIR}/"
 echo "   - Manifest:   ${INSTANCE_DIR}/manifest.json"
 echo "   - Cursor:     ${INSTANCE_DIR}/CURSOR.md"
 echo "   - Curriculum: ${INSTANCE_DIR}/CURRICULUM.md"
+echo "   - Settings:   ${INSTANCE_DIR}/settings.json"
 echo "   - Decisions:  ${INSTANCE_DIR}/DECISIONS.md"
 echo "   - Lessons:    ${LESSONS_DIR}/"

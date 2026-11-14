@@ -35,7 +35,7 @@ flowchart TD
 1. **Universal Agent Portability**: Zero proprietary runtime lock-in. 100% compliant with the open Agent Skills standard. Operates whether hosted in Google Antigravity, Claude Code, Cursor, Codex, or Gemini CLI.
 2. **Project as a Learning Instance**: No external accounts, no cloud database locks, and no SaaS logins. Learning state resides entirely in a local `.system-design/` folder within your project, tracked by standard Git.
 3. **Living Cursor State Engine (`CURSOR.md`)**: Replaces ephemeral LLM memory with deterministic, file-backed state. Tracks active focus, target depth, causal hardware anchors, domain examples (`examplesTaken`), and pending deferred questions (`deferredQueue`).
-4. **Interactive HTML Lesson Artifacts**: Lessons are delivered as self-contained HTML artifacts authored directly into `.system-design/lessons/`, complete with interactive JavaScript packet simulators, failure injection controls, SVG sequence traces, and invariant matrices.
+4. **Interactive HTML Lesson Artifacts (Strictly Artifact-First)**: New topics are delivered strictly inside standalone interactive HTML artifacts in `.system-design/lessons/`, complete with interactive JavaScript packet simulators, failure injection controls, SVG sequence traces, invariant matrices, and 5 customizable design themes (`settings.json`). Follow-up discussions happen directly inline in chat.
 
 ---
 
@@ -48,6 +48,7 @@ my-project/
 ├── .git/
 ├── .system-design/
 │   ├── manifest.json              # Canonical machine-readable state (schema v2.0)
+│   ├── settings.json              # Theme & delivery preferences (5 visual styles)
 │   ├── CURSOR.md                  # Living running context (brain of the instance)
 │   ├── CURRICULUM.md              # Master 50-cluster syllabus with checkboxes
 │   ├── DECISIONS.md               # Accepted Architecture Decision Records (ADRs)
@@ -58,6 +59,18 @@ my-project/
 ├── notes/                         # Learner personal markdown study notes
 └── README.md
 ```
+
+### Visual Artifact Themes & Settings (`settings.json`)
+
+Choose your preferred visual aesthetic during initial setup or customize anytime in `.system-design/settings.json`:
+
+| Theme ID | Aesthetic | Canvas | Key Character |
+| :--- | :--- | :--- | :--- |
+| `slate-clean` | **Modern Slate** *(Default)* | Dark | Deep slate background (`#0f172a`), vibrant blue accents, modern IDE feel. |
+| `editorial-paper` | **Clean Editorial** | Light | High-readability warm off-white paper (`#fbfbfa`), charcoal text, ink accents. |
+| `midnight-neon` | **Cyber Obsidian** | Dark | Pitch black obsidian (`#05070c`), electric cyan and mint neon highlights. |
+| `nordic-frost` | **Nordic Frost** | Dark | Polar night cool slate (`#2e3440`), frosty teal accents, calm zero-eye-strain. |
+| `warm-amber` | **Warm Amber** | Dark | Deep espresso stone (`#1c1917`), rich warm amber & copper accents for night reading. |
 
 ### Zero-Cloud Privacy Invariant
 - Your code and notes never leave your local environment.
