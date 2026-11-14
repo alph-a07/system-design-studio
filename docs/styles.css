@@ -197,13 +197,14 @@ code, pre, .mono {
   align-items: center;
   gap: 6px;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm);
   background: var(--accent-diode-surface);
   border: 1px solid rgba(16, 185, 129, 0.25);
   color: var(--accent-diode);
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .version-dot {
