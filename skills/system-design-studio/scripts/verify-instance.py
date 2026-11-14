@@ -3,7 +3,7 @@
 verify-instance.py
 Automated health-check and integrity verification for System Design Studio instances.
 Validates manifest schemas, cursor lineage consistency, curriculum checkbox counts,
-settings.json configuration, and HTML lesson artifacts.
+settings.json configuration, directory preferences (cursorDir, lessonsDir), and HTML lesson artifacts.
 """
 
 import os
@@ -18,32 +18,16 @@ def verify_instance(instance_dir=".system-design"):
 
     print(f"🔍 Verifying System Design Studio instance at: {instance_dir}")
 
-    # 1. Directory Structure & Required Files
-    req_files = ["manifest.json", "CURSOR.md", "CURRICULUM.md", "DECISIONS.md", "settings.json"]
-    for f in req_files:
-        p = os.path.join(instance_dir, f)
-        if os.path.exists(p):
-            passes.append(f"File exists: {f}")
-        else:
-            if f == "settings.json":
-                warnings.append(f"Optional or legacy instance missing {f} (defaults will be used)")
-            else:
-                errors.append(f"Missing required file: {p}")
-
-    lessons_dir = os.path.join(instance_dir, "lessons")
-    if os.path.isdir(lessons_dir):
-        passes.append("Directory exists: lessons/")
-    else:
-        errors.append(f"Missing lessons directory: {lessons_dir}")
-
-    # 2. Settings Schema Validation
+    # 1. Settings Schema Validation & Path Resolution
     settings_path = os.path.join(instance_dir, "settings.json")
+    settings = {}
     if os.path.exists(settings_path):
+        passes.append("File exists: settings.json")
         try:
             with open(settings_path) as sf:
-                s = json.load(sf)
+                settings = json.load(sf)
             passes.append("settings.json is valid JSON")
-            style = s.get("artifactStyle")
+            style = settings.get("artifactStyle")
             valid_styles = ["slate-clean", "editorial-paper", "midnight-neon", "nordic-frost", "warm-amber"]
             if style in valid_styles:
                 passes.append(f"settings.json defines recognized artifactStyle '{style}'")
@@ -51,6 +35,50 @@ def verify_instance(instance_dir=".system-design"):
                 warnings.append(f"settings.json artifactStyle '{style}' not in standard roster ({valid_styles})")
         except json.JSONDecodeError as e:
             errors.append(f"settings.json has JSON syntax error: {e}")
+    else:
+        warnings.append("Optional or legacy instance missing settings.json (defaults will be used)")
+
+    # Resolve project base directory vs instance directory
+    abs_inst = os.path.abspath(instance_dir)
+    base_dir = os.path.dirname(abs_inst) if os.path.basename(abs_inst) == ".system-design" else abs_inst
+
+    def resolve_configured_dir(configured_val, default_rel):
+        if not configured_val:
+            return os.path.join(instance_dir, default_rel)
+        if os.path.isabs(configured_val):
+            return configured_val
+        cand_base = os.path.join(base_dir, configured_val)
+        if os.path.exists(cand_base):
+            return cand_base
+        cand_inst = os.path.join(instance_dir, configured_val)
+        if os.path.exists(cand_inst):
+            return cand_inst
+        return cand_base
+
+    paths_cfg = settings.get("paths", {})
+    raw_cursor_dir = paths_cfg.get("cursorDir") or settings.get("cursorDir")
+    raw_lessons_dir = paths_cfg.get("lessonsDir") or settings.get("lessonsDir")
+
+    cursor_dir = resolve_configured_dir(raw_cursor_dir, "")
+    lessons_dir = resolve_configured_dir(raw_lessons_dir, "lessons")
+
+    # 2. Directory Structure & Required Files
+    req_files = [
+        ("manifest.json", os.path.join(instance_dir, "manifest.json")),
+        ("CURSOR.md", os.path.join(cursor_dir, "CURSOR.md")),
+        ("CURRICULUM.md", os.path.join(instance_dir, "CURRICULUM.md")),
+        ("DECISIONS.md", os.path.join(instance_dir, "DECISIONS.md")),
+    ]
+    for label, p in req_files:
+        if os.path.exists(p):
+            passes.append(f"File exists: {label}")
+        else:
+            errors.append(f"Missing required file: {p}")
+
+    if os.path.isdir(lessons_dir):
+        passes.append(f"Directory exists: lessons/ ({lessons_dir})")
+    else:
+        errors.append(f"Missing lessons directory: {lessons_dir}")
 
     manifest_path = os.path.join(instance_dir, "manifest.json")
     if not os.path.exists(manifest_path):
@@ -121,8 +149,8 @@ def verify_instance(instance_dir=".system-design"):
         else:
             warnings.append(f"CURRICULUM.md checked count ({checked_boxes}) != manifest completed count ({completed_manifest_topics})")
 
-    # 5. Check CURSOR.md
-    cursor_path = os.path.join(instance_dir, "CURSOR.md")
+    # 5. Check CURSOR.md (located in cursor_dir)
+    cursor_path = os.path.join(cursor_dir, "CURSOR.md")
     if os.path.exists(cursor_path):
         with open(cursor_path) as cur_f:
             cur_txt = cur_f.read()
@@ -136,10 +164,10 @@ def verify_instance(instance_dir=".system-design"):
         else:
             passes.append("CURSOR.md is free of unrendered template tokens")
 
-    # 6. Check Lessons Directory
+    # 6. Check Lessons Directory (located in lessons_dir)
     if os.path.isdir(lessons_dir):
         lesson_files = [f for f in os.listdir(lessons_dir) if f.endswith(".html")]
-        passes.append(f"Found {len(lesson_files)} HTML lesson artifacts in lessons/")
+        passes.append(f"Found {len(lesson_files)} HTML lesson artifacts in lessons/ ({lessons_dir})")
         for lf in lesson_files:
             lfp = os.path.join(lessons_dir, lf)
             with open(lfp) as lff:

@@ -34,8 +34,35 @@ def main():
 
     args = parser.parse_args()
     inst_dir = args.instance_dir
+
+    # Resolve cursor directory preference from settings.json if present
+    abs_inst = os.path.abspath(inst_dir)
+    base_dir = os.path.dirname(abs_inst) if os.path.basename(abs_inst) == ".system-design" else abs_inst
+
+    raw_cursor_dir = None
+    settings_path = os.path.join(inst_dir, "settings.json")
+    if os.path.exists(settings_path):
+        try:
+            with open(settings_path) as sf:
+                s = json.load(sf)
+                raw_cursor_dir = s.get("paths", {}).get("cursorDir") or s.get("cursorDir")
+        except Exception:
+            pass
+
+    if raw_cursor_dir:
+        if os.path.isabs(raw_cursor_dir):
+            cursor_dir = raw_cursor_dir
+        elif os.path.exists(os.path.join(base_dir, raw_cursor_dir)):
+            cursor_dir = os.path.join(base_dir, raw_cursor_dir)
+        elif os.path.exists(os.path.join(inst_dir, raw_cursor_dir)):
+            cursor_dir = os.path.join(inst_dir, raw_cursor_dir)
+        else:
+            cursor_dir = os.path.join(base_dir, raw_cursor_dir)
+    else:
+        cursor_dir = inst_dir
+
     manifest_path = os.path.join(inst_dir, "manifest.json")
-    cursor_path = os.path.join(inst_dir, "CURSOR.md")
+    cursor_path = os.path.join(cursor_dir, "CURSOR.md")
     curriculum_path = os.path.join(inst_dir, "CURRICULUM.md")
 
     if not os.path.exists(manifest_path):

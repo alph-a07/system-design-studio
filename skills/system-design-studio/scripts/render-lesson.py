@@ -4,7 +4,8 @@ render-lesson.py
 Deterministic HTML lesson renderer for System Design Studio.
 Generates beautiful, accessible, interactive HTML lesson artifacts with embedded
 simulators, workload contrasts, invariant tables, and reality checks.
-Supports 5 distinct visual theme variants and respects .system-design/settings.json.
+Supports 5 distinct visual theme variants and respects .system-design/settings.json
+for both theme preferences and directory output paths (paths.lessonsDir).
 """
 
 import os
@@ -402,11 +403,7 @@ def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_i
         """
     }
 
-def resolve_style_preference(specified_style=None, settings_path=None):
-    if specified_style and specified_style in STYLE_THEMES:
-        return specified_style
-
-    # Check settings candidates
+def load_settings(settings_path=None):
     candidates = []
     if settings_path:
         candidates.append(settings_path)
@@ -420,14 +417,10 @@ def resolve_style_preference(specified_style=None, settings_path=None):
         if p and os.path.exists(p):
             try:
                 with open(p) as f:
-                    data = json.load(f)
-                    val = data.get("artifactStyle")
-                    if val in STYLE_THEMES:
-                        return val
+                    return json.load(f), p
             except Exception:
                 pass
-
-    return "slate-clean"
+    return {}, None
 
 def main():
     parser = argparse.ArgumentParser(description="Render interactive HTML lesson artifact")
@@ -439,13 +432,27 @@ def main():
     parser.add_argument("--settings", help="Path to settings.json")
     parser.add_argument("--spec", help="Path to JSON file with lesson override tokens")
     parser.add_argument("--template", help="Path to custom HTML template")
-    parser.add_argument("--output-dir", default=".system-design/lessons", help="Output directory")
+    parser.add_argument("--output-dir", help="Output directory (defaults to lessonsDir in settings.json or .system-design/lessons)")
     parser.add_argument("--brain-dir", help="App data artifact directory (<appDataDir>/brain/<id>)")
 
     args = parser.parse_args()
 
-    active_style = resolve_style_preference(args.style, args.settings)
+    settings_data, loaded_settings_path = load_settings(args.settings)
+
+    # Resolve theme style
+    active_style = args.style or settings_data.get("artifactStyle") or "slate-clean"
+    if active_style not in STYLE_THEMES:
+        active_style = "slate-clean"
     theme = STYLE_THEMES[active_style]
+
+    # Resolve output directory preference
+    configured_lessons_dir = settings_data.get("paths", {}).get("lessonsDir") or settings_data.get("lessonsDir")
+    if configured_lessons_dir and not os.path.isabs(configured_lessons_dir) and loaded_settings_path:
+        settings_dir = os.path.dirname(os.path.abspath(loaded_settings_path))
+        base_dir = os.path.dirname(settings_dir) if os.path.basename(settings_dir) == ".system-design" else settings_dir
+        configured_lessons_dir = os.path.join(base_dir, configured_lessons_dir)
+
+    target_output_dir = args.output_dir or configured_lessons_dir or ".system-design/lessons"
 
     data = generate_default_data(args.topic_id, args.title, args.cluster, args.tier, active_style)
 
@@ -471,8 +478,8 @@ def main():
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
     filename = f"{slug}.html"
 
-    os.makedirs(args.output_dir, exist_ok=True)
-    out_path = os.path.join(args.output_dir, filename)
+    os.makedirs(target_output_dir, exist_ok=True)
+    out_path = os.path.join(target_output_dir, filename)
     with open(out_path, "w") as f:
         f.write(rendered)
 

@@ -51,7 +51,26 @@ def main():
     print(f"Curriculum:      {curriculum.get('title', 'Unknown')} ({curriculum.get('id', 'unknown')})")
     print(f"Overall Progress: {completed_topics} / {total_topics} Topics ({pct:.1f}%)")
     style_val = settings.get("artifactStyle", "slate-clean")
+    abs_inst = os.path.abspath(instance_dir)
+    base_dir = os.path.dirname(abs_inst) if os.path.basename(abs_inst) == ".system-design" else abs_inst
+
+    paths_cfg = settings.get("paths", {})
+    raw_cursor_dir = paths_cfg.get("cursorDir") or settings.get("cursorDir")
+    raw_lessons_dir = paths_cfg.get("lessonsDir") or settings.get("lessonsDir")
+
+    if raw_cursor_dir:
+        cursor_path = os.path.join(raw_cursor_dir, "CURSOR.md")
+    else:
+        cursor_path = os.path.join(instance_dir, "CURSOR.md")
+
+    if raw_lessons_dir:
+        lessons_dir = raw_lessons_dir
+    else:
+        lessons_dir = os.path.join(instance_dir, "lessons")
+
     print(f"Artifact Style:  {style_val}")
+    print(f"Cursor Path:     {cursor_path}")
+    print(f"Lessons Dir:     {lessons_dir}/")
     print("-" * 60)
     print(f"Active Cluster:  {active_cluster.get('title', active_cluster_id) if active_cluster else active_cluster_id}")
     print(f"Active Topic:    {active_topic.get('title', active_topic_id) if active_topic else active_topic_id}")

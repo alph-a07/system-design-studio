@@ -23,7 +23,7 @@ Every substantive topic is delivered as a self-contained, modern HTML artifact f
 
 Every topic artifact is saved in two locations:
 1. **Conversation Artifact Directory**: `<appDataDir>/brain/<conversation-id>/<topic-slug>.html` (renders in the host environment's side pane with `UserFacing: true`).
-2. **Project Learning Instance**: `.system-design/lessons/<topic-slug>.html` (committed to git as part of the learner's personal repository).
+2. **Project Learning Instance**: Saved to the path configured in `.system-design/settings.json` under `paths.lessonsDir` (defaults to `.system-design/lessons/<topic-slug>.html`, committed to git as part of the learner's personal repository).
 
 ---
 

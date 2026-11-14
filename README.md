@@ -72,6 +72,23 @@ Choose your preferred visual aesthetic during initial setup or customize anytime
 | `nordic-frost` | **Nordic Frost** | Dark | Polar night cool slate (`#2e3440`), frosty teal accents, calm zero-eye-strain. |
 | `warm-amber` | **Warm Amber** | Dark | Deep espresso stone (`#1c1917`), rich warm amber & copper accents for night reading. |
 
+### Custom Directory Paths in `settings.json`
+
+By default, state and lessons are saved under `.system-design/`. You can customize where `CURSOR.md` and lesson artifacts are stored by configuring `paths` in `.system-design/settings.json`:
+
+```json
+{
+  "paths": {
+    "instanceDir": ".system-design",
+    "cursorDir": ".system-design",
+    "lessonsDir": ".system-design/lessons"
+  }
+}
+```
+- **`cursorDir`**: Custom directory to persist and read `CURSOR.md`.
+- **`lessonsDir`**: Custom directory where HTML lesson artifacts are written.
+- **`instanceDir`**: Root instance state directory for `manifest.json`, `settings.json`, and updates.
+
 ### Zero-Cloud Privacy Invariant
 - Your code and notes never leave your local environment.
 - Personal notes remain completely your own.

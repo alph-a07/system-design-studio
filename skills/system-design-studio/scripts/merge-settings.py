@@ -3,7 +3,8 @@
 merge-settings.py
 Deep-merges user settings.json with the latest settings-template.json.
 Guarantees that user preferences (such as chosen artifactStyle, custom themes,
-and overrides) are preserved across skill updates while incorporating new default styles
+and directory save preferences for cursor, lessons, and instance updates) are
+strictly preserved across skill updates while incorporating new default styles
 and configuration keys.
 """
 
@@ -22,12 +23,26 @@ def merge_settings(current_settings, template_settings):
     if "artifactStyle" in current_settings:
         merged["artifactStyle"] = current_settings["artifactStyle"]
 
-    # 2. Preserve user deliveryMode and inlineDiscussions if explicitly configured
+    # 2. Preserve directory paths preferences (paths object & top-level aliases)
+    if "paths" in current_settings and isinstance(current_settings["paths"], dict):
+        merged_paths = dict(template_settings.get("paths", {}))
+        merged_paths.update(current_settings["paths"])
+        merged["paths"] = merged_paths
+    elif "paths" in template_settings:
+        merged["paths"] = dict(template_settings["paths"])
+
+    for dir_key in ["instanceDir", "cursorDir", "lessonsDir"]:
+        if dir_key in current_settings:
+            merged[dir_key] = current_settings[dir_key]
+        elif "paths" in merged and dir_key in merged["paths"]:
+            merged[dir_key] = merged["paths"][dir_key]
+
+    # 3. Preserve user deliveryMode and inlineDiscussions if explicitly configured
     for key in ["deliveryMode", "inlineDiscussions", "inlineFollowups"]:
         if key in current_settings:
             merged[key] = current_settings[key]
 
-    # 3. Merge availableStyles list
+    # 4. Merge availableStyles list
     template_styles = template_settings.get("availableStyles", [])
     current_styles = current_settings.get("availableStyles", [])
 
@@ -48,7 +63,7 @@ def merge_settings(current_settings, template_settings):
 
     merged["availableStyles"] = list(style_map.values())
 
-    # 4. Copy over any additional user-defined custom keys
+    # 5. Copy over any additional user-defined custom keys
     for k, v in current_settings.items():
         if k not in merged:
             merged[k] = v
@@ -91,7 +106,13 @@ def main():
         out_f.write("\n")
 
     preserved_style = merged.get("artifactStyle", "slate-clean")
-    print(f"✅ Settings merged successfully to '{out_path}' (Active style preserved: '{preserved_style}')")
+    lessons_dir = merged.get("paths", {}).get("lessonsDir") or merged.get("lessonsDir", ".system-design/lessons")
+    cursor_dir = merged.get("paths", {}).get("cursorDir") or merged.get("cursorDir", ".system-design")
+
+    print(f"✅ Settings merged successfully to '{out_path}'")
+    print(f"   - Style:      '{preserved_style}'")
+    print(f"   - Cursor Dir: '{cursor_dir}'")
+    print(f"   - Lessons:    '{lessons_dir}'")
 
 if __name__ == "__main__":
     main()

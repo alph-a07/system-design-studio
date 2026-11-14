@@ -11,6 +11,7 @@ my-learning-instance/
 ├── .git/                          # Standard version control
 ├── .system-design/                # Studio instance state
 │   ├── manifest.json              # Canonical machine-readable state
+│   ├── settings.json              # Studio preferences & directory paths
 │   ├── CURSOR.md                  # Living running context (brain of the instance)
 │   ├── CURRICULUM.md              # Living syllabus with mastery markers
 │   ├── DECISIONS.md               # Accepted ADRs (Architecture Decision Records)
@@ -20,6 +21,30 @@ my-learning-instance/
 ├── notes/                         # Optional personal markdown study notes
 └── README.md
 ```
+
+---
+
+## Configurable Directory Paths (`settings.json`)
+
+By default, studio files reside under `.system-design/`. If your project or workspace requires custom storage locations (e.g. keeping lessons in `docs/lessons` or cursor state in `notes/`), configure paths in `.system-design/settings.json`:
+
+```json
+{
+  "$schemaVersion": "2.0",
+  "artifactStyle": "slate-clean",
+  "paths": {
+    "instanceDir": ".system-design",
+    "cursorDir": ".system-design",
+    "lessonsDir": ".system-design/lessons"
+  }
+}
+```
+
+- **`paths.cursorDir`**: Directory where `CURSOR.md` is saved and read.
+- **`paths.lessonsDir`**: Directory where generated interactive HTML lesson artifacts are saved.
+- **`paths.instanceDir`**: Root instance state directory for `manifest.json`, `settings.json`, and updates.
+
+All studio scripts (`render-lesson.py`, `advance-cursor.py`, `verify-instance.py`, `sync-status.py`, `update.sh`) automatically detect and respect these configured directory preferences.
 
 ---
 

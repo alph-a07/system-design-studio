@@ -92,7 +92,7 @@ Whenever the studio is invoked within a project, it operates on a local state di
 my-system-design-project/
 ├── .system-design/
 │   ├── manifest.json              # Canonical machine-readable learning state
-│   ├── settings.json              # Visual themes and teaching mode preferences
+│   ├── settings.json              # Visual themes, directory paths, and teaching mode preferences
 │   ├── CURSOR.md                  # Living running context (lineage, depth, examples, next action)
 │   ├── CURRICULUM.md              # Master 50-cluster syllabus with checklist
 │   ├── DECISIONS.md               # Portfolio of learner-accepted architectural decisions
@@ -102,6 +102,25 @@ my-system-design-project/
 ├── notes/                         # Optional learner personal markdown notes
 └── README.md
 ```
+
+#### Directory Preferences in `settings.json`
+Learners can customize where the cursor and lessons are stored by modifying `paths` in `.system-design/settings.json`:
+```json
+{
+  "$schemaVersion": "2.0",
+  "artifactStyle": "slate-clean",
+  "paths": {
+    "instanceDir": ".system-design",
+    "cursorDir": ".system-design",
+    "lessonsDir": ".system-design/lessons"
+  }
+}
+```
+- **`cursorDir`**: Custom directory to persist and read `CURSOR.md`.
+- **`lessonsDir`**: Custom directory where HTML lesson artifacts are generated and indexed.
+- **`instanceDir`**: Target instance state directory for `manifest.json`, `CURRICULUM.md`, and updates.
+
+All scripts (`render-lesson.py`, `advance-cursor.py`, `verify-instance.py`, `sync-status.py`, `update.sh`) automatically detect and respect these paths.
 
 ### 2. State Retention Across Sessions, Models, and Agents
 
