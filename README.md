@@ -4,6 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-0ea5e9?style=flat-square)](LICENSE)
 [![Universal Agents](https://img.shields.io/badge/Agents-Antigravity%20%7C%20Claude%20%7C%20Cursor%20%7C%20Codex-6366f1?style=flat-square)](README.md)
 [![Documentation](https://img.shields.io/badge/Docs-GitHub%20Pages-10b981?style=flat-square)](https://alph-a07.github.io/system-design-studio)
+[![Support: Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/itsjeel01)
 
 > **Connected Engineering & Project-Based System Design Learning for AI Agents**  
 > *Transform technical system design from superficial buzzword memorization into first-principles causal reasoning, living cursor state retention, and interactive visual simulators.*
@@ -177,6 +178,14 @@ Visit the live site: **[https://alph-a07.github.io/system-design-studio](https:/
 * **Interactive 50-Cluster Syllabus Explorer**: Filter, search, and view all 354 topics and tick-off rules across 6 engineering tiers.
 * **Architecture & Memory Hierarchy Guide**: Technical specifications of the Project Learning Instance and Living Cursor.
 * **CLI Reference & Guides**: Quickstart instructions for `init`, `advance`, `sync`, and `import-curriculum`.
+
+---
+
+## ☕ Support the Project
+
+If you find System Design Studio valuable for mastering distributed systems and level-setting your system design intuition, consider supporting its open-source development:
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-itsjeel01-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/itsjeel01)
 
 ---
 
