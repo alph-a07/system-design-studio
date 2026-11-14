@@ -71,5 +71,23 @@ def main():
     print(f"Immediate Next Action:\n  👉 {cursor.get('nextTeachingAction', 'None')}")
     print("=" * 60)
 
+    # Check for available updates (non-blocking, cached)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    check_script = os.path.join(script_dir, "check-updates.py")
+    if os.path.exists(check_script):
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("check_updates", check_script)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            chk = mod.check_for_updates(force=False, instance_dir=instance_dir)
+            if chk.get("updateAvailable"):
+                print("")
+                print(f"🔔 UPDATE AVAILABLE: System Design Studio v{chk.get('remoteVersion')} is ready (current: v{chk.get('currentVersion')})")
+                print("   Run: curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash")
+                print("   (Safely preserves all your progress, notes, and custom settings)")
+        except Exception:
+            pass
+
 if __name__ == "__main__":
     main()

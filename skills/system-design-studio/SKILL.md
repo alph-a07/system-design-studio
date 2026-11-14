@@ -73,6 +73,12 @@ When the user asks to learn or study system design in any workspace or project:
    - Record the chosen style in `.system-design/settings.json` under `"artifactStyle"`. Users can change this setting at any time to immediately restyle subsequent lesson artifacts.
 4. **Subsequent Chats & Turns**:
    - Always read `.system-design/CURSOR.md` and `.system-design/settings.json` at the start of each topic to recover living state, recent examples, active causal anchors, and styling preferences.
+5. **Periodic Update Check & Preference Preservation**:
+   - Run `python3 <skill-dir>/scripts/check-updates.py` during session startup or diagnostics.
+   - If a new version is detected, display a non-intrusive alert:
+     > 🔔 **Update Available**: System Design Studio vX.Y.Z is available (current: vA.B.C).  
+     > Run: `curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash`  
+     > *(Your progress in `manifest.json`, `CURSOR.md`, and custom theme in `settings.json` are automatically preserved via `merge-settings.py`)*.
 
 ---
 
@@ -184,7 +190,10 @@ Every topic's HTML artifact begins by answering:
 
 The studio provides tested, zero-dependency Python & Bash utilities in `scripts/`:
 * **`init-learning-instance.sh [title]`**: Scaffolds `.system-design/` with curriculum, manifest, living cursor, and `settings.json`.
+* **`update.sh`**: Updates installed agent skills and merges local `.system-design/settings.json` safely.
+* **`check-updates.py`**: Cached semver version check against GitHub releases with non-intrusive alert prompts.
+* **`merge-settings.py`**: Merges new settings keys and themes into existing `settings.json` without overwriting user preferences.
 * **`advance-cursor.py`**: Atomically advances cursor, logs examples, records deferred topics, and ticks checkboxes in `CURRICULUM.md`.
-* **`sync-status.py`**: Diagnostic CLI reporting active focus, running context, active theme, and pending deferrals.
+* **`sync-status.py`**: Diagnostic CLI reporting active focus, running context, active theme, update status, and pending deferrals.
 * **`render-lesson.py`**: Compiles and renders interactive HTML lessons with theme stylesheets and embedded simulators.
 * **`verify-instance.py`**: Automated integrity validation testing manifest schemas, lineage parity, settings schemas, and artifact health.

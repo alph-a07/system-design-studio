@@ -92,6 +92,23 @@ Or install for specific agents:
 curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity --claude --cursor --codex
 ```
 
+---
+
+## Universal 1-Line Updater (Preserves All Progress & Settings)
+
+Keep System Design Studio and all your agent skills up to date with a single command:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
+```
+
+### What Happens During Updates?
+- **Zero Progress Loss**: Your `manifest.json`, `CURSOR.md`, `CURRICULUM.md`, `DECISIONS.md`, and `lessons/*.html` remain 100% intact.
+- **Settings Merge Engine (`merge-settings.py`)**: Seamlessly incorporates newly released visual themes and configuration keys into your local `.system-design/settings.json` while **strictly preserving your active `artifactStyle`** and custom preferences.
+- **In-Chat Update Prompts (`check-updates.py`)**: When an update is available on GitHub, your agent detects it and presents a non-intrusive alert directly in chat so you are never left on an outdated syllabus.
+
+---
+
 ### Ready to Use in Any Chat
 Open a chat in any supported AI agent and ask:
 > *"Let's learn system design topic 0.1"*

@@ -26,3 +26,4 @@ System Design Studio runs directly inside the user's project repository under `.
 - 100% local and file-based (`.system-design/`); zero cloud lock-in, zero external SaaS/database dependencies.
 - Grounded in physical reality: latency hierarchies, network packet loss, single points of failure, hardware throughput.
 - Zero AI marketing slop: no generic card grids, no kickers/eyebrows, no gradient text masks, no zero-offset glowing shadows, strict WCAG AA contrast.
+- Lossless updater (`update.sh` + `merge-settings.py`): Updating never overwrites user learning state or custom theme preferences.

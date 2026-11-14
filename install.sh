@@ -194,7 +194,7 @@ install_to_path() {
   rm -rf "$target_dir"
   cp -R "$SOURCE_SKILL" "$target_dir"
   chmod -R u+rwX,go+rX "$target_dir" 2>/dev/null || true
-  chmod +x "$target_dir/scripts/"*.sh 2>/dev/null || true
+  chmod +x "$target_dir/scripts/"*.sh "$target_dir/scripts/"*.py 2>/dev/null || true
 
   if [ -f "$target_dir/SKILL.md" ]; then
     echo "   ✅ Verified at ${target_dir}"

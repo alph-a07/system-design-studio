@@ -269,9 +269,13 @@
 </div>
 <!-- Terminal Body -->
 <div class="p-6 font-mono text-sm space-y-4">
-<p class="text-surface-dim"># Run in your terminal (installs for Claude Code, Cursor, Antigravity &amp; Codex):</p>
+<p class="text-surface-dim"># Run in your terminal to install for Claude Code, Cursor, Antigravity &amp; Codex:</p>
 <div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
 <code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-text">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</code>
+</div>
+<p class="text-surface-dim pt-2"># To update across agents anytime (preserves all study progress, lessons &amp; settings):</p>
+<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
+<code class="text-emerald-400 font-bold whitespace-nowrap text-xs sm:text-sm">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash</code>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs text-surface-dim border-t border-surface-variant/20">
 <div class="flex items-start gap-2">
@@ -280,11 +284,11 @@
 </div>
 <div class="flex items-start gap-2">
 <span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
-<span><strong>Zero Scaffolding Hassle:</strong> First chat prompt auto-initializes state.</span>
+<span><strong>Settings Merge Engine:</strong> <code class="text-primary-fixed">merge-settings.py</code> preserves your custom theme across updates.</span>
 </div>
 <div class="flex items-start gap-2">
 <span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
-<span><strong>Offline &amp; Git Native:</strong> State lives in <code class="text-primary-fixed">.system-design/</code> in your repo.</span>
+<span><strong>In-Chat Update Alerts:</strong> <code class="text-primary-fixed">check-updates.py</code> alerts you non-intrusively when new releases land.</span>
 </div>
 </div>
 </div>

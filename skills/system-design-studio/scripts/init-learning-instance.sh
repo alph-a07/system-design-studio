@@ -49,8 +49,17 @@ fetch_or_copy "manifest-template.json" "${INSTANCE_DIR}/manifest.json"
 # 3. CURSOR.md
 fetch_or_copy "CURSOR-template.md" "${INSTANCE_DIR}/CURSOR.md"
 
-# 4. settings.json
-fetch_or_copy "settings-template.json" "${INSTANCE_DIR}/settings.json"
+# 4. settings.json (merge if already present to preserve user preferences)
+if [ -f "${INSTANCE_DIR}/settings.json" ]; then
+  TEMP_TPL="$(mktemp 2>/dev/null || echo "${INSTANCE_DIR}/.settings.tpl.json")"
+  fetch_or_copy "settings-template.json" "${TEMP_TPL}"
+  if [ -n "${SCRIPT_DIR}" ] && [ -f "${SCRIPT_DIR}/merge-settings.py" ]; then
+    python3 "${SCRIPT_DIR}/merge-settings.py" --current "${INSTANCE_DIR}/settings.json" --template "${TEMP_TPL}" --output "${INSTANCE_DIR}/settings.json"
+  fi
+  rm -f "${TEMP_TPL}" 2>/dev/null || true
+else
+  fetch_or_copy "settings-template.json" "${INSTANCE_DIR}/settings.json"
+fi
 
 # 5. Generate initial DECISIONS.md
 cat <<EOF > "${INSTANCE_DIR}/DECISIONS.md"
