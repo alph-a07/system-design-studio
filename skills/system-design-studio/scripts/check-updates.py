@@ -51,7 +51,7 @@ def get_local_version(script_dir):
                         return m.group(1)
             except Exception:
                 pass
-    return "2.2.0"
+    return "2.3.0"
 
 def get_cache_path(instance_dir=None):
     if instance_dir and os.path.isdir(instance_dir):
