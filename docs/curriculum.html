@@ -3,15 +3,41 @@
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="web_dashboard" name="shell-type"/>
-<title>Syllabus &amp; Curriculum — System Design Studio</title>
-<meta name="description" content="50-cluster systems engineering syllabus covering 354 topics from network transport and databases to distributed consensus and production ADRs."/>
+<title>50-Cluster Systems Engineering Syllabus — System Design Studio</title>
+<meta name="description" content="Comprehensive 50-cluster systems engineering syllabus covering 354 topics from network transport and databases to distributed consensus and production ADRs."/>
+<link rel="canonical" href="https://alph-a07.github.io/system-design-studio/curriculum.html"/>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="50-Cluster Systems Engineering Syllabus — System Design Studio"/>
+<meta property="og:description" content="Explore 354 topics across 5 tiers: network transport, object modeling, distributed systems, mobile sync, and production architecture reviews."/>
+<meta property="og:url" content="https://alph-a07.github.io/system-design-studio/curriculum.html"/>
+<meta property="og:site_name" content="System Design Studio"/>
+<meta property="og:image" content="https://alph-a07.github.io/system-design-studio/og-image.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="50-Cluster Systems Engineering Syllabus — System Design Studio"/>
+<meta name="twitter:description" content="Explore 354 topics across 5 tiers: network transport, object modeling, distributed systems, mobile sync, and production architecture reviews."/>
+<meta name="twitter:image" content="https://alph-a07.github.io/system-design-studio/og-image.png"/>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+<link rel="alternate icon" href="favicon.ico" type="image/x-icon"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="styles.css"/>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "System Design Studio Curriculum",
+  "description": "50-cluster systems engineering syllabus covering 354 topics from network transport and databases to distributed consensus and production ADRs.",
+  "provider": {
+    "@type": "Organization",
+    "name": "System Design Studio",
+    "url": "https://alph-a07.github.io/system-design-studio/"
+  },
+  "url": "https://alph-a07.github.io/system-design-studio/curriculum.html"
+}
+</script>
 <style>
 @layer base {
   html, body { margin: 0; padding: 0; }
@@ -49,7 +75,17 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
     <header class="fixed top-0 left-0 right-0 h-16 bg-surface border-b-[3px] border-primary z-40 px-3 sm:px-6 lg:px-12 flex items-center justify-between">
       <div class="flex items-center gap-2 sm:gap-4 min-w-0">
         <a class="flex items-center gap-2 group min-w-0" href="index.html">
-          <div class="w-8 h-8 bg-primary-container border-2 border-primary flex items-center justify-center font-headline font-bold text-xs text-primary shadow-[2px_2px_0px_#1a1a1a] shrink-0">SD</div>
+          <div class="w-8 h-8 bg-primary-container border-2 border-primary flex items-center justify-center p-1 shadow-[2px_2px_0px_#1a1a1a] shrink-0" aria-label="System Design Studio Logo">
+            <svg class="w-full h-full" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M 131 60 A 68 68 0 0 1 131 196" stroke="#1a1a1a" stroke-width="26" stroke-linecap="round"/>
+              <path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" stroke="#1a1a1a" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="131" y1="60" x2="131" y2="196" stroke="#1a1a1a" stroke-width="26" stroke-linecap="round"/>
+              <circle cx="75" cy="60" r="18" fill="#1a1a1a"/>
+              <circle cx="75" cy="196" r="18" fill="#1a1a1a"/>
+              <circle cx="165" cy="128" r="20" fill="#e63b2e"/>
+              <circle cx="131" cy="128" r="14" fill="#ffcc00" stroke="#1a1a1a" stroke-width="8"/>
+            </svg>
+          </div>
           <span class="font-headline font-bold text-base sm:text-lg tracking-tight uppercase text-on-surface group-hover:text-tertiary transition-colors truncate">System Design Studio</span>
         </a>
       </div>
@@ -58,13 +94,18 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
         <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-neutral-900 border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="curriculum.html">Curriculum</a>
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html#how-it-works">How it works</a>
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="index.html#install">Install</a>
+        <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#support">Support</a>
         <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
       </nav>
 
       <div class="flex items-center gap-2 sm:gap-3 shrink-0">
         <button aria-label="Toggle color mode" class="w-8 h-8 sm:w-9 sm:h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" onclick="toggleDarkMode()" type="button">
-          <span class="material-symbols-outlined text-[18px]">contrast</span>
+          <span class="material-symbols-outlined text-[18px]" aria-hidden="true">contrast</span>
         </button>
+        <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 border-2 border-primary bg-surface-container-lowest text-on-surface font-headline text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#1a1a1a] hover:bg-primary-container transition-all active:translate-x-[1px] active:translate-y-[1px]" aria-label="Star on GitHub">
+          <span class="text-amber-500 font-bold" aria-hidden="true">★</span>
+          <span>Star</span>
+        </a>
         <a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" class="px-2.5 sm:px-3 py-1 sm:py-1.5 border-2 border-primary bg-primary-container text-neutral-900 font-bold font-headline text-xs uppercase tracking-wider shadow-[2px_2px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-none">
           GitHub
         </a>
@@ -111,7 +152,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
                 </div>
               </div>
               <div class="flex items-center gap-2 text-[11px] font-mono bg-surface-container px-3 py-1.5 border border-primary">
-                <span class="material-symbols-outlined text-[16px] text-tertiary">save</span>
+                <span class="material-symbols-outlined text-[16px] text-tertiary" aria-hidden="true">save</span>
                 <span>PERSISTENCE: <code class="font-bold">.system-design/CURSOR.md</code></span>
               </div>
             </div>
@@ -130,11 +171,11 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
                 <div id="bar-tier-4" class="h-full bg-primary transition-all duration-300" style="width: 0%;" title="Tier 4 Progress"></div>
               </div>
               <div class="grid grid-cols-2 md:grid-cols-5 gap-2 pt-1 text-[10px] font-mono">
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-primary-container border border-primary"></span><span id="tier-stat-0">T0: 0/35 (0%)</span></div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-secondary border border-primary"></span><span id="tier-stat-1">T1: 0/98 (0%)</span></div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-tertiary border border-primary"></span><span id="tier-stat-2">T2: 0/126 (0%)</span></div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500 border border-primary"></span><span id="tier-stat-3">T3: 0/81 (0%)</span></div>
-                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-primary border border-primary"></span><span id="tier-stat-4">T4: 0/14 (0%)</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-primary-container border border-primary"></span><span id="tier-stat-0">T0: 0/37 (0%)</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-secondary border border-primary"></span><span id="tier-stat-1">T1: 0/94 (0%)</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-tertiary border border-primary"></span><span id="tier-stat-2">T2: 0/134 (0%)</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-emerald-500 border border-primary"></span><span id="tier-stat-3">T3: 0/76 (0%)</span></div>
+                <div class="flex items-center gap-1.5"><span class="w-3 h-3 bg-primary border border-primary"></span><span id="tier-stat-4">T4: 0/13 (0%)</span></div>
               </div>
             </div>
 
@@ -158,7 +199,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
           <!-- Command Palette Input Box -->
           <div class="relative w-full border-[3px] border-primary bg-surface-container-lowest shadow-[4px_4px_0px_#1a1a1a] flex items-center">
             <div class="px-4 text-on-surface flex items-center justify-center shrink-0" id="search-icon-wrap">
-              <span class="material-symbols-outlined text-[24px]">search</span>
+              <span class="material-symbols-outlined text-[24px]" aria-hidden="true">search</span>
             </div>
             <input class="w-full py-4 pr-24 bg-transparent text-sm md:text-base font-mono font-medium text-on-surface placeholder:text-on-surface-variant/60 focus:outline-none" id="topic-search-input" placeholder="Search 354 topics, keywords, or clusters... (Press '/' to focus)" type="text"/>
             <div class="absolute right-4 hidden sm:flex items-center gap-1.5 text-[10px] font-mono bg-surface-container px-2 py-1 border border-primary text-on-surface-variant">
@@ -202,7 +243,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="font-mono text-[11px] sm:text-xs text-primary-container font-bold">5 CLUSTERS // 37 TOPICS</span>
-      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-0">expand_more</span>
+      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-0" aria-hidden="true">expand_more</span>
     </div>
   </div>
   <div class="tier-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="tier-content-0">
@@ -529,7 +570,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="font-mono text-[11px] sm:text-xs text-primary-container font-bold">14 CLUSTERS // 94 TOPICS</span>
-      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-1">expand_more</span>
+      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-1" aria-hidden="true">expand_more</span>
     </div>
   </div>
   <div class="tier-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="tier-content-1">
@@ -1360,7 +1401,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="font-mono text-[11px] sm:text-xs text-primary-container font-bold">18 CLUSTERS // 134 TOPICS</span>
-      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-2">expand_more</span>
+      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-2" aria-hidden="true">expand_more</span>
     </div>
   </div>
   <div class="tier-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="tier-content-2">
@@ -2503,7 +2544,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="font-mono text-[11px] sm:text-xs text-primary-container font-bold">11 CLUSTERS // 76 TOPICS</span>
-      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-3">expand_more</span>
+      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-3" aria-hidden="true">expand_more</span>
     </div>
   </div>
   <div class="tier-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="tier-content-3">
@@ -3172,7 +3213,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="font-mono text-[11px] sm:text-xs text-primary-container font-bold">2 CLUSTERS // 13 TOPICS</span>
-      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-4">expand_more</span>
+      <span class="material-symbols-outlined tier-chevron text-[20px] text-primary-container transition-transform duration-200" id="tier-chevron-4" aria-hidden="true">expand_more</span>
     </div>
   </div>
   <div class="tier-content grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="tier-content-4">
@@ -3310,7 +3351,7 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
           </div>
           <div class="flex flex-wrap items-center justify-between gap-4 text-[11px] font-mono text-surface-container-high pt-1">
             <div class="flex items-center gap-2">
-              <span class="material-symbols-outlined text-[16px] text-primary-container">check_circle</span>
+              <span class="material-symbols-outlined text-[16px] text-primary-container" aria-hidden="true">check_circle</span>
               <span>Installs verified skill for Antigravity, Claude, Cursor &amp; Codex</span>
             </div>
             <a href="https://github.com/alph-a07/system-design-studio/blob/main/install.sh" target="_blank" rel="noopener" class="text-primary-container font-bold underline hover:text-white">
@@ -3319,8 +3360,71 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
           </div>
         </section>
 
+        <!-- COMMUNITY SUPPORT & STAR APPEAL SECTION -->
+        <section class="border-[3px] border-primary bg-primary-container p-6 sm:p-10 shadow-[6px_6px_0px_#1a1a1a] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6" id="support">
+          <div class="max-w-2xl space-y-3">
+            <div class="flex items-center gap-2">
+              <span class="inline-block w-3 h-3 bg-secondary"></span>
+              <span class="font-headline font-bold text-xs uppercase tracking-widest text-neutral-900">Community Powered • Zero Venture Capital</span>
+            </div>
+            <h2 class="font-headline font-bold text-2xl sm:text-3xl uppercase tracking-tight text-neutral-900">
+              Support the Project
+            </h2>
+            <p class="font-body text-xs sm:text-sm text-neutral-800 leading-relaxed">
+              If System Design Studio untangled a tricky concept or made your prep a little easier, consider buying me a coffee ☕ or sponsoring my work.
+            </p>
+            <p class="font-mono text-xs text-neutral-900 font-semibold leading-relaxed pt-1">
+              ⭐ <em>Not in a coffee mood? No worries!</em> A free <strong>Star on GitHub</strong> costs nothing but makes my day.
+            </p>
+            <p class="font-headline text-xs uppercase tracking-wider text-neutral-700 font-bold">
+              Happy designing, and thanks for being here!
+            </p>
+          </div>
+          <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 w-full lg:w-auto shrink-0">
+            <a class="px-4 py-3 bg-[#1a1a1a] text-white font-headline text-xs font-bold uppercase tracking-wider border-2 border-[#1a1a1a] shadow-[3px_3px_0px_#e63b2e] hover:bg-secondary hover:border-secondary transition-all flex items-center justify-center gap-2" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">
+              <span class="text-amber-400 font-bold text-sm" aria-hidden="true">★</span>
+              <span>Star on GitHub</span>
+            </a>
+            <a class="px-4 py-3 bg-white text-neutral-900 font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[3px_3px_0px_#1a1a1a] hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-2" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">
+              <span class="text-pink-600 font-bold text-sm" aria-hidden="true">♥</span>
+              <span>GitHub Sponsors</span>
+            </a>
+            <a class="px-4 py-3 bg-[#ffdd00] text-neutral-900 font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[3px_3px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2" href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener">
+              <span class="font-bold text-sm" aria-hidden="true">☕</span>
+              <span>Buy Me A Coffee</span>
+            </a>
+          </div>
+        </section>
+
       </div>
     </main>
+
+    <!-- FOOTER -->
+    <footer class="w-full bg-surface-container border-t-[3px] border-primary py-12 mt-10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="flex items-center gap-3">
+          <div class="w-7 h-7 bg-primary border border-primary flex items-center justify-center p-0.5 shadow-[1px_1px_0px_#ffcc00] shrink-0" aria-hidden="true">
+            <svg class="w-full h-full" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 131 60 A 68 68 0 0 1 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+              <path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="131" y1="60" x2="131" y2="196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+              <circle cx="75" cy="60" r="18" fill="#ffffff"/>
+              <circle cx="75" cy="196" r="18" fill="#ffffff"/>
+              <circle cx="165" cy="128" r="20" fill="#ffcc00"/>
+              <circle cx="131" cy="128" r="14" fill="#e63b2e" stroke="#ffffff" stroke-width="8"/>
+            </svg>
+          </div>
+          <span class="font-headline font-bold uppercase tracking-wider text-sm text-on-surface">System Design Studio • Bauhaus Neo-Brutalist Edition</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-6 font-headline text-xs font-bold uppercase text-on-surface-variant">
+          <a class="hover:text-tertiary transition-colors" href="index.html">Home</a>
+          <a class="hover:text-amber-500 transition-colors flex items-center gap-1" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener"><span>Star on GitHub</span><span class="text-xs">⭐</span></a>
+          <a class="hover:text-secondary transition-colors flex items-center gap-1" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener"><span>GitHub Sponsors</span><span class="text-xs">❤️</span></a>
+          <a class="hover:text-amber-600 transition-colors flex items-center gap-1" href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener"><span>Buy Me A Coffee</span><span class="text-xs">☕</span></a>
+        </div>
+        <div class="text-xs font-mono text-on-surface-variant">© 2026 FORM FOLLOWS FUNCTION.</div>
+      </div>
+    </footer>
   </div>
 
   <!-- SCRIPT FOR PROGRESS, FILTERS, SEARCH & CHECKBOXES -->
@@ -3335,11 +3439,11 @@ tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright
       const totalTopicsCount = 354;
 
       const tierTopicTotals = {
-        '0': 35,
-        '1': 98,
-        '2': 126,
-        '3': 81,
-        '4': 14
+        '0': 37,
+        '1': 94,
+        '2': 134,
+        '3': 76,
+        '4': 13
       };
 
       let currentTier = 'all';

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://alph-a07.github.io/system-design-studio/sitemap.xml

@@ -1,8 +1,28 @@
 <!DOCTYPE html>
-
-<html lang="en"><head>
-<title>System Design Studio: learn system design with your AI coding agent</title>
-<meta name="description" content="An open-source skill for Claude Code, Cursor, Codex and Antigravity. It teaches system design topic by topic, saves your progress in a file called CURSOR.md, and picks up where you left off after a chat reset or a model switch."/>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>System Design Studio — Learn Distributed Systems With Your AI Coding Agent</title>
+<meta name="description" content="Open-source distributed systems and architecture tutor for Claude Code, Cursor, Codex, and Antigravity. Git-native state, interactive lessons, and defense gates."/>
+<link rel="canonical" href="https://alph-a07.github.io/system-design-studio/"/>
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="System Design Studio — Learn Distributed Systems With Your AI Coding Agent"/>
+<meta property="og:description" content="Open-source distributed systems and architecture tutor for Claude Code, Cursor, Codex, and Antigravity. Git-native state, interactive lessons, and defense gates."/>
+<meta property="og:url" content="https://alph-a07.github.io/system-design-studio/"/>
+<meta property="og:site_name" content="System Design Studio"/>
+<meta property="og:image" content="https://alph-a07.github.io/system-design-studio/og-image.png"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="System Design Studio — Learn Distributed Systems With Your AI Coding Agent"/>
+<meta name="twitter:description" content="Open-source distributed systems and architecture tutor for Claude Code, Cursor, Codex, and Antigravity. Git-native state, interactive lessons, and defense gates."/>
+<meta name="twitter:image" content="https://alph-a07.github.io/system-design-studio/og-image.png"/>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+<link rel="alternate icon" href="favicon.ico" type="image/x-icon"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
 <link rel="stylesheet" href="styles.css"/>
 <script>
   const params = new URLSearchParams(window.location.search);
@@ -18,14 +38,55 @@
   } else {
     document.documentElement.classList.remove('dark');
   }
-</script><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright":"#faf7f2","surface":"#f5f0e8","surface-container-high":"#e8e3da","surface-dim":"#d6d1c9","inverse-on-surface":"#f5f0e8","surface-variant":"#e8e3da","tertiary-fixed":"#d6e3ff","secondary":"#e63b2e","on-tertiary":"#ffffff","primary-fixed":"#ffcc00","background":"#f5f0e8","on-tertiary-fixed-variant":"#1a1a1a","error-container":"#ffdad6","on-secondary":"#1a1a1a","on-secondary-container":"#1a1a1a","on-surface":"#1a1a1a","on-primary-container":"#1a1a1a","inverse-surface":"#1a1a1a","on-tertiary-fixed":"#1a1a1a","tertiary-fixed-dim":"#a8c6ff","secondary-fixed-dim":"#ffb3ab","secondary-container":"#ffdad6","on-primary":"#ffffff","on-surface-variant":"#4a4a4a","on-primary-fixed":"#1a1a1a","secondary-fixed":"#ffdad6","on-primary-fixed-variant":"#1a1a1a","inverse-primary":"#f5f0e8","surface-container-low":"#f2ede5","outline":"#1a1a1a","on-tertiary-container":"#1a1a1a","on-error-container":"#93000a","on-secondary-fixed":"#1a1a1a","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#1a1a1a","error":"#cc0000","on-background":"#1a1a1a","surface-tint":"#1a1a1a","on-error":"#ffffff","tertiary-container":"#d6e3ff","tertiary":"#0055ff","surface-container":"#eee9e0","outline-variant":"#d0cbc3","surface-container-highest":"#e2ddd4","primary-fixed-dim":"#e6b800","primary-container":"#ffcc00","primary":"#1a1a1a"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{},"fontFamily":{"headline":["Space Grotesk"],"display":["Space Grotesk"],"body":["Inter"],"label":["Space Grotesk"]},"fontSize":{}}}}</script></head><body class="bg-surface font-body text-on-surface antialiased min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface border-b-[3px] border-primary"><div class="h-16 w-full max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-4"><a class="flex items-center gap-2 group" href="index.html"><div class="w-8 h-8 bg-primary-container border-2 border-primary flex items-center justify-center font-headline font-bold text-xs text-primary shadow-[2px_2px_0px_#1a1a1a]">SD</div><span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface group-hover:text-tertiary transition-colors">System Design Studio</span></a></div><nav class="hidden md:flex items-center gap-2">
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "name": "System Design Studio",
+      "operatingSystem": "All",
+      "applicationCategory": "DeveloperApplication",
+      "description": "Open-source distributed systems and architecture tutor for Claude Code, Cursor, Codex, and Antigravity. Git-native state, interactive lessons, and defense gates.",
+      "url": "https://alph-a07.github.io/system-design-studio/",
+      "author": {
+        "@type": "Organization",
+        "name": "System Design Studio"
+      }
+    },
+    {
+      "@type": "Course",
+      "name": "System Design Studio Curriculum",
+      "description": "50-cluster systems engineering syllabus covering 354 topics from network transport and databases to distributed consensus and production ADRs.",
+      "provider": {
+        "@type": "Organization",
+        "name": "System Design Studio",
+        "url": "https://alph-a07.github.io/system-design-studio/"
+      },
+      "url": "https://alph-a07.github.io/system-design-studio/"
+    }
+  ]
+}
+</script>
+<style>
+@layer base {
+  html, body { margin: 0; padding: 0; }
+  body { overscroll-behavior: none; }
+  main > :first-child { margin-top: 0 !important; }
+  main > :last-child { margin-bottom: 0 !important; }
+}
+::-webkit-scrollbar { display: none; }
+</style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"surface-bright":"#faf7f2","surface":"#f5f0e8","surface-container-high":"#e8e3da","surface-dim":"#d6d1c9","inverse-on-surface":"#f5f0e8","surface-variant":"#e8e3da","tertiary-fixed":"#d6e3ff","secondary":"#e63b2e","on-tertiary":"#ffffff","primary-fixed":"#ffcc00","background":"#f5f0e8","on-tertiary-fixed-variant":"#1a1a1a","error-container":"#ffdad6","on-secondary":"#1a1a1a","on-secondary-container":"#1a1a1a","on-surface":"#1a1a1a","on-primary-container":"#1a1a1a","inverse-surface":"#1a1a1a","on-tertiary-fixed":"#1a1a1a","tertiary-fixed-dim":"#a8c6ff","secondary-fixed-dim":"#ffb3ab","secondary-container":"#ffdad6","on-primary":"#ffffff","on-surface-variant":"#4a4a4a","on-primary-fixed":"#1a1a1a","secondary-fixed":"#ffdad6","on-primary-fixed-variant":"#1a1a1a","inverse-primary":"#f5f0e8","surface-container-low":"#f2ede5","outline":"#1a1a1a","on-tertiary-container":"#1a1a1a","on-error-container":"#93000a","on-secondary-fixed":"#1a1a1a","surface-container-lowest":"#ffffff","on-secondary-fixed-variant":"#1a1a1a","error":"#cc0000","on-background":"#1a1a1a","surface-tint":"#1a1a1a","on-error":"#ffffff","tertiary-container":"#d6e3ff","tertiary":"#0055ff","surface-container":"#eee9e0","outline-variant":"#d0cbc3","surface-container-highest":"#e2ddd4","primary-fixed-dim":"#e6b800","primary-container":"#ffcc00","primary":"#1a1a1a"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{},"fontFamily":{"headline":["Space Grotesk"],"display":["Space Grotesk"],"body":["Inter"],"label":["Space Grotesk"]},"fontSize":{}}}}</script></head><body class="bg-surface font-body text-on-surface antialiased min-h-screen"><header class="fixed top-0 w-full z-50 bg-surface border-b-[3px] border-primary"><div class="h-16 w-full max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-4"><a class="flex items-center gap-2 group" href="index.html"><div class="w-8 h-8 bg-primary-container border-2 border-primary flex items-center justify-center p-1 shadow-[2px_2px_0px_#1a1a1a] shrink-0" aria-label="System Design Studio Logo"><svg class="w-full h-full" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M 131 60 A 68 68 0 0 1 131 196" stroke="#1a1a1a" stroke-width="26" stroke-linecap="round"/><path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" stroke="#1a1a1a" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><line x1="131" y1="60" x2="131" y2="196" stroke="#1a1a1a" stroke-width="26" stroke-linecap="round"/><circle cx="75" cy="60" r="18" fill="#1a1a1a"/><circle cx="75" cy="196" r="18" fill="#1a1a1a"/><circle cx="165" cy="128" r="20" fill="#e63b2e"/><circle cx="131" cy="128" r="14" fill="#ffcc00" stroke="#1a1a1a" stroke-width="8"/></svg></div><span class="font-headline font-bold text-lg tracking-tight uppercase text-on-surface group-hover:text-tertiary transition-colors">System Design Studio</span></a></div><nav class="hidden md:flex items-center gap-2">
   <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-primary font-bold border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="index.html">Home</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="curriculum.html">Curriculum</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#how-it-works">How it works</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#install">Install</a>
+  <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#support">Support</a>
   <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
-</nav><div class="flex items-center gap-3"><button aria-label="Toggle color mode" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" onclick="toggleDarkMode()" type="button"><span class="material-symbols-outlined text-[18px]">contrast</span></button><a class="hidden sm:inline-flex items-center px-4 py-2 border-2 border-primary bg-secondary text-white font-headline text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" href="#install">Start Studio</a><a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" aria-label="GitHub Repository" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a]"><span class="material-symbols-outlined text-[18px]">terminal</span></a></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
+</nav><div class="flex items-center gap-3"><button aria-label="Toggle color mode" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none" onclick="toggleDarkMode()" type="button"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">contrast</span></button><a class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 border-2 border-primary bg-surface-container-lowest text-on-surface font-headline text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#1a1a1a] hover:bg-primary-container transition-all active:translate-x-[1px] active:translate-y-[1px]" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" aria-label="Star on GitHub"><span class="text-amber-500 font-bold" aria-hidden="true">★</span><span>Star</span></a><a class="hidden sm:inline-flex items-center px-4 py-2 border-2 border-primary bg-secondary text-white font-headline text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none" href="#install">Start Studio</a><a href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener" aria-label="GitHub Repository" class="w-9 h-9 border-2 border-primary bg-surface-container-lowest flex items-center justify-center text-on-surface hover:bg-primary-container transition-colors shadow-[2px_2px_0px_#1a1a1a]"><span class="material-symbols-outlined text-[18px]" aria-hidden="true">terminal</span></a></div></div></header><main class="w-full pt-16 bg-surface"><div class="flex flex-col w-full">
 <!-- HERO SECTION -->
 <section class="w-full border-b-[3px] border-primary px-6 lg:px-12 py-16 lg:py-24 bg-surface relative">
 <div class="max-w-7xl mx-auto flex flex-col gap-10">
@@ -47,20 +108,20 @@
             Learn system design with the agent <span class="bg-primary-container px-2 inline-block -rotate-1 border-2 border-primary">you already use.</span>
 </h1>
 <p class="font-body text-lg lg:text-xl text-on-surface-variant max-w-2xl leading-relaxed">
-            An open-source skill that teaches distributed systems topic by topic, commits state in your repository file <code class="font-mono font-bold bg-surface-container-high px-1.5 py-0.5 border border-primary text-on-surface">CURSOR.md</code>, and picks up exactly where you left off across chat resets and LLM switches.
+            An open-source skill that teaches distributed systems topic by topic, commits state in your repository file <code class="font-mono font-bold bg-surface-container-high px-1.5 py-0.5 border border-primary text-on-surface">CURSOR.md</code>, and won't let you advance until you defend architectural trade-offs in chat.
           </p>
 <div class="flex flex-wrap items-center gap-4 pt-2">
 <a class="px-6 py-3.5 bg-primary text-on-primary font-headline text-sm font-bold uppercase tracking-wider border-2 border-primary shadow-[4px_4px_0px_#ffcc00] hover:bg-secondary hover:text-white hover:border-primary transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center gap-2" href="#install">
-<span class="material-symbols-outlined text-lg">terminal</span>
+<span class="material-symbols-outlined text-lg" aria-hidden="true">terminal</span>
               Install Agent Skill
             </a>
 <a class="px-6 py-3.5 bg-surface-container-lowest text-on-surface font-headline text-sm font-bold uppercase tracking-wider border-2 border-primary shadow-[4px_4px_0px_#1a1a1a] hover:bg-primary-container transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center gap-2" href="curriculum.html">
-<span class="material-symbols-outlined text-lg">layers</span>
+<span class="material-symbols-outlined text-lg" aria-hidden="true">layers</span>
               Explore 50 Clusters
             </a>
 <span class="font-mono text-xs text-on-surface-variant flex items-center gap-1.5 ml-2">
 <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-              354 Topics Indexed • 50 Clusters
+              354 Topics Roadmapped • Dynamic Session Depth
             </span>
 </div>
 </div>
@@ -74,7 +135,7 @@
 <div class="font-headline font-bold text-5xl tracking-tight text-white mb-1">100%</div>
 <div class="font-headline text-sm font-bold uppercase text-surface-dim">Repo-Native Tutoring</div>
 <p class="font-body text-xs text-surface-variant mt-2 leading-relaxed">
-              No remote database lock-in. Your progress, active analogies, and causal anchors live in clean Git-tracked markdown.
+              No remote database lock-in. Your progress, active analogies, and verified invariants live in clean Git-tracked markdown.
             </p>
 </div>
 <div class="pt-4 border-t border-surface/20 flex items-center justify-between text-xs font-mono text-primary-fixed">
@@ -85,7 +146,7 @@
 </div>
 </div>
 </section>
-<!-- HOW IT WORKS: 3-COLUMN BRUTALIST TILES -->
+<!-- HOW IT WORKS: 4-COLUMN BRUTALIST TILES -->
 <section class="w-full border-b-[3px] border-primary bg-surface-container px-6 lg:px-12 py-16" id="how-it-works">
 <div class="max-w-7xl mx-auto flex flex-col gap-12">
 <div>
@@ -94,10 +155,10 @@
           How it works
         </h2>
 <p class="font-body text-base text-on-surface-variant mt-2 max-w-2xl">
-          Three phases turn your AI coding agent into a stateful systems tutor that retains progress across sessions and model switches. Duration and depth are on-demand per topic: explore or deep dive repeatedly at your own pace.
+          Four phases turn your AI coding agent into a stateful systems tutor with unannounced defense gates that verify true mastery before advancing.
         </p>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 <!-- Phase 1 -->
 <div class="border-[3px] border-primary bg-surface p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
 <div>
@@ -124,7 +185,7 @@
 <span class="font-mono text-xs text-on-surface-variant">02 / STATE</span>
 </div>
 <h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
-              Your progress lives in a file
+              Progress in Git
             </h3>
 <p class="font-body text-sm text-on-surface-variant leading-relaxed">
 <code class="font-mono bg-surface-container-high px-1">CURSOR.md</code> records the active topic, verified prerequisites, hardware invariants, and previous analogies. When your AI context resets, progress is preserved.
@@ -142,14 +203,32 @@
 <span class="font-mono text-xs text-on-surface-variant">03 / ARTIFACTS</span>
 </div>
 <h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
-              Interactive HTML Lessons
+              Live Interactive Lessons
             </h3>
 <p class="font-body text-sm text-on-surface-variant leading-relaxed">
-              New topics are delivered strictly inside standalone interactive HTML artifacts with failure simulators and 5 selectable themes. Follow-up discussions happen inline in chat without lecture duplication.
+              New topics are delivered strictly inside standalone interactive HTML artifacts with live simulators crafted per topic. Follow-up trade-off discussions happen inline in chat without lecture duplication.
             </p>
 </div>
 <div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs text-on-surface-variant">
-            Target: <code class="text-tertiary font-bold">.system-design/lessons/*.html</code> &bull; <code class="text-primary font-bold">settings.json</code>
+            Target: <code class="text-tertiary font-bold">.system-design/lessons/*.html</code>
+</div>
+</div>
+<!-- Phase 4 -->
+<div class="border-[3px] border-primary bg-surface p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<span class="font-headline font-bold text-xs uppercase bg-secondary text-white px-2 py-0.5 border border-primary">Phase 4</span>
+<span class="font-mono text-xs text-on-surface-variant">04 / DEFENSE</span>
+</div>
+<h3 class="font-headline font-bold text-xl uppercase tracking-tight text-on-surface mb-2">
+              The Sign-Off Gate
+            </h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+              It won't let you move on until you can defend it. The interactive lesson explores mechanics but hides the tick-off scenario. Progress in <code class="font-mono bg-surface-container-high px-1">CURSOR.md</code> advances only after you defend real trade-offs in chat.
+            </p>
+</div>
+<div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs text-on-surface-variant">
+            Rule: <code class="text-secondary font-bold">Unannounced Chat Defense</code>
 </div>
 </div>
 </div>
@@ -174,7 +253,7 @@
 <div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
 <div>
 <div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-secondary">
-<span class="material-symbols-outlined text-base">pin_drop</span>
+<span class="material-symbols-outlined text-base" aria-hidden="true">pin_drop</span>
               Layer 01 • Execution Focus
             </div>
 <h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
@@ -190,7 +269,7 @@
 <div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
 <div>
 <div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-tertiary">
-<span class="material-symbols-outlined text-base">anchor</span>
+<span class="material-symbols-outlined text-base" aria-hidden="true">anchor</span>
               Layer 02 • Invariant Rules
             </div>
 <h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
@@ -206,7 +285,7 @@
 <div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
 <div>
 <div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-primary">
-<span class="material-symbols-outlined text-base">history_edu</span>
+<span class="material-symbols-outlined text-base" aria-hidden="true">history_edu</span>
               Layer 03 • Analogy Registry
             </div>
 <h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
@@ -222,7 +301,7 @@
 <div class="border-[3px] border-primary bg-surface-container-lowest p-6 border-b-[3px] shadow-[4px_4px_0px_#1a1a1a] flex flex-col justify-between">
 <div>
 <div class="flex items-center gap-2 text-xs font-bold uppercase font-headline mb-2 text-secondary">
-<span class="material-symbols-outlined text-base">queue_play_next</span>
+<span class="material-symbols-outlined text-base" aria-hidden="true">queue_play_next</span>
               Layer 04 • Tangent Buffer
             </div>
 <h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-2">
@@ -263,7 +342,7 @@
 <span class="text-xs font-mono text-surface-dim uppercase ml-2 tracking-wider">Universal Shell Installer • Auto-Detects All Agents</span>
 </div>
 <button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#ffcc00] hover:bg-primary-container transition-all active:translate-x-[1px] active:translate-y-[1px]" id="copy-btn" onclick="copyCommand()">
-<span class="material-symbols-outlined text-sm">content_copy</span>
+<span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
 <span>Copy Command</span>
 </button>
 </div>
@@ -279,15 +358,15 @@
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs text-surface-dim border-t border-surface-variant/20">
 <div class="flex items-start gap-2">
-<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
 <span><strong>Auto-Detection:</strong> Scans &amp; links standard skill paths for your agents.</span>
 </div>
 <div class="flex items-start gap-2">
-<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
 <span><strong>Settings Merge Engine:</strong> <code class="text-primary-fixed">merge-settings.py</code> preserves your custom theme across updates.</span>
 </div>
 <div class="flex items-start gap-2">
-<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5">check_circle</span>
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
 <span><strong>In-Chat Update Alerts:</strong> <code class="text-primary-fixed">check-updates.py</code> alerts you non-intrusively when new releases land.</span>
 </div>
 </div>
@@ -312,7 +391,7 @@
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
 <span class="font-mono text-[11px] font-bold text-secondary">PHASE 01</span>
-<span class="material-symbols-outlined text-lg text-on-surface">chat</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">chat</span>
 </div>
 <h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Prompt in Any Chat</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
@@ -332,7 +411,7 @@
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
 <span class="font-mono text-[11px] font-bold text-primary-container-on bg-primary-container px-1">AUTO-SCAFFOLD</span>
-<span class="material-symbols-outlined text-lg text-on-surface">folder_special</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">folder_special</span>
 </div>
 <h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Local State Engine</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
@@ -342,7 +421,7 @@
 <li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">CURSOR.md</code> (living context)</li>
 <li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">CURRICULUM.md</code> (50 clusters)</li>
 <li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">settings.json</code> (5 theme styles)</li>
-<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">DECISIONS.md</code> (ADR portfolio)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">DECISIONS.md</code> (ADR portfolio: proof-of-work)</li>
 </ul>
 </div>
 <div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
@@ -355,11 +434,11 @@
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
 <span class="font-mono text-[11px] font-bold text-tertiary">PERSISTENCE</span>
-<span class="material-symbols-outlined text-lg text-on-surface">swap_horiz</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">swap_horiz</span>
 </div>
 <h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Switch Agents &amp; Models</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
-          Clear your chat, switch from Claude 3.7 to Gemini 2.0 or GPT-4o, or reopen in Cursor.
+          Clear your chat, switch between Claude 3.7 / Opus, Gemini 2.5 / Flash / Pro, and GPT-4.5 / o3, or reopen in Cursor.
         </p>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed">
           Every agent reads <code class="font-mono font-bold bg-surface-container px-1">CURSOR.md</code> on cold start, inheriting your active topic, logged examples, and deferred queue seamlessly.
@@ -375,11 +454,11 @@
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
 <span class="font-mono text-[11px] font-bold text-emerald-600">ARTIFACTS</span>
-<span class="material-symbols-outlined text-lg text-on-surface">html</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">html</span>
 </div>
-<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Interactive Simulators</h4>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Live-Authored Simulators</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
-          New topics launch strictly inside HTML simulators in <code class="font-mono font-bold bg-surface-container px-1">.system-design/lessons/</code>, with follow-up Q&amp;A inline in chat.
+          New topics launch strictly inside HTML simulators authored live per topic in <code class="font-mono font-bold bg-surface-container px-1">.system-design/lessons/</code>, with follow-up Q&amp;A and sign-off defenses inline in chat.
         </p>
 <div class="bg-surface-container p-2.5 border border-primary/40 font-mono text-[11px] text-on-surface">
           open .system-design/lessons/*.html
@@ -394,7 +473,7 @@
 
 <!-- Callout Warning / Recommendation Banner -->
 <div class="border-2 border-primary bg-primary-container p-4 font-mono text-xs flex items-center gap-3">
-<span class="material-symbols-outlined text-base font-bold text-on-primary shrink-0">info</span>
+<span class="material-symbols-outlined text-base font-bold text-on-primary shrink-0" aria-hidden="true">info</span>
 <span class="text-neutral-900 leading-relaxed">
 <strong>Where to install:</strong> We recommend a dedicated learning repository (e.g. <code class="font-bold underline">mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If installing in a work repository, add <code class="font-bold underline">.system-design/</code> to your <code class="font-bold underline">.gitignore</code> so personal progress files stay out of team commits.
 </span>
@@ -527,7 +606,7 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 <!-- Custom Paths Banner -->
 <div class="border-2 border-primary bg-surface-container-lowest p-4 font-mono text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-[3px_3px_0px_#1a1a1a]">
 <div class="flex items-center gap-2 text-on-surface">
-<span class="material-symbols-outlined text-base text-secondary">tune</span>
+<span class="material-symbols-outlined text-base text-secondary" aria-hidden="true">tune</span>
 <span><strong>Custom Save Directories:</strong> Configure <code class="font-bold text-secondary">paths.cursorDir</code> &amp; <code class="font-bold text-emerald-600">paths.lessonsDir</code> in <code class="font-bold bg-surface-container px-1">settings.json</code> to save cursor state and lessons wherever your repo requires.</span>
 </div>
 <span class="text-[10px] text-surface-dim uppercase tracking-wider shrink-0">Fully Configurable</span>
@@ -659,12 +738,78 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 </div>
 <a class="syllabus-cta-btn mt-6 inline-flex items-center justify-between px-4 py-3 bg-[#1a1a1a] text-white font-headline text-xs font-bold uppercase tracking-wider border-2 border-[#1a1a1a] shadow-[2px_2px_0px_#1a1a1a] hover:bg-secondary hover:text-white hover:border-secondary transition-all" href="curriculum.html">
 <span class="text-white font-bold">Browse Full Syllabus</span>
-<span class="material-symbols-outlined text-sm text-white">arrow_forward</span>
+<span class="material-symbols-outlined text-sm text-white" aria-hidden="true">arrow_forward</span>
 </a>
 </div>
 </div>
 </div>
 </section>
+
+<!-- TEAM ONBOARDING (BYO CURRICULUM) & ADR PORTFOLIO SECTION -->
+<section class="w-full border-b-[3px] border-primary bg-surface-container-lowest px-6 lg:px-12 py-16">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
+<div>
+<span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Beyond Standard Syllabus</span>
+<h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+Engineered for Teams &amp; Portfolios
+</h2>
+</div>
+<p class="font-body text-sm text-on-surface-variant max-w-sm">
+Bring your company's internal tech stack or graduate with an interview-ready proof-of-work portfolio.
+</p>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Feature 1: BYO Curriculum -->
+<div class="border-[3px] border-primary bg-surface p-8 shadow-[6px_6px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<span class="font-headline font-bold text-xs uppercase bg-primary-container px-2 py-0.5 border border-primary text-primary">Team Onboarding</span>
+<span class="font-mono text-xs text-on-surface-variant">BYO CURRICULUM</span>
+</div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-3">
+Bring Your Own Curriculum
+</h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed mb-4">
+Onboarding new engineers to a complex proprietary stack? Replace or extend <code class="font-mono bg-surface-container-high px-1.5 py-0.5 border border-primary text-on-surface font-bold">CURRICULUM.md</code> with your team's internal services, event brokers, storage layers, and architectural standards.
+</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+The AI tutor guides new hires through your company's exact topology topic by topic, verifying architectural principles with the same defense gates before they push to production.
+</p>
+</div>
+<div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs flex flex-wrap items-center justify-between gap-2 text-on-surface-variant">
+<span>Format: Standard Markdown Syllabus</span>
+<span class="font-bold text-primary">Zero Schema Migration</span>
+</div>
+</div>
+
+<!-- Feature 2: ADR Portfolio -->
+<div class="border-[3px] border-primary bg-surface p-8 shadow-[6px_6px_0px_#1a1a1a] flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between border-b-2 border-primary pb-3 mb-4">
+<span class="font-headline font-bold text-xs uppercase bg-secondary text-white px-2 py-0.5 border border-primary">Interview Proof-of-Work</span>
+<span class="font-mono text-xs text-on-surface-variant">DECISIONS.MD</span>
+</div>
+<h3 class="font-headline font-bold text-2xl uppercase tracking-tight text-on-surface mb-3">
+Your Built-In ADR Portfolio
+</h3>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed mb-4">
+Every time you defend a design trade-off at the sign-off gate, the studio logs your architectural reasoning into <code class="font-mono bg-surface-container-high px-1.5 py-0.5 border border-primary text-on-surface font-bold">DECISIONS.md</code> as formal Architectural Decision Records.
+</p>
+<p class="font-body text-sm text-on-surface-variant leading-relaxed">
+Instead of abstract claims on your resume, you graduate with a Git-committed proof-of-work portfolio demonstrating deep trade-off evaluation under real latency, cost, and consistency constraints.
+</p>
+</div>
+<div class="mt-6 pt-4 border-t-2 border-primary font-mono text-xs flex flex-wrap items-center justify-between gap-2 text-on-surface-variant">
+<span>Output: Production-Grade ADRs</span>
+<span class="font-bold text-secondary">Interview-Ready Artifact</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
 <!-- COMPARISON TABLE: PERSISTENT FILE-BASED VS PLAIN CHAT -->
 <section class="w-full border-b-[3px] border-primary bg-surface-container px-6 lg:px-12 py-16">
 <div class="max-w-7xl mx-auto flex flex-col gap-10">
@@ -690,6 +835,17 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 </tr>
 </thead>
 <tbody class="font-body text-xs divide-y-2 divide-primary">
+<tr class="transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                Advancement Gate
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                Nod-along agreement with no verification; advances whenever asked.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                <strong>The Sign-Off Gate:</strong> Lesson hides tick-off scenario; won't advance until you defend trade-offs in chat.
+              </td>
+</tr>
 <tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 State Across Sessions
@@ -725,6 +881,17 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 </tr>
 <tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
+                Decision Records
+              </td>
+<td class="p-4 text-on-surface-variant border-r-2 border-primary">
+                Ephemeral reasoning lost when context window rolls over.
+              </td>
+<td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
+                Logs your defenses into <code class="font-mono bg-surface-container px-1 font-bold">DECISIONS.md</code> as an interview-ready ADR portfolio.
+              </td>
+</tr>
+<tr class="transition-colors">
+<td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
                 Example Tracking
               </td>
 <td class="p-4 text-on-surface-variant border-r-2 border-primary">
@@ -736,13 +903,13 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 </tr>
 <tr class="transition-colors">
 <td class="p-4 font-headline font-bold uppercase text-on-surface border-r-2 border-primary">
-                Curriculum Scope
+                Curriculum Scope &amp; Teams
               </td>
 <td class="p-4 text-on-surface-variant border-r-2 border-primary">
-                Ad-hoc question answering based on user prompts.
+                Ad-hoc question answering with no shared curriculum across team members.
               </td>
 <td class="p-4 bg-surface-container-lowest font-medium text-on-surface">
-                Indexed 50 clusters and 354 topics in <code class="font-mono bg-surface-container px-1 font-bold">.system-design/CURRICULUM.md</code>.
+                Indexed 50 clusters in <code class="font-mono bg-surface-container px-1 font-bold">CURRICULUM.md</code>; supports custom company stacks for onboarding.
               </td>
 </tr>
 </tbody>
@@ -772,6 +939,47 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 </div>
 </div>
 </section>
+
+<!-- COMMUNITY SUPPORT & STAR APPEAL SECTION -->
+<section class="w-full border-b-[3px] border-primary bg-surface px-6 lg:px-12 py-16" id="support">
+<div class="max-w-7xl mx-auto flex flex-col gap-8">
+  <div class="border-[3px] border-primary bg-primary-container p-8 sm:p-10 shadow-[8px_8px_0px_#1a1a1a] flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+    <div class="max-w-2xl space-y-3">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-3 h-3 bg-secondary"></span>
+        <span class="font-headline font-bold text-xs uppercase tracking-widest text-neutral-900">Community Powered • Zero Venture Capital</span>
+      </div>
+      <h2 class="font-headline font-bold text-2xl sm:text-4xl uppercase tracking-tight text-neutral-900">
+        Support the Project
+      </h2>
+      <p class="font-body text-sm sm:text-base text-neutral-800 leading-relaxed">
+        If System Design Studio untangled a tricky concept or made your prep a little easier, consider buying me a coffee ☕ or sponsoring my work.
+      </p>
+      <p class="font-mono text-xs sm:text-sm text-neutral-900 font-semibold leading-relaxed pt-1">
+        ⭐ <em>Not in a coffee mood? No worries!</em> A free <strong>Star on GitHub</strong> costs nothing but makes my day.
+      </p>
+      <p class="font-headline text-xs uppercase tracking-wider text-neutral-700 font-bold">
+        Happy designing, and thanks for being here!
+      </p>
+    </div>
+    <div class="flex flex-col sm:flex-row lg:flex-col xl:flex-row gap-3 w-full lg:w-auto shrink-0">
+      <a class="px-5 py-3.5 bg-[#1a1a1a] text-white font-headline text-xs font-bold uppercase tracking-wider border-2 border-[#1a1a1a] shadow-[3px_3px_0px_#e63b2e] hover:bg-secondary hover:border-secondary transition-all flex items-center justify-center gap-2" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">
+        <span class="text-amber-400 font-bold text-sm" aria-hidden="true">★</span>
+        <span>Star on GitHub</span>
+      </a>
+      <a class="px-5 py-3.5 bg-white text-neutral-900 font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[3px_3px_0px_#1a1a1a] hover:bg-secondary hover:text-white transition-all flex items-center justify-center gap-2" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">
+        <span class="text-pink-600 font-bold text-sm" aria-hidden="true">♥</span>
+        <span>GitHub Sponsors</span>
+      </a>
+      <a class="px-5 py-3.5 bg-[#ffdd00] text-neutral-900 font-headline text-xs font-bold uppercase tracking-wider border-2 border-primary shadow-[3px_3px_0px_#1a1a1a] hover:bg-primary hover:text-white transition-all flex items-center justify-center gap-2" href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener">
+        <span class="font-bold text-sm" aria-hidden="true">☕</span>
+        <span>Buy Me A Coffee</span>
+      </a>
+    </div>
+  </div>
+</div>
+</section>
+
 <!-- CLIENT-SIDE SCRIPT FOR INTERACTION -->
 <script>
     // Theme toggle
@@ -804,9 +1012,9 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
 
       const showCopied = () => {
         if (!btn) return;
-        btn.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600">check</span><span class="text-emerald-600 font-bold">Copied!</span>`;
+        btn.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600" aria-hidden="true">check</span><span class="text-emerald-600 font-bold">Copied!</span>`;
         setTimeout(() => {
-          btn.innerHTML = `<span class="material-symbols-outlined text-sm">content_copy</span><span>Copy Command</span>`;
+          btn.innerHTML = `<span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span><span>Copy Command</span>`;
         }, 2000);
       };
 
@@ -821,8 +1029,9 @@ When entering a new topic, the entire lesson, physical constraints, packet simul
       }
     }
   </script>
-</div></main><footer class="w-full bg-surface-container border-t-[3px] border-primary py-12 mt-20"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-3"><div class="w-7 h-7 bg-primary text-on-primary border border-primary font-headline font-bold text-xs flex items-center justify-center">SD</div><span class="font-headline font-bold uppercase tracking-wider text-sm text-on-surface">System Design Studio • Bauhaus Neo-Brutalist Edition</span></div><div class="flex flex-wrap items-center gap-6 font-headline text-xs font-bold uppercase text-on-surface-variant">
+</div></main><footer class="w-full bg-surface-container border-t-[3px] border-primary py-12 mt-20"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-3"><div class="w-7 h-7 bg-primary border border-primary flex items-center justify-center p-0.5 shadow-[1px_1px_0px_#ffcc00] shrink-0" aria-hidden="true"><svg class="w-full h-full" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 131 60 A 68 68 0 0 1 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/><path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><line x1="131" y1="60" x2="131" y2="196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/><circle cx="75" cy="60" r="18" fill="#ffffff"/><circle cx="75" cy="196" r="18" fill="#ffffff"/><circle cx="165" cy="128" r="20" fill="#ffcc00"/><circle cx="131" cy="128" r="14" fill="#e63b2e" stroke="#ffffff" stroke-width="8"/></svg></div><span class="font-headline font-bold uppercase tracking-wider text-sm text-on-surface">System Design Studio • Bauhaus Neo-Brutalist Edition</span></div><div class="flex flex-wrap items-center gap-6 font-headline text-xs font-bold uppercase text-on-surface-variant">
   <a class="hover:text-tertiary transition-colors" href="curriculum.html">Curriculum Syllabus</a>
-  <a class="hover:text-tertiary transition-colors" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
-  <a class="hover:text-tertiary transition-colors" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">Sponsor</a>
-</div><div class="text-xs font-mono text-on-surface-variant">© 2025 FORM FOLLOWS FUNCTION.</div></div></footer></body></html>
+  <a class="hover:text-amber-500 transition-colors flex items-center gap-1" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener"><span>Star on GitHub</span><span class="text-xs">⭐</span></a>
+  <a class="hover:text-secondary transition-colors flex items-center gap-1" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener"><span>GitHub Sponsors</span><span class="text-xs">❤️</span></a>
+  <a class="hover:text-amber-600 transition-colors flex items-center gap-1" href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener"><span>Buy Me A Coffee</span><span class="text-xs">☕</span></a>
+</div><div class="text-xs font-mono text-on-surface-variant">© 2026 FORM FOLLOWS FUNCTION.</div></div></footer></body></html>
