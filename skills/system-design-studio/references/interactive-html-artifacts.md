@@ -106,24 +106,44 @@ The learner can modify this file or request a style change at any point. All sub
 
 ---
 
-## 4. The 6-Part Component Anatomy
+## 4. Progressive Disclosure Narrative Structure (Strictly Non-Coverage-Based)
 
-Every interactive lesson artifact follows an invariant 6-part component anatomy engineered for exhaustive mechanical closure:
+Every interactive lesson artifact is structured as **one continuous, cohesive discussion with unique information and progressive disclosure**.
 
-1. **Hero Header**:
-   - Tier badge, Cluster code, Topic formal title, depth markers (`[concept] [mechanics] [contrast] [trap]`), and active theme indicator.
-2. **Topic Foundation & Mental Model (The Orientation)**:
-   - Answers the 6 Foundation Questions: Physical Problem & Motivation, System Placement (OSI/Stack), Design Relevance, Prerequisites & Vocabulary, Intuitive Mental Model, and Pedagogical Bridge.
-3. **Digestible Explanations: The Whys & Hows (Exhaustive Mechanical Closure)**:
-   - **Dedicated pedagogical space** ensuring no black boxes remain:
-     - **The "Why"**: The underlying physical dilemma, why naive alternatives fail, and why this specific architecture was forced into existence.
-     - **The "How"**: Internal causal mechanics, actors and boundaries, data packet/record layouts, kernel/storage buffer states (`Send-Q`/`Recv-Q`), sequential execution traces, and failure domain boundaries.
-     - **Visual Mechanism Diagrams**: Inline SVG / CSS sequence or flowchart diagrams illustrating state transitions.
-     - **Invariant Boundaries**: Explicit distinction between what is mathematically guaranteed vs what is intentionally non-guaranteed.
-4. **Interactive Execution Simulator**:
-   - Dynamic sandbox with toggleable protocols/modes, live fault injection (packet drop, node partition, buffer saturation), animated data chips, and telemetry metrics (latency, jitter, queue depth).
-5. **Workload Contrast & Invariant Matrix**:
-   - Side-by-side contrast of two opposing production workloads (e.g. *Financial Ledger* vs *WebRTC Real-time Voice*).
-   - Structured invariant comparison matrix evaluating dimensions such as ordering, setup overhead, loss tolerance, and recovery costs.
-6. **Final Sign-Off Challenge (Unassisted Verification Gate)**:
-   - Bounded, realistic architectural failure scenario testing the topic's tick-off criteria **left deliberately without an answer or reveal toggle**. The learner analyzes and defends their breakdown in chat; sign-off status is evaluated strictly on the reader's independent reasoning.
+> [!IMPORTANT]
+> **NO REPETITIVE COVERAGE SILOS**:
+> Lessons must **never** be organized into coverage-based silos (e.g. "Brief Overview", "Foundation Cards", "Deep Explanations", followed by a redundant "Summary Table"). Concepts, constraints, and vocabulary are introduced progressively only when the narrative naturally requires them to solve the next obstacle.
+>
+> **NO ARTIFICIAL SECTION INDEXING**:
+> Sections are **NOT** indexed with category names or numbers (e.g., do not title sections "01. Foundation", "02. Deep Explanations", or "The WHYs"). Instead, the agent uses topic-driven narrative headings that tell the ongoing engineering story.
+>
+> **NO SEGREGATED SIMULATOR SECTION**:
+> Interactive components, live state sandboxes, or sequence simulators have **no dedicated or isolated section**. They are embedded inline wherever the mechanism is being explained, giving the learner tactile exploration right when they encounter the moving parts.
+
+### The 5 Pedagogical Narrative Phases:
+
+1. **Phase 1: Background Context & The Forcing Problem (The WHYs & optional WHENs)**:
+   - Sets the foundation of the problem when the active topic was absent.
+   - Answers: *What broken state, throughput collapse, or physical constraint forced this mechanism into existence?*
+   - Ensures **exhaustive closure of WHY** right here.
+   - Introduces a central, concrete engineering dilemma that can persist throughout the lesson to anchor subsequent explanations.
+
+2. **Phase 2: The Active Topic & Surrounding Landscape (The WHATs & optional WHEREs)**:
+   - Assumes the topic is completely new to the reader unless `CURSOR.md` indicates previous grounding.
+   - Covers WHAT the active mechanism actually is, its core boundaries, and WHERE it sits in the architectural stack.
+   - Ensures **exhaustive closure of WHAT and WHERE**.
+   - *(Note: WHENs and WHEREs can be flexibly and interchangeably balanced across Phase 1 and Phase 2 contextually).*
+
+3. **Phase 3: Internal Mechanics, Invariants & Causality (The HOWs & WHYs of HOWs)**:
+   - Exhaustive breakdown of how the mechanism works internally step-by-step (buffer states, queue lifecycles, message/packet contracts).
+   - Explains **why it works that way specifically**, and **why alternative designs fail or cause catastrophic unintended consequences**.
+   - Delivers a digestible, crystal-clear mechanical grasp.
+   - **Inline Interactive Simulator**: The live interactive simulation canvas or visual trace widget is embedded directly here inline, letting the reader step through the state machine and fault injection in real time.
+
+4. **Phase 4: Mental Model Synthesis & Production Grounding**:
+   - Bundles all preceding mechanics into a unified, lasting mental model.
+   - Builds direct correlation to real-world production workloads and architectural patterns (e.g., contrasting *Strict Durability Ledger* vs *Bounded-Latency Media Stream* with an explicit invariant matrix).
+
+5. **Phase 5: Contextual Sign-Off Verification Gate**:
+   - Leaves the reader with one or more contextual engineering scenarios / challenges without pre-baked answers.
+   - Tests the unprompted tick-off criteria from `CURRICULUM.md`. The learner defends their analysis and breakdown in chat to achieve sign-off.

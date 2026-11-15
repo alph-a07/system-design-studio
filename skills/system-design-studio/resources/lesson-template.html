@@ -1,3 +1,26 @@
+<!--
+  System Design Studio — Cohesive Interactive Lesson Template
+  Architecture: Single-topic progressive disclosure artifact.
+  
+  PEDAGOGICAL CONTRACT (Strictly Non-Coverage-Based):
+  The lesson is ONE continuous, cohesive discussion with unique information and progressive disclosure.
+  No repetitive coverage silos (no brief overview -> foundation cards -> deep explanations -> summary tables).
+  
+  The 5 Narrative Stages (for the agent to structure the cohesive story; DO NOT index sections with these names):
+    1. Background context & foundation of the problem in the absence of the active topic (WHYs & optional WHENs).
+       Exhaustive closure of WHY here. A central concrete dilemma/problem introduced here continues throughout.
+    2. The active topic & its landscape/surroundings (WHATs & optional WHEREs).
+       Assume brand new unless cursor.md states otherwise. Exhaustive closure of WHAT and WHERE in the stack.
+    3. Internal mechanics, causality & trade-offs (HOWs & WHYs of HOWs).
+       How it works, why it works that way, and why any alternative design collapses. Digestible mechanical grasp.
+       Interactive components / live simulators are embedded right here inline where the mechanism is explained.
+    4. Mental model synthesis & production grounding.
+       Bundles prior insights into a unified, sticky mental model. Direct correlation to real production use cases.
+    5. Contextual sign-off verification.
+       Leaves the reader with one or more contextual engineering scenarios/questions without pre-baked answers.
+       
+  NOTE: Interactive components/simulators have NO dedicated section; embed them as and when needed throughout.
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,29 +33,133 @@
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.85; transform: scale(0.98); }
     }
-    .animate-pulse-subtle {
-      animation: pulse-subtle 2s infinite ease-in-out;
-    }
-    .interactive-element {
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    .animate-pulse-subtle { animation: pulse-subtle 2.5s infinite ease-in-out; }
+    .interactive-element { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+
+    /* Custom Theme CSS Variables Injected at Runtime */
     {{THEME_CSS_VARS}}
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--background); }
+    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+
+    /* Universal component utilities for fluid narrative lessons */
+    .narrative-prose {
+      color: var(--foreground);
+      line-height: 1.75;
+      font-size: 0.95rem;
+    }
+    .narrative-prose p {
+      margin-bottom: 1.15rem;
+    }
+    .narrative-prose strong {
+      color: var(--foreground);
+      font-weight: 700;
+    }
+    .narrative-prose code {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 0.15rem 0.35rem;
+      border-radius: 0.375rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.825em;
+    }
+
+    /* Architectural callout boxes */
+    .callout-box {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .callout-dilemma {
+      border-left: 4px solid #ef4444;
+    }
+    .callout-mechanism {
+      border-left: 4px solid var(--primary);
+    }
+    .callout-invariant {
+      border-left: 4px solid #10b981;
+    }
+    .callout-trap {
+      border-left: 4px solid #f59e0b;
+    }
+
+    /* Embedded Simulator & Interactive Canvas */
+    .sim-container {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 1.25rem;
+      margin: 1.75rem 0;
+      box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2);
+    }
+    .sim-canvas {
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+    }
+    .sim-log {
+      background: var(--background);
+      border: 1px solid var(--border);
+      border-radius: 0.5rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.75rem;
+      padding: 0.75rem;
+      max-height: 8rem;
+      overflow-y: auto;
+    }
+
+    /* Comparison & Invariant Tables */
+    .tradeoff-table {
+      width: 100%;
+      text-align: left;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      margin: 1.5rem 0;
+      font-size: 0.85rem;
+    }
+    .tradeoff-table th {
+      background: var(--card);
+      padding: 0.75rem 1rem;
+      font-family: ui-monospace, monospace;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted-foreground);
+    }
+    .tradeoff-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--foreground);
+    }
+    .tradeoff-table tr:last-child td {
+      border-bottom: none;
+    }
   </style>
 </head>
-<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8">
+<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8 min-h-screen">
 
   <div class="max-w-4xl mx-auto space-y-12">
 
-    <!-- HERO HEADER -->
+    <!-- HERO HEADER: CONTEXTUAL ORIENTATION -->
     <header class="border-b border-[var(--border)] pb-8 space-y-4">
       <div class="flex flex-wrap items-center gap-2">
         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">[concept] [mechanics] [contrast] [trap]</span>
+        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{DEPTH_MARKERS}}</span>
         <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--primary)] font-semibold">🎨 {{THEME_NAME}}</span>
       </div>
 
-      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--foreground)]">
         {{LESSON_TITLE}}
       </h1>
 
@@ -41,137 +168,73 @@
       </p>
     </header>
 
-    <!-- SECTION 1: TOPIC FOUNDATION & MENTAL MODEL -->
-    <section class="space-y-6">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">01</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SECTION_1_TITLE}}</h2>
-      </div>
+    <!-- NARRATIVE FLOW (5 PROGRESSIVE DISCLOSURE PHASES) -->
+    <main class="space-y-12">
 
-      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">
-        {{SECTION_1_BODY}}
-      </div>
-
-      <!-- METRIC CALLOUT GRID -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {{METRIC_CARDS}}
-      </div>
-    </section>
-
-    <!-- SECTION 2: DIGESTIBLE EXPLANATIONS — THE WHYS & HOWS (EXHAUSTIVE MECHANICAL CLOSURE) -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-sm">02</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{EXPLANATION_TITLE}}</h2>
-      </div>
-
-      <!-- DEEP EXPLANATIONS CONTAINER -->
-      <div class="space-y-6 text-sm leading-relaxed text-[var(--foreground)]">
-        {{EXPLANATION_BODY}}
-      </div>
-    </section>
-
-    <!-- SECTION 3: MECHANISTIC CORE & INTERACTIVE SIMULATOR -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm">03</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SIMULATOR_SECTION_TITLE}}</h2>
-      </div>
-
-      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">
-        {{SIMULATOR_SECTION_BODY}}
-      </div>
-
-      <!-- INTERACTIVE SIMULATOR CONTAINER -->
-      <div class="rounded-2xl bg-[var(--card)] border border-[var(--card-border)] p-6 shadow-sm space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
-          <div>
-            <h3 class="text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              {{SIMULATOR_TITLE}}
-            </h3>
-            <p class="text-xs text-[var(--muted-foreground)]">{{SIMULATOR_SUBTITLE}}</p>
-          </div>
-          <div class="flex items-center gap-2" id="sim-controls">
-            {{SIMULATOR_CONTROLS}}
-          </div>
+      <!-- PHASE 1: BACKGROUND CONTEXT & THE FORCING PROBLEM (WHYs & optional WHENs) -->
+      <!-- Grounds the foundational dilemma that existed prior to this topic. Exhaustive closure on WHY. -->
+      <section class="space-y-4">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+          {{SECTION_1_TITLE}}
+        </h2>
+        <div class="narrative-prose">
+          {{SECTION_1_BODY}}
         </div>
+      </section>
 
-        {{SIMULATOR_CANVAS}}
-
-        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs text-[var(--muted-foreground)] space-y-1" id="sim-log-panel">
-          {{SIMULATOR_LOG_PANEL}}
+      <!-- PHASE 2: THE ACTIVE TOPIC & SURROUNDING LANDSCAPE (WHATs & optional WHEREs) -->
+      <!-- Defines the core entity, boundaries, and where it sits in the stack. Exhaustive closure on WHAT and WHERE. -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+          {{SECTION_2_TITLE}}
+        </h2>
+        <div class="narrative-prose">
+          {{SECTION_2_BODY}}
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- SECTION 4: WORKLOAD CONTRAST & TRADE-OFF MATRIX -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm">04</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Workload Comparison: The Architectural Invariant</h2>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{WORKLOAD_CARDS}}
-      </div>
-
-      <!-- INVARIANT TABLE -->
-      <div class="rounded-xl border border-[var(--card-border)] overflow-hidden">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-[var(--card)] border-b border-[var(--card-border)] text-xs font-mono uppercase text-[var(--muted-foreground)]">
-            <tr>
-              <th class="p-4">Dimension</th>
-              <th class="p-4">{{TABLE_COL_1_HEADER}}</th>
-              <th class="p-4">{{TABLE_COL_2_HEADER}}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[var(--border)] text-xs md:text-sm">
-            {{TABLE_ROWS}}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- SECTION 5: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm">05</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Final Sign-Off Challenge: Active Verification</h2>
-      </div>
-
-      <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-4">
-        <div class="flex items-start gap-3">
-          <div class="text-rose-500 font-bold text-lg mt-0.5">⚠️</div>
-          <div class="space-y-2">
-            <h3 class="font-bold text-[var(--foreground)] text-base">The Scenario Challenge</h3>
-            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
-              {{SIGN_OFF_SCENARIO}}
-            </p>
-          </div>
+      <!-- PHASE 3: INTERNAL MECHANICS, INVARIANTS & CAUSALITY (HOWs & WHYs OF HOWs) -->
+      <!-- Exhaustive breakdown of how it works under the hood and why alternative designs fail. -->
+      <!-- Interactive simulators / visual traces are embedded directly inline here if applicable. -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+          {{SECTION_3_TITLE}}
+        </h2>
+        <div class="narrative-prose">
+          {{SECTION_3_BODY}}
         </div>
+      </section>
 
-        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
-          <div class="font-bold text-[var(--primary)] flex items-center gap-2">
-            <span>🎯 Sign-Off Gate Criteria:</span>
-          </div>
-          <p class="leading-relaxed">
-            {{SIGN_OFF_CRITERIA}}
-          </p>
-          <div class="pt-2 text-[11px] font-mono text-[var(--muted-foreground)] flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
-            <span>No solution is provided in this artifact. Analyze and defend your breakdown in chat to complete topic sign-off.</span>
-          </div>
+      <!-- PHASE 4: MENTAL MODEL SYNTHESIS & PRODUCTION CORRELATION -->
+      <!-- Unifies all preceding mechanics into a sticky, lasting mental model tied to real production use cases. -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+          {{SECTION_4_TITLE}}
+        </h2>
+        <div class="narrative-prose">
+          {{SECTION_4_BODY}}
         </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- FOOTER NAV -->
+      <!-- PHASE 5: CONTEXTUAL SIGN-OFF VERIFICATION GATE -->
+      <!-- Leaves the reader with bounded scenario questions to analyze and defend in chat. No pre-baked answers. -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+          {{SECTION_5_TITLE}}
+        </h2>
+        <div class="narrative-prose">
+          {{SECTION_5_BODY}}
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER NAV: RUNNING CONTEXT & COGNITIVE LINEAGE -->
     <footer class="border-t border-[var(--border)] pt-8 pb-12 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted-foreground)] gap-4">
       <div>
-        Part of the <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance
+        System Design Studio · <span class="font-semibold text-[var(--foreground)]">{{LESSON_TITLE}}</span>
       </div>
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 font-mono text-[11px]">
         <span>Backward Anchor: <strong class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</strong></span>
         <span>•</span>
         <span>Next Hook: <strong class="text-[var(--foreground)]">{{FORWARD_HOOK}}</strong></span>
@@ -180,6 +243,7 @@
 
   </div>
 
+  <!-- EMBEDDED INTERACTION SCRIPT (IF APPLICABLE) -->
   <script>
     {{EMBEDDED_JAVASCRIPT}}
   </script>

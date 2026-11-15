@@ -6,6 +6,16 @@ Generates beautiful, accessible, interactive HTML lesson artifacts with embedded
 simulators, workload contrasts, invariant tables, and reality checks.
 Supports 5 distinct visual theme variants and respects .system-design/settings.json
 for both theme preferences and directory output paths (paths.lessonsDir).
+
+PEDAGOGICAL CONTRACT:
+Adheres strictly to single-topic progressive disclosure:
+- No coverage-based repetitive silos (no brief overview -> foundation cards -> deep explanations -> summary tables).
+- The lesson is one continuous cohesive narrative with 5 structured phases:
+  1. The Dilemma / Inception (WHYs & optional WHENs)
+  2. The Core Entity & Placement (WHATs & optional WHEREs)
+  3. Internal Mechanics & Causality (HOWs & WHYs of HOWs; embedded simulator inline)
+  4. Mental Model Synthesis & Production Grounding (Workloads & Invariants)
+  5. Contextual Sign-Off Verification (Unanswered scenario challenge for chat)
 """
 
 import os
@@ -117,6 +127,7 @@ STYLE_THEMES = {
     },
 }
 
+# Invariant cohesive fallback template matching resources/lesson-template.html
 DEFAULT_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -129,129 +140,81 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
       0%, 100% { opacity: 1; transform: scale(1); }
       50% { opacity: 0.85; transform: scale(0.98); }
     }
-    .animate-pulse-subtle { animation: pulse-subtle 2s infinite ease-in-out; }
-    .interactive-element { transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    .animate-pulse-subtle { animation: pulse-subtle 2.5s infinite ease-in-out; }
+    .interactive-element { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
     {{THEME_CSS_VARS}}
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--background); }
+    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+    .narrative-prose { color: var(--foreground); line-height: 1.75; font-size: 0.95rem; }
+    .narrative-prose p { margin-bottom: 1.15rem; }
+    .narrative-prose strong { color: var(--foreground); font-weight: 700; }
+    .narrative-prose code { background: var(--card); border: 1px solid var(--card-border); padding: 0.15rem 0.35rem; border-radius: 0.375rem; font-family: ui-monospace, monospace; font-size: 0.825em; }
+    .callout-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+    .callout-dilemma { border-left: 4px solid #ef4444; }
+    .callout-mechanism { border-left: 4px solid var(--primary); }
+    .callout-invariant { border-left: 4px solid #10b981; }
+    .callout-trap { border-left: 4px solid #f59e0b; }
+    .sim-container { background: var(--card); border: 1px solid var(--card-border); border-radius: 1rem; padding: 1.25rem; margin: 1.75rem 0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2); }
+    .sim-canvas { background: var(--background); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; }
+    .sim-log { background: var(--background); border: 1px solid var(--border); border-radius: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.75rem; padding: 0.75rem; max-height: 8rem; overflow-y: auto; }
+    .tradeoff-table { width: 100%; text-align: left; border-collapse: separate; border-spacing: 0; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--card-border); margin: 1.5rem 0; font-size: 0.85rem; }
+    .tradeoff-table th { background: var(--card); padding: 0.75rem 1rem; font-family: ui-monospace, monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); color: var(--muted-foreground); }
+    .tradeoff-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--foreground); }
+    .tradeoff-table tr:last-child td { border-bottom: none; }
   </style>
 </head>
-<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8">
+<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8 min-h-screen">
   <div class="max-w-4xl mx-auto space-y-12">
-    <!-- HERO HEADER -->
+    <!-- HERO HEADER: CONTEXTUAL ORIENTATION -->
     <header class="border-b border-[var(--border)] pb-8 space-y-4">
       <div class="flex flex-wrap items-center gap-2">
         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">[concept] [mechanics] [contrast] [trap]</span>
+        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{DEPTH_MARKERS}}</span>
         <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--primary)] font-semibold">🎨 {{THEME_NAME}}</span>
       </div>
-      <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--foreground)]">{{LESSON_TITLE}}</h1>
+      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--foreground)]">{{LESSON_TITLE}}</h1>
       <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">{{LESSON_SUBTITLE}}</p>
     </header>
 
-    <!-- SECTION 1: PHYSICAL MOTIVATION & FORCES -->
-    <section class="space-y-6">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">01</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SECTION_1_TITLE}}</h2>
-      </div>
-      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">{{SECTION_1_BODY}}</div>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">{{METRIC_CARDS}}</div>
-    </section>
+    <main class="space-y-12">
+      <!-- PHASE 1: BACKGROUND CONTEXT & FORCING DILEMMA (WHYs & optional WHENs) -->
+      <section class="space-y-4">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_1_TITLE}}</h2>
+        <div class="narrative-prose">{{SECTION_1_BODY}}</div>
+      </section>
 
-    <!-- SECTION 2: DIGESTIBLE EXPLANATIONS — THE WHYS & HOWS (EXHAUSTIVE MECHANICAL CLOSURE) -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center font-bold text-sm border border-indigo-500/20">02</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{EXPLANATION_TITLE}}</h2>
-      </div>
-      <div class="space-y-6 text-sm leading-relaxed text-[var(--foreground)]">
-        {{EXPLANATION_BODY}}
-      </div>
-    </section>
+      <!-- PHASE 2: THE ACTIVE TOPIC & SURROUNDING LANDSCAPE (WHATs & optional WHEREs) -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_2_TITLE}}</h2>
+        <div class="narrative-prose">{{SECTION_2_BODY}}</div>
+      </section>
 
-    <!-- SECTION 3: MECHANISTIC CORE & INTERACTIVE SIMULATOR -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold text-sm border border-emerald-500/20">03</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">{{SIMULATOR_SECTION_TITLE}}</h2>
-      </div>
-      <div class="prose text-[var(--foreground)] leading-relaxed space-y-4 text-sm md:text-base">{{SIMULATOR_SECTION_BODY}}</div>
-      <div class="rounded-2xl bg-[var(--card)] border border-[var(--card-border)] p-6 shadow-sm space-y-6">
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-[var(--border)]">
-          <div>
-            <h3 class="text-lg font-bold text-[var(--foreground)] flex items-center gap-2">
-              <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              {{SIMULATOR_TITLE}}
-            </h3>
-            <p class="text-xs text-[var(--muted-foreground)]">{{SIMULATOR_SUBTITLE}}</p>
-          </div>
-          <div class="flex items-center gap-2" id="sim-controls">{{SIMULATOR_CONTROLS}}</div>
-        </div>
-        {{SIMULATOR_CANVAS}}
-        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] text-xs text-[var(--muted-foreground)] space-y-1" id="sim-log-panel">
-          {{SIMULATOR_LOG_PANEL}}
-        </div>
-      </div>
-    </section>
+      <!-- PHASE 3: INTERNAL MECHANICS, INVARIANTS & CAUSALITY (HOWs & WHYs OF HOWs) -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_3_TITLE}}</h2>
+        <div class="narrative-prose">{{SECTION_3_BODY}}</div>
+      </section>
 
-    <!-- SECTION 4: WORKLOAD COMPARISON & INVARIANTS -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center font-bold text-sm border border-purple-500/20">04</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Workload Comparison: The Architectural Invariant</h2>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">{{WORKLOAD_CARDS}}</div>
-      <div class="rounded-xl border border-[var(--card-border)] overflow-hidden">
-        <table class="w-full text-left text-sm">
-          <thead class="bg-[var(--card)] border-b border-[var(--card-border)] text-xs font-mono uppercase text-[var(--muted-foreground)]">
-            <tr>
-              <th class="p-4">Dimension</th>
-              <th class="p-4">{{TABLE_COL_1_HEADER}}</th>
-              <th class="p-4">{{TABLE_COL_2_HEADER}}</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[var(--border)] text-xs md:text-sm">
-            {{TABLE_ROWS}}
-          </tbody>
-        </table>
-      </div>
-    </section>
+      <!-- PHASE 4: MENTAL MODEL SYNTHESIS & PRODUCTION CORRELATION -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_4_TITLE}}</h2>
+        <div class="narrative-prose">{{SECTION_4_BODY}}</div>
+      </section>
 
-    <!-- SECTION 5: FINAL SIGN-OFF CHALLENGE (UNASSISTED VERIFICATION) -->
-    <section class="space-y-6 border-t border-[var(--border)] pt-8">
-      <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center font-bold text-sm border border-rose-500/20">05</div>
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight">Final Sign-Off Challenge: Active Verification</h2>
-      </div>
-      <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-4">
-        <div class="flex items-start gap-3">
-          <div class="text-rose-500 font-bold text-lg mt-0.5">⚠️</div>
-          <div class="space-y-2">
-            <h3 class="font-bold text-[var(--foreground)] text-base">The Scenario Challenge</h3>
-            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">{{SIGN_OFF_SCENARIO}}</p>
-          </div>
-        </div>
-        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
-          <div class="font-bold text-[var(--primary)] flex items-center gap-2">
-            <span>🎯 Sign-Off Gate Criteria:</span>
-          </div>
-          <p class="leading-relaxed">
-            {{SIGN_OFF_CRITERIA}}
-          </p>
-          <div class="pt-2 text-[11px] font-mono text-[var(--muted-foreground)] flex items-center gap-2">
-            <span class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
-            <span>No solution is provided in this artifact. Analyze and defend your breakdown in chat to complete topic sign-off.</span>
-          </div>
-        </div>
-      </div>
-    </section>
+      <!-- PHASE 5: CONTEXTUAL SIGN-OFF VERIFICATION GATE -->
+      <section class="space-y-4 border-t border-[var(--border)] pt-8">
+        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_5_TITLE}}</h2>
+        <div class="narrative-prose">{{SECTION_5_BODY}}</div>
+      </section>
+    </main>
 
-    <!-- FOOTER NAV -->
+    <!-- FOOTER NAV: RUNNING CONTEXT & COGNITIVE LINEAGE -->
     <footer class="border-t border-[var(--border)] pt-8 pb-12 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted-foreground)] gap-4">
-      <div>
-        Part of the <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance
-      </div>
-      <div class="flex items-center gap-4">
+      <div>Part of <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance</div>
+      <div class="flex items-center gap-4 font-mono text-[11px]">
         <span>Backward Anchor: <strong class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</strong></span>
         <span>•</span>
         <span>Next Hook: <strong class="text-[var(--foreground)]">{{FORWARD_HOOK}}</strong></span>
@@ -277,165 +240,222 @@ def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_i
         "THEME_ID": theme["id"],
         "TIER_BADGE": tier or "Tier 0 · System Design Core",
         "CLUSTER_BADGE": cluster or "Foundation Mechanism",
+        "DEPTH_MARKERS": "[concept] [mechanics] [contrast] [trap]",
         "LESSON_TITLE": clean_title,
         "LESSON_SUBTITLE": "A first-principles, causal breakdown of physical constraints, failure modes, and architectural trade-offs.",
-        "SECTION_1_TITLE": "Physical Motivation & Hardware Invariants",
-        "SECTION_1_BODY": f"<p>Every distributed system begins with the laws of physics. When designing <strong>{clean_title}</strong>, we face non-negotiable hardware limits: speed of light through medium (~5 μs/km), disk I/O seek times, and network queue bufferbloat.</p>",
-        "METRIC_CARDS": """
-        <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-1">
-          <div class="text-xs uppercase font-mono text-[var(--muted-foreground)]">Propagation Limit</div>
-          <div class="text-2xl font-black text-[var(--primary)]">~5 μs / km</div>
-          <div class="text-xs text-[var(--muted-foreground)]">Round-trip physical latency across networks is bounded by medium physics.</div>
-        </div>
-        <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-1">
-          <div class="text-xs uppercase font-mono text-[var(--muted-foreground)]">Queue Delay</div>
-          <div class="text-2xl font-black text-amber-500">Bufferbloat</div>
-          <div class="text-xs text-[var(--muted-foreground)]">Buffers smooth bursts but inject unpredictable multi-second tail latency under saturation.</div>
-        </div>
-        <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-1">
-          <div class="text-xs uppercase font-mono text-[var(--muted-foreground)]">The Core Trade-off</div>
-          <div class="text-2xl font-black text-rose-500">Latency vs Safety</div>
-          <div class="text-xs text-[var(--muted-foreground)]">Guaranteeing consistency requires communication; avoiding communication forfeits coordination.</div>
-        </div>
-        """,
-        "EXPLANATION_TITLE": "Digestible Explanations: The Whys & Hows (Exhaustive Mechanical Closure)",
-        "EXPLANATION_BODY": f"""
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
-            <div class="text-xs font-mono font-bold text-[var(--primary)] uppercase flex items-center gap-2">
-              <span>🔍 The "Why": Physical Dilemma & Naive Failure</span>
-            </div>
-            <h3 class="text-base font-bold text-[var(--foreground)]">Why Does This Mechanism Exist?</h3>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-              Networks are fundamentally unreliable packet-switched meshes. Routers drop packets when ingress queues saturate. If an application requires ordered bytes, a naive approach of waiting for an ACK on every single packet produces catastrophic throughput collapse (bounded to 1 packet per RTT).
-            </p>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-              To solve this without stalling the wire, sliding window protocols pipeline in-flight packets. But pipelining creates a severe physical consequence: <strong>if packet N is dropped, packets N+1 and N+2 cannot be delivered to user space</strong> without violating sequential ordering guarantees.
-            </p>
-          </div>
 
-          <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
-            <div class="text-xs font-mono font-bold text-emerald-400 uppercase flex items-center gap-2">
-              <span>⚙️ The "How": Causal Mechanics & State Trace</span>
+        # PHASE 1: WHYs & optional WHENs
+        "SECTION_1_TITLE": f"The Foundational Dilemma: What Breaks in the Absence of {clean_title}",
+        "SECTION_1_BODY": f"""
+        <p>
+          Before examining the machinery of <strong>{clean_title}</strong>, we must isolate the concrete engineering dilemma that exists when this capability is absent. Every distributed system begins with the laws of physical hardware: finite network bandwidth, non-zero speed of light (~5 μs/km through fiber), and operating systems managing independent memory spaces across uncoordinated machines.
+        </p>
+        <div class="callout-box callout-dilemma">
+          <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-1">⚡ The Core Architectural Tension</div>
+          <p class="text-sm text-[var(--foreground)] m-0">
+            When multiple actors communicate without this abstraction, naive implementations either stall the pipeline waiting for synchronous acknowledgements (collapsing throughput) or broadcast without guarantees (risking silent data loss, duplicate execution, or corruption).
+          </p>
+        </div>
+        <p>
+          This establishes our baseline: the need arose not as an arbitrary convention, but as a mandatory physical response to uncoordinated networks and asynchronous execution.
+        </p>
+        """,
+
+        # PHASE 2: WHATs & optional WHEREs
+        "SECTION_2_TITLE": f"The Core Abstraction & Boundary Placement",
+        "SECTION_2_BODY": f"""
+        <p>
+          Assuming zero prior familiarity with <strong>{clean_title}</strong>, what actually is it, and where does it sit in the architectural stack?
+        </p>
+        <p>
+          Architecturally, <strong>{clean_title}</strong> establishes a contract between the underlying unreliable physical primitives and the user-space application layers above it. Rather than exposing raw hardware vagaries, it encapsulates state tracking, buffer management, and coordination rules into a well-defined boundary.
+        </p>
+        <div class="callout-box callout-mechanism">
+          <div class="text-xs font-mono font-bold text-[var(--primary)] uppercase tracking-wider mb-1">🗺️ Boundary & Stack Placement</div>
+          <p class="text-sm text-[var(--foreground)] m-0">
+            Positioned directly between transport/storage primitives and domain application logic, governing queue allocations, socket descriptors, and invariant enforcement.
+          </p>
+        </div>
+        """,
+
+        # PHASE 3: HOWs & WHYs of HOWs (with inline interactive simulator)
+        "SECTION_3_TITLE": f"Under the Hood: Internal Mechanics, Causality & Trade-offs",
+        "SECTION_3_BODY": f"""
+        <p>
+          How does <strong>{clean_title}</strong> actually function internally, and why is it constructed in this specific way rather than alternative approaches?
+        </p>
+        <p>
+          The system maintains dual kernel/storage states: tracking in-flight unacknowledged operations on the dispatch side, and maintaining an out-of-order reassembly buffer on the receiving side. If an element is delayed or dropped, the system must decide: stall delivery to preserve strict monotonic order, or deliver immediately and forfeit consistency guarantees.
+        </p>
+
+        <!-- Inline Embedded Execution Simulator -->
+        <div class="sim-container">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
+            <div>
+              <div class="text-sm font-bold text-[var(--foreground)] flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Interactive Simulator: {clean_title} State Machine
+              </div>
+              <div class="text-xs text-[var(--muted-foreground)]">Step through state transitions, packet transmission, and failure recovery.</div>
             </div>
-            <h3 class="text-base font-bold text-[var(--foreground)]">How Does The Kernel Enforce It?</h3>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-              The operating system maintains two distinct buffers per connection: the <code>Send-Q</code> (unacknowledged transmitted bytes) and <code>Recv-Q</code> (received out-of-order bytes waiting for assembly).
+            <div class="flex items-center gap-2">
+              <button onclick="simStep()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">Step Forward →</button>
+              <button onclick="simReset()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--card)] transition">Reset</button>
+            </div>
+          </div>
+          <div class="sim-canvas my-3">
+            <div class="flex items-center justify-between min-h-[120px]">
+              <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)] w-32">
+                <div class="text-xs font-bold text-blue-400">Sender / Host A</div>
+                <div id="sim-sender-state" class="text-xs font-mono mt-1 text-[var(--muted-foreground)]">STATE: IDLE</div>
+              </div>
+              <div class="flex-1 flex flex-col items-center justify-center px-4">
+                <div class="w-full h-1 bg-[var(--border)] relative flex items-center justify-center">
+                  <div id="transit-chip" class="w-4 h-4 rounded-full bg-[var(--primary)] transition-all duration-300 transform scale-0"></div>
+                </div>
+                <div class="text-[10px] font-mono mt-2 text-[var(--muted-foreground)]">UNRELIABLE TRANSIT LINK</div>
+              </div>
+              <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)] w-32">
+                <div class="text-xs font-bold text-emerald-400">Receiver / Host B</div>
+                <div id="sim-receiver-state" class="text-xs font-mono mt-1 text-[var(--muted-foreground)]">STATE: LISTENING</div>
+              </div>
+            </div>
+          </div>
+          <div class="sim-log" id="sim-log">
+            Click 'Step Forward' to trace the internal protocol sequence.
+          </div>
+        </div>
+
+        <div class="callout-box callout-invariant">
+          <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-1">⚖️ The Non-Negotiable Invariant Boundary</div>
+          <p class="text-sm text-[var(--foreground)] m-0">
+            <strong>Guaranteed:</strong> Causal ordering and data completeness within the established session boundary.<br/>
+            <strong>Explicit Non-Guarantee:</strong> Bounded latency under network packet drops; recovery introduces tail latency spikes.
+          </p>
+        </div>
+        """,
+
+        # PHASE 4: MENTAL MODEL & REAL-WORLD CORRELATES
+        "SECTION_4_TITLE": f"Mental Model Synthesis & Production Grounding",
+        "SECTION_4_BODY": f"""
+        <p>
+          To make this mechanism intuitive, synthesize the moving parts into a unified mental model and correlate it with contrasting production workloads.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+          <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-xs font-mono font-bold text-blue-400 uppercase">Workload A: Financial Ledger</div>
+            <h4 class="text-sm font-bold text-[var(--foreground)]">Linearizable Money Movement</h4>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
+              Dropping or reordering a single byte is an existential business failure. The system gladly accepts 300ms tail-latency stalls to guarantee byte-for-byte monotonicity.
             </p>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-              When a gap occurs, the receiver emits duplicate cumulative ACKs. The sender triggers fast retransmit or backs off via Retransmission Timeout (RTO). The application thread calling <code>read()</code> is put to sleep by the kernel scheduler until the sequence gap is closed, directly manifesting as P99 tail latency.
+          </div>
+          <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-xs font-mono font-bold text-emerald-400 uppercase">Workload B: Real-Time Audio / Video</div>
+            <h4 class="text-sm font-bold text-[var(--foreground)]">WebRTC Live Voice Stream</h4>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
+              Late packets are completely useless—human auditory perception notices stalls over 150ms. Dropping late audio packets immediately beats waiting for a retransmission.
             </p>
           </div>
         </div>
 
-        <div class="p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
-          <h4 class="text-xs font-mono font-bold uppercase text-[var(--primary)]">Architectural Invariant Boundary:</h4>
-          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-            <strong>Guaranteed:</strong> 100% byte fidelity and monotonic ordering across the connection. If a byte is delivered to user space, every preceding byte was delivered exactly once without corruption.<br/>
-            <strong>Explicit Non-Guarantee:</strong> Bounded delivery latency. Under non-zero packet loss, delivery jitter is mathematically unbounded.
-          </p>
-        </div>
+        <table class="tradeoff-table">
+          <thead>
+            <tr>
+              <th>Architectural Dimension</th>
+              <th>High-Durability Stream (TCP)</th>
+              <th>Bounded-Latency Datagram (UDP)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="font-semibold">Ordering Invariant</td>
+              <td class="font-mono text-emerald-400">Strict Total Order</td>
+              <td class="font-mono text-amber-400">Unordered / Best-Effort</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Packet Loss Response</td>
+              <td class="font-mono text-rose-400">Stall queue; retransmit</td>
+              <td class="font-mono text-emerald-400">Drop frame; proceed</td>
+            </tr>
+            <tr>
+              <td class="font-semibold">Latency Bound Under Loss</td>
+              <td class="font-mono text-rose-400">Unbounded (Jitter spikes)</td>
+              <td class="font-mono text-emerald-400">Strictly bounded (Single RTT)</td>
+            </tr>
+          </tbody>
+        </table>
         """,
-        "SIMULATOR_SECTION_TITLE": "Mechanistic Core & Interactive Simulator",
-        "SIMULATOR_SECTION_BODY": f"<p>Experience the mechanical divergence firsthand. Step through state transitions, packet transmission, and failure recovery for <strong>{clean_title}</strong> in the sandbox below.</p>",
-        "SIMULATOR_TITLE": f"Execution Simulator: {clean_title}",
-        "SIMULATOR_SUBTITLE": "Step through state transitions, packet transmission, and failure recovery.",
-        "SIMULATOR_CONTROLS": """
-        <button onclick="simStep()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">Step Forward →</button>
-        <button onclick="simReset()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--card)] transition">Reset</button>
-        """,
-        "SIMULATOR_CANVAS": """
-        <div class="flex items-center justify-between p-6 rounded-xl bg-[var(--background)] border border-[var(--border)] min-h-[160px]" id="sim-canvas">
-          <div class="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)] w-36">
-            <div class="text-xs font-bold text-blue-500">Sender / Client</div>
-            <div id="sim-sender-state" class="text-xs font-mono mt-1 text-[var(--muted-foreground)]">STATE: IDLE</div>
-          </div>
-          <div class="flex-1 flex flex-col items-center justify-center px-4">
-            <div class="w-full h-1 bg-[var(--border)] relative flex items-center justify-center">
-              <div id="transit-chip" class="w-4 h-4 rounded-full bg-[var(--primary)] transition-all duration-300 transform scale-0"></div>
+
+        # PHASE 5: CONTEXTUAL SIGN-OFF VERIFICATION GATE
+        "SECTION_5_TITLE": f"Contextual Sign-Off Verification: Active Defense Gate",
+        "SECTION_5_BODY": f"""
+        <div class="callout-box callout-trap">
+          <div class="flex items-start gap-3">
+            <div class="text-amber-400 font-bold text-lg mt-0.5">⚠️</div>
+            <div class="space-y-2">
+              <h4 class="font-bold text-[var(--foreground)] text-base m-0">Production Incident Defense Scenario</h4>
+              <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                A distributed real-time dashboard experiences severe tail-latency jitter spikes (P99 > 850ms) on lossy cellular networks, despite the backend CPU utilization staying below 25%. A junior engineer suggests increasing socket buffer sizes to smooth the spikes.
+              </p>
+              <p class="text-sm font-semibold text-[var(--foreground)] leading-relaxed m-0">
+                Why will increasing socket buffer sizes fail to resolve the tail latency, where exactly in the stack is the queue accumulating, and how does transport protocol selection causally explain the symptom?
+              </p>
             </div>
-            <div class="text-[10px] font-mono mt-2 text-[var(--muted-foreground)]">TRANSIT MEDIUM (UNRELIABLE)</div>
-          </div>
-          <div class="p-4 rounded-lg bg-[var(--card)] border border-[var(--border)] w-36">
-            <div class="text-xs font-bold text-emerald-500">Receiver / Node</div>
-            <div id="sim-receiver-state" class="text-xs font-mono mt-1 text-[var(--muted-foreground)]">STATE: LISTENING</div>
           </div>
         </div>
-        """,
-        "SIMULATOR_LOG_PANEL": "<div id='sim-log'>Click 'Step Forward' to initiate the protocol sequence.</div>",
-        "WORKLOAD_CARDS": f"""
-        <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
-          <div class="text-xs font-bold font-mono text-[var(--primary)] uppercase tracking-wide">Workload Profile A: High Durability</div>
-          <h3 class="text-base font-bold text-[var(--foreground)]">Financial Ledger & Audit Store</h3>
-          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-            Every transaction must be strictly linearizable and fsynced. Sacrifices raw throughput for zero-loss guarantees under node crash.
+
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
+          <div class="font-bold text-[var(--primary)] flex items-center gap-2">
+            <span>🎯 Sign-Off Gate Defense Standard:</span>
+          </div>
+          <p class="leading-relaxed m-0">
+            Tick off when: you can analyze and defend this scenario cold in chat discussion without notes, isolating the physical queue location, why buffer expansion exacerbates latency, and how the underlying transport invariant dictates the outcome.
           </p>
-        </div>
-        <div class="p-6 rounded-2xl bg-[var(--card)] border border-[var(--card-border)] space-y-3">
-          <div class="text-xs font-bold font-mono text-emerald-500 uppercase tracking-wide">Workload Profile B: High Throughput</div>
-          <h3 class="text-base font-bold text-[var(--foreground)]">Telemetry Ingestion & Edge Metrics</h3>
-          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-            Sustains 500,000 writes/sec. Drops individual frames gracefully to preserve low-latency buffer queues.
-          </p>
+          <div class="pt-2 text-[11px] font-mono text-amber-400 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+            <span>No solution is provided in this artifact. Discuss and defend your breakdown in chat to complete topic sign-off.</span>
+          </div>
         </div>
         """,
-        "TABLE_COL_1_HEADER": "Workload A (Durability)",
-        "TABLE_COL_2_HEADER": "Workload B (Throughput)",
-        "TABLE_ROWS": """
-        <tr>
-          <td class="p-4 font-medium text-[var(--foreground)]">Ordering Guarantee</td>
-          <td class="p-4 text-emerald-500 font-mono">Strict Total Order</td>
-          <td class="p-4 text-amber-500 font-mono">Partial / Best-Effort</td>
-        </tr>
-        <tr>
-          <td class="p-4 font-medium text-[var(--foreground)]">Disk Write Strategy</td>
-          <td class="p-4 text-[var(--muted-foreground)]">Synchronous WAL fsync</td>
-          <td class="p-4 text-[var(--muted-foreground)]">Asynchronous batched flush</td>
-        </tr>
-        <tr>
-          <td class="p-4 font-medium text-[var(--foreground)]">Crash Recovery Cost</td>
-          <td class="p-4 text-[var(--muted-foreground)]">Replay uncommitted WAL entries</td>
-          <td class="p-4 text-[var(--muted-foreground)]">Drop in-flight buffer window</td>
-        </tr>
-        """,
-        "SIGN_OFF_SCENARIO": f"A developer observes that under 99th percentile load, requests in {clean_title} experience a 10x tail-latency spike, even though CPU and RAM utilization are under 40%. Where is the queue hiding, why did latency spike, and how would you verify it?",
-        "SIGN_OFF_CRITERIA": f"Tick off when: you can explain this out loud or defend in chat without notes, isolating the queue location, the underlying causal mechanism, and the exact verification command.",
+
         "BACKWARD_ANCHOR": "Physical network constraints & hardware bounds",
         "FORWARD_HOOK": "Distributed consensus & fault recovery",
         "EMBEDDED_JAVASCRIPT": """
         let simState = 0;
         function simStep() {
-          const chip = document.getElementById('transit-chip') || document.getElementById('sim-transit-chip');
+          const chip = document.getElementById('transit-chip');
           const sender = document.getElementById('sim-sender-state');
           const receiver = document.getElementById('sim-receiver-state');
           const log = document.getElementById('sim-log');
+          if (!chip || !sender || !receiver || !log) return;
           if (simState === 0) {
             sender.textContent = "STATE: SENDING";
             chip.style.transform = "scale(1)";
-            log.innerHTML = "<span class='text-blue-500 font-bold'>[SEND]</span> Dispatching message payload across network link...";
+            log.innerHTML = "<span class='text-blue-400 font-bold'>[SEND]</span> Dispatching message payload across network link...";
             simState = 1;
           } else if (simState === 1) {
             receiver.textContent = "STATE: PROCESSING";
-            log.innerHTML = "<span class='text-emerald-500 font-bold'>[RECV]</span> Message received; verifying checksum and payload invariant.";
+            log.innerHTML = "<span class='text-emerald-400 font-bold'>[RECV]</span> Message received; verifying checksum and payload invariant.";
             simState = 2;
           } else {
             sender.textContent = "STATE: IDLE (ACK)";
             receiver.textContent = "STATE: LISTENING";
             chip.style.transform = "scale(0)";
-            log.innerHTML = "<span class='text-purple-500 font-bold'>[ACK]</span> Acknowledgement complete. Ready for next cycle.";
+            log.innerHTML = "<span class='text-purple-400 font-bold'>[ACK]</span> Acknowledgement complete. Ready for next cycle.";
             simState = 0;
           }
         }
         function simReset() {
           simState = 0;
-          const chip = document.getElementById('transit-chip') || document.getElementById('sim-transit-chip');
+          const chip = document.getElementById('transit-chip');
           const sender = document.getElementById('sim-sender-state');
           const receiver = document.getElementById('sim-receiver-state');
           const log = document.getElementById('sim-log');
           if (chip) chip.style.transform = "scale(0)";
           if (sender) sender.textContent = "STATE: IDLE";
           if (receiver) receiver.textContent = "STATE: LISTENING";
-          if (log) log.textContent = "Click 'Step Forward' to initiate the protocol sequence.";
+          if (log) log.textContent = "Click 'Step Forward' to trace the internal protocol sequence.";
         }
         """
     }
@@ -458,6 +478,18 @@ def load_settings(settings_path=None):
             except Exception:
                 pass
     return {}, None
+
+def locate_resource_template():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(script_dir, "..", "resources", "lesson-template.html"),
+        os.path.join(os.getcwd(), "skills", "system-design-studio", "resources", "lesson-template.html")
+    ]
+    for c in candidates:
+        norm = os.path.normpath(c)
+        if os.path.exists(norm):
+            return norm
+    return None
 
 def main():
     parser = argparse.ArgumentParser(description="Render interactive HTML lesson artifact")
@@ -498,11 +530,11 @@ def main():
             spec_data = json.load(f)
             data.update(spec_data)
 
-    # Backwards compatibility fallback
-    if "REALITY_CHECK_SCENARIO" in data and "SIGN_OFF_SCENARIO" not in data:
-        data["SIGN_OFF_SCENARIO"] = data["REALITY_CHECK_SCENARIO"]
-    if "SIGN_OFF_CRITERIA" not in data:
-        data["SIGN_OFF_CRITERIA"] = "Tick off when: you can explain this out loud or defend in chat in your own words, including why it exists and what it costs."
+    # Legacy token fallback mappings
+    if "REALITY_CHECK_SCENARIO" in data and "SECTION_5_BODY" not in data:
+        data["SECTION_5_BODY"] = f"<p>{data['REALITY_CHECK_SCENARIO']}</p>"
+    if "SIGN_OFF_SCENARIO" in data and "SECTION_5_BODY" not in data:
+        data["SECTION_5_BODY"] = f"<p>{data['SIGN_OFF_SCENARIO']}</p>"
 
     # Ensure theme variables are bound
     data["THEME_CSS_VARS"] = theme["css_vars"]
@@ -510,9 +542,13 @@ def main():
     data["THEME_ID"] = theme["id"]
 
     template_str = DEFAULT_TEMPLATE
-    if args.template and os.path.exists(args.template):
-        with open(args.template) as f:
-            template_str = f.read()
+    custom_template = args.template or locate_resource_template()
+    if custom_template and os.path.exists(custom_template):
+        try:
+            with open(custom_template, "r", encoding="utf-8") as f:
+                template_str = f.read()
+        except Exception as e:
+            print(f"⚠️ Warning: Could not read template at {custom_template}: {e}. Using built-in default.")
 
     rendered = template_str
     for k, v in data.items():
@@ -523,14 +559,14 @@ def main():
 
     os.makedirs(target_output_dir, exist_ok=True)
     out_path = os.path.join(target_output_dir, filename)
-    with open(out_path, "w") as f:
+    with open(out_path, "w", encoding="utf-8") as f:
         f.write(rendered)
 
     print(f"✅ Lesson rendered to {out_path} [Style: {theme['name']}]")
 
     if args.brain_dir and os.path.exists(args.brain_dir):
         brain_path = os.path.join(args.brain_dir, filename)
-        with open(brain_path, "w") as f:
+        with open(brain_path, "w", encoding="utf-8") as f:
             f.write(rendered)
         print(f"✅ Staged to conversation artifact dir: {brain_path}")
 
