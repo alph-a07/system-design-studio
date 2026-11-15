@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" role="img" aria-labelledby="sds-logo-title">
+  <title id="sds-logo-title">System Design Studio</title>
+  <g id="sds-symbol" stroke="#1a1a1a" stroke-linecap="round" stroke-linejoin="round">
+    <!-- D-chamber: Distributed Storage & Consensus Arc -->
+    <path d="M 131 60 A 68 68 0 0 1 131 196" fill="none" stroke-width="26"/>
+    <!-- S-flow: State Machine Transitions & Pipeline Flow -->
+    <path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" fill="none" stroke-width="26"/>
+    <!-- Central Backbone Bus -->
+    <line x1="131" y1="60" x2="131" y2="196" stroke-width="26"/>
+    <!-- Distributed Quorum Nodes -->
+    <circle cx="75" cy="60" r="18" fill="#1a1a1a" stroke="none"/>
+    <circle cx="75" cy="196" r="18" fill="#1a1a1a" stroke="none"/>
+    <circle cx="165" cy="128" r="20" fill="#e63b2e" stroke="none"/>
+    <circle cx="131" cy="128" r="14" fill="#ffcc00" stroke="#1a1a1a" stroke-width="8"/>
+  </g>
+</svg>
