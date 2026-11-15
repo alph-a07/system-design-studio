@@ -325,9 +325,9 @@ function updateGlobalProgressUI(completedSet) {
   const topbarTags = document.querySelectorAll('.version-tag');
   topbarTags.forEach(tag => {
     if (completedCount > 0) {
-      tag.innerHTML = `<span class="version-dot"></span> v3.0.0 · ${completedCount}/${totalTopics} completed`;
+      tag.innerHTML = `<span class="version-dot"></span> v3.1.0 · ${completedCount}/${totalTopics} completed`;
     } else {
-      tag.innerHTML = `<span class="version-dot"></span> v3.0.0 · ${totalTopics} topics`;
+      tag.innerHTML = `<span class="version-dot"></span> v3.1.0 · ${totalTopics} topics`;
     }
   });
 }
