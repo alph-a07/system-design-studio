@@ -1,14 +1,11 @@
 {
-  "$schemaVersion": "2.0",
+  "$schemaVersion": "2.3",
   "artifactStyle": "slate-clean",
   "paths": {
     "instanceDir": ".system-design",
     "cursorDir": ".system-design",
     "lessonsDir": ".system-design/lessons"
   },
-  "cursorDir": ".system-design",
-  "lessonsDir": ".system-design/lessons",
-  "instanceDir": ".system-design",
   "availableStyles": [
     {
       "id": "slate-clean",

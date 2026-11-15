@@ -1,4 +1,4 @@
-# Shared Engineering Context — Manifest Specification v2.1
+# Shared Engineering Context — Manifest Specification v2.3
 
 ## Overview
 
@@ -8,13 +8,16 @@ The **Context Manifest** is the canonical, portable, machine-readable data model
 1. **The Curriculum** (`CURRICULUM.md` / `manifest.json`): The 50-cluster roadmap and topic hierarchy.
 2. **The Living Cursor** (`CURSOR.md` / `manifest.json`): The operational brain tracking active focus, lineage, examples, and deferred topics.
 
+### Causal Anchors (`causalAnchors` / `backwardAnchor`) Verification Rule
+`causalAnchors` records verified physical limits and hardware invariants (speed of light latency numbers, socket buffer constraints, fsync write amplification). Speculative or unverified claims are strictly forbidden; anchors are populated only when a topic is signed off with verified evidence.
+
 ---
 
 ## Complete JSON Schema Reference
 
 ```json
 {
-  "$schemaVersion": "2.1",
+  "$schemaVersion": "2.3",
   "instanceName": "string (Human-readable name of learning instance)",
   "createdAt": "ISO-8601 Timestamp",
   "lastUpdated": "ISO-8601 Timestamp",

@@ -59,12 +59,18 @@ def main():
     raw_lessons_dir = paths_cfg.get("lessonsDir") or settings.get("lessonsDir")
 
     if raw_cursor_dir:
-        cursor_path = os.path.join(raw_cursor_dir, "CURSOR.md")
+        if os.path.isabs(raw_cursor_dir):
+            cursor_path = os.path.join(raw_cursor_dir, "CURSOR.md")
+        else:
+            cursor_path = os.path.normpath(os.path.join(base_dir, raw_cursor_dir, "CURSOR.md"))
     else:
         cursor_path = os.path.join(instance_dir, "CURSOR.md")
 
     if raw_lessons_dir:
-        lessons_dir = raw_lessons_dir
+        if os.path.isabs(raw_lessons_dir):
+            lessons_dir = raw_lessons_dir
+        else:
+            lessons_dir = os.path.normpath(os.path.join(base_dir, raw_lessons_dir))
     else:
         lessons_dir = os.path.join(instance_dir, "lessons")
 

@@ -1,5 +1,5 @@
 {
-  "$schemaVersion": "2.0",
+  "$schemaVersion": "2.3",
   "instanceName": "System Design Mastery \u2014 LLD, HLD & Mobile",
   "createdAt": "2026-11-13T19:15:21.917973+00:00",
   "lastUpdated": "2026-11-13T19:15:21.917973+00:00",
@@ -2195,7 +2195,7 @@
     "forwardHook": "Connects directly to HTTP/1.1 vs HTTP/2 vs HTTP/3 (topic.0.1.http-hol-blocking) to trace head-of-line blocking across transport and application layers.",
     "targetDepth": "[concept][mechanics][contrast][trap]",
     "clusterRealityChecks": [
-      "For each provider API Anchor calls, do you know whether it paginates by page number, cursor or link header \u2014 and what your loop does if the list shifts mid-fetch?",
+      "For each provider API your client application calls, do you know whether it paginates by page number, cursor or link header \u2014 and what your loop does if the list shifts mid-fetch?",
       "Explain how a retry after a timeout can double-charge without an idempotency key. Where exactly is the ambiguity: client, network, or server?"
     ]
   },

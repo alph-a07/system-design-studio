@@ -13,6 +13,39 @@ import re
 import argparse
 import datetime
 import shutil
+import tempfile
+
+def atomic_write(filepath, content, is_json=False):
+    dirname = os.path.dirname(os.path.abspath(filepath))
+    os.makedirs(dirname, exist_ok=True)
+    with tempfile.NamedTemporaryFile("w", dir=dirname, delete=False, encoding="utf-8") as tf:
+        if is_json:
+            json.dump(content, tf, indent=2, ensure_ascii=False)
+        else:
+            tf.write(content)
+        temp_name = tf.name
+    os.replace(temp_name, filepath)
+
+def extract_cluster_reality_checks(inst_dir, cluster_code):
+    curriculum_path = os.path.join(inst_dir, "CURRICULUM.md")
+    if os.path.exists(curriculum_path):
+        try:
+            with open(curriculum_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            pat = r"##\s+(?:🔁\s*)?\d+\.\s*\[" + re.escape(cluster_code) + r"\][\s\S]*?### Reality Check[^\n]*\n+([\s\S]*?)(?:\n---|\n##\s|\Z)"
+            m = re.search(pat, content)
+            if m:
+                block = m.group(1)
+                items = re.findall(r"-\s*\[\s*\]\s*(.*?)(?:\s*—\s*\*Tick off when:|\n|$)", block)
+                clean_items = [it.strip() for it in items if it.strip()]
+                if clean_items:
+                    return [f'{i+1}. *"{q}"*' for i, q in enumerate(clean_items[:2])]
+        except Exception:
+            pass
+    return [
+        '1. *"Explain the core invariant and causal failure boundary cold without notes."*',
+        '2. *"Derive the quantitative trade-off or latency impact when the primary assumption fails."*'
+    ]
 
 def main():
     parser = argparse.ArgumentParser(description="Advance System Design Studio cursor state")
@@ -35,31 +68,38 @@ def main():
     args = parser.parse_args()
     inst_dir = args.instance_dir
 
-    # Resolve cursor directory preference from settings.json if present
+    # Resolve cursor and lessons directory preferences from settings.json if present
     abs_inst = os.path.abspath(inst_dir)
     base_dir = os.path.dirname(abs_inst) if os.path.basename(abs_inst) == ".system-design" else abs_inst
 
     raw_cursor_dir = None
+    raw_lessons_dir = None
     settings_path = os.path.join(inst_dir, "settings.json")
     if os.path.exists(settings_path):
         try:
             with open(settings_path) as sf:
                 s = json.load(sf)
-                raw_cursor_dir = s.get("paths", {}).get("cursorDir") or s.get("cursorDir")
+                paths_cfg = s.get("paths", {})
+                raw_cursor_dir = paths_cfg.get("cursorDir") or s.get("cursorDir")
+                raw_lessons_dir = paths_cfg.get("lessonsDir") or s.get("lessonsDir")
         except Exception:
             pass
 
     if raw_cursor_dir:
         if os.path.isabs(raw_cursor_dir):
             cursor_dir = raw_cursor_dir
-        elif os.path.exists(os.path.join(base_dir, raw_cursor_dir)):
-            cursor_dir = os.path.join(base_dir, raw_cursor_dir)
-        elif os.path.exists(os.path.join(inst_dir, raw_cursor_dir)):
-            cursor_dir = os.path.join(inst_dir, raw_cursor_dir)
         else:
-            cursor_dir = os.path.join(base_dir, raw_cursor_dir)
+            cursor_dir = os.path.normpath(os.path.join(base_dir, raw_cursor_dir))
     else:
         cursor_dir = inst_dir
+
+    if raw_lessons_dir:
+        if os.path.isabs(raw_lessons_dir):
+            lessons_dir = raw_lessons_dir
+        else:
+            lessons_dir = os.path.normpath(os.path.join(base_dir, raw_lessons_dir))
+    else:
+        lessons_dir = os.path.join(inst_dir, "lessons")
 
     manifest_path = os.path.join(inst_dir, "manifest.json")
     cursor_path = os.path.join(cursor_dir, "CURSOR.md")
@@ -69,7 +109,7 @@ def main():
         print(f"Error: manifest not found at {manifest_path}", file=sys.stderr)
         sys.exit(1)
 
-    with open(manifest_path) as f:
+    with open(manifest_path, "r", encoding="utf-8") as f:
         manifest = json.load(f)
 
     now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -102,7 +142,6 @@ def main():
 
     # Copy lesson artifact if supplied
     if args.lesson_artifact and os.path.exists(args.lesson_artifact):
-        lessons_dir = os.path.join(inst_dir, "lessons")
         os.makedirs(lessons_dir, exist_ok=True)
         dest_filename = os.path.basename(args.lesson_artifact)
         dest_path = os.path.join(lessons_dir, dest_filename)
@@ -159,54 +198,62 @@ def main():
     if args.forward_hook:
         manifest["cursor"]["forwardHook"] = args.forward_hook
 
-    # Clean legacy objects if present
-    manifest["runningContext"].pop("notion", None)
-    manifest["runningContext"].pop("drawBoard", None)
-    manifest["runningContext"].pop("visualBackend", None)
+    # 5. Tick off in CURRICULUM.md if complete_topic passed
+    if args.complete_topic and os.path.exists(curriculum_path) and completed_topic_title:
+        with open(curriculum_path, "r", encoding="utf-8") as f:
+            c_lines = f.readlines()
+        new_lines = []
+        for line in c_lines:
+            if re.search(r"-\s*\[\s*\]\s*" + re.escape(completed_topic_title), line):
+                new_lines.append(re.sub(r"-\s*\[\s*\]", "- [x]", line, count=1))
+            else:
+                new_lines.append(line)
+        atomic_write(curriculum_path, "".join(new_lines))
 
-    # Save manifest.json
-    with open(manifest_path, "w") as f:
-        json.dump(manifest, f, indent=2)
+    # 6. Save manifest atomically
+    atomic_write(manifest_path, manifest, is_json=True)
 
-    # 5. Update CURRICULUM.md checkbox if topic completed
-    if completed_topic_title and os.path.exists(curriculum_path):
-        with open(curriculum_path) as f:
-            curr_content = f.read()
-
-        escaped_title = re.escape(completed_topic_title)
-        pattern = rf"- \[ \] (\s*{escaped_title}\b)"
-        curr_content = re.sub(pattern, r"- [x] \1", curr_content, count=1)
-
-        with open(curriculum_path, "w") as f:
-            f.write(curr_content)
-
-    # 6. Regenerate CURSOR.md
+    # 7. Re-render CURSOR.md atomically
     active_cluster_id = manifest["curriculum"]["activeClusterId"]
     active_topic_id = manifest["curriculum"]["activeTopicId"]
 
-    active_cluster = next((c for c in manifest["curriculum"]["clusters"] if c["id"] == active_cluster_id), manifest["curriculum"]["clusters"][0])
-    active_topic = next((t for t in active_cluster["topics"] if t["id"] == active_topic_id), active_cluster["topics"][0])
+    active_cluster = None
+    active_topic = None
+    for c in manifest["curriculum"]["clusters"]:
+        if c["id"] == active_cluster_id:
+            active_cluster = c
+            for t in c["topics"]:
+                if t["id"] == active_topic_id:
+                    active_topic = t
+                    break
+            break
 
+    if not active_cluster:
+        active_cluster = manifest["curriculum"]["clusters"][0]
+    if not active_topic:
+        active_topic = active_cluster["topics"][0]
+
+    completed_topics = sum(
+        1 for c in manifest["curriculum"]["clusters"] for t in c["topics"] if t["status"] == "completed"
+    )
     total_topics = sum(len(c["topics"]) for c in manifest["curriculum"]["clusters"])
-    completed_topics = sum(1 for c in manifest["curriculum"]["clusters"] for t in c["topics"] if t["status"] == "completed")
-    pct = (completed_topics / total_topics * 100) if total_topics else 0
+    pct = (completed_topics / total_topics * 100) if total_topics > 0 else 0
 
     examples_md = ""
-    if manifest["runningContext"]["examplesTaken"]:
-        for ex in manifest["runningContext"]["examplesTaken"]:
-            examples_md += f"- **{ex['domain']}** (`{ex['id']}`): {ex['scenario']}\n"
-            if ex.get("tradeoffsExposed"):
-                for to in ex["tradeoffsExposed"]:
-                    examples_md += f"  - *Tradeoff*: {to}\n"
-    else:
-        examples_md = "*(No examples logged yet)*\n"
+    for ex in manifest["runningContext"]["examplesTaken"]:
+        tradeoffs = ", ".join(ex.get("tradeoffsExposed", []))
+        examples_md += f"- **{ex['domain']}**: {ex['scenario']}"
+        if tradeoffs:
+            examples_md += f" *(Exposes: {tradeoffs})*"
+        examples_md += f" — `{ex['date']}`\n"
+    if not examples_md:
+        examples_md = "*(None logged yet)*\n"
 
     deferred_md = ""
-    pending_def = [d for d in manifest["runningContext"]["deferredQueue"] if d["status"] == "pending"]
-    if pending_def:
-        for d in pending_def:
+    for d in manifest["runningContext"]["deferredQueue"]:
+        if d.get("status") == "pending":
             deferred_md += f"- **{d['topic']}** (`{d['id']}`): Target: `{d['targetClusterId']}`. *Anchor*: {d['anchorNote']}\n"
-    else:
+    if not deferred_md:
         deferred_md = "*(Queue currently empty)*\n"
 
     cluster_topics_md = ""
@@ -214,6 +261,10 @@ def main():
         box = "[x]" if t["status"] == "completed" else "[ ]"
         is_cur = " **CURRENT** ➔" if t["id"] == active_topic_id else ""
         cluster_topics_md += f"- {box}{is_cur} **{t['title']}** (`{t['id']}`)\n"
+
+    cluster_code = active_cluster.get("code") or active_cluster["id"].replace("cluster.", "")
+    rc_questions = extract_cluster_reality_checks(inst_dir, cluster_code)
+    rc_md = "\n".join(f"    {q}" for q in rc_questions)
 
     cursor_md = f"""# Living Teaching Cursor & Running Context
 
@@ -226,8 +277,7 @@ def main():
 - **Curriculum**: {manifest['curriculum']['title']} (`{manifest['curriculum']['id']}`)
 - **Active Cluster**: {active_cluster['title']} (`{active_cluster['id']}`)
   - *Cluster Reality Checks*:
-    1. *"For each provider API Anchor calls, do you know whether it paginates by page number, cursor or link header — and what your loop does if the list shifts mid-fetch?"*
-    2. *"Explain how a retry after a timeout can double-charge without an idempotency key. Where exactly is the ambiguity: client, network, or server?"*
+{rc_md}
 - **Active Topic**: **{active_topic['title']}** (`{active_topic['id']}`)
   - *Topic Foundation Status*: `{manifest['cursor']['topicFoundationStatus']}`
   - *Active Mechanism Group*: `{manifest['cursor']['activeMechanismGroupId']}`
@@ -263,8 +313,7 @@ def main():
 ## Progress Overview: {completed_topics} / {total_topics} Topics ({pct:.1f}%)
 """
 
-    with open(cursor_path, "w") as f:
-        f.write(cursor_md)
+    atomic_write(cursor_path, cursor_md)
 
     print(f"✅ Cursor advanced! Active topic: {active_topic['title']}")
     print(f"   Progress: {completed_topics}/{total_topics} ({pct:.1f}%)")

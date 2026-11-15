@@ -47,7 +47,7 @@
 
 ### Reality Check — Illusion vs Actual
 
-- [ ]  For each provider API Anchor calls, do you know whether it paginates by page number, cursor or link header — and what your loop does if the list shifts mid-fetch? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  For each provider API your client application calls, do you know whether it paginates by page number, cursor or link header — and what your loop does if the list shifts mid-fetch? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 - [ ]  Explain how a retry after a timeout can double-charge without an idempotency key. Where exactly is the ambiguity: client, network, or server? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
@@ -76,7 +76,7 @@
 
 ### Reality Check — Illusion vs Actual
 
-- [ ]  Rival uses IndexedDB through Dexie — can you map its (compound) indexes onto the B-tree rules above, and say what a query that can't use an index costs? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  In an application using client-side embedded storage (e.g. IndexedDB or SQLite) — can you map its (compound) indexes onto the B-tree rules above, and say what a query that can't use an index costs? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 - [ ]  Why doesn't 'I used a transaction' automatically prevent a lost update — which isolation level or pattern actually does? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
@@ -103,7 +103,7 @@
 
 ### Reality Check — Illusion vs Actual
 
-- [ ]  Rival is a PWA — which of its resources are governed by HTTP cache headers vs a service-worker cache, and who invalidates each? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  In an offline-capable web application / PWA — which of its resources are governed by HTTP cache headers vs a service-worker cache, and who invalidates each? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 - [ ]  Given a write-back cache and a crash, exactly what data is lost, and how would the design detect it? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
@@ -212,7 +212,7 @@
 
 ### Reality Check — Illusion vs Actual
 
-- [ ]  In Anchor, what is the real variation axis across VCS providers, and does your provider interface abstract exactly that — or also things that never vary? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  In a multi-provider service client, what is the real variation axis across external providers, and does your provider interface abstract exactly that — or also things that never vary? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 - [ ]  Name one abstraction you've written with exactly one implementation today and decide whether it earns its keep. — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
@@ -751,7 +751,7 @@
 ### Reality Check — Illusion vs Actual
 
 - [ ]  Show how naive retries at three layers turn one failure into 27x load, and what stops it. — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
-- [ ]  What does Anchor do on a 429 or 5xx from a provider — timeouts, backoff, does it honor Retry-After? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  What does your client application do on a 429 or 5xx from a provider — timeouts, backoff, does it honor Retry-After? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
 
@@ -805,7 +805,7 @@
 
 ### Reality Check — Illusion vs Actual
 
-- [ ]  Anchor authenticates against multiple providers: where does each token live, how does refresh work, and what does a leaked token allow? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  When an application authenticates against multiple identity providers: where does each token live, how does refresh work, and what does a leaked token allow? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 - [ ]  Why is JWT revocation hard, and what are the real mitigations? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
@@ -1069,7 +1069,7 @@
 ### Reality Check — Illusion vs Actual
 
 - [ ]  Why client-generated IDs, and what breaks when the server assigns IDs and the client is offline? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
-- [ ]  How does Rival's data layer differ from Room-based offline-first, and which guarantees are weaker? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
+- [ ]  How does an embedded client-side data layer differ from Room/SQLite offline-first, and which guarantees are weaker? — *Tick off when: you can answer this cold, in under 30 seconds, with no notes. A shaky or partial answer means leave it unchecked.*
 
 ---
 

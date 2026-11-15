@@ -11,7 +11,7 @@
 - **Active Cluster**: 1. [0.1] APIs & Network Transport for Design (`cluster.0.1`)
   - *Cluster Depth Target*: `[concept][contrast][trap]` | *Depends on*: None
   - *Cluster Reality Checks to Pass Cold*:
-    1. *"For each provider API Anchor calls, do you know whether it paginates by page number, cursor or link header — and what your loop does if the list shifts mid-fetch?"*
+    1. *"For each provider API your client application calls, do you know whether it paginates by page number, cursor or link header — and what your loop does if the list shifts mid-fetch?"*
     2. *"Explain how a retry after a timeout can double-charge without an idempotency key. Where exactly is the ambiguity: client, network, or server?"*
 - **Active Topic**: **TCP vs UDP — what reliability costs, and why real-time media often picks UDP** (`topic.0.1.tcp-vs-udp`)
   - *Target Depth*: `[concept][mechanics][contrast][trap]`

@@ -153,6 +153,10 @@ When a forward-looking question arises:
 3. Plant a forward hook in the cursor.
 4. When the target cluster arrives, automatically rehydrate the question and close the loop.
 
+### 3. Causal Anchors (`causalAnchors`)
+Records physical invariants and hardware bounds verified during signed-off topics (e.g., speed of light in silica at ~5 μs/km, cold TLS 1.3 handshakes, WAL fsync latencies).
+* **Source & Verification Rule**: Never populated with speculative claims. Only physical constants, hardware constraints, or mathematically verified invariant bounds established and tested during sign-off gates are admitted, ensuring all subsequent lessons reason from verified physical ground truth.
+
 ---
 
 ## Part III — Teaching Delivery Protocol: Strictly Artifact-First & Sign-Off Gated
@@ -191,7 +195,7 @@ flowchart LR
     C3["3. Tick-off Criteria<br/>(Sign-Off Defense Standard)"] --> GAUGE
 
     GAUGE --> DEPTH["Depth & Coverage Specification"]
-    DEPTH --> ARTIFACT["Interactive HTML Lesson Artifact<br/>(6 Foundation Pillars + Simulator + Workloads + Unanswered Scenario)"]
+    DEPTH --> ARTIFACT["Interactive HTML Lesson Artifact<br/>(Cohesive Progressive Disclosure Narrative)"]
 ```
 
 1. **Living Cursor Context**:
@@ -221,20 +225,19 @@ By combining (1) Cursor Context, (2) Outcome Specification, and (3) Tick-off Cri
 > Delivering a long markdown explanation in chat while producing an HTML artifact is strictly forbidden. Leaking or embedding the answer to the sign-off scenario inside the artifact is strictly forbidden.
 
 - **Topic Entry (First Turn on a Topic)**:
-  - The comprehensive lesson is delivered **strictly inside the standalone interactive HTML artifact**, strictly adhering to the **6-Part Component Anatomy**:
-    1. **Hero Header**: Tier, cluster, topic, depth tags, and visual theme.
-    2. **Topic Foundation & Orientation**: The 6 Foundation Questions (Physical Motivation, System Placement, Design Relevance, Vocabulary, Mental Model, Bridge).
-    3. **Dedicated Digestible Explanations (The Whys & Hows)**: Non-negotiable space for exhaustive mechanical closure:
-       - *The "Why"*: Physical dilemma, why naive approaches fail, why this exact design arose.
-       - *The "How"*: Causal mechanics, actors and boundaries, data packet/record layouts, kernel/storage buffer states (`Send-Q`/`Recv-Q`), sequential execution traces, failure domain boundaries.
-       - *Visual Mechanism Diagrams*: SVG/CSS architecture or sequence flowcharts.
-       - *Invariant Boundaries*: Precise guarantees provided vs explicit non-guarantees.
-    4. **Interactive Execution Simulator**: Active sandbox with protocol toggles, fault injection, animated data transit, and live telemetry.
-    5. **Workload Contrast & Trade-Off Matrix**: Opposing production workloads and invariant comparison table.
-    6. **Final Sign-Off Challenge (Active Verification Gate)**: Realistic engineering scenario testing the tick-off criteria **left deliberately without an answer or reveal toggle**.
-  - Artifact files must be saved in two locations:
-    1. `<appDataDir>/brain/<conversation-id>/<topic-slug>.html` (renders directly in the agent's side pane with `UserFacing: true`).
-    2. `.system-design/lessons/<topic-slug>.html` (committed to git in the project instance).
+  - The comprehensive lesson is delivered **strictly inside the standalone interactive HTML artifact**, structured as **one continuous, cohesive discussion with progressive disclosure**:
+    - **No repetitive coverage silos**: No "brief overview" followed by "foundation cards" followed by "deep explanations" and a "summary table". Concepts are introduced only when the narrative naturally requires them.
+    - **No artificial section indexing**: Sections are not indexed by category names or numbers (e.g. no "01 Foundation"). Sections use topic-driven narrative headings that tell the ongoing engineering story.
+    - **Embedded interactive components**: Interactive simulators or state machines have no dedicated siloed section; they are embedded inline wherever the mechanism is explained.
+    - **The 5 Narrative Stages**:
+      1. *Background Context & The Forcing Problem*: What broke in the absence of the active topic? Exhaustive closure on WHY (and optional WHEN). A concrete dilemma introduced here continues throughout.
+      2. *The Active Topic & Its Landscape*: WHAT the mechanism is and WHERE it sits in the architectural stack (assumed new unless cursor states otherwise). Exhaustive closure on WHAT and WHERE.
+      3. *Internal Mechanics & Causality*: HOW it works, WHY it works that way, and why alternatives fail. Digestible grasp with inline interactive simulator.
+      4. *Mental Model Synthesis & Production Grounding*: Bundles prior mechanics into a sticky mental model and correlates with real-world production workloads.
+      5. *Contextual Sign-Off Verification Gate*: Leaves the reader with one or more contextual engineering scenarios without answers to defend in chat.
+  - **Artifact Storage Locations (Universal & Portable)**:
+    1. **Primary (Universal)**: Save directly to `.system-design/lessons/<topic-slug>.html` (or configured `paths.lessonsDir`). This is Git-tracked and works universally across all agents (Claude Code, Cursor, Codex, and Antigravity).
+    2. **Side-Pane Staging (Antigravity-Specific)**: IF AND ONLY IF running inside Antigravity (where an Artifact Directory Path `<appDataDir>/brain/<conversation-id>` is provided in context), also stage a copy to `<appDataDir>/brain/<conversation-id>/<topic-slug>.html` with `UserFacing: true` so the side-pane viewer renders it immediately. Do not attempt this path in Claude Code, Cursor, or Codex.
   - The in-chat response must be **strictly a concise delivery bridge** (5–12 lines):
     1. Announce the active topic, cluster code, and tier.
     2. Provide a clickable link to the generated artifact.
@@ -271,14 +274,13 @@ The styling engine injects CSS custom properties (`:root`) into each generated a
 
 ---
 
-### 5. Mandatory Topic Foundation Inside the Artifact
-Every topic's HTML artifact begins by answering:
-1. **Physical Problem & Motivation**: What physical limit forces this mechanism into existence?
-2. **System Placement**: Where does this component sit in the architectural stack?
-3. **Design Relevance**: Which trade-offs (latency, durability, consistency, cost) depend on it?
-4. **Prerequisites & Vocabulary**: Define necessary terms immediately; eliminate unexplained jargon.
-5. **Mental Model**: Provide an intuitive model of the moving parts before the deep trace.
-6. **Learning Bridge**: Connect to prior topics and state what is deferred.
+### 5. Progressive Disclosure Flow Inside the Artifact
+Rather than an abstract upfront metadata dump, the lesson unfolds through progressive disclosure:
+1. **The Forcing Dilemma (WHYs & WHENs)**: Grounded in physical constraints and what broke before this mechanism existed. Sets a concrete dilemma that persists throughout.
+2. **Core Abstraction & Placement (WHATs & WHEREs)**: Assumed new unless established; defines the entity and its exact boundary in the stack.
+3. **Internal Mechanics & Causality (HOWs & WHYs of HOWs)**: Step-by-step causal trace, why alternative designs fail, and tactile inline simulation.
+4. **Mental Model & Production Grounding**: Synthesis into a lasting mental model with contrasting real-world workloads and an invariant matrix.
+5. **Contextual Sign-Off Gate**: A bounded failure scenario testing the criteria without pre-baked answers.
 
 ---
 
