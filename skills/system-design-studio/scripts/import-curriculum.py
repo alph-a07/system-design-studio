@@ -118,7 +118,7 @@ def main():
 
     # 1. Manifest
     manifest = {
-        "$schemaVersion": "2.0",
+        "$schemaVersion": "3.0",
         "instanceName": title,
         "createdAt": now_iso,
         "lastUpdated": now_iso,

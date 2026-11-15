@@ -9,7 +9,7 @@ description: >-
   systems, architect backend or mobile infrastructure, advance through the system design curriculum, or inspect learning progress.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex, Gemini CLI)
 metadata:
-  version: 2.3.0
+  version: 3.0.0
   author: Jeel Patel
   license: MIT
 ---
@@ -107,7 +107,7 @@ my-system-design-project/
 Learners can customize where the cursor and lessons are stored by modifying `paths` in `.system-design/settings.json`:
 ```json
 {
-  "$schemaVersion": "2.0",
+  "$schemaVersion": "3.0",
   "artifactStyle": "slate-clean",
   "paths": {
     "instanceDir": ".system-design",
