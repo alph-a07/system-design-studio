@@ -1,10 +1,20 @@
-# System Design Studio
+<p align="center">
+  <a href="https://alph-a07.github.io/system-design-studio">
+    <img src="docs/assets/logo-badge.svg" width="120" height="120" alt="System Design Studio Logo" />
+  </a>
+</p>
 
-[![Agent Skills Standard](https://img.shields.io/badge/Agent%20Skills-Standard-059669?style=flat-square)](https://agentskills.io)
-[![License: MIT](https://img.shields.io/badge/License-MIT-0ea5e9?style=flat-square)](LICENSE)
-[![Universal Agents](https://img.shields.io/badge/Agents-Antigravity%20%7C%20Claude%20%7C%20Cursor%20%7C%20Codex-6366f1?style=flat-square)](README.md)
-[![Documentation](https://img.shields.io/badge/Docs-GitHub%20Pages-10b981?style=flat-square)](https://alph-a07.github.io/system-design-studio)
-[![Support: Buy Me A Coffee](https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/itsjeel01)
+<h1 align="center">System Design Studio</h1>
+
+<p align="center">
+  <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent%20Skills-Standard-059669?style=flat-square" alt="Agent Skills Standard" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-0ea5e9?style=flat-square" alt="License: MIT" /></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/Agents-Antigravity%20%7C%20Claude%20%7C%20Cursor%20%7C%20Codex-6366f1?style=flat-square" alt="Universal Agents" /></a>
+  <a href="https://alph-a07.github.io/system-design-studio"><img src="https://img.shields.io/badge/Docs-GitHub%20Pages-10b981?style=flat-square" alt="Documentation" /></a>
+  <a href="https://github.com/alph-a07/system-design-studio"><img src="https://img.shields.io/github/stars/alph-a07/system-design-studio?style=flat-square&logo=github&color=ffcc00&label=Star%20Repo" alt="GitHub Stars" /></a>
+  <a href="https://github.com/sponsors/alph-a07"><img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat-square&logo=github-sponsors&logoColor=white" alt="GitHub Sponsors" /></a>
+  <a href="https://buymeacoffee.com/itsjeel01"><img src="https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" /></a>
+</p>
 
 An open, portable, agent-agnostic systems architecture learning studio that runs directly inside your project repository under `.system-design/`. It teaches low-level component design, high-level distributed systems, infrastructure mechanisms, and mobile architecture across a canonical **50-cluster, 354-topic syllabus** through first-principles causal reasoning, Git-backed living state, and interactive visual simulators.
 
@@ -28,6 +38,7 @@ flowchart TD
     P2["2. Project as a Learning Instance<br/>(Local .system-design/ Directory)"] --> SYNC
     P3["3. Living Cursor Running Context<br/>(Lineage, Examples Log, Deferred Queue)"] --> TEACHING["Interactive Teaching Engine"]
     P4["4. Visual Interactive HTML Artifacts<br/>(Causal Storytelling & Simulators)"] --> TEACHING
+    P5["5. Sign-Off Defense Gate & ADRs<br/>(Won't Advance Until Defended)"] --> TEACHING
 
     SYNC <--> TEACHING
 ```
@@ -35,7 +46,8 @@ flowchart TD
 1. **Universal Agent Portability**: Zero proprietary runtime lock-in. 100% compliant with the open Agent Skills standard. Operates whether hosted in Google Antigravity, Claude Code, Cursor, Codex, or Gemini CLI.
 2. **Project as a Learning Instance**: No external accounts, no cloud database locks, and no SaaS logins. Learning state resides entirely in a local `.system-design/` folder within your project, tracked by standard Git.
 3. **Living Cursor State Engine (`CURSOR.md`)**: Replaces ephemeral LLM memory with deterministic, file-backed state. Tracks active focus, target depth, causal hardware anchors, domain examples (`examplesTaken`), and pending deferred questions (`deferredQueue`).
-4. **Interactive HTML Lesson Artifacts (Strictly Artifact-First)**: New topics are delivered strictly inside standalone interactive HTML artifacts in `.system-design/lessons/`, complete with interactive JavaScript packet simulators, failure injection controls, SVG sequence traces, invariant matrices, and 5 customizable design themes (`settings.json`). Follow-up discussions happen directly inline in chat.
+4. **Interactive HTML Lesson Artifacts (Strictly Artifact-First)**: New topics are delivered strictly inside standalone interactive HTML artifacts in `.system-design/lessons/`, complete with live interactive JavaScript packet simulators, failure injection controls, SVG sequence traces, invariant matrices, and 5 customizable design themes (`settings.json`). Follow-up discussions happen directly inline in chat.
+5. **The Sign-Off Gate & Built-in ADR Portfolio**: It won't let you move on until you can defend it. The interactive lesson explores mechanics but hides the tick-off scenario; progress in `CURSOR.md` advances only after defending architectural trade-offs in chat. Defended decisions compile into `DECISIONS.md` as an interview-ready Architecture Decision Record portfolio.
 
 ---
 
@@ -47,7 +59,7 @@ Every learning workspace is a self-contained Git repository:
 my-project/
 ├── .git/
 ├── .system-design/
-│   ├── manifest.json              # Canonical machine-readable state (schema v2.0)
+│   ├── manifest.json              # Canonical machine-readable state (schema v2.3)
 │   ├── settings.json              # Theme & delivery preferences (5 visual styles)
 │   ├── CURSOR.md                  # Living running context (brain of the instance)
 │   ├── CURRICULUM.md              # Master 50-cluster syllabus with checkboxes
@@ -258,11 +270,18 @@ The live GitHub Pages documentation site is available at:
 
 ---
 
-## Support the Project
+## Support the Project & Fuel the Studio
 
-If you find System Design Studio valuable for mastering distributed systems and level-setting your architectural intuition, consider supporting its open-source development:
+If System Design Studio untangled a tricky concept or made your prep a little easier, consider buying me a coffee ☕ or sponsoring my work.
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-itsjeel01-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/itsjeel01)
+<p align="left">
+  <a href="https://github.com/sponsors/alph-a07"><img src="https://img.shields.io/badge/Sponsor%20on%20GitHub-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
+  &nbsp;&nbsp;
+  <a href="https://buymeacoffee.com/itsjeel01"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-itsjeel01-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" /></a>
+</p>
+
+> ⭐ **Not in a coffee mood? No worries!** A **[star on GitHub](https://github.com/alph-a07/system-design-studio)** costs absolutely nothing but makes my day.  
+> *Happy designing, and thanks for being here!*
 
 ---
 
