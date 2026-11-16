@@ -93,7 +93,7 @@ $XDG_CONFIG/codex/skills
 $GLOBAL_STUDIO_DIR/skills
 "
 
-ALL_TARGET_NAMES="system-design-studio sds-status sds-teach sds-discuss sds-complete sds-notes sds-projects sds-open sds-curriculum sds-config sds-update"
+ALL_TARGET_NAMES="system-design-studio sds-status sds-teach sds-discuss sds-complete sds-notes sds-projects sds-open sds-delete sds-curriculum sds-config sds-update"
 
 FOUND_LOCATIONS=""
 for parent in $SKILL_PARENTS; do

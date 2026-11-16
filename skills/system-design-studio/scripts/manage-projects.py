@@ -166,6 +166,118 @@ def cmd_unregister(args):
     save_registry(reg)
     print(f"✅ Project '{args.id}' removed from registry (files on disk preserved).")
 
+def cmd_delete(args):
+    reg = load_registry()
+    projects = reg.get("projects", [])
+    target = next((p for p in projects if p.get("id") == args.id or p.get("name") == args.id), None)
+
+    if not target:
+        resolved_path = os.path.abspath(os.path.expanduser(args.id))
+        target = next((p for p in projects if os.path.abspath(p.get("projectPath", "")) == resolved_path), None)
+
+    if not target:
+        print(f"❌ Error: Project '{args.id}' not found in registry.", file=sys.stderr)
+        print("   Use 'manage-projects.py list' to view registered projects.", file=sys.stderr)
+        sys.exit(1)
+
+    project_id = target.get("id")
+    project_path = target.get("projectPath")
+    notes_dir = target.get("notesDir")
+    studio_dir = get_global_studio_dir()
+    default_projects_dir = os.path.join(studio_dir, "projects")
+
+    dot_sds_dir = os.path.join(project_path, ".system-design") if project_path else None
+
+    is_default_location = (
+        project_path and
+        os.path.abspath(project_path).startswith(os.path.abspath(default_projects_dir)) and
+        os.path.abspath(project_path) != os.path.abspath(default_projects_dir)
+    )
+
+    home_dir = os.path.abspath(get_home_dir())
+    is_home_or_root = (
+        not project_path or
+        os.path.abspath(project_path) == home_dir or
+        os.path.abspath(project_path) == "/"
+    )
+
+    will_delete_entire_dir = is_default_location and not is_home_or_root and (args.purge or not args.keep_project_dir)
+    will_delete_notes = args.delete_notes and notes_dir and os.path.exists(notes_dir) and os.path.abspath(notes_dir) != home_dir and os.path.abspath(notes_dir) != "/"
+
+    if args.dry_run:
+        print("=" * 76)
+        print(f"🔍 DRY RUN — DELETE PROJECT: {project_id}")
+        print("=" * 76)
+        print(f"   Registry Entry:   Will remove from {get_projects_registry_path()}")
+        if dot_sds_dir and os.path.exists(dot_sds_dir):
+            print(f"   Learning State:   Will remove {dot_sds_dir}")
+        if will_delete_entire_dir:
+            print(f"   Project Folder:   Will remove default project dir: {project_path}")
+        else:
+            print(f"   Workspace Folder: PRESERVED ({project_path})")
+        if will_delete_notes:
+            print(f"   Study Notes:      Will remove notes dir: {notes_dir}")
+        else:
+            print(f"   Study Notes:      PRESERVED ({notes_dir})")
+        return
+
+    if not args.force:
+        print(f"⚠️  Are you sure you want to delete project '{project_id}'?")
+        print(f"   • Location: {project_path}")
+        if will_delete_entire_dir:
+            print(f"   • Action:   Entire default project folder will be removed ({project_path})")
+        else:
+            print(f"   • Action:   Learning state ({dot_sds_dir}) will be removed; workspace source files kept.")
+        if will_delete_notes:
+            print(f"   • Notes:    Study notes directory ({notes_dir}) will be DELETED.")
+        else:
+            print(f"   • Notes:    Study notes ({notes_dir}) will be KEPT.")
+
+        try:
+            confirm = input("Type 'yes' or project name to confirm deletion: ").strip()
+        except (EOFError, KeyboardInterrupt):
+            print("\nAction cancelled.")
+            return
+
+        if confirm.lower() != "yes" and confirm != project_id:
+            print("Action cancelled. No files or registry entries were changed.")
+            return
+
+    import shutil
+    deleted_items = []
+
+    if will_delete_entire_dir and os.path.exists(project_path):
+        shutil.rmtree(project_path)
+        deleted_items.append(f"Project directory ({project_path})")
+    elif dot_sds_dir and os.path.exists(dot_sds_dir):
+        shutil.rmtree(dot_sds_dir)
+        deleted_items.append(f"Instance state ({dot_sds_dir})")
+
+    if will_delete_notes and os.path.exists(notes_dir):
+        shutil.rmtree(notes_dir)
+        deleted_items.append(f"Notes directory ({notes_dir})")
+
+    projects = [p for p in projects if p.get("id") != project_id]
+    reg["projects"] = projects
+    if reg.get("activeProjectId") == project_id:
+        reg["activeProjectId"] = projects[0]["id"] if projects else None
+        if reg["activeProjectId"]:
+            print(f"🔄 Active project switched to '{reg['activeProjectId']}'")
+        else:
+            print("ℹ️  No other registered projects remaining.")
+
+    save_registry(reg)
+
+    print("=" * 76)
+    print(f"✅ Successfully deleted project '{project_id}'!")
+    for item in deleted_items:
+        print(f"   • Removed: {item}")
+    if not will_delete_notes and notes_dir and os.path.exists(notes_dir):
+        print(f"   • Kept notes at: {notes_dir}")
+    if not will_delete_entire_dir and project_path and os.path.exists(project_path):
+        print(f"   • Kept workspace at: {project_path}")
+    print("=" * 76)
+
 def cmd_switch(args):
     reg = load_registry()
     projects = reg.get("projects", [])
@@ -290,6 +402,15 @@ def main():
     p_notes = subparsers.add_parser("notes", help="List notes for a project")
     p_notes.add_argument("id", nargs="?", help="Project identifier (defaults to active)")
 
+    # delete
+    p_del = subparsers.add_parser("delete", aliases=["rm", "remove"], help="Safely delete a project learning instance")
+    p_del.add_argument("id", help="Project identifier, display name, or path")
+    p_del.add_argument("-f", "--force", action="store_true", help="Skip confirmation prompt")
+    p_del.add_argument("--delete-notes", action="store_true", help="Also delete the generated study notes directory")
+    p_del.add_argument("--purge", action="store_true", help="Purge entire project folder if default location")
+    p_del.add_argument("--keep-project-dir", action="store_true", help="Keep project folder even if default location")
+    p_del.add_argument("--dry-run", action="store_true", help="Show what would be removed without touching disk")
+
     args = parser.parse_args()
     if args.command == "list" or not args.command:
         cmd_list(args if args.command else argparse.Namespace(json=False))
@@ -297,6 +418,8 @@ def main():
         cmd_register(args)
     elif args.command == "unregister":
         cmd_unregister(args)
+    elif args.command in ("delete", "rm", "remove"):
+        cmd_delete(args)
     elif args.command == "switch":
         cmd_switch(args)
     elif args.command == "active":

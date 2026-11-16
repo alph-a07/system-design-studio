@@ -53,6 +53,7 @@ Every command works natively across all agents (Antigravity, Claude Code, Cursor
 | **`/sds-complete [ev]`** | "Mark complete", "Sign off topic" | Runs `advance-cursor.py --complete-topic <id> --evidence <ev> --hypothesis <hypo> --discussion-summary <summary>`. Ticks `CURRICULUM.md`, logs ADR in `DECISIONS.md`, and compiles active-learning study note. |
 | **`/sds-projects`** | "Show all projects", "List projects" | Runs `manage-projects.py list`. Displays an overview table of all registered machine projects, locations, tracks, and progress. |
 | **`/sds-open <name>`** | "Switch to project X" | Runs `manage-projects.py switch <id>`. Switches active project context. |
+| **`/sds-delete [name]`** | "Delete project X", "Remove instance" | Runs `manage-projects.py delete <id>`. Safely removes project instance from registry and deletes `.system-design` state; preserves workspace source files and notes unless `--delete-notes` is specified. |
 | **`/sds-notes [topic]`** | "Show my notes", "Where are my notes?" | Runs `manage-projects.py notes`. Lists all generated study notes for the active project with direct clickable links (`file:///...`). |
 | **`/sds-curriculum`** | "Customize syllabus", "Reorder topics" | Runs `configure-curriculum.py` or guides curriculum restructuring from chat. |
 | **`/sds-config [k] [v]`**| "Switch theme to obsidian", "Change output to markdown" | Runs `merge-settings.py` or updates `.system-design/settings.json` dynamically for subsequent lessons. |

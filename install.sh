@@ -338,17 +338,19 @@ install_to_path() {
   chmod +x "${target_parent}/${SKILL_NAME}/scripts/"*.sh "${target_parent}/${SKILL_NAME}/scripts/"*.py 2>/dev/null || true
 
   # 2. Companion in-chat slash command skills (sds-status, sds-teach, etc.)
+  local companion_count=0
   for cmd_dir in "${SOURCE_SKILLS_DIR}"/sds-*; do
     if [ -d "$cmd_dir" ]; then
       cmd_name="$(basename "$cmd_dir")"
       rm -rf "${target_parent}/${cmd_name}"
       cp -R "$cmd_dir" "${target_parent}/${cmd_name}"
       chmod -R u+rwX,go+rX "${target_parent}/${cmd_name}" 2>/dev/null || true
+      companion_count=$((companion_count + 1))
     fi
   done
 
   if [ -f "${target_parent}/${SKILL_NAME}/SKILL.md" ]; then
-    echo "   ✅ Verified system-design-studio + 10 in-chat slash commands at ${target_parent}"
+    echo "   ✅ Verified system-design-studio + ${companion_count} in-chat slash commands at ${target_parent}"
   fi
 }
 
@@ -460,6 +462,10 @@ case "$1" in
     shift
     exec python3 "$PROJECTS_SCRIPT" notes "$@"
     ;;
+  delete|remove|rm)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" delete "$@"
+    ;;
   *)
     echo "System Design Studio CLI (sds)"
     echo "Commands:"
@@ -467,6 +473,7 @@ case "$1" in
     echo "  sds list / projects    List registered projects and progress"
     echo "  sds switch <id>        Switch active project context"
     echo "  sds notes [id]         List generated notes for active project"
+    echo "  sds delete <id>        Safely delete a project instance"
     ;;
 esac
 EOF

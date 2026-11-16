@@ -175,6 +175,7 @@ Once initialized, **you never need to switch to a terminal again**. Open your AI
 | **`/sds-complete [ev]`** | Validates mastery, ticks `CURRICULUM.md`, advances cursor, and synthesizes study notes in your configured notes format. |
 | **`/sds-projects`** | Lists all registered projects, locations, tracks, and progress metrics across your machine. |
 | **`/sds-open <name>`** | Switches the agent's active project context. |
+| **`/sds-delete <name>`** | Safely deletes a project instance and its `.system-design` state directory. |
 | **`/sds-notes`** | Displays direct clickable links to all generated study notes for the active project. |
 | **`/sds-curriculum`** | Reorders, prunes, or fine-tunes syllabus clusters right from chat. |
 | **`/sds-config [k] [v]`**| Dynamically switches theme, output format (`html` ↔ `markdown`), or notes options. |

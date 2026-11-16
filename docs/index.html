@@ -731,23 +731,25 @@
           </div>
         </div>
 
-        <!-- Command 6 & 7: /sds-projects & /sds-open -->
+        <!-- Command 6, 7 & 8: /sds-projects, /sds-open & /sds-delete -->
         <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
           <div class="flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 flex-wrap">
               <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-projects</code>
               <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-open &lt;id&gt;</code>
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-delete &lt;id&gt;</code>
             </div>
             <button type="button" aria-label="Copy /sds-projects" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-projects')">
               <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
             </button>
           </div>
           <p class="text-xs font-body text-on-surface-variant leading-relaxed">
-            Multi-project instances on one machine. <code class="font-bold">/sds-projects</code> lists all registered instances and track progress. <code class="font-bold">/sds-open &lt;id&gt;</code> immediately switches active context.
+            Multi-project instances on one machine. <code class="font-bold">/sds-projects</code> lists all registered instances and track progress. <code class="font-bold">/sds-open &lt;id&gt;</code> switches active context. <code class="font-bold">/sds-delete &lt;id&gt;</code> safely deletes a project instance and its learning state.
           </p>
           <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
             <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "List projects"</span>
             <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Switch to project distributed-lab"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Delete project test-lab"</span>
             <span class="text-tertiary font-semibold">➔ manage-projects.py</span>
           </div>
         </div>
