@@ -309,13 +309,17 @@ def main():
 
     args = parser.parse_args()
 
-    settings = resolve_settings(args.instance_dir)
+    instance_dir = args.instance_dir
+    if os.path.isdir(os.path.join(instance_dir, ".system-design")):
+        instance_dir = os.path.join(instance_dir, ".system-design")
+
+    settings = resolve_settings(instance_dir)
     if not settings.get("autoGenerateNotes", True):
         print("ℹ️ Auto-generation of notes is disabled in settings. Skipping.")
         sys.exit(0)
 
     # Resolve notes directory
-    abs_inst = os.path.abspath(args.instance_dir)
+    abs_inst = os.path.abspath(instance_dir)
     base_dir = os.path.dirname(abs_inst) if os.path.basename(abs_inst) == ".system-design" else abs_inst
 
     configured_notes_dir = args.notes_dir or settings.get("paths", {}).get("notesDir") or settings.get("notesDir") or "notes"
@@ -326,7 +330,7 @@ def main():
 
     notes_structure = args.notes_structure or settings.get("notesStructure") or "per-topic"
 
-    tier, cluster, topic = resolve_topic_metadata(args.instance_dir, args.topic_id)
+    tier, cluster, topic = resolve_topic_metadata(instance_dir, args.topic_id)
     today_str = datetime.date.today().isoformat()
 
     note_body = build_note_markdown(tier, cluster, topic, args.evidence, args.discussion_summary, args.hypothesis, today_str)

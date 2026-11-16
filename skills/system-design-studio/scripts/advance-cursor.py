@@ -116,6 +116,8 @@ def main():
 
     args = parser.parse_args()
     inst_dir = args.instance_dir
+    if os.path.isdir(os.path.join(inst_dir, ".system-design")):
+        inst_dir = os.path.join(inst_dir, ".system-design")
 
     # Resolve cursor and lessons directory preferences from settings.json if present
     abs_inst = os.path.abspath(inst_dir)

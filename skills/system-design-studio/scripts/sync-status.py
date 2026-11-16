@@ -17,7 +17,11 @@ def main():
     parser.add_argument("--instance-dir", default=None, help="Path to .system-design directory")
     args = parser.parse_args()
 
-    instance_dir = args.instance_dir or args.pos_instance_dir or ".system-design"
+    raw_dir = args.instance_dir or args.pos_instance_dir or ".system-design"
+    if os.path.isdir(os.path.join(raw_dir, ".system-design")):
+        instance_dir = os.path.join(raw_dir, ".system-design")
+    else:
+        instance_dir = raw_dir
     manifest_path = os.path.join(instance_dir, "manifest.json")
     settings_path = os.path.join(instance_dir, "settings.json")
 

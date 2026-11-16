@@ -128,7 +128,7 @@ STYLE_THEMES = {
 }
 
 # Invariant cohesive fallback template matching resources/lesson-template.html
-DEFAULT_TEMPLATE = """<!DOCTYPE html>
+DEFAULT_TEMPLATE = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">

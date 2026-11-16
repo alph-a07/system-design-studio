@@ -12,6 +12,9 @@ import json
 import re
 
 def verify_instance(instance_dir=".system-design"):
+    if os.path.isdir(os.path.join(instance_dir, ".system-design")):
+        instance_dir = os.path.join(instance_dir, ".system-design")
+
     errors = []
     warnings = []
     passes = []

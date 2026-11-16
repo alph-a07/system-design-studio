@@ -31,6 +31,14 @@ jobs:
             echo "Error: SKILL.md exceeds 500 lines rule ($LINE_COUNT lines)"
             exit 1
           fi
+          for s in skills/sds-*/SKILL.md; do
+            count=$(wc -l < "$s")
+            echo "$s line count: $count"
+            if [ "$count" -gt 500 ]; then
+              echo "Error: $s exceeds 500 lines ($count lines)"
+              exit 1
+            fi
+          done
 
       - name: Test Fresh Scaffolding & Verification
         run: |
@@ -87,3 +95,19 @@ jobs:
           rm -rf /tmp/test-pipe-home && mkdir -p /tmp/test-pipe-home
           cat $GITHUB_WORKSPACE/install.sh | HOME=/tmp/test-pipe-home sh -s -- --all
           test -f /tmp/test-pipe-home/.gemini/antigravity/skills/system-design-studio/SKILL.md
+
+      - name: Test In-Chat Slash Commands & Clean Uninstaller
+        run: |
+          rm -rf /tmp/test-un-home && mkdir -p /tmp/test-un-home
+          HOME=/tmp/test-un-home bash $GITHUB_WORKSPACE/install.sh --all
+          test -f /tmp/test-un-home/.gemini/antigravity/skills/sds-status/SKILL.md
+          test -f /tmp/test-un-home/.gemini/config/skills/sds-status/SKILL.md
+          test -f /tmp/test-un-home/.claude/commands/sds-status.md
+          test -f /tmp/test-un-home/.codex/prompts/sds-status.md
+          
+          # Run non-interactive clean uninstaller
+          HOME=/tmp/test-un-home bash $GITHUB_WORKSPACE/uninstall.sh -y
+          test ! -d /tmp/test-un-home/.gemini/antigravity/skills/system-design-studio
+          test ! -d /tmp/test-un-home/.gemini/antigravity/skills/sds-status
+          test ! -f /tmp/test-un-home/.claude/commands/sds-status.md
+          test ! -f /tmp/test-un-home/.codex/prompts/sds-status.md
