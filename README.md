@@ -164,33 +164,42 @@ bash ~/.system-design-studio/skills/system-design-studio/scripts/init-learning-i
 3. **Project-Scoped Notes Location & Structure**: Default `<project>/notes` or custom path (e.g. Obsidian vault) structured as `per-topic` (default), `per-cluster`, `per-tier`, or `single-file`.
 
 #### Terminal Project Management (`sds` CLI)
-You can also inspect and manage projects directly from your terminal using `~/.system-design-studio/bin/sds`:
+You can inspect and manage projects, rollback states, or launch the visual tracker directly from your terminal using `sds` (or `~/.system-design-studio/bin/sds`):
 ```bash
-sds init              # Scaffold a new learning project
-sds list              # List registered projects, tracks, and progress (alias: sds projects)
-sds switch <id>       # Switch active project context across agent sessions
-sds notes [id]        # List generated study notes for active or specific project
-sds delete <id>       # Safely delete a project instance (-f to skip prompt, --dry-run to preview)
+sds init                  # Scaffold a new learning project with curated or BYO tracks
+sds dashboard             # Launch live read-only progress tracker on localhost (http://localhost:8420)
+sds list / projects       # List registered projects, active tracks, and progress metrics
+sds switch <id>           # Switch active project context across agent sessions
+sds notes [id]            # List generated study notes for active or specific project
+sds rollback [--steps N]  # Revert state to previous atomic checkpoint or Git commit
+sds checkpoints           # Inspect audit history of local snapshots and Git commits
+sds delete <id>           # Safely delete a project instance (-f to skip prompt, --dry-run to preview)
 ```
 
 ---
 
-### Step 3: Pure Chat Interaction (Zero Terminal Needed)
-Once initialized, **you never need to switch to a terminal again**. Open your AI agent (Antigravity, Claude Code, Cursor, or Codex) and drive your entire learning journey directly in chat via custom skill commands:
+### Step 3: Pure Chat Interaction (The Hybrid Workflow)
+Once initialized, **you never need to switch to a terminal again**. Open your AI agent (Antigravity, Claude Code, Cursor, or Codex) and drive your entire learning journey directly in chat. Commands are structured around your natural learning flow:
 
-| Command | Action |
-| :--- | :--- |
-| **`/sds-teach [topic]`** | Generates & delivers the topic artifact (interactive HTML simulator or clean Markdown narrative). |
-| **`/sds-discuss`** | Evaluates your scenario cold defense, explores failure modes, and stress-tests invariants in chat. |
-| **`/sds-complete [ev]`** | Validates mastery, ticks `CURRICULUM.md`, advances cursor, and synthesizes study notes in your configured notes format. |
-| **`/sds-projects`** | Lists all registered projects, locations, tracks, and progress metrics across your machine. |
-| **`/sds-open <name>`** | Switches the agent's active project context. |
-| **`/sds-delete <name>`** | Safely deletes a project instance and its `.system-design` state directory. |
-| **`/sds-notes`** | Displays direct clickable links to all generated study notes for the active project. |
-| **`/sds-curriculum`** | Reorders, prunes, or fine-tunes syllabus clusters right from chat. |
-| **`/sds-config [k] [v]`**| Dynamically switches theme, output format (`html` ↔ `markdown`), or notes options. |
-| **`/sds-update`** | Checks for updates on demand. If available, prompts you to run `update.sh` in terminal. |
-| **`/sds-status`** | Displays active topic, track progress, and living cursor state. |
+#### Phase 1: Deep Dive & Visual Discovery
+- **`/sds-teach [topic]`**: Explains complex systems with friendly editorial storytelling, deep causal mechanics, and mandatory inline jargon unpacking. Delivers a standalone interactive HTML simulator (or rich Markdown diagrams) so you can visually test failure modes.
+
+#### Phase 2: Stress-Testing & Dialectic Defense
+- **`/sds-discuss`**: Proves you understand production failure modes before advancing. The agent challenges your working assumptions cold in chat with unannounced failure scenarios, latency limits, and asymmetric network partitions.
+
+#### Phase 3: Automated Proof, Git Checkpointing & Retention
+- **`/sds-complete [evidence]`**: Validates defense criteria, ticks `CURRICULUM.md`, logs an ADR in `DECISIONS.md`, advances your living cursor, and commits atomic state to Git (`sds(learn): complete ...`).
+- **`/sds-notes [topic]`**: Accesses synthesized study notes (Initial Hypothesis → Dialectic Friction → Derived Invariant → Sizing Rules). Auto-generated when enabled; compile manually on demand when disabled.
+
+#### Phase 4: Visual Tracking, Safety & Multi-Track Isolation
+- **`/sds-dashboard`**: Launches the live read-only progress tracker and artifact workbench on `http://localhost:8420` in sync with Git.
+- **`/sds-rollback`**: Safely undo an accidental topic sign-off or restore curriculum structure with atomic Git rollback and local snapshot recovery.
+- **`/sds-status`**: Instant snapshot of your active focus, backward causal hooks, forward hooks, and deferred questions.
+- **`/sds-curriculum`**: Reorder clusters, prune topics, or import a custom Markdown syllabus scoped strictly to your project without losing completed progress.
+- **`/sds-config [k] [v]`**: Switch visual themes, toggle between HTML and Markdown output, or toggle automatic note generation.
+- **`/sds-projects` & `/sds-open <name>`**: Manage multiple isolated learning workspaces across your workstation (e.g. interview sprint vs. infrastructure track).
+- **`/sds-delete <name>`**: Safely clean up finished instances and keep your multi-project registry tidy without touching workspace source files.
+- **`/sds-update`**: On-demand check for studio updates without background telemetry.
 
 ---
 
