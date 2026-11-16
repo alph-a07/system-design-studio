@@ -100,6 +100,7 @@
     <a class="px-3 py-1.5 font-headline text-sm font-bold uppercase tracking-wider bg-primary-container text-primary font-bold border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]" href="index.html">Home</a>
     <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="curriculum.html">Curriculum</a>
     <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#how-it-works">How it works</a>
+    <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#commands">Commands</a>
     <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#install">Install</a>
     <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="#support">Support</a>
     <a class="px-3 py-1.5 font-headline text-sm font-semibold uppercase tracking-wider text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">GitHub</a>
@@ -359,7 +360,7 @@
         </p>
 </div>
 
-<!-- Terminal Box: Single Command -->
+<!-- Terminal Box: Universal Installer -->
 <div class="border-[3px] border-primary bg-primary text-surface shadow-[8px_8px_0px_#1a1a1a]">
 <!-- Terminal Top Bar -->
 <div class="flex flex-wrap items-center justify-between border-b-2 border-surface-variant/30 bg-primary px-4 py-3 gap-2">
@@ -369,28 +370,66 @@
 <span class="w-3 h-3 rounded-full bg-emerald-400 inline-block"></span>
 <span class="text-xs font-mono text-surface-dim uppercase ml-2 tracking-wider">Universal Shell Installer • Auto-Detects All Agents</span>
 </div>
-<button class="flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#ffcc00] hover:bg-primary-container transition-all active:translate-x-[1px] active:translate-y-[1px]" id="copy-btn" onclick="copyCommand()">
+<div class="flex items-center gap-2">
+<span class="text-xs font-mono font-bold text-surface-dim uppercase px-2.5 py-1 bg-black/40 border border-surface-variant/30 flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>Bash &bull; Zsh Ready</span>
+</div>
+</div>
+<!-- Terminal Body with Per-Command Copy Buttons -->
+<div class="p-6 font-mono text-sm space-y-5">
+<!-- Step 1 -->
+<div>
+<p class="text-surface-dim mb-2 text-xs sm:text-sm"># Step 1: Install skill globally and configure machine preferences (theme, HTML vs MD, notes opt-in):</p>
+<div class="p-3 sm:p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-3 overflow-hidden">
+<div class="overflow-x-auto flex-1 select-all py-1">
+<code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-step-1">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</code>
+</div>
+<button type="button" aria-label="Copy Step 1 install command" class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#ffcc00] hover:bg-primary-container hover:text-neutral-900 transition-all active:translate-x-[1px] active:translate-y-[1px]" onclick="copySnippetText(this, 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash')">
 <span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
-<span>Copy Command</span>
+<span>Copy</span>
 </button>
 </div>
-<!-- Terminal Body -->
-<div class="p-6 font-mono text-sm space-y-4">
-<p class="text-surface-dim"># Step 1: Install skill globally and configure machine preferences (theme, HTML vs MD, notes opt-in):</p>
-<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
-<code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-text">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</code>
 </div>
-<p class="text-surface-dim pt-2"># Step 2: Initialize a project learning instance with curated tracks or BYO syllabus:</p>
-<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
-<code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm">~/.system-design-studio/bin/sds init</code>
+
+<!-- Step 2 -->
+<div>
+<p class="text-surface-dim mb-2 pt-1 text-xs sm:text-sm"># Step 2: Initialize a project learning instance with curated tracks or BYO syllabus:</p>
+<div class="p-3 sm:p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-3 overflow-hidden">
+<div class="overflow-x-auto flex-1 select-all py-1">
+<code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-step-2">~/.system-design-studio/bin/sds init</code>
 </div>
-<p class="text-surface-dim pt-2"># Step 3: Update on-demand when notified via in-chat /sds-update alert (preserves all progress &amp; notes):</p>
-<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
-<code class="text-emerald-400 font-bold whitespace-nowrap text-xs sm:text-sm">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash</code>
+<button type="button" aria-label="Copy Step 2 init command" class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#ffcc00] hover:bg-primary-container hover:text-neutral-900 transition-all active:translate-x-[1px] active:translate-y-[1px]" onclick="copySnippetText(this, '~/.system-design-studio/bin/sds init')">
+<span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
+<span>Copy</span>
+</button>
 </div>
-<p class="text-surface-dim pt-2"># Clean Uninstall (safely removes skill only from agents; strictly preserves projects, progress &amp; notes):</p>
-<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
-<code class="text-amber-400 font-bold whitespace-nowrap text-xs sm:text-sm">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/uninstall.sh | bash</code>
+</div>
+
+<!-- Step 3 -->
+<div>
+<p class="text-surface-dim mb-2 pt-1 text-xs sm:text-sm"># Step 3: Update on-demand when notified via in-chat /sds-update alert (preserves all progress &amp; notes):</p>
+<div class="p-3 sm:p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-3 overflow-hidden">
+<div class="overflow-x-auto flex-1 select-all py-1">
+<code class="text-emerald-400 font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-step-3">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash</code>
+</div>
+<button type="button" aria-label="Copy Step 3 update command" class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#10b981] hover:bg-emerald-400 hover:text-neutral-900 transition-all active:translate-x-[1px] active:translate-y-[1px]" onclick="copySnippetText(this, 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash')">
+<span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
+<span>Copy</span>
+</button>
+</div>
+</div>
+
+<!-- Step 4 -->
+<div>
+<p class="text-surface-dim mb-2 pt-1 text-xs sm:text-sm"># Clean Uninstall (safely removes skill only from agents; strictly preserves projects, progress &amp; notes):</p>
+<div class="p-3 sm:p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-3 overflow-hidden">
+<div class="overflow-x-auto flex-1 select-all py-1">
+<code class="text-amber-400 font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-step-4">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/uninstall.sh | bash</code>
+</div>
+<button type="button" aria-label="Copy Step 4 uninstall command" class="shrink-0 flex items-center gap-1.5 px-3 py-1.5 bg-surface text-on-surface font-headline text-xs font-bold uppercase border-2 border-surface shadow-[2px_2px_0px_#f59e0b] hover:bg-amber-400 hover:text-neutral-900 transition-all active:translate-x-[1px] active:translate-y-[1px]" onclick="copySnippetText(this, 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/uninstall.sh | bash')">
+<span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span>
+<span>Copy</span>
+</button>
+</div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 text-xs text-surface-dim border-t border-surface-variant/20">
 <div class="flex items-start gap-2">
@@ -521,6 +560,244 @@
 <strong>Project Directory Support:</strong> Projects can live in the default studio repository (<code class="font-bold">~/.system-design-studio/projects/&lt;name&gt;</code>) or in any dedicated workspace or Git repository on your machine. All projects and their notes are tracked in the central multi-project registry.
 </span>
 </div>
+</div>
+</section>
+
+<!-- IN-CHAT SKILL COMMANDS REFERENCE SECTION -->
+<section class="w-full border-b-[3px] border-primary bg-surface px-6 lg:px-12 py-16" id="commands">
+<div class="max-w-7xl mx-auto flex flex-col gap-10">
+  <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b-2 border-primary pb-6">
+    <div>
+      <span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">In-Chat Skill Commands • Universal Across All Agents</span>
+      <h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
+        Command Your Agent in Chat
+      </h2>
+    </div>
+    <p class="font-body text-sm text-on-surface-variant max-w-md">
+      Zero terminal commands during learning. Talk naturally to Claude Code, Cursor, Codex, or Antigravity—or use structured slash commands. The agent handles engine scripts silently under the hood.
+    </p>
+  </div>
+
+  <!-- Conversational Fluency Callout -->
+  <div class="border-2 border-primary bg-surface-container-high p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-[3px_3px_0px_#1a1a1a]">
+    <div class="flex items-center gap-3">
+      <span class="w-8 h-8 bg-primary text-white font-headline font-bold text-xs flex items-center justify-center shrink-0 border border-primary shadow-[1px_1px_0px_#ffcc00]">TIP</span>
+      <p class="font-body text-xs sm:text-sm text-on-surface">
+        <strong>Natural Language Fluency:</strong> You don't have to memorize slash syntax! Say <code class="font-mono bg-surface-container-lowest px-1.5 py-0.5 border border-primary/30 font-bold">"Teach me topic 0.1"</code> or <code class="font-mono bg-surface-container-lowest px-1.5 py-0.5 border border-primary/30 font-bold">"Here is my defense of the partition scenario..."</code> and your agent will execute the exact same state transitions.
+      </p>
+    </div>
+    <span class="text-xs font-mono font-bold bg-primary-container px-2.5 py-1 border border-primary text-neutral-900 shrink-0">10 BUNDLED COMMANDS</span>
+  </div>
+
+  <!-- 4 Command Category Grids -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    
+    <!-- CATEGORY 1: Active Pedagogy & Socratic Defense -->
+    <div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between border-b-2 border-primary pb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary font-bold text-xl">school</span>
+            <h3 class="font-headline font-bold text-lg uppercase tracking-tight text-on-surface">
+              Core Pedagogy &amp; Defense
+            </h3>
+          </div>
+          <span class="font-mono text-xs font-bold bg-secondary text-white px-2 py-0.5">ACTIVE LEARNING</span>
+        </div>
+        <p class="font-body text-xs text-on-surface-variant">
+          Controls the causal teaching loop, interactive artifacts, Socratic stress-testing, and defense-gated advancement.
+        </p>
+
+        <!-- Command 1: /sds-teach -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-teach [topic]</code>
+              <span class="text-[10px] font-mono text-on-surface-variant uppercase font-bold">Deliver Lesson</span>
+            </div>
+            <button type="button" aria-label="Copy /sds-teach" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-teach')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Renders interactive HTML simulator or Markdown diagram artifact. Prompts for your initial intuition or working hypothesis before exposing physical mechanics.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Teach topic 0.1"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Next topic"</span>
+            <span class="text-secondary font-semibold">➔ render-lesson.py</span>
+          </div>
+        </div>
+
+        <!-- Command 2: /sds-discuss -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-discuss</code>
+              <span class="text-[10px] font-mono text-on-surface-variant uppercase font-bold">Socratic Dialectic</span>
+            </div>
+            <button type="button" aria-label="Copy /sds-discuss" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-discuss')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Stress-tests your hypothesis. For seniors, probes cold failure modes and latency bounds. For juniors, provides Socratic scaffolding questions without spoiling the unannounced gate.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Here is my trade-off defense..."</span>
+            <span class="text-secondary font-semibold">➔ Dialectic Engine</span>
+          </div>
+        </div>
+
+        <!-- Command 3: /sds-complete -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-complete [evidence]</code>
+              <span class="text-[10px] font-mono text-on-surface-variant uppercase font-bold">Sign-Off Gate</span>
+            </div>
+            <button type="button" aria-label="Copy /sds-complete" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-complete')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Verifies cold trade-off defense against hidden gate in <code class="font-bold">CURRICULUM.md</code>. Upon passing: ticks topic, writes ADR in <code class="font-bold">DECISIONS.md</code>, advances <code class="font-bold">CURSOR.md</code>, and compiles active-learning study note.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Mark complete"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Sign off topic"</span>
+            <span class="text-secondary font-semibold">➔ advance-cursor.py</span>
+          </div>
+        </div>
+
+        <!-- Command 4: /sds-status -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-status</code>
+              <span class="text-[10px] font-mono text-on-surface-variant uppercase font-bold">Progress &amp; State</span>
+            </div>
+            <button type="button" aria-label="Copy /sds-status" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-status')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Inspects active topic, verified prerequisites, completion percentage, cognitive anchors, and deferred questions directly from disk.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Show progress"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Where are we?"</span>
+            <span class="text-secondary font-semibold">➔ sync-status.py</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CATEGORY 2: Knowledge Synthesis, Multi-Project & Config -->
+    <div class="border-[3px] border-primary bg-surface-container-lowest p-6 shadow-[5px_5px_0px_#1a1a1a] flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="flex items-center justify-between border-b-2 border-primary pb-3">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-tertiary font-bold text-xl">folder_shared</span>
+            <h3 class="font-headline font-bold text-lg uppercase tracking-tight text-on-surface">
+              Knowledge, Projects &amp; Settings
+            </h3>
+          </div>
+          <span class="font-mono text-xs font-bold bg-tertiary text-white px-2 py-0.5">STATE MANAGEMENT</span>
+        </div>
+        <p class="font-body text-xs text-on-surface-variant">
+          Lists synthesized active-learning notes, switches workspaces, customizes curricula, and fine-tunes settings.
+        </p>
+
+        <!-- Command 5: /sds-notes -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-notes [topic]</code>
+              <span class="text-[10px] font-mono text-on-surface-variant uppercase font-bold">Study Notes</span>
+            </div>
+            <button type="button" aria-label="Copy /sds-notes" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-notes')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Lists all synthesized active-learning study notes for your project with clickable <code class="font-bold">file:///</code> links. Formatted by your configured mode (atomic, cluster, tier, single-file).
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Show my notes"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Open notes"</span>
+            <span class="text-tertiary font-semibold">➔ manage-projects.py notes</span>
+          </div>
+        </div>
+
+        <!-- Command 6 & 7: /sds-projects & /sds-open -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-projects</code>
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-open &lt;id&gt;</code>
+            </div>
+            <button type="button" aria-label="Copy /sds-projects" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-projects')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Multi-project instances on one machine. <code class="font-bold">/sds-projects</code> lists all registered instances and track progress. <code class="font-bold">/sds-open &lt;id&gt;</code> immediately switches active context.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "List projects"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Switch to project distributed-lab"</span>
+            <span class="text-tertiary font-semibold">➔ manage-projects.py</span>
+          </div>
+        </div>
+
+        <!-- Command 8: /sds-curriculum -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-curriculum</code>
+              <span class="text-[10px] font-mono text-on-surface-variant uppercase font-bold">Customize Syllabus</span>
+            </div>
+            <button type="button" aria-label="Copy /sds-curriculum" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-curriculum')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            Restructure cluster priorities, prune topics, or import a custom Markdown syllabus adhering to the 3-level taxonomy (<code class="font-bold">Tier &gt; Cluster &gt; Topic</code>) with gate validation.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Customize syllabus"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Import BYO syllabus"</span>
+            <span class="text-tertiary font-semibold">➔ configure-curriculum.py</span>
+          </div>
+        </div>
+
+        <!-- Command 9 & 10: /sds-config & /sds-update -->
+        <div class="border-2 border-primary/40 bg-surface p-4 space-y-2">
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-config</code>
+              <code class="font-mono font-bold text-sm text-primary bg-primary-container px-2 py-0.5 border border-primary">/sds-update</code>
+            </div>
+            <button type="button" aria-label="Copy /sds-config" class="px-2.5 py-1 bg-surface-container-high hover:bg-primary-container text-on-surface text-xs font-mono font-bold border border-primary transition-all flex items-center gap-1 active:translate-x-[1px]" onclick="copySnippetText(this, '/sds-config')">
+              <span class="material-symbols-outlined text-xs">content_copy</span><span>Copy</span>
+            </button>
+          </div>
+          <p class="text-xs font-body text-on-surface-variant leading-relaxed">
+            <code class="font-bold">/sds-config [k] [v]</code> updates visual theme, HTML vs. MD output, or note structure dynamically. <code class="font-bold">/sds-update</code> checks for new releases on-demand without background telemetry.
+          </p>
+          <div class="text-[11px] font-mono text-on-surface flex flex-wrap items-center gap-2 pt-1">
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">Natural: "Switch theme to obsidian"</span>
+            <span class="bg-surface-container px-1.5 py-0.5 border border-primary/20">"Check for updates"</span>
+            <span class="text-tertiary font-semibold">➔ merge-settings.py</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
 </div>
 </section>
 
@@ -1023,58 +1300,156 @@ Instead of abstract claims on your resume, you graduate with a Git-committed pro
 </div>
 </section>
 
+</div></main>
+
+<!-- FOOTER -->
+<footer class="w-full bg-surface-container border-t-[3px] border-primary pt-12 pb-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
+    <!-- Top Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-8 pb-10 border-b-2 border-primary/20">
+      <!-- Col 1: Brand & Manifesto (5 cols) -->
+      <div class="md:col-span-5 flex flex-col gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-primary border-2 border-primary flex items-center justify-center p-1 shadow-[2px_2px_0px_#ffcc00] shrink-0" aria-label="System Design Studio Logo">
+            <svg class="w-full h-full" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 131 60 A 68 68 0 0 1 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+              <path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+              <line x1="131" y1="60" x2="131" y2="196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/>
+              <circle cx="75" cy="60" r="18" fill="#ffffff"/>
+              <circle cx="75" cy="196" r="18" fill="#ffffff"/>
+              <circle cx="165" cy="128" r="20" fill="#ffcc00"/>
+              <circle cx="131" cy="128" r="14" fill="#e63b2e" stroke="#ffffff" stroke-width="8"/>
+            </svg>
+          </div>
+          <span class="font-headline font-bold uppercase tracking-wider text-base text-on-surface">System Design Studio</span>
+        </div>
+        <p class="font-body text-xs sm:text-sm text-on-surface-variant leading-relaxed max-w-sm">
+          Form follows function. The stateful, interactive system design learning studio for AI coding agents with zero-cloud git-backed state and unannounced trade-off defense gates.
+        </p>
+        <div class="flex flex-wrap items-center gap-2 pt-1 font-mono text-[11px]">
+          <span class="px-2 py-0.5 bg-surface-container-lowest border border-primary font-bold text-on-surface">v3.2.0 SPEC</span>
+          <span class="px-2 py-0.5 bg-secondary text-white font-bold">100% LOCAL-FIRST</span>
+          <span class="px-2 py-0.5 bg-primary-container text-neutral-900 font-bold border border-primary">ZERO-CLOUD</span>
+        </div>
+      </div>
+
+      <!-- Col 2: Studio & Curriculum Navigation (4 cols) -->
+      <div class="md:col-span-4 flex flex-col gap-3">
+        <span class="font-headline font-bold text-xs uppercase tracking-widest text-secondary">Navigation &amp; Docs</span>
+        <ul class="flex flex-col gap-2 font-headline text-xs font-semibold uppercase text-on-surface-variant">
+          <li><a class="hover:text-tertiary transition-colors" href="index.html">Studio Home</a></li>
+          <li><a class="hover:text-tertiary transition-colors" href="curriculum.html">Curriculum Syllabus (50 Clusters)</a></li>
+          <li><a class="hover:text-tertiary transition-colors" href="#how-it-works">How It Works &amp; Phases</a></li>
+          <li><a class="hover:text-tertiary transition-colors" href="#commands">In-Chat Skill Commands</a></li>
+          <li><a class="hover:text-tertiary transition-colors" href="#install">Universal Installer &amp; Setup</a></li>
+          <li><a class="hover:text-tertiary transition-colors" href="#themes">Visual Artifact Themes</a></li>
+        </ul>
+      </div>
+
+      <!-- Col 3: Community & Open Source (3 cols) -->
+      <div class="md:col-span-3 flex flex-col gap-3">
+        <span class="font-headline font-bold text-xs uppercase tracking-widest text-primary-fixed-dim">Community &amp; Open Source</span>
+        <ul class="flex flex-col gap-2 font-headline text-xs font-semibold uppercase text-on-surface-variant">
+          <li>
+            <a class="hover:text-tertiary transition-colors flex items-center gap-1.5" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">
+              <span class="material-symbols-outlined text-sm">code</span>
+              <span>GitHub Repository</span>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-amber-500 transition-colors flex items-center gap-1.5" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener">
+              <span class="text-amber-500 font-bold">★</span>
+              <span>Star on GitHub</span>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-secondary transition-colors flex items-center gap-1.5" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener">
+              <span class="text-pink-600 font-bold">♥</span>
+              <span>GitHub Sponsors</span>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-amber-600 transition-colors flex items-center gap-1.5" href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener">
+              <span class="font-bold">☕</span>
+              <span>Buy Me A Coffee</span>
+            </a>
+          </li>
+          <li>
+            <a class="hover:text-tertiary transition-colors flex items-center gap-1.5" href="https://github.com/alph-a07/system-design-studio/blob/main/LICENSE" target="_blank" rel="noopener">
+              <span class="material-symbols-outlined text-sm">balance</span>
+              <span>MIT License</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bottom Sub-Footer Bar -->
+    <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono text-on-surface-variant">
+      <div>
+        &copy; 2026 SYSTEM DESIGN STUDIO &bull; ZERO-CLOUD TELEMETRY &bull; BUILT FOR AI CODING AGENTS.
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-[11px] uppercase tracking-wider text-on-surface-variant">DESIGNED WITH BAUHAUS NEO-BRUTALIST PRINCIPLES</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
 <!-- CLIENT-SIDE SCRIPT FOR INTERACTION -->
 <script>
-    // Theme toggle
-    function toggleDarkMode() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  // Theme toggle
+  function toggleDarkMode() {
+    const isDark = document.documentElement.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  }
+
+  // Fallback copy for non-clipboard API environments
+  function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    textarea.style.top = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+    } catch (err) {
+      console.error('Fallback copy failed', err);
     }
+    document.body.removeChild(textarea);
+  }
 
-    // Copy single universal install command
-    function fallbackCopy(text) {
-      const textarea = document.createElement('textarea');
-      textarea.value = text;
-      textarea.style.position = 'fixed';
-      textarea.style.left = '-9999px';
-      textarea.style.top = '0';
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand('copy');
-      } catch (err) {
-        console.error('Fallback copy failed', err);
-      }
-      document.body.removeChild(textarea);
-    }
+  // Direct snippet copier with visual feedback
+  function copySnippetText(btn, text) {
+    const showCopied = () => {
+      if (!btn) return;
+      const origHTML = btn.innerHTML;
+      btn.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600" aria-hidden="true">check</span><span class="text-emerald-600 font-bold">Copied!</span>`;
+      setTimeout(() => {
+        btn.innerHTML = origHTML;
+      }, 2000);
+    };
 
-    function copyCommand() {
-      const copyText = 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash';
-      const btn = document.getElementById('copy-btn');
-
-      const showCopied = () => {
-        if (!btn) return;
-        btn.innerHTML = `<span class="material-symbols-outlined text-sm text-emerald-600" aria-hidden="true">check</span><span class="text-emerald-600 font-bold">Copied!</span>`;
-        setTimeout(() => {
-          btn.innerHTML = `<span class="material-symbols-outlined text-sm" aria-hidden="true">content_copy</span><span>Copy Command</span>`;
-        }, 2000);
-      };
-
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(copyText).then(showCopied).catch(() => {
-          fallbackCopy(copyText);
-          showCopied();
-        });
-      } else {
-        fallbackCopy(copyText);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(showCopied).catch(() => {
+        fallbackCopy(text);
         showCopied();
-      }
+      });
+    } else {
+      fallbackCopy(text);
+      showCopied();
     }
-  </script>
-</div></main><footer class="w-full bg-surface-container border-t-[3px] border-primary py-12 mt-20"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-6"><div class="flex items-center gap-3"><div class="w-7 h-7 bg-primary border border-primary flex items-center justify-center p-0.5 shadow-[1px_1px_0px_#ffcc00] shrink-0" aria-hidden="true"><svg class="w-full h-full" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M 131 60 A 68 68 0 0 1 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/><path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" stroke="#ffffff" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/><line x1="131" y1="60" x2="131" y2="196" stroke="#ffffff" stroke-width="26" stroke-linecap="round"/><circle cx="75" cy="60" r="18" fill="#ffffff"/><circle cx="75" cy="196" r="18" fill="#ffffff"/><circle cx="165" cy="128" r="20" fill="#ffcc00"/><circle cx="131" cy="128" r="14" fill="#e63b2e" stroke="#ffffff" stroke-width="8"/></svg></div><span class="font-headline font-bold uppercase tracking-wider text-sm text-on-surface">System Design Studio • Bauhaus Neo-Brutalist Edition</span></div><div class="flex flex-wrap items-center gap-6 font-headline text-xs font-bold uppercase text-on-surface-variant">
-  <a class="hover:text-tertiary transition-colors" href="curriculum.html">Curriculum Syllabus</a>
-  <a class="hover:text-amber-500 transition-colors flex items-center gap-1" href="https://github.com/alph-a07/system-design-studio" target="_blank" rel="noopener"><span>Star on GitHub</span><span class="text-xs">⭐</span></a>
-  <a class="hover:text-secondary transition-colors flex items-center gap-1" href="https://github.com/sponsors/alph-a07" target="_blank" rel="noopener"><span>GitHub Sponsors</span><span class="text-xs">❤️</span></a>
-  <a class="hover:text-amber-600 transition-colors flex items-center gap-1" href="https://buymeacoffee.com/itsjeel01" target="_blank" rel="noopener"><span>Buy Me A Coffee</span><span class="text-xs">☕</span></a>
-</div><div class="text-xs font-mono text-on-surface-variant">© 2026 FORM FOLLOWS FUNCTION.</div></div></footer></body></html>
+  }
+
+  // Backward-compatible copyCommand
+  function copyCommand() {
+    const copyText = 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash';
+    const btn = document.getElementById('copy-btn');
+    copySnippetText(btn, copyText);
+  }
+</script>
+</body>
+</html>
