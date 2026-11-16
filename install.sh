@@ -442,38 +442,74 @@ cat <<'EOF' > "${GLOBAL_BIN}/sds"
 #!/bin/sh
 HOME_DIR="${HOME:-$USERPROFILE}"
 GLOBAL_DIR="${SDS_GLOBAL_DIR:-$HOME_DIR/.system-design-studio}"
-INIT_SCRIPT="${GLOBAL_DIR}/skills/system-design-studio/scripts/init-learning-instance.sh"
-PROJECTS_SCRIPT="${GLOBAL_DIR}/skills/system-design-studio/scripts/manage-projects.py"
+BASE_SCRIPTS="${GLOBAL_DIR}/skills/system-design-studio/scripts"
 
 case "$1" in
   init)
     shift
-    exec bash "$INIT_SCRIPT" "$@"
+    exec bash "${BASE_SCRIPTS}/init-learning-instance.sh" "$@"
     ;;
   projects|list)
     shift
-    exec python3 "$PROJECTS_SCRIPT" list "$@"
+    exec python3 "${BASE_SCRIPTS}/manage-projects.py" list "$@"
     ;;
-  switch)
+  switch|open)
     shift
-    exec python3 "$PROJECTS_SCRIPT" switch "$@"
+    exec python3 "${BASE_SCRIPTS}/manage-projects.py" switch "$@"
     ;;
   notes)
     shift
-    exec python3 "$PROJECTS_SCRIPT" notes "$@"
+    exec python3 "${BASE_SCRIPTS}/manage-projects.py" notes "$@"
     ;;
   delete|remove|rm)
     shift
-    exec python3 "$PROJECTS_SCRIPT" delete "$@"
+    exec python3 "${BASE_SCRIPTS}/manage-projects.py" delete "$@"
+    ;;
+  dashboard|tracker|serve)
+    shift
+    exec python3 "${BASE_SCRIPTS}/serve-dashboard.py" "$@"
+    ;;
+  rollback|restore|undo)
+    shift
+    exec python3 "${BASE_SCRIPTS}/git-checkpoint.py" rollback "$@"
+    ;;
+  checkpoints)
+    shift
+    exec python3 "${BASE_SCRIPTS}/git-checkpoint.py" list "$@"
+    ;;
+  curriculum)
+    shift
+    exec python3 "${BASE_SCRIPTS}/configure-curriculum.py" "$@"
+    ;;
+  config)
+    shift
+    exec python3 "${BASE_SCRIPTS}/merge-settings.py" "$@"
+    ;;
+  status)
+    shift
+    exec python3 "${BASE_SCRIPTS}/sync-status.py" "$@"
     ;;
   *)
-    echo "System Design Studio CLI (sds)"
-    echo "Commands:"
-    echo "  sds init [options]     Initialize a new project learning instance"
-    echo "  sds list / projects    List registered projects and progress"
-    echo "  sds switch <id>        Switch active project context"
-    echo "  sds notes [id]         List generated notes for active project"
-    echo "  sds delete <id>        Safely delete a project instance"
+    echo "============================================================================"
+    echo "  SYSTEM DESIGN STUDIO CLI (sds)"
+    echo "============================================================================"
+    echo "Usage: sds <command> [options]"
+    echo ""
+    echo "Core Commands:"
+    echo "  sds init [options]         Initialize or scaffold a project learning instance"
+    echo "  sds dashboard [options]    Launch read-only curriculum tracker on localhost"
+    echo "  sds list / projects        List registered projects, tracks, and progress"
+    echo "  sds switch <id>            Switch active project context"
+    echo "  sds notes [id]             List generated study notes for active project"
+    echo "  sds delete <id>            Safely delete a project instance"
+    echo ""
+    echo "State & Safety:"
+    echo "  sds rollback [--steps N]   Roll back state to a previous atomic checkpoint"
+    echo "  sds checkpoints            List recent state snapshots and Git commits"
+    echo "  sds curriculum [options]   Configure, prune, or reorder curriculum tracks"
+    echo "  sds config [key] [val]     Inspect or dynamically update settings"
+    echo "  sds status                 Display current living cursor and topic metrics"
+    echo "============================================================================"
     ;;
 esac
 EOF

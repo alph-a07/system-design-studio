@@ -344,18 +344,30 @@ if [ -f "${SCRIPT_DIR}/manage-projects.py" ]; then
     --set-active
 fi
 
+# 6. Record Initial Git Checkpoint if inside Git repository
+if [ -f "${SCRIPT_DIR}/git-checkpoint.py" ]; then
+  python3 "${SCRIPT_DIR}/git-checkpoint.py" commit \
+    --instance-dir "${INSTANCE_DIR}" \
+    --type curriculum \
+    --subject "initialize learning project '${PROJECT_NAME}' (track: ${CHOSEN_TRACK})" >/dev/null 2>&1 || true
+fi
+
 echo ""
-echo "=========================================================="
-echo "🎉 Project Initialized Successfully!"
-echo "=========================================================="
-echo "   • Project:    ${PROJECT_NAME} (${PROJECT_ID})"
-echo "   • Location:   ${TARGET_DIR}"
-echo "   • Track:      ${CHOSEN_TRACK}"
-echo "   • Notes:      ${RESOLVED_NOTES_DIR} (${NOTES_STRUCTURE})"
-echo "   • Output:     ${OUTPUT_FORMAT} (Theme: ${THEME_STYLE})"
+echo "============================================================================"
+echo "  🎉 Project Initialized Successfully!"
+echo "============================================================================"
+echo "  • Project Name:     ${PROJECT_NAME} (${PROJECT_ID})"
+echo "  • Workspace Path:   ${TARGET_DIR}"
+echo "  • Curriculum Track: ${CHOSEN_TRACK}"
+echo "  • Study Notes:      ${RESOLVED_NOTES_DIR} (${NOTES_STRUCTURE})"
+echo "  • Output Mode:      ${OUTPUT_FORMAT} (Theme: ${THEME_STYLE})"
+echo "----------------------------------------------------------------------------"
+echo "  🚀 Interactive Workbench:"
+echo "     sds dashboard    ➔ Launch read-only progress tracker (http://localhost:8420)"
 echo ""
-echo "🚀 Everything from now on is driven directly in your AI chat:"
-echo "   Open your agent (Antigravity, Claude, Cursor, Codex) and run:"
-echo "     /sds-status   ➔ Check current progress and active topic"
-echo "     /sds-teach    ➔ Deliver the first lesson artifact"
-echo "=========================================================="
+echo "  💬 Pure In-Chat Workflow:"
+echo "     /sds-status      ➔ Check current living cursor & focus topic"
+echo "     /sds-teach       ➔ Deliver the active topic lesson & simulator"
+echo "     /sds-discuss     ➔ Defend physical invariants cold in chat"
+echo "     /sds-complete    ➔ Seal verified mastery into Git with auto-notes"
+echo "============================================================================"

@@ -1,0 +1,89 @@
+#!/bin/sh
+# System Design Studio CLI (sds)
+
+# Resolve installation or repository directory
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ -d "$SCRIPT_DIR/../skills/system-design-studio/scripts" ]; then
+  BASE_SCRIPTS_DIR="$SCRIPT_DIR/../skills/system-design-studio/scripts"
+else
+  HOME_DIR="${HOME:-$USERPROFILE}"
+  GLOBAL_DIR="${SDS_GLOBAL_DIR:-$HOME_DIR/.system-design-studio}"
+  BASE_SCRIPTS_DIR="${GLOBAL_DIR}/skills/system-design-studio/scripts"
+fi
+
+INIT_SCRIPT="${BASE_SCRIPTS_DIR}/init-learning-instance.sh"
+PROJECTS_SCRIPT="${BASE_SCRIPTS_DIR}/manage-projects.py"
+DASHBOARD_SCRIPT="${BASE_SCRIPTS_DIR}/serve-dashboard.py"
+CHECKPOINT_SCRIPT="${BASE_SCRIPTS_DIR}/git-checkpoint.py"
+CURRICULUM_SCRIPT="${BASE_SCRIPTS_DIR}/configure-curriculum.py"
+SETTINGS_SCRIPT="${BASE_SCRIPTS_DIR}/merge-settings.py"
+STATUS_SCRIPT="${BASE_SCRIPTS_DIR}/sync-status.py"
+
+case "$1" in
+  init)
+    shift
+    exec bash "$INIT_SCRIPT" "$@"
+    ;;
+  projects|list)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" list "$@"
+    ;;
+  switch|open)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" switch "$@"
+    ;;
+  notes)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" notes "$@"
+    ;;
+  delete|remove|rm)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" delete "$@"
+    ;;
+  dashboard|tracker|serve)
+    shift
+    exec python3 "$DASHBOARD_SCRIPT" "$@"
+    ;;
+  rollback|restore|undo)
+    shift
+    exec python3 "$CHECKPOINT_SCRIPT" rollback "$@"
+    ;;
+  checkpoints)
+    shift
+    exec python3 "$CHECKPOINT_SCRIPT" list "$@"
+    ;;
+  curriculum)
+    shift
+    exec python3 "$CURRICULUM_SCRIPT" "$@"
+    ;;
+  config)
+    shift
+    exec python3 "$SETTINGS_SCRIPT" "$@"
+    ;;
+  status)
+    shift
+    exec python3 "$STATUS_SCRIPT" "$@"
+    ;;
+  *)
+    echo "============================================================================"
+    echo "  SYSTEM DESIGN STUDIO CLI (sds)"
+    echo "============================================================================"
+    echo "Usage: sds <command> [options]"
+    echo ""
+    echo "Core Commands:"
+    echo "  sds init [options]         Initialize or scaffold a project learning instance"
+    echo "  sds dashboard [options]    Launch read-only curriculum tracker on localhost"
+    echo "  sds list / projects        List registered projects, tracks, and progress"
+    echo "  sds switch <id>            Switch active project context"
+    echo "  sds notes [id]             List generated study notes for active project"
+    echo "  sds delete <id>            Safely delete a project instance"
+    echo ""
+    echo "State & Safety:"
+    echo "  sds rollback [--steps N]   Roll back state to a previous atomic checkpoint"
+    echo "  sds checkpoints            List recent state snapshots and Git commits"
+    echo "  sds curriculum [options]   Configure, prune, or reorder curriculum tracks"
+    echo "  sds config [key] [val]     Inspect or dynamically update settings"
+    echo "  sds status                 Display current living cursor and topic metrics"
+    echo "============================================================================"
+    ;;
+esac

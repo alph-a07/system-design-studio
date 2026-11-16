@@ -368,6 +368,42 @@ def cmd_notes(args):
     for rel, abs_p in sorted(note_files):
         print(f"   • {rel}  ➔  file://{abs_p}")
 
+def cmd_rollback(args):
+    import subprocess
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    cp_script = os.path.join(script_dir, "git-checkpoint.py")
+    if not os.path.exists(cp_script):
+        print("❌ Error: git-checkpoint.py not found.", file=sys.stderr)
+        sys.exit(1)
+    cmd = [sys.executable, cp_script, "rollback"]
+    if getattr(args, "target_id", None):
+        cmd.extend(["--id", args.target_id])
+    if getattr(args, "steps", None):
+        cmd.extend(["--steps", str(args.steps)])
+    if getattr(args, "dry_run", False):
+        cmd.append("--dry-run")
+    if getattr(args, "instance_dir", None):
+        cmd.extend(["--instance-dir", args.instance_dir])
+    subprocess.run(cmd)
+
+def cmd_dashboard(args):
+    import subprocess
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    dash_script = os.path.join(script_dir, "serve-dashboard.py")
+    if not os.path.exists(dash_script):
+        print("❌ Error: serve-dashboard.py not found.", file=sys.stderr)
+        sys.exit(1)
+    cmd = [sys.executable, dash_script]
+    if getattr(args, "port", None):
+        cmd.extend(["--port", str(args.port)])
+    if getattr(args, "project", None):
+        cmd.extend(["--project", args.project])
+    if getattr(args, "instance_dir", None):
+        cmd.extend(["--instance-dir", args.instance_dir])
+    if getattr(args, "no_browser", False):
+        cmd.append("--no-browser")
+    subprocess.run(cmd)
+
 def main():
     parser = argparse.ArgumentParser(description="Manage System Design Studio multi-project registry")
     subparsers = parser.add_subparsers(dest="command")
@@ -411,6 +447,20 @@ def main():
     p_del.add_argument("--keep-project-dir", action="store_true", help="Keep project folder even if default location")
     p_del.add_argument("--dry-run", action="store_true", help="Show what would be removed without touching disk")
 
+    # rollback
+    p_roll = subparsers.add_parser("rollback", aliases=["restore", "undo"], help="Roll back state to a previous checkpoint")
+    p_roll.add_argument("--id", dest="target_id", help="Target checkpoint ID")
+    p_roll.add_argument("--steps", type=int, default=1, help="Number of checkpoints to roll back (default 1)")
+    p_roll.add_argument("--dry-run", action="store_true", help="Preview rollback without modifying files")
+    p_roll.add_argument("--instance-dir", help="Target .system-design directory")
+
+    # dashboard
+    p_dash = subparsers.add_parser("dashboard", aliases=["serve", "tracker"], help="Launch localhost curriculum tracker")
+    p_dash.add_argument("--port", type=int, default=8420, help="HTTP port (default 8420)")
+    p_dash.add_argument("--project", help="Target project ID")
+    p_dash.add_argument("--instance-dir", help="Target .system-design directory")
+    p_dash.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
+
     args = parser.parse_args()
     if args.command == "list" or not args.command:
         cmd_list(args if args.command else argparse.Namespace(json=False))
@@ -426,6 +476,10 @@ def main():
         cmd_active(args)
     elif args.command == "notes":
         cmd_notes(args)
+    elif args.command in ("rollback", "restore", "undo"):
+        cmd_rollback(args)
+    elif args.command in ("dashboard", "serve", "tracker"):
+        cmd_dashboard(args)
 
 if __name__ == "__main__":
     main()
