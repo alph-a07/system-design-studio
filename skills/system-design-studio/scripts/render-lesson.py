@@ -584,7 +584,7 @@ def main():
     parser.add_argument("--tier", help="Tier Title")
     parser.add_argument("--style", choices=list(STYLE_THEMES.keys()), help="Artifact visual style theme")
     parser.add_argument("--format", choices=["html", "markdown"], help="Output artifact format (html or markdown)")
-    parser.add_argument("--settings", help="Path to settings.json")
+    parser.add_argument("--instance-dir", "--settings", dest="settings", help="Path to settings.json or .system-design directory")
     parser.add_argument("--data-file", "--spec", dest="data_file", help="Path to JSON file containing lesson content")
     parser.add_argument("--data", help="Inline JSON string or '-' to read lesson payload from stdin")
     parser.add_argument("--template", help="Path to custom HTML template")

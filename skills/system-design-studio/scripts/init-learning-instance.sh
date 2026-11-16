@@ -58,9 +58,11 @@ while [ $# -gt 0 ]; do
       ;;
     --id=*)
       PROJECT_ID="${1#*=}"
+      EXPLICIT_ID=true
       ;;
     --id)
       shift; PROJECT_ID="$1"
+      EXPLICIT_ID=true
       ;;
     --path=*)
       TARGET_DIR="${1#*=}"
@@ -147,8 +149,10 @@ read_input() {
   fi
 }
 
-# Clean up project ID
-PROJECT_ID="$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')"
+# Clean up project ID if not explicitly passed
+if [ "${EXPLICIT_ID:-false}" != true ]; then
+  PROJECT_ID="$(echo "$PROJECT_NAME" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-//;s/-$//')"
+fi
 [ -z "$PROJECT_ID" ] && PROJECT_ID="system-design-study"
 
 # Interactive Wizard

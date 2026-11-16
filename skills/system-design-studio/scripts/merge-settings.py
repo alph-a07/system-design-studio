@@ -73,8 +73,8 @@ def merge_settings(current_settings, template_settings):
 
 def main():
     parser = argparse.ArgumentParser(description="Merge or update System Design Studio settings while preserving user preferences.")
-    parser.add_argument("--current", "--settings", dest="current", help="Path to current settings.json or .system-design directory")
-    parser.add_argument("--template", help="Path to settings-template.json")
+    parser.add_argument("--current", "--settings", "--instance-dir", dest="current", help="Path to current settings.json or .system-design directory")
+    parser.add_argument("--template", "--defaults", dest="template", help="Path to settings-template.json or settings-defaults.json")
     parser.add_argument("--key", help="Specific setting key to update (e.g. artifactStyle, outputType, notesStructure)")
     parser.add_argument("--value", help="Value to set for --key")
     parser.add_argument("--output", help="Path to output merged settings.json (defaults to --current)")

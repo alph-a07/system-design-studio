@@ -40,6 +40,10 @@ jobs:
             fi
           done
 
+      - name: Comprehensive End-to-End Test Suite
+        run: |
+          python3 tests/test_e2e.py
+
       - name: Test Fresh Scaffolding & Verification
         run: |
           chmod +x skills/system-design-studio/scripts/*
