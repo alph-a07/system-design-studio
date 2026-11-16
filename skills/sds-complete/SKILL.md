@@ -7,25 +7,40 @@ metadata:
   version: 3.2.0
 ---
 
-# /sds-complete
+# /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis
 
-Verify that the learner has defended the unannounced gate scenario in CURRICULUM.md, tick off the topic, advance CURSOR.md, record an ADR in DECISIONS.md, and synthesize active-learning notes.
+Verify that the learner has defended the unannounced gate scenario, tick off the topic, advance `CURSOR.md`, record an ADR in `DECISIONS.md`, and compile discussion-synthesized study notes.
 
-## Instructions
+## Mandatory Architectural Invariants
 
-1. **Verify unannounced gate**:
-   - Inspect `.system-design/CURRICULUM.md` for the active topic's hidden tick-off requirement (`— *Tick off when:*`).
-   - Confirm that the learner has independently defended the trade-off in chat without assistance.
-2. **Execute state advance**:
+1. **UNASSISTED GATE VERIFICATION (MANDATORY DEFENSE)**:
+   - You MUST inspect `.system-design/CURRICULUM.md` for the active topic's tick-off requirement (`— *Tick off when:*`).
+   - You MUST NOT approve sign-off unless the learner has independently articulated the physical invariants and trade-offs in chat.
+
+2. **ACTIVE LEARNING NOTE GOVERNANCE**:
+   - The compiled study note MUST reflect **what the learner understood through the dialectic**, NOT passive textbook summaries.
+   - You MUST extract:
+     1. The learner's initial hypothesis from the start of the topic.
+     2. The friction points and edge cases where that hypothesis broke down.
+     3. The derived invariant they proved cold.
+     4. Concrete personal rules of thumb and sizing formulas.
+
+## Execution Sequence
+
+1. **Verify Evidence & Defense**:
+   - Compare the learner's chat defense against the hidden criterion in `CURRICULUM.md`.
+
+2. **Execute State Advance**:
    ```bash
    python3 ~/.system-design-studio/skills/system-design-studio/scripts/advance-cursor.py \
      --complete-topic <topic-id> \
      --evidence "$ARGUMENTS" \
-     --hypothesis "<learner's initial hypothesis>" \
-     --discussion-summary "<summary of discussion>"
+     --hypothesis "<initial hypothesis from chat>" \
+     --discussion-summary "<dialectic friction and edge cases explored>"
    ```
-3. **Confirm file-backed updates**:
-   - `CURRICULUM.md`: active topic marked `[x]`.
-   - `CURSOR.md`: active topic updated to next syllabus item; anchors recorded.
-   - `DECISIONS.md`: ADR added with context, decision, and consequences.
-   - `notes/`: active learning study note compiled according to `notesStructure` (`per-topic`, `per-cluster`, `per-tier`, `single-file`).
+
+3. **Verify Generated Artifacts**:
+   - Confirm `CURRICULUM.md` shows `[x]`.
+   - Confirm `DECISIONS.md` has logged a new ADR.
+   - Confirm `notes/` contains the synthesized study note.
+   - Present the path to the newly compiled note: `[Open Study Note](file:///<path-to-note.md>)`.
