@@ -36,69 +36,6 @@ function saveCompletedTopicIds(topicSet) {
 const getMasteredTopicIds = getCompletedTopicIds;
 const saveMasteredTopicIds = saveCompletedTopicIds;
 
-// INSTALLATION METHOD CONFIGURATION
-const INSTALL_COMMANDS = {
-  quickstart: {
-    command: `# Universal 1-line installer: detects agents and installs verified skill\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash`,
-    target: 'Target: Universal Installer (Antigravity, Claude, Cursor, Codex)',
-    orderNote: 'Installs verified skill to global agent discovery paths and auto-scaffolds .system-design/ on first chat prompt.',
-    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
-  },
-  agy: {
-    command: `# Install skill into Google Antigravity\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity`,
-    target: 'Target: Google Antigravity (~/.gemini/antigravity/skills/ & ~/.gemini/config/skills/)',
-    orderNote: 'Places skill in Antigravity global paths; auto-scaffolds .system-design/ on first chat prompt.',
-    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
-  },
-  claude: {
-    command: `# Install skill to Claude Code skills directory\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude`,
-    target: 'Target: Anthropic Claude Code (~/.claude/skills/system-design-studio)',
-    orderNote: 'Places skill into ~/.claude/skills/; ready to use in any Claude Code chat.',
-    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
-  },
-  cursor: {
-    command: `# Step 1: Install skill into Cursor IDE skills directory\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor\n\n# Step 2: Append project rules into your active workspace\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules`,
-    target: 'Target: Cursor IDE (~/.cursor/skills/ & .cursorrules)',
-    orderNote: 'Places skill into ~/.cursor/skills/ and configures project .cursorrules.',
-    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/templates/.cursorrules'
-  },
-  codex: {
-    command: `# Install skill into OpenAI Codex directory\ncurl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex`,
-    target: 'Target: OpenAI Codex (~/.codex/skills/system-design-studio)',
-    orderNote: 'Places skill into ~/.codex/skills/; ready to use in any Codex chat.',
-    viewScriptUrl: 'https://github.com/alph-a07/system-design-studio/blob/main/install.sh'
-  }
-};
-
-function switchInstallTab(method, buttonEl) {
-  const cfg = INSTALL_COMMANDS[method];
-  if (!cfg) return;
-
-  const codeEl = document.getElementById('install-command-text');
-  const targetEl = document.getElementById('install-target-label');
-  const orderNoteEl = document.getElementById('install-order-note');
-  const scriptLinkEl = document.getElementById('install-view-script-link');
-
-  if (codeEl) codeEl.textContent = cfg.command;
-  if (targetEl) targetEl.textContent = cfg.target;
-  if (orderNoteEl) orderNoteEl.textContent = cfg.orderNote;
-
-  if (scriptLinkEl) {
-    if (cfg.viewScriptUrl) {
-      scriptLinkEl.href = cfg.viewScriptUrl;
-      scriptLinkEl.style.display = 'inline-flex';
-    } else {
-      scriptLinkEl.style.display = 'none';
-    }
-  }
-
-  const container = buttonEl.closest('.install-tabs');
-  if (container) {
-    container.querySelectorAll('.install-tab').forEach(btn => btn.classList.remove('active'));
-  }
-  buttonEl.classList.add('active');
-}
-
 // CLIPBOARD COPY HELPER
 function copySnippet(buttonEl, sourceId) {
   const sourceEl = document.getElementById(sourceId);

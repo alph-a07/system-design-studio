@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&amp;family=Inter:wght@500;600&amp;family=JetBrains+Mono:wght@700&amp;display=swap');
+      .headline { font-family: 'Space Grotesk', -apple-system, sans-serif; font-weight: 700; text-transform: uppercase; }
+      .body { font-family: 'Inter', -apple-system, sans-serif; }
+      .mono { font-family: 'JetBrains Mono', monospace; font-weight: 700; }
+    </style>
+  </defs>
+
+  <!-- Background Canvas -->
+  <rect width="1200" height="630" fill="#f5f0e8"/>
+
+  <!-- Outer Border & Shadow -->
+  <rect x="24" y="24" width="1152" height="582" fill="#faf7f2" stroke="#1a1a1a" stroke-width="8"/>
+  <rect x="36" y="36" width="1128" height="558" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+
+  <!-- Top Metadata Bar -->
+  <rect x="24" y="24" width="1152" height="64" fill="#ffcc00" stroke="#1a1a1a" stroke-width="6"/>
+  <text x="56" y="65" class="headline" font-size="20" fill="#1a1a1a" letter-spacing="2">SYSTEM DESIGN STUDIO • AGENT SKILL SPEC v3.2</text>
+  <rect x="870" y="40" width="270" height="34" fill="#1a1a1a"/>
+  <text x="888" y="63" class="mono" font-size="14" fill="#ffcc00" letter-spacing="1">STATE: .SYSTEM-DESIGN/</text>
+
+  <!-- Logo Mark -->
+  <g transform="translate(64, 130)">
+    <rect width="120" height="120" rx="16" fill="#ffcc00" stroke="#1a1a1a" stroke-width="6"/>
+    <g stroke="#1a1a1a" stroke-linecap="round" stroke-linejoin="round" transform="translate(-10, -8) scale(0.55)">
+      <path d="M 131 60 A 68 68 0 0 1 131 196" fill="none" stroke-width="26"/>
+      <path d="M 75 60 L 131 60 L 131 128 L 75 128 L 75 196 L 131 196" fill="none" stroke-width="26"/>
+      <line x1="131" y1="60" x2="131" y2="196" stroke-width="26"/>
+      <circle cx="75" cy="60" r="18" fill="#1a1a1a" stroke="none"/>
+      <circle cx="75" cy="196" r="18" fill="#1a1a1a" stroke="none"/>
+      <circle cx="165" cy="128" r="20" fill="#e63b2e" stroke="none"/>
+      <circle cx="131" cy="128" r="14" fill="none" stroke="#1a1a1a" stroke-width="8"/>
+    </g>
+  </g>
+
+  <!-- Tagline Badge -->
+  <rect x="210" y="140" width="310" height="36" fill="#e63b2e" stroke="#1a1a1a" stroke-width="3"/>
+  <text x="226" y="164" class="headline" font-size="15" fill="#ffffff" letter-spacing="1">ZERO-CLOUD • REPO-NATIVE</text>
+
+  <!-- Main Title -->
+  <text x="210" y="235" class="headline" font-size="52" fill="#1a1a1a" letter-spacing="-1">LEARN SYSTEM DESIGN WITH</text>
+  <text x="210" y="295" class="headline" font-size="52" fill="#1a1a1a" letter-spacing="-1">THE AGENT YOU ALREADY USE.</text>
+
+  <!-- Subtitle Paragraph -->
+  <text x="64" y="375" class="body" font-size="22" fill="#4a4a4a" font-weight="500">
+    Git-backed cognitive memory in <tspan fill="#1a1a1a" font-weight="700">CURSOR.md</tspan> • 50 Clusters &amp; 354 Topics • Interactive Simulators
+  </text>
+  <text x="64" y="415" class="body" font-size="22" fill="#4a4a4a" font-weight="500">
+    Unannounced Socratic defense gates compile verified proof-of-work into <tspan fill="#e63b2e" font-weight="700">DECISIONS.md</tspan>.
+  </text>
+
+  <!-- Bottom Platform Integration Cards -->
+  <g transform="translate(64, 475)">
+    <rect x="0" y="0" width="240" height="70" fill="#ffffff" stroke="#1a1a1a" stroke-width="4"/>
+    <rect x="8" y="8" width="6" height="54" fill="#0055ff"/>
+    <text x="28" y="32" class="mono" font-size="12" fill="#71717a">TARGET AGENT</text>
+    <text x="28" y="54" class="headline" font-size="18" fill="#1a1a1a">CLAUDE CODE</text>
+
+    <rect x="260" y="0" width="240" height="70" fill="#ffffff" stroke="#1a1a1a" stroke-width="4"/>
+    <rect x="268" y="8" width="6" height="54" fill="#ffcc00"/>
+    <text x="288" y="32" class="mono" font-size="12" fill="#71717a">TARGET AGENT</text>
+    <text x="288" y="54" class="headline" font-size="18" fill="#1a1a1a">CURSOR IDE</text>
+
+    <rect x="520" y="0" width="240" height="70" fill="#ffffff" stroke="#1a1a1a" stroke-width="4"/>
+    <rect x="528" y="8" width="6" height="54" fill="#e63b2e"/>
+    <text x="548" y="32" class="mono" font-size="12" fill="#71717a">TARGET AGENT</text>
+    <text x="548" y="54" class="headline" font-size="18" fill="#1a1a1a">ANTIGRAVITY</text>
+
+    <rect x="780" y="0" width="290" height="70" fill="#1a1a1a" stroke="#1a1a1a" stroke-width="4"/>
+    <text x="806" y="32" class="mono" font-size="12" fill="#ffcc00">1-LINE QUICKSTART</text>
+    <text x="806" y="54" class="mono" font-size="16" fill="#ffffff">curl -fsSL ... | bash</text>
+  </g>
+</svg>

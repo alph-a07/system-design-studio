@@ -376,26 +376,38 @@
 </div>
 <!-- Terminal Body -->
 <div class="p-6 font-mono text-sm space-y-4">
-<p class="text-surface-dim"># Run in your terminal to install for Claude Code, Cursor, Antigravity &amp; Codex:</p>
+<p class="text-surface-dim"># Step 1: Install skill globally and configure machine preferences (theme, HTML vs MD, notes opt-in):</p>
 <div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
 <code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm" id="install-cmd-text">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash</code>
 </div>
-<p class="text-surface-dim pt-2"># To update across agents anytime (preserves all study progress, lessons &amp; settings):</p>
+<p class="text-surface-dim pt-2"># Step 2: Initialize a project learning instance with curated tracks or BYO syllabus:</p>
+<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
+<code class="text-primary-fixed font-bold whitespace-nowrap text-xs sm:text-sm">~/.system-design-studio/bin/sds init</code>
+</div>
+<p class="text-surface-dim pt-2"># Step 3: Update on-demand when notified via in-chat /sds-update alert (preserves all progress &amp; notes):</p>
 <div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
 <code class="text-emerald-400 font-bold whitespace-nowrap text-xs sm:text-sm">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash</code>
 </div>
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 text-xs text-surface-dim border-t border-surface-variant/20">
+<p class="text-surface-dim pt-2"># Clean Uninstall (safely removes skill only from agents; strictly preserves projects, progress &amp; notes):</p>
+<div class="p-4 bg-black/60 border-2 border-primary/40 flex items-center justify-between gap-4 overflow-x-auto select-all">
+<code class="text-amber-400 font-bold whitespace-nowrap text-xs sm:text-sm">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/uninstall.sh | bash</code>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2 text-xs text-surface-dim border-t border-surface-variant/20">
 <div class="flex items-start gap-2">
 <span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
-<span><strong>Auto-Detection:</strong> Scans &amp; links standard skill paths for your agents.</span>
+<span><strong>Separated Installation:</strong> Install once globally; scaffold instances per project in default or custom paths.</span>
 </div>
 <div class="flex items-start gap-2">
 <span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
-<span><strong>Settings Merge Engine:</strong> <code class="text-primary-fixed">merge-settings.py</code> preserves your custom theme across updates.</span>
+<span><strong>Two Scripts, Then Pure Chat:</strong> Run scripts only for install &amp; init; everything else is 100% skill-command driven.</span>
 </div>
 <div class="flex items-start gap-2">
 <span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
-<span><strong>In-Chat Update Alerts:</strong> <code class="text-primary-fixed">check-updates.py</code> alerts you non-intrusively when new releases land.</span>
+<span><strong>Project-Scoped Notes:</strong> Synthesizes chat defense and invariants into 4 customizable note structures.</span>
+</div>
+<div class="flex items-start gap-2">
+<span class="material-symbols-outlined text-sm text-emerald-400 mt-0.5" aria-hidden="true">check_circle</span>
+<span><strong>Zero-Risk Reversibility:</strong> Uninstaller eliminates the skill only; your projects, cursors, and notes are 100% kept.</span>
 </div>
 </div>
 </div>
@@ -407,10 +419,10 @@
 <div class="flex items-center gap-3">
 <div class="w-8 h-8 bg-secondary text-white font-headline font-bold text-xs flex items-center justify-center border-2 border-primary shadow-[2px_2px_0px_#1a1a1a]">02</div>
 <h3 class="font-headline font-bold text-xl sm:text-2xl uppercase tracking-tight text-on-surface">
-        How to Use Post-Installation
+        The "Two Scripts, Then Pure Chat" Lifecycle
       </h3>
 </div>
-<span class="font-mono text-xs text-secondary font-bold uppercase tracking-wider">Need-to-Know Workflow</span>
+<span class="font-mono text-xs text-secondary font-bold uppercase tracking-wider">Ergonomic Workflow</span>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -419,18 +431,18 @@
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
 <span class="font-mono text-[11px] font-bold text-secondary">PHASE 01</span>
-<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">chat</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">tune</span>
 </div>
-<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Prompt in Any Chat</h4>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Global Setup</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
-          Open your agent (Claude Code, Cursor, Antigravity, or Codex) and start with any natural prompt:
+          Run <code class="font-bold">install.sh</code> once. The onboarding wizard configures your visual theme, HTML vs. Markdown output mode, and auto-notes opt-in at <code class="font-mono bg-surface-container px-1">~/.system-design-studio/</code>.
         </p>
 <div class="bg-surface-container p-2.5 border border-primary/40 font-mono text-[11px] text-on-surface font-semibold">
-          "Let's learn system design"
+          install.sh --theme slate-clean
         </div>
 </div>
 <div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
-        Or target a specific topic: <code class="font-bold">"Start topic 0.1"</code>
+        Links all detected agent skill registries.
 </div>
 </div>
 
@@ -438,22 +450,22 @@
 <div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
-<span class="font-mono text-[11px] font-bold text-primary-container-on bg-primary-container px-1">AUTO-SCAFFOLD</span>
+<span class="font-mono text-[11px] font-bold text-primary-container-on bg-primary-container px-1">PHASE 02</span>
 <span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">folder_special</span>
 </div>
-<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Local State Engine</h4>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Initialize Project</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
-          On your first prompt, the agent automatically initializes the hidden <code class="font-mono font-bold bg-surface-container px-1">.system-design/</code> directory in your workspace:
+          Scaffold a project instance in default <code class="font-mono bg-surface-container px-1">projects/&lt;name&gt;</code> or any repo. Select a curated goal track or import BYO markdown:
         </p>
 <ul class="text-[11px] font-mono space-y-1 text-on-surface">
-<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">CURSOR.md</code> (living context)</li>
-<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">CURRICULUM.md</code> (50 clusters)</li>
-<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">settings.json</code> (5 theme styles)</li>
-<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">DECISIONS.md</code> (ADR portfolio: proof-of-work)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> Interview Sprint (15 clusters / 114 topics)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> Distributed Systems (23 clusters / 171 topics)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> Staff+ System Defense (25 clusters / 184 topics)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> Full 50-Cluster Mastery (354 topics)</li>
 </ul>
 </div>
 <div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
-        Zero manual setup or third-party databases.
+        Auto-registered in multi-project registry.
       </div>
 </div>
 
@@ -461,19 +473,22 @@
 <div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
-<span class="font-mono text-[11px] font-bold text-tertiary">PERSISTENCE</span>
-<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">swap_horiz</span>
+<span class="font-mono text-[11px] font-bold text-tertiary">PHASE 03</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">terminal</span>
 </div>
-<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Switch Agents &amp; Models</h4>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Pure Chat Commands</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
-          Clear your chat, switch between Claude 3.7 / Opus, Gemini 2.5 / Flash / Pro, and GPT-4.5 / o3, or reopen in Cursor.
+          Never touch a terminal again. Interact exclusively through chat commands across Antigravity, Claude Code, Cursor, and Codex:
         </p>
-<p class="font-body text-xs text-on-surface-variant leading-relaxed">
-          Every agent reads <code class="font-mono font-bold bg-surface-container px-1">CURSOR.md</code> on cold start, inheriting your active topic, logged examples, and deferred queue seamlessly.
-        </p>
+<ul class="text-[11px] font-mono space-y-1 text-on-surface">
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">/sds-teach [topic]</code> (deliver)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">/sds-discuss</code> (defend cold)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">/sds-complete</code> (sign off)</li>
+<li class="flex items-center gap-1.5"><span class="text-secondary font-bold">›</span> <code class="font-bold">/sds-projects</code> (switch/list)</li>
+</ul>
 </div>
 <div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
-        Zero conversational amnesia.
+        Agents execute scripts silently under the hood.
       </div>
 </div>
 
@@ -481,19 +496,19 @@
 <div class="border-2 border-primary bg-surface-container-lowest p-5 flex flex-col justify-between shadow-[3px_3px_0px_#1a1a1a]">
 <div>
 <div class="flex items-center justify-between pb-2 mb-3 border-b border-primary/20">
-<span class="font-mono text-[11px] font-bold text-emerald-600">ARTIFACTS</span>
-<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">html</span>
+<span class="font-mono text-[11px] font-bold text-emerald-600">PHASE 04</span>
+<span class="material-symbols-outlined text-lg text-on-surface" aria-hidden="true">edit_note</span>
 </div>
-<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Live-Authored Simulators</h4>
+<h4 class="font-headline font-bold text-sm uppercase text-on-surface mb-2">Synthesized Notes</h4>
 <p class="font-body text-xs text-on-surface-variant leading-relaxed mb-3">
-          New topics launch strictly inside HTML simulators authored live per topic in <code class="font-mono font-bold bg-surface-container px-1">.system-design/lessons/</code>, with follow-up Q&amp;A and sign-off defenses inline in chat.
+          Topic sign-offs automatically compile comprehensive study notes combining physical invariants, your cold chat defense, edge cases, and trade-off formulas:
         </p>
 <div class="bg-surface-container p-2.5 border border-primary/40 font-mono text-[11px] text-on-surface">
-          open .system-design/lessons/*.html
+          /sds-notes ➔ Open project notes
         </div>
 </div>
 <div class="mt-4 pt-2 border-t border-primary/10 text-[10px] font-mono text-on-surface-variant">
-        Step through packets, quorums &amp; failure states.
+        4 modes: per-topic, per-cluster, per-tier, single-file.
       </div>
 </div>
 </div>
@@ -503,7 +518,7 @@
 <div class="border-2 border-primary bg-primary-container p-4 font-mono text-xs flex items-center gap-3">
 <span class="material-symbols-outlined text-base font-bold text-on-primary shrink-0" aria-hidden="true">info</span>
 <span class="text-neutral-900 leading-relaxed">
-<strong>Where to install:</strong> We recommend a dedicated learning repository (e.g. <code class="font-bold underline">mkdir ~/learning/system-design &amp;&amp; cd ~/learning/system-design &amp;&amp; git init</code>). If installing in a work repository, add <code class="font-bold underline">.system-design/</code> to your <code class="font-bold underline">.gitignore</code> so personal progress files stay out of team commits.
+<strong>Project Directory Support:</strong> Projects can live in the default studio repository (<code class="font-bold">~/.system-design-studio/projects/&lt;name&gt;</code>) or in any dedicated workspace or Git repository on your machine. All projects and their notes are tracked in the central multi-project registry.
 </span>
 </div>
 </div>
@@ -516,11 +531,11 @@
 <div>
 <span class="font-headline text-xs font-bold uppercase tracking-widest text-secondary">Aesthetic Engine &bull; settings.json</span>
 <h2 class="font-headline font-bold text-3xl sm:text-5xl uppercase tracking-tight text-on-surface mt-1">
-            Five visual artifact styles
+            Five visual styles &bull; Dual Output
           </h2>
 </div>
 <p class="font-body text-sm text-on-surface-variant max-w-sm">
-          Delivered strictly inside standalone HTML simulators for new topics, with follow-up discussions inline in chat.
+          Delivered strictly inside standalone interactive HTML simulators across 5 selectable themes, or zero-JS clean Markdown with Mermaid sequence &amp; ASCII state charts.
         </p>
 </div>
 
