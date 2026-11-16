@@ -88,6 +88,7 @@ $HOME_DIR/.agents/skills
 $HOME_DIR/.claude/skills
 $HOME_DIR/.cursor/skills
 $HOME_DIR/.codex/skills
+$HOME_DIR/.system-design-studio/skills
 "
 
 UPDATED_COUNT=0

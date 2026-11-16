@@ -1,13 +1,12 @@
 #!/bin/sh
-# System Design Studio — Universal Agent Skill Installer
-# Compatible with macOS, Linux (Debian, Ubuntu, Fedora, Arch, Alpine), BSD, and Windows (Git Bash/WSL).
-# Works across POSIX sh, dash, ash, bash (3.2+), and zsh.
+# System Design Studio — Universal Agent Skill Installer (v3.2)
+# Configures global studio preferences (~/.system-design-studio/config.json)
+# and installs skill packages across AI coding agents (Antigravity, Claude, Cursor, Codex).
+# Compatible with macOS, Linux, BSD, and Windows (Git Bash/WSL).
 #
 # Usage:
 #   curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash
-#   curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | sh
-#   curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | sh -s -- --all
-#   ./install.sh [--all] [--antigravity] [--claude] [--cursor] [--codex]
+#   ./install.sh [--theme <theme>] [--output <html|markdown>] [--notes <true|false>] [--defaults]
 
 set -e
 (set -o pipefail) 2>/dev/null && set -o pipefail || true
@@ -42,86 +41,228 @@ if [ -z "$HOME_DIR" ]; then
 fi
 
 XDG_CONFIG="${XDG_CONFIG_HOME:-$HOME_DIR/.config}"
+GLOBAL_STUDIO_DIR="${SDS_GLOBAL_DIR:-$HOME_DIR/.system-design-studio}"
+GLOBAL_CONFIG="${GLOBAL_STUDIO_DIR}/config.json"
+GLOBAL_PROJECTS="${GLOBAL_STUDIO_DIR}/projects.json"
+GLOBAL_BIN="${GLOBAL_STUDIO_DIR}/bin"
 
-# 2. Parse Flags or Auto-Detect Active Coding Agents
+# 2. Defaults for Global Settings
+THEME_STYLE="slate-clean"
+OUTPUT_FORMAT="html"
+AUTO_NOTES="true"
+NOTES_STRUCTURE="per-topic"
+INTERACTIVE=true
+MANUAL_AGENT_SELECTION=false
+
 INSTALL_ALL=false
 INSTALL_ANTIGRAVITY=false
 INSTALL_CLAUDE=false
 INSTALL_CURSOR=false
 INSTALL_CODEX=false
-MANUAL_SELECTION=false
 
+# Check existing global config to inherit prior choices
+if [ -f "$GLOBAL_CONFIG" ] && command -v python3 >/dev/null 2>&1; then
+  THEME_STYLE="$(python3 -c "import json; print(json.load(open('$GLOBAL_CONFIG')).get('artifactStyle', 'slate-clean'))" 2>/dev/null || echo "slate-clean")"
+  OUTPUT_FORMAT="$(python3 -c "import json; print(json.load(open('$GLOBAL_CONFIG')).get('outputType', 'html'))" 2>/dev/null || echo "html")"
+  NOTES_STRUCTURE="$(python3 -c "import json; print(json.load(open('$GLOBAL_CONFIG')).get('notesStructure', 'per-topic'))" 2>/dev/null || echo "per-topic")"
+  AUTO_NOTES="$(python3 -c "import json; print(str(json.load(open('$GLOBAL_CONFIG')).get('autoGenerateNotes', True)).lower())" 2>/dev/null || echo "true")"
+fi
+
+# Parse Flags
 for arg in "$@"; do
   case "$arg" in
     --all|-a)
       INSTALL_ALL=true
-      MANUAL_SELECTION=true
+      MANUAL_AGENT_SELECTION=true
       ;;
     --antigravity|--gemini)
       INSTALL_ANTIGRAVITY=true
-      MANUAL_SELECTION=true
+      MANUAL_AGENT_SELECTION=true
       ;;
     --claude)
       INSTALL_CLAUDE=true
-      MANUAL_SELECTION=true
+      MANUAL_AGENT_SELECTION=true
       ;;
     --cursor)
       INSTALL_CURSOR=true
-      MANUAL_SELECTION=true
+      MANUAL_AGENT_SELECTION=true
       ;;
     --codex)
       INSTALL_CODEX=true
-      MANUAL_SELECTION=true
+      MANUAL_AGENT_SELECTION=true
+      ;;
+    --theme=*)
+      THEME_STYLE="${arg#*=}"
+      ;;
+    --output=*)
+      OUTPUT_FORMAT="${arg#*=}"
+      ;;
+    --notes=*)
+      AUTO_NOTES="${arg#*=}"
+      ;;
+    --notes-structure=*)
+      NOTES_STRUCTURE="${arg#*=}"
+      ;;
+    --defaults|--non-interactive|-y)
+      INTERACTIVE=false
       ;;
     --help|-h)
       echo "System Design Studio Installer"
       echo "Usage: install.sh [OPTIONS]"
       echo ""
       echo "Options:"
-      echo "  --all, -a         Install for all supported AI agents"
-      echo "  --antigravity     Install for Google Antigravity"
-      echo "  --claude          Install for Anthropic Claude Code"
-      echo "  --cursor          Install for Cursor IDE"
-      echo "  --codex           Install for OpenAI Codex"
-      echo "  --help, -h        Show this help message"
-      echo ""
-      echo "When no options are supplied, installer auto-detects active agents on your machine."
+      echo "  --theme <id>             slate-clean, editorial-paper, midnight-neon, nordic-frost, warm-amber"
+      echo "  --output <type>          html (interactive simulators) | markdown (clean text with Mermaid/ASCII)"
+      echo "  --notes <bool>           true | false (auto-generate discussion notes on completion)"
+      echo "  --notes-structure <str>  per-topic | per-cluster | per-tier | single-file"
+      echo "  --all, -a                Install for all supported AI agents"
+      echo "  --antigravity            Install for Google Antigravity"
+      echo "  --claude                 Install for Anthropic Claude Code"
+      echo "  --cursor                 Install for Cursor IDE"
+      echo "  --codex                  Install for OpenAI Codex"
+      echo "  --defaults, -y           Use recommended defaults without prompting"
       exit 0
       ;;
     *)
-      # Ignore unrecognized args
       ;;
   esac
 done
 
-if [ "$MANUAL_SELECTION" = false ]; then
+# Check if terminal interaction is possible (direct TTY or redirected via /dev/tty)
+TTY_IN=""
+if [ -r /dev/tty ]; then
+  TTY_IN="/dev/tty"
+elif [ -t 0 ]; then
+  TTY_IN="-"
+fi
+
+if [ -z "$TTY_IN" ] || [ "$INTERACTIVE" = false ]; then
+  INTERACTIVE=false
+fi
+
+read_input() {
+  if [ "$TTY_IN" = "/dev/tty" ]; then
+    read -r "$1" < /dev/tty || true
+  else
+    read -r "$1" || true
+  fi
+}
+
+# 3. Interactive Global Configuration Wizard
+if [ "$INTERACTIVE" = true ]; then
+  echo ""
+  echo "⚙️  System Design Studio Global Preferences Setup"
+  echo "----------------------------------------------------------"
+  
+  echo "🎨 Select Default Artifact Visual Theme:"
+  echo "   [1] Modern Slate (Dark Tech) [Default]"
+  echo "   [2] Clean Editorial (Warm Light Paper)"
+  echo "   [3] Cyber Obsidian (High Contrast Neon)"
+  echo "   [4] Nordic Frost (Polar Calm Dark)"
+  echo "   [5] Warm Amber (Espresso Glow)"
+  printf "   Choose theme [1]: "
+  read_input input_theme
+  case "$input_theme" in
+    2) THEME_STYLE="editorial-paper" ;;
+    3) THEME_STYLE="midnight-neon" ;;
+    4) THEME_STYLE="nordic-frost" ;;
+    5) THEME_STYLE="warm-amber" ;;
+    *) THEME_STYLE="slate-clean" ;;
+  esac
+
+  echo ""
+  echo "📄 Select Default Lesson Output Format:"
+  echo "   [1] Interactive HTML (Tactile JS Simulators & Visual HUD) [Recommended]"
+  echo "   [2] Clean Markdown (Zero-JS pure Markdown with Mermaid diagrams & ASCII charts)"
+  printf "   Choose format [1]: "
+  read_input input_fmt
+  case "$input_fmt" in
+    2) OUTPUT_FORMAT="markdown" ;;
+    *) OUTPUT_FORMAT="html" ;;
+  esac
+
+  echo ""
+  echo "📝 Auto-Generate Discussion-Synthesized Study Notes on Sign-off?"
+  echo "   [1] Enabled (Synthesizes chat defense, edge cases & formulas on completion) [Default]"
+  echo "   [2] Disabled"
+  printf "   Enable notes [1]: "
+  read_input input_notes
+  case "$input_notes" in
+    2) AUTO_NOTES="false" ;;
+    *) AUTO_NOTES="true" ;;
+  esac
+
+  if [ "$AUTO_NOTES" = "true" ]; then
+    echo ""
+    echo "🗂️  Default Notes Structuring Strategy:"
+    echo "   [1] Per-Topic Files (notes/<tier>/<cluster>/<topic>.md) [Default]"
+    echo "   [2] Per-Cluster Files (notes/<tier>/<cluster>.md)"
+    echo "   [3] Per-Tier Files (notes/tier-<N>.md)"
+    echo "   [4] Single Master File (notes/SYSTEM-DESIGN-NOTES.md)"
+    printf "   Choose structuring [1]: "
+    read_input input_struct
+    case "$input_struct" in
+      2) NOTES_STRUCTURE="per-cluster" ;;
+      3) NOTES_STRUCTURE="per-tier" ;;
+      4) NOTES_STRUCTURE="single-file" ;;
+      *) NOTES_STRUCTURE="per-topic" ;;
+    esac
+  fi
+fi
+
+# 4. Save Global Settings & Initialize Machine Root Directory
+mkdir -p "$GLOBAL_STUDIO_DIR"
+mkdir -p "$GLOBAL_STUDIO_DIR/projects"
+mkdir -p "$GLOBAL_BIN"
+
+cat <<EOF > "$GLOBAL_CONFIG"
+{
+  "\$schemaVersion": "3.2",
+  "artifactStyle": "${THEME_STYLE}",
+  "outputType": "${OUTPUT_FORMAT}",
+  "autoGenerateNotes": ${AUTO_NOTES},
+  "notesStructure": "${NOTES_STRUCTURE}",
+  "defaultTrack": "full-mastery"
+}
+EOF
+
+if [ ! -f "$GLOBAL_PROJECTS" ]; then
+  cat <<EOF > "$GLOBAL_PROJECTS"
+{
+  "\$schemaVersion": "3.2",
+  "activeProjectId": null,
+  "projects": []
+}
+EOF
+fi
+
+echo ""
+echo "💾 Global preferences saved to ${GLOBAL_CONFIG}"
+
+# 5. Agent Detection
+if [ "$MANUAL_AGENT_SELECTION" = false ]; then
   echo "🔍 Auto-detecting AI coding agents on this system (${PLATFORM})..."
 
-  # Check Antigravity / Gemini
   if command -v agy >/dev/null 2>&1 || command -v gemini >/dev/null 2>&1 || [ -d "$HOME_DIR/.gemini" ] || [ -d "$HOME_DIR/.agents" ]; then
     INSTALL_ANTIGRAVITY=true
     echo "   Found Google Antigravity / Gemini CLI"
   fi
 
-  # Check Claude Code
   if command -v claude >/dev/null 2>&1 || [ -d "$HOME_DIR/.claude" ] || [ -d "$XDG_CONFIG/claude" ]; then
     INSTALL_CLAUDE=true
     echo "   Found Anthropic Claude Code"
   fi
 
-  # Check Cursor
   if command -v cursor >/dev/null 2>&1 || [ -d "$HOME_DIR/.cursor" ] || [ -d "$HOME_DIR/Library/Application Support/Cursor" ] || [ -d "$XDG_CONFIG/Cursor" ] || [ -f ".cursorrules" ] || [ -d ".cursor" ]; then
     INSTALL_CURSOR=true
     echo "   Found Cursor IDE"
   fi
 
-  # Check Codex
   if command -v codex >/dev/null 2>&1 || [ -d "$HOME_DIR/.codex" ] || [ -d "$XDG_CONFIG/codex" ]; then
     INSTALL_CODEX=true
     echo "   Found OpenAI Codex"
   fi
 
-  # If none detected, default to universal installation for all agents
   if [ "$INSTALL_ANTIGRAVITY" = false ] && [ "$INSTALL_CLAUDE" = false ] && [ "$INSTALL_CURSOR" = false ] && [ "$INSTALL_CODEX" = false ]; then
     echo "   No agent profiles specifically detected; installing universal skill across all paths."
     INSTALL_ALL=true
@@ -135,7 +276,7 @@ if [ "$INSTALL_ALL" = true ]; then
   INSTALL_CODEX=true
 fi
 
-# 3. Locate or Fetch Skill Files
+# 6. Locate or Fetch Skill Files
 SCRIPT_PATH="${0:-}"
 SCRIPT_DIR=""
 if [ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ]; then
@@ -183,12 +324,11 @@ if [ ! -f "$SOURCE_SKILL/SKILL.md" ]; then
   exit 1
 fi
 
-# 4. Helper Function to Install to Path
 install_to_path() {
   target_parent="$1"
   agent_label="$2"
-
   target_dir="${target_parent}/${SKILL_NAME}"
+  
   echo "📦 Installing for ${agent_label}..."
   mkdir -p "$target_parent"
   rm -rf "$target_dir"
@@ -198,14 +338,12 @@ install_to_path() {
 
   if [ -f "$target_dir/SKILL.md" ]; then
     echo "   ✅ Verified at ${target_dir}"
-  else
-    echo "   ⚠️ Warning: Installation check failed at ${target_dir}" >&2
   fi
 }
 
 echo ""
 
-# 5. Execute Installations
+# 7. Execute Installations
 INSTALLED_COUNT=0
 
 # A. Google Antigravity & Agent Open Standards
@@ -213,13 +351,11 @@ if [ "$INSTALL_ANTIGRAVITY" = true ]; then
   install_to_path "$HOME_DIR/.gemini/antigravity/skills" "Google Antigravity (~/.gemini/antigravity/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
-  # Also install in ~/.gemini/config/skills if config exists or was targeted
   if [ -d "$HOME_DIR/.gemini/config" ] || [ "$INSTALL_ALL" = true ]; then
     install_to_path "$HOME_DIR/.gemini/config/skills" "Antigravity Global Config (~/.gemini/config/skills)"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 
-  # Vendor-neutral open agent skills standard
   install_to_path "$HOME_DIR/.agents/skills" "Agent Skills Open Standard (~/.agents/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 fi
@@ -229,7 +365,6 @@ if [ "$INSTALL_CLAUDE" = true ]; then
   install_to_path "$HOME_DIR/.claude/skills" "Claude Code (~/.claude/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
-  # On Linux with XDG
   if [ "$PLATFORM" = "linux" ] && [ -d "$XDG_CONFIG/claude" ]; then
     install_to_path "$XDG_CONFIG/claude/skills" "Claude Code XDG (~/.config/claude/skills)"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
@@ -241,19 +376,16 @@ if [ "$INSTALL_CURSOR" = true ]; then
   install_to_path "$HOME_DIR/.cursor/skills" "Cursor IDE Global (~/.cursor/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
-  # macOS App Support path if exists
   if [ "$PLATFORM" = "macos" ] && [ -d "$HOME_DIR/Library/Application Support/Cursor" ]; then
     install_to_path "$HOME_DIR/Library/Application Support/Cursor/User/skills" "Cursor User Library"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 
-  # Linux XDG path if exists
   if [ "$PLATFORM" = "linux" ] && [ -d "$XDG_CONFIG/Cursor" ]; then
     install_to_path "$XDG_CONFIG/Cursor/User/skills" "Cursor User XDG"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 
-  # Windows AppData path if exists
   if [ -n "${APPDATA:-}" ] && [ -d "$APPDATA/Cursor" ]; then
     install_to_path "$APPDATA/Cursor/User/skills" "Cursor Windows AppData"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
@@ -271,29 +403,64 @@ if [ "$INSTALL_CODEX" = true ]; then
   fi
 fi
 
-# E. Windows specific fallback path resolution (if USERPROFILE differs from HOME)
-if [ -n "${USERPROFILE:-}" ] && [ "$USERPROFILE" != "$HOME_DIR" ]; then
-  if [ "$INSTALL_ANTIGRAVITY" = true ] && [ -d "$USERPROFILE/.gemini" ]; then
-    install_to_path "$USERPROFILE/.gemini/antigravity/skills" "Windows User Antigravity"
-    INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
-  fi
-  if [ "$INSTALL_CLAUDE" = true ] && [ -d "$USERPROFILE/.claude" ]; then
-    install_to_path "$USERPROFILE/.claude/skills" "Windows User Claude"
-    INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
-  fi
-fi
+# Also keep an internal copy in ~/.system-design-studio/skills/system-design-studio
+install_to_path "$GLOBAL_STUDIO_DIR/skills" "Central Studio Runtime (${GLOBAL_STUDIO_DIR}/skills)"
+
+# Create convenient CLI wrapper at ~/.system-design-studio/bin/sds
+cat <<'EOF' > "${GLOBAL_BIN}/sds"
+#!/bin/sh
+HOME_DIR="${HOME:-$USERPROFILE}"
+GLOBAL_DIR="${SDS_GLOBAL_DIR:-$HOME_DIR/.system-design-studio}"
+INIT_SCRIPT="${GLOBAL_DIR}/skills/system-design-studio/scripts/init-learning-instance.sh"
+PROJECTS_SCRIPT="${GLOBAL_DIR}/skills/system-design-studio/scripts/manage-projects.py"
+
+case "$1" in
+  init)
+    shift
+    exec bash "$INIT_SCRIPT" "$@"
+    ;;
+  projects|list)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" list "$@"
+    ;;
+  switch)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" switch "$@"
+    ;;
+  notes)
+    shift
+    exec python3 "$PROJECTS_SCRIPT" notes "$@"
+    ;;
+  *)
+    echo "System Design Studio CLI (sds)"
+    echo "Commands:"
+    echo "  sds init [options]     Initialize a new project learning instance"
+    echo "  sds list / projects    List registered projects and progress"
+    echo "  sds switch <id>        Switch active project context"
+    echo "  sds notes [id]         List generated notes for active project"
+    ;;
+esac
+EOF
+chmod +x "${GLOBAL_BIN}/sds"
 
 echo ""
 echo "=========================================================="
 echo "🎉 System Design Studio skill installed across ${INSTALLED_COUNT} agent location(s)!"
 echo "=========================================================="
 echo ""
-echo "🚀 Ready to use in any chat thread:"
-echo "   1. Open any AI coding agent (Antigravity, Claude Code, Cursor, Codex)."
-echo "   2. Ask: 'Let\'s learn system design' or 'Review topic 0.1'."
-echo "   3. First prompt automatically scaffolds '.system-design/' at project root"
-echo "      to track your syllabus progress and cognitive state in CURSOR.md."
+echo "⚙️  Global Defaults Configured:"
+echo "   • Visual Theme:     ${THEME_STYLE}"
+echo "   • Output Format:    ${OUTPUT_FORMAT}"
+echo "   • Auto-Notes:       ${AUTO_NOTES} (${NOTES_STRUCTURE})"
+echo "   • Machine Root:     ${GLOBAL_STUDIO_DIR}"
 echo ""
-echo "💡 Cursor Users: To guarantee workspace context in Cursor, you can also run:"
-echo "   curl -fsSL ${RAW_BASE}/templates/.cursorrules >> .cursorrules"
+echo "🚀 Next Step — Initialize a Learning Project:"
+echo "   Skill installation and learning instance initialization are separated."
+echo "   To scaffold your first learning instance, run:"
+echo ""
+echo "     ${GLOBAL_BIN}/sds init"
+echo "   or:"
+echo "     bash ${GLOBAL_STUDIO_DIR}/skills/system-design-studio/scripts/init-learning-instance.sh"
+echo ""
+echo "   (You can also add '${GLOBAL_BIN}' to your PATH for instant 'sds' access)."
 echo "=========================================================="
