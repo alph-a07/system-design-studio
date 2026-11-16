@@ -42,6 +42,11 @@ Deliver an immersive, first-principles system design lesson artifact featuring t
 7. **SINGLE-SOURCE REPOSITORY ENGINE**:
    - Dispatch scripts located at `~/.system-design-studio/skills/system-design-studio/scripts/` (or repository-local scripts if working inside the studio repo).
 
+8. **READ-ONLY STUDIO ENGINE & ZERO-VCS LEAKAGE**:
+   - The studio repository (`system-design-studio`) is an invariant software engine. You MUST NOT edit `render-lesson.py` or commit lesson content into the studio repository.
+   - All authored lessons live exclusively in the learner's project instance (`.system-design/lessons/`).
+   - When generating custom lessons, author the structured payload (narrative prose, analogies, jargon unpackers, and tactile simulator) and pass it to `render-lesson.py` via `--data-file <json>` or `--data '<json>'` (or stdin). Never hardcode lessons into Python scripts.
+
 ## Execution Sequence
 
 1. **Resolve Topic & Settings**:
@@ -49,13 +54,15 @@ Deliver an immersive, first-principles system design lesson artifact featuring t
    - Settings: Inspect `.system-design/settings.json` for `outputType` (`html` or `markdown`), `artifactStyle`, and `paths.lessonsDir`.
 
 2. **Render Lesson Artifact**:
-   - Compile via the studio lesson rendering engine:
+   - For bespoke topics, craft the lesson payload JSON following the pedagogical invariants and compile via the studio lesson rendering engine:
      ```bash
      python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
        --topic-id <topic-id> \
        --format <html|markdown> \
-       --style <theme>
+       --style <theme> \
+       --data-file <payload.json>
      ```
+     *(If a reference fixture exists in `resources/examples/lessons/`, `--data-file` can be omitted).*
    - Target path: `<project-root>/.system-design/lessons/<slug>.<ext>`
    - In **Antigravity**: Stage the artifact to `<appDataDir>/brain/<conversation-id>/<slug>.html` (or `.md`) and surface it in the chat for side-pane inspection.
 
