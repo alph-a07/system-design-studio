@@ -58,15 +58,15 @@ for arg in "$@"; do
   esac
 done
 
-# Check if TTY is available
+# Check if terminal interaction is possible
 TTY_IN=""
-if [ -r /dev/tty ]; then
-  TTY_IN="/dev/tty"
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ] || [ -n "${CONTINUOUS_INTEGRATION:-}" ] || [ "$INTERACTIVE" = false ]; then
+  INTERACTIVE=false
 elif [ -t 0 ]; then
   TTY_IN="-"
-fi
-
-if [ -z "$TTY_IN" ] || [ "$INTERACTIVE" = false ]; then
+elif [ -t 1 ] && (exec < /dev/tty) 2>/dev/null; then
+  TTY_IN="/dev/tty"
+else
   INTERACTIVE=false
 fi
 

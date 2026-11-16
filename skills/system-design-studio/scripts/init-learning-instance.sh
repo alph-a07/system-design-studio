@@ -127,15 +127,15 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-# Check if TTY is available (direct TTY or redirected via /dev/tty)
+# Check if terminal interaction is possible (direct TTY or redirected via /dev/tty)
 TTY_IN=""
-if [ -r /dev/tty ]; then
-  TTY_IN="/dev/tty"
+if [ -n "${CI:-}" ] || [ -n "${GITHUB_ACTIONS:-}" ] || [ -n "${CONTINUOUS_INTEGRATION:-}" ] || [ "$INTERACTIVE" = false ]; then
+  INTERACTIVE=false
 elif [ -t 0 ]; then
   TTY_IN="-"
-fi
-
-if [ -z "$TTY_IN" ] || [ "$INTERACTIVE" = false ]; then
+elif [ -t 1 ] && (exec < /dev/tty) 2>/dev/null; then
+  TTY_IN="/dev/tty"
+else
   INTERACTIVE=false
 fi
 
@@ -165,14 +165,14 @@ if [ "$INTERACTIVE" = true ]; then
   echo ""
   echo "👉 Step 2: Project Workspace Location"
   DEFAULT_PROJ_LOC="${GLOBAL_STUDIO_DIR}/projects/${PROJECT_ID}"
-  echo "   [1] Default Studio Directory (${DEFAULT_PROJ_LOC}) [Recommended]"
-  echo "   [2] Current Directory ($(pwd))"
+  echo "   [1] Current Directory ($(pwd)) [Recommended]"
+  echo "   [2] Default Studio Directory (${DEFAULT_PROJ_LOC})"
   echo "   [3] Custom Path"
   printf "   Select location [1]: "
   read_input input_loc
   case "$input_loc" in
     2)
-      TARGET_DIR="$(pwd)"
+      TARGET_DIR="$DEFAULT_PROJ_LOC"
       ;;
     3)
       printf "   Enter custom directory path: "
@@ -180,7 +180,7 @@ if [ "$INTERACTIVE" = true ]; then
       TARGET_DIR="$custom_dir"
       ;;
     *)
-      TARGET_DIR="$DEFAULT_PROJ_LOC"
+      TARGET_DIR="$(pwd)"
       ;;
   esac
 
@@ -242,7 +242,11 @@ fi
 
 # Fallback default path if empty
 if [ -z "$TARGET_DIR" ]; then
-  TARGET_DIR="${GLOBAL_STUDIO_DIR}/projects/${PROJECT_ID}"
+  if [ "$(pwd)" = "$HOME_DIR" ]; then
+    TARGET_DIR="${GLOBAL_STUDIO_DIR}/projects/${PROJECT_ID}"
+  else
+    TARGET_DIR="$(pwd)"
+  fi
 fi
 
 # Resolve notes directory

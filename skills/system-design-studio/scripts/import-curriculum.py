@@ -297,9 +297,106 @@ def main():
     with open(args.input, "r", encoding="utf-8") as src, open(os.path.join(args.instance_dir, "CURRICULUM.md"), "w", encoding="utf-8") as dst:
         dst.write(src.read())
 
+    # 3. Scaffold settings.json if missing
+    settings_path = os.path.join(args.instance_dir, "settings.json")
+    if not os.path.exists(settings_path):
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        tpl_path = os.path.join(script_dir, "..", "resources", "settings-template.json")
+        settings_data = {
+            "$schemaVersion": "3.2",
+            "projectId": slugify(title),
+            "track": "byo",
+            "artifactStyle": "slate-clean",
+            "outputType": "html",
+            "autoGenerateNotes": True,
+            "notesStructure": "per-topic",
+            "autoLogDecisions": True,
+            "paths": {
+                "instanceDir": ".system-design",
+                "cursorDir": ".system-design",
+                "lessonsDir": ".system-design/lessons",
+                "notesDir": "notes"
+            }
+        }
+        if os.path.exists(tpl_path):
+            try:
+                with open(tpl_path, "r", encoding="utf-8") as tf:
+                    tpl = json.load(tf)
+                tpl["projectId"] = slugify(title)
+                tpl["track"] = "byo"
+                settings_data = tpl
+            except Exception:
+                pass
+        with open(settings_path, "w", encoding="utf-8") as sf:
+            json.dump(settings_data, sf, indent=2, ensure_ascii=False)
+
+    # 4. Scaffold DECISIONS.md if missing
+    decisions_path = os.path.join(args.instance_dir, "DECISIONS.md")
+    if not os.path.exists(decisions_path):
+        with open(decisions_path, "w", encoding="utf-8") as df:
+            df.write("# Architecture Decision Records (ADRs)\n\n> Living registry of verified architectural decisions, trade-offs, and invariants defended across learning workshops.\n\n---\n\n*No decisions accepted yet. Decisions will be recorded as architectural trade-offs are evaluated and defended in workshops.*\n")
+
+    # 5. Scaffold CURSOR.md
+    cursor_path = os.path.join(args.instance_dir, "CURSOR.md")
+    cluster_topics_md = ""
+    if first_cluster:
+        for t in first_cluster["topics"]:
+            is_cur = " **CURRENT** ➔" if first_topic and t["id"] == first_topic["id"] else ""
+            cluster_topics_md += f"- [ ]{is_cur} **{t['title']}** (`{t['id']}`)\n"
+
+    total_topics_count = sum(len(c["topics"]) for c in clusters)
+    cursor_content = f"""# Living Teaching Cursor & Running Context
+
+> **Role**: The operational brain of this learning instance. Tracks active focus, causal continuity, depth of covered mechanisms, examples & mental models, deferred topics, and upcoming forward hooks across sessions, models, and agents. The Cursor and Curriculum are the sole shared context.
+
+---
+
+## 1. Active Focus & Immediate Pedagogical Horizon
+
+- **Curriculum**: {title} (`curriculum.{slugify(title)}`)
+- **Active Cluster**: {first_cluster['title'] if first_cluster else 'None'} (`{first_cluster['id'] if first_cluster else 'none'}`)
+- **Active Topic**: **{first_topic['title'] if first_topic else 'None'}** (`{first_topic['id'] if first_topic else 'none'}`)
+  - *Topic Foundation Status*: `not-started`
+  - *Active Mechanism Group*: `group.{first_topic['id'].replace('topic.', '') if first_topic else 'none'}`
+  - *Immediate Next Teaching Action*: Start foundational inquiry on {first_topic['title'] if first_topic else 'curriculum'}
+
+---
+
+## 2. Connected Cognitive Lineage (Causal Anchors)
+
+- **Backward Anchor (Where we came from & Why)**:
+  - Grounding in foundational system design principles.
+- **Forward Hook (Where this leads next)**:
+  - Exploring architectural failure modes and trade-offs.
+
+---
+
+## 3. Examples Registry & Metaphor Continuity (`examplesTaken`)
+
+*(None logged yet)*
+
+---
+
+## 4. Deferred Topics Queue (`deferredQueue`)
+
+*(Queue currently empty)*
+
+---
+
+## 5. Active Cluster Progress: {first_cluster['title'] if first_cluster else 'General'}
+
+{cluster_topics_md}
+---
+
+## Progress Overview: 0 / {total_topics_count} Topics (0.0%)
+"""
+    with open(cursor_path, "w", encoding="utf-8") as cf:
+        cf.write(cursor_content)
+
     print(f"📦 Scaffolded BYO learning instance at {args.instance_dir}/")
     print(f"   • Manifest:   {manifest_path}")
     print(f"   • Curriculum: {os.path.join(args.instance_dir, 'CURRICULUM.md')}")
+    print(f"   • Cursor:     {cursor_path}")
 
 if __name__ == "__main__":
     main()
