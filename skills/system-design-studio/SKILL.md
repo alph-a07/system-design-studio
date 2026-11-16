@@ -48,7 +48,7 @@ Every command works natively across all agents (Antigravity, Claude Code, Cursor
 
 | Skill Command | Natural Language Trigger | Agent Action & Internal Script Dispatched |
 | :--- | :--- | :--- |
-| **`/sds-teach [topic]`** | "Teach topic 0.1", "Next topic" | Evaluates active focus. Enforces strict zero-boilerplate invariant: renders deep, first-principles HTML/Markdown artifact with bespoke tactile simulator. Prompts learner for working hypothesis before revealing solutions. |
+| **`/sds-teach [topic]`** | "Teach topic 0.1", "Next topic" | Evaluates active focus. Enforces explainer contract (engaging editorial essay vibe, deep causal explanations, zero boilerplate, mandatory jargon unpacking) and renders bespoke tactile simulator. Prompts learner for working hypothesis before revealing solutions. |
 | **`/sds-discuss`** | "Here is my defense of the scenario...", "How should I think about..." | Active Learning Dialectic: Stress-tests the learner's hypothesis. For senior engineers, probes cold failure modes and latency math. For junior/hesitant engineers, provides Socratic scaffolding questions. Traces where the model breaks. |
 | **`/sds-complete [ev]`** | "Mark complete", "Sign off topic" | Runs `advance-cursor.py --complete-topic <id> --evidence <ev> --hypothesis <hypo> --discussion-summary <summary>`. Ticks `CURRICULUM.md`, logs ADR in `DECISIONS.md`, and compiles active-learning study note. |
 | **`/sds-projects`** | "Show all projects", "List projects" | Runs `manage-projects.py list`. Displays an overview table of all registered machine projects, locations, tracks, and progress. |

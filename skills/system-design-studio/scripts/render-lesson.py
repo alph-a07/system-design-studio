@@ -176,10 +176,22 @@ DEFAULT_TEMPLATE = r"""<!DOCTYPE html>
     .rounded-full { border-radius: 9999px; }
     .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     button { cursor: pointer; border: none; font-family: inherit; }
-    .narrative-prose { color: var(--foreground); line-height: 1.75; font-size: 0.95rem; }
-    .narrative-prose p { margin-bottom: 1.15rem; }
+    .narrative-prose { color: var(--foreground); line-height: 1.85; font-size: 1.025rem; }
+    .narrative-prose p { margin-bottom: 1.35rem; }
     .narrative-prose strong { color: var(--foreground); font-weight: 700; }
-    .narrative-prose code { background: var(--card); border: 1px solid var(--card-border); padding: 0.15rem 0.35rem; border-radius: 0.375rem; font-family: ui-monospace, monospace; font-size: 0.825em; }
+    .narrative-prose code { background: var(--card); border: 1px solid var(--card-border); padding: 0.2rem 0.4rem; border-radius: 0.375rem; font-family: ui-monospace, monospace; font-size: 0.85em; }
+    .editorial-lead { font-size: 1.15rem; line-height: 1.8; color: var(--foreground); font-weight: 400; border-left: 3px solid var(--primary); padding-left: 1.25rem; margin: 1.5rem 0 2rem 0; }
+    .jargon-card { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 0.875rem; padding: 1rem 1.25rem; margin: 1.5rem 0; }
+    .jargon-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
+    .jargon-title { font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fbbf24; }
+    .jargon-pill { font-size: 0.7rem; padding: 0.1rem 0.45rem; border-radius: 9999px; background: rgba(245, 158, 11, 0.2); color: #fde68a; font-family: ui-monospace, monospace; }
+    .jargon-body { font-size: 0.925rem; line-height: 1.6; color: var(--foreground); margin: 0; }
+    .analogy-card { background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+    .analogy-header { display: flex; align-items: center; gap: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #60a5fa; margin-bottom: 0.5rem; }
+    .analogy-body { font-size: 0.95rem; line-height: 1.7; color: var(--foreground); margin: 0; }
+    .aha-card { background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+    .aha-header { display: flex; align-items: center; gap: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; margin-bottom: 0.5rem; }
+    .aha-body { font-size: 0.95rem; line-height: 1.7; color: var(--foreground); margin: 0; }
     .callout-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
     .callout-dilemma { border-left: 4px solid #ef4444; }
     .callout-mechanism { border-left: 4px solid var(--primary); }
@@ -588,15 +600,29 @@ def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
         "THEME_ID": theme["id"],
         "TIER_BADGE": tier or "Tier 0 · System Design Core",
         "CLUSTER_BADGE": cluster or "1. [0.1] APIs & Network Transport for Design",
-        "LESSON_TITLE": "TCP vs UDP",
-        "LESSON_SUBTITLE": "A first-principles, causal breakdown of physical network constraints, packet loss recovery, and the trade-off between reliability and tail latency.",
+        "LESSON_TITLE": "TCP vs UDP: The Physics of Network Reliability",
+        "LESSON_SUBTITLE": "Why perfect reliability costs latency and jitter, how kernel retransmission queues cause Head-of-Line blocking, and why real-time systems pick UDP.",
 
         # PHASE 1: The Raw Physical Reality & Forcing Dilemma
-        "SECTION_1_TITLE": "The Physical Reality: Why Transport Layer Abstractions Exist",
+        "SECTION_1_TITLE": "1. The Speed of Light and the Unforgiving Physics of Fiber",
         "SECTION_1_BODY": """
+        <div class="editorial-lead">
+          Every distributed system is built on an uncomfortable physical truth: two computers can never share state without paying a tax to the speed of light. Before software protocols even enter the picture, the physical universe imposes hard limits on how data moves.
+        </div>
+
         <p>
-          Before analyzing the software machinery of <strong>TCP and UDP</strong>, we must confront the immutable laws of physical network hardware: the non-zero speed of light in silica glass, finite router buffer memories, and the uncoordinated nature of packet-switched networks.
+          Before we analyze the software machinery of <strong>TCP and UDP</strong>, we must confront the immutable laws of physical network hardware: the non-zero speed of light in silica glass, finite router buffer memories, and the uncoordinated nature of packet-switched networks.
         </p>
+
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: Maximum Transmission Unit (MTU)</span>
+            <span class="jargon-pill">Physical Limit</span>
+          </div>
+          <div class="jargon-body">
+            <strong>MTU</strong> is the maximum size of a single physical packet that an Ethernet cable or Wi-Fi router can transmit without slicing it into pieces—standardized at <strong>1,500 bytes</strong>. If you want to send a 15 Megabyte video frame, your computer cannot send it as one file; it must chop it into 10,000 separate 1,500-byte packets.
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-4">
           <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
@@ -614,31 +640,41 @@ def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
             </p>
           </div>
           <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
-            <div class="text-[11px] font-mono font-bold text-rose-400 uppercase">IP Layer Unreliability</div>
-            <div class="text-base font-bold text-[var(--foreground)] mt-1">Best-Effort Datagrams</div>
+            <div class="text-[11px] font-mono font-bold text-rose-400 uppercase">IP Layer Reality</div>
+            <div class="text-base font-bold text-[var(--foreground)] mt-1">Best-Effort Delivery</div>
             <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
-              Routers have finite queue buffers. Under burst load, routers silently drop packets (tail drop). Dynamic routing can deliver packets out-of-order or duplicated.
+              Routers have finite RAM buffers. Under burst load, routers silently drop packets into the void. Packets can arrive out of order, duplicated, or never arrive at all.
             </p>
           </div>
         </div>
 
         <div class="callout-box callout-dilemma">
-          <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-1">⚡ The Core Architectural Tension</div>
-          <p class="text-sm text-[var(--foreground)] m-0">
-            If an application transmits 7,100 discrete IP packets across an uncoordinated network, it faces an inescapable dilemma:
-            <strong>Stop-and-Wait</strong> (send 1 packet, wait 60ms for ACK) collapses throughput to 1460 B / 0.06s = <strong>24 KB/s</strong> over a 10 Gbps fiber line.
-            <strong>Unthrottled Broadcast</strong> (blast all 7,100 packets immediately) overflows router buffers, causing catastrophic packet drops and silent corruption.
-            Transport protocols are the mathematical and operational resolution to this physical tension.
+          <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-1">⚡ The Core Architectural Dilemma</div>
+          <p class="text-sm text-[var(--foreground)] m-0 leading-relaxed">
+            If an application transmits 7,100 discrete IP packets across an uncoordinated network, it faces an inescapable trap:
+            <br/>• <strong>Stop-and-Wait</strong> (send 1 packet, wait 60ms for ACK before sending the next) collapses throughput to 1460 B / 0.06s = <strong>24 KB/s</strong> over a blistering 10 Gbps fiber line!
+            <br/>• <strong>Unthrottled Blasting</strong> (fire all 7,100 packets instantly) overflows router buffers, causing catastrophic packet drops and silent corruption.
+            <br/>Transport protocols are the mathematical and software bridge designed to conquer this dilemma.
           </p>
         </div>
         """,
 
         # PHASE 2: The Core Abstraction & Header Anatomy
-        "SECTION_2_TITLE": "The Architectural Contract: Stream vs Datagram Semantics",
+        "SECTION_2_TITLE": "2. Two Roads Diverged: The Continuous Stream vs The Independent Postcard",
         "SECTION_2_BODY": """
         <p>
-          At Layer 4 of the OSI model, operating systems provide two fundamentally distinct contracts to bridge physical packet switching and user-space application code:
+          To bridge physical packet chaos with human application code, operating systems offer two completely different philosophies at Layer 4:
         </p>
+
+        <div class="analogy-card">
+          <div class="analogy-header">
+            <span>📮 Real-World Picture: Registered Mail vs The Postcard</span>
+          </div>
+          <div class="analogy-body">
+            <strong>TCP is a Registered Courier Service</strong>: Every single page of your contract is numbered. The courier refuses to let you read Page 2 until Page 1 has arrived and been signed for. If Page 1 gets lost in transit, the courier stops everything and waits for a reprint to be delivered.<br/><br/>
+            <strong>UDP is a Postcard</strong>: You write a note, stamp it, and drop it in the mailbox. If the post office drops it in a puddle or delivers it late, they don't apologize or retry. But there is zero waiting, zero paperwork, and zero signatures required.
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
           <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
@@ -693,11 +729,22 @@ def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
         """,
 
         # PHASE 3: Under the Hood, HoL Blocking & Interactive Simulator
-        "SECTION_3_TITLE": "Under the Hood: Flow Control, Congestion Control & Head-of-Line Blocking",
+        "SECTION_3_TITLE": "3. Under the Hood: Why Reliability Inevitably Costs Latency and Jitter",
         "SECTION_3_BODY": f"""
         <p>
           To understand why one protocol thrives while the other collapses under specific network conditions, we must isolate three kernel mechanisms:
         </p>
+
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: Flow Control (rwnd) vs Congestion Control (cwnd)</span>
+            <span class="jargon-pill">Kernel Mechanics</span>
+          </div>
+          <div class="jargon-body">
+            <strong>Flow Control (<code>rwnd</code>)</strong> protects the <em>receiver</em> from running out of RAM buffer memory.<br/>
+            <strong>Congestion Control (<code>cwnd</code>)</strong> protects the <em>entire internet</em> from collapsing when thousands of computers try to send data across the same congested router bottleneck.
+          </div>
+        </div>
 
         <div class="space-y-3 my-3">
           <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)]">
@@ -707,13 +754,7 @@ def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
             </span>
           </div>
           <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)]">
-            <strong class="text-xs font-mono text-[var(--primary)]">2. Flow Control (rwnd) vs Congestion Control (cwnd):</strong>
-            <span class="text-xs text-[var(--muted-foreground)] ml-1">
-              <strong>Flow control</strong> protects the <em>receiver</em> from buffer exhaustion via advertised <code>rwnd</code>. <strong>Congestion control</strong> protects the <em>network</em> from collapse using a dynamic congestion window (<code>cwnd</code>), dynamically probing bandwidth via Slow Start and AIMD (Additive Increase, Multiplicative Decrease).
-            </span>
-          </div>
-          <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)]">
-            <strong class="text-xs font-mono text-rose-400">3. Head-of-Line (HoL) Blocking at the Transport Layer:</strong>
+            <strong class="text-xs font-mono text-rose-400">2. Head-of-Line (HoL) Blocking at the Transport Layer:</strong>
             <span class="text-xs text-[var(--muted-foreground)] ml-1">
               The POSIX socket API (<code>read()</code> / <code>recv()</code>) exposes a contiguous, sequential byte stream. If Packet #2 is dropped by an intermediate router, but Packets #3, #4, and #5 arrive safely, the receiver kernel buffers them in its TCP socket queue, but <strong>strictly refuses</strong> to deliver them to user-space! The application thread stalls until Packet #2 is retransmitted and acknowledged.
             </span>
@@ -730,7 +771,7 @@ def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
         """,
 
         # PHASE 4: Mental Model Synthesis & Production Grounding
-        "SECTION_4_TITLE": "Mental Model Synthesis, Production Grounding & Sizing Reality",
+        "SECTION_4_TITLE": "4. The Production Calculus: When to Pay the Reliability Tax",
         "SECTION_4_BODY": """
         <p>
           Every architectural decision in production systems boils down to which penalty your domain can afford to pay: <em>tail-latency jitter</em> or <em>loss recovery complexity</em>.
@@ -783,7 +824,7 @@ def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
         """,
 
         # PHASE 5: Contextual Sign-Off Verification Gate
-        "SECTION_5_TITLE": "Contextual Sign-Off Verification: Active Defense Gate",
+        "SECTION_5_TITLE": "5. Active Defense Gate: Real-Time Telemetry Under Degradation",
         "SECTION_5_BODY": """
         <div class="callout-box callout-trap">
           <div class="flex items-start gap-3">
@@ -1197,136 +1238,246 @@ def build_http_versions_data(theme, tier=None, cluster=None):
         "THEME_ID": theme["id"],
         "TIER_BADGE": tier or "Tier 0 · System Design Core",
         "CLUSTER_BADGE": cluster or "1. [0.1] APIs & Network Transport for Design",
-        "LESSON_TITLE": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
-        "LESSON_SUBTITLE": "Where Head-of-Line blocking lives at each layer of the network stack, and why QUIC moved to UDP.",
+        "LESSON_TITLE": "The 30-Year War Against Head-of-Line Blocking",
+        "LESSON_SUBTITLE": "Where network stalls actually live at each layer of the stack, why HTTP/2 accidentally made bad networks worse, and why the modern web had to rebuild transport on top of UDP.",
 
         # PHASE 1: The Evolution of Web Concurrency & The HoL Dilemma
-        "SECTION_1_TITLE": "The Concurrency Crisis: Why Web Performance Shifted Layers",
+        "SECTION_1_TITLE": "1. The 1990s Web Was a Text Document. Today's Web Is a 100-Part Symphony.",
         "SECTION_1_BODY": """
+        <div class="editorial-lead">
+          If you ask most software engineers how the web gets faster, they will talk about caching, CDN edge caching, database indexes, and minifying JavaScript bundles. But over the last decade, the biggest performance leap on the internet had nothing to do with application code—it was a frantic rescue mission to fix a fundamental flaw in the 1980s network plumbing of our operating systems.
+        </div>
+
         <p>
-          In 1996, the World Wide Web loaded simple documents: a single HTML page referencing two or three small icons. By 2015, the median web application demanded over <strong>100 discrete network resources</strong> (CSS bundles, JavaScript chunks, fonts, high-res images, analytics beacons).
+          To understand why the internet's architects spent ten years tearing down and rebuilding the fundamental transport protocols of the web, we have to start with a very human frustration: <strong>staring at a blank white screen waiting for a web page to render</strong>.
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-4">
-          <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
-            <div class="text-[11px] font-mono font-bold text-amber-400 uppercase">HTTP/1.0: 1 Conn Per Req</div>
-            <div class="text-base font-bold text-[var(--foreground)] mt-1">100 RTT Penalty</div>
-            <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
-              Every resource required its own TCP 3-way handshake + Slow Start. Loading 100 assets on a 50ms RTT trans-Atlantic link cost 5+ seconds in pure transport negotiation.
-            </p>
+        <p>
+          In 1996, the World Wide Web was delightfully simple. A web page was a single HTML text file referencing perhaps one company logo and a background texture. Under <strong>HTTP/1.0</strong>, the browser opened a brand-new TCP connection, downloaded the HTML file, and immediately severed the connection. To fetch the logo, it opened a second TCP connection, downloaded the image, and closed it again.
+        </p>
+
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: Round-Trip Time (RTT)</span>
+            <span class="jargon-pill">Physics Invariant</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
-            <div class="text-[11px] font-mono font-bold text-blue-400 uppercase">HTTP/1.1: Keep-Alive & Sharding</div>
-            <div class="text-base font-bold text-[var(--foreground)] mt-1">Application HoL Stall</div>
-            <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
-              Connections persisted across requests, but responses were strictly FIFO. Browsers resorted to opening 6 parallel TCP connections per host (domain sharding) to bypass application queues.
-            </p>
-          </div>
-          <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
-            <div class="text-[11px] font-mono font-bold text-rose-400 uppercase">HTTP/2: Binary Multiplexing</div>
-            <div class="text-base font-bold text-[var(--foreground)] mt-1">Transport HoL Trap</div>
-            <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
-              Multiplexed 100 streams as binary frames over 1 TCP connection. But if 1 packet dropped on a cellular network, TCP held ALL 100 streams in the kernel receive queue.
-            </p>
+          <div class="jargon-body">
+            <strong>RTT</strong> is the exact physical time in milliseconds it takes for a packet of light or electricity to travel from your laptop to a remote server and return. Because light in fiber-optic cable travels at ~200,000 km/s, a coast-to-coast packet in the US takes ~70ms round trip; Europe to California takes ~140ms. <em>No software optimization on Earth can make light travel faster.</em>
           </div>
         </div>
 
-        <div class="callout-box callout-dilemma">
-          <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-1">⚡ The Core Architectural Dilemma</div>
-          <p class="text-sm text-[var(--foreground)] m-0">
-            <strong>Head-of-Line (HoL) Blocking is not a single bug; it is an architectural leak that migrates down the network stack.</strong>
-            HTTP/1.1 suffered from HoL blocking at the <em>Application Layer</em> (HTTP message ordering).
-            HTTP/2 solved application ordering by interleaving binary frames, but in doing so, concentrated all streams into a single TCP connection—pushing HoL blocking down into the <em>Transport Layer</em> (TCP byte-stream reassembly).
-            HTTP/3 is the radical admission that TCP cannot solve this problem: it abandons TCP entirely and rebuilds stream-aware transport over UDP.
-          </p>
+        <p>
+          Now consider the math of the modern web. By 2015, the median web application did not load two files—it loaded <strong>over 100 discrete assets</strong>: five JavaScript vendor bundles, three CSS stylesheets, twelve custom web fonts, tracking beacons, and dozens of high-resolution images.
+        </p>
+
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: The TCP 3-Way Handshake</span>
+            <span class="jargon-pill">Networking 101</span>
+          </div>
+          <div class="jargon-body">
+            Before two computers can exchange a single byte of actual HTTP data over TCP, they must perform a polite greeting ritual: Client sends <code>SYN</code> &rarr; Server replies with <code>SYN-ACK</code> &rarr; Client acknowledges with <code>ACK</code>. That requires <strong>one full RTT</strong> just to establish the connection, followed by another 1–2 RTTs for TLS encryption handshakes.
+          </div>
         </div>
+
+        <p>
+          If your browser used HTTP/1.0 to download 100 assets on a mobile 4G connection with 50ms RTT, you would spend <strong>100 &times; 50ms = 5 full seconds</strong> just waiting for computers to say hello to each other!
+        </p>
+
+        <p>
+          <strong>HTTP/1.1</strong> introduced a crucial improvement called <code>Keep-Alive</code> (persistent connections): instead of hanging up after every request, the browser could keep the TCP socket open and reuse it for the next file. It even proposed <strong>HTTP Pipelining</strong>: sending Request #1, #2, and #3 without waiting for the responses.
+        </p>
+
+        <div class="analogy-card">
+          <div class="analogy-header">
+            <span>🛒 Real-World Picture: The Single-Cashier Supermarket Line</span>
+          </div>
+          <div class="analogy-body">
+            Imagine a supermarket with only one cashier and one continuous conveyor belt. Customer #1 at the front has a watermelon that needs a price check (a slow 500ms database query on the server). Customer #2 behind them only wants to buy a single pack of chewing gum (a tiny 2KB CSS stylesheet that your browser desperately needs to paint the screen).<br/><br/>
+            Because HTTP/1.1 headers had no Request ID or stream tags, the server <strong>was legally required to return responses in the exact order requests were received</strong>. The cashier could not hand Customer #2 their gum until Customer #1's watermelon was resolved. This is <strong>Application-Layer Head-of-Line (HoL) Blocking</strong>.
+          </div>
+        </div>
+
+        <p>
+          Because of this application-layer traffic jam, web browsers quickly gave up on HTTP pipelining. Instead, browsers invented an ugly, resource-heavy hack: <strong>Domain Sharding</strong>. Browsers opened <strong>6 separate, parallel TCP connections</strong> to every domain name. But maintaining 6 parallel TCP connections per website multiplied server memory, wasted client battery, and flooded the internet's routers with competing connection handshakes.
+        </p>
         """,
 
         # PHASE 2: Where HoL Blocking Lives at Each Layer
-        "SECTION_2_TITLE": "Anatomy of Head-of-Line Blocking: Layer by Layer",
+        "SECTION_2_TITLE": "2. The HTTP/2 Breakthrough: Shoving 100 Conversations Into One Shared Pipe",
         "SECTION_2_BODY": """
         <p>
-          To diagnose production network performance, an architect must pinpoint the exact physical boundary where packets stall:
+          In 2015, the Internet Engineering Task Force (IETF) standardized <strong>HTTP/2</strong> (based on Google's experimental SPDY protocol). The pitch was breathtakingly elegant: <em>Why open six bloated, competing TCP connections when we could do everything over just ONE single connection?</em>
         </p>
 
-        <div class="space-y-4 my-4">
-          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-amber-400 uppercase">1. HTTP/1.1: Application-Layer HoL Blocking</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300">Location: HTTP Message Queue</span>
-            </div>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
-              HTTP/1.1 introduced pipelining: a client can dispatch Request A and Request B without waiting. However, the server <strong>must return Response A before Response B</strong> because HTTP/1.1 has no request ID in headers. If Request A is a slow database query taking 500ms, and Request B is a 5ms static CSS file, the CSS file sits fully generated on the server, completely blocked behind A.
-            </p>
-          </div>
+        <p>
+          To pull this off without suffering from the old grocery line bottleneck, HTTP/2 abolished plain-text HTTP messages entirely and introduced <strong>Binary Framing and Stream Multiplexing</strong>.
+        </p>
 
-          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-rose-400 uppercase">2. HTTP/2: Transport-Layer (TCP) HoL Blocking</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300">Location: Kernel TCP Receive Buffer</span>
-            </div>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
-              HTTP/2 breaks requests into binary frames tagged with a <code>Stream ID</code>. Frames can be interleaved in any order over a single TCP connection.
-              <strong>The catch:</strong> The underlying TCP layer knows nothing about Stream IDs; it only knows a contiguous sequence of byte offsets. If a single IP packet carrying bytes for Stream #1 drops on a cellular tower, the receiver kernel holds all subsequent arrived frames for Stream #2 and Stream #3 in the socket buffer until the missing packet is retransmitted. One dropped packet stalls the entire connection!
-            </p>
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: Binary Framing & Stream Multiplexing</span>
+            <span class="jargon-pill">Protocol Architecture</span>
           </div>
-
-          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-mono font-bold text-emerald-400 uppercase">3. HTTP/3 (QUIC): Zero Transport HoL Blocking</span>
-              <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300">Location: Fully Isolated UDP Streams</span>
-            </div>
-            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
-              QUIC replaces TCP with UDP. Because UDP is stateless, QUIC implements stream multiplexing, loss recovery, and TLS 1.3 encryption directly in user space. Each stream has independent packet sequencing. If Packet for Stream #1 is dropped, <strong>only Stream #1 stalls</strong>. Streams #2 and #3 deliver their datagrams to the browser engine immediately with 0ms delay.
-            </p>
+          <div class="jargon-body">
+            In HTTP/1.1, messages were plain text (e.g. <code>GET /style.css HTTP/1.1\r\n</code>). In HTTP/2, every message is chopped up into tiny binary frames (HEADERS frames, DATA frames). Crucially, every frame is stamped with a 31-bit <strong>Stream ID</strong> (Stream 1 = API call, Stream 3 = CSS file, Stream 5 = JavaScript). <strong>Multiplexing</strong> simply means interleaving these numbered frames across one wire at the same time!
           </div>
         </div>
+
+        <p>
+          Now, if the server is processing a slow database query on Stream 1, it doesn't wait! It immediately shoots over frames for Stream 3 (the CSS file) and Stream 5 (the JavaScript bundle). When the database query finishes 400ms later, the server sends Stream 1's frames. The browser uses the Stream IDs to reassemble the files in memory like puzzle pieces.
+        </p>
+
+        <div class="aha-card">
+          <div class="aha-header">
+            <span>✨ The 'Aha!' Moment: Application-Layer HoL Blocking Was Conquered!</span>
+          </div>
+          <div class="aha-body">
+            No more domain sharding. No more 6 parallel TCP handshakes. One TCP connection could handle hundreds of concurrent requests simultaneously. On fast, reliable fiber connections (like a corporate office or university Wi-Fi), websites suddenly loaded dramatically faster.
+          </div>
+        </div>
+
+        <p>
+          It seemed like web architects had finally won the war on latency. But as soon as HTTP/2 was deployed to millions of smartphones on real-world cellular networks, engineers discovered a shocking truth: <strong>on lossy mobile connections, HTTP/2 was frequently SLOWER than old HTTP/1.1!</strong>
+        </p>
         """,
 
-        # PHASE 3: Internal Mechanics & The Tactile Simulator
-        "SECTION_3_TITLE": "Under the Hood: Why QUIC Moved to UDP and Fused TLS 1.3",
+        # PHASE 3: The Trap: Transport-Layer HoL Blocking & Interactive Simulator
+        "SECTION_3_TITLE": "3. The Trap: How One Dropped Packet Paralyzed All 100 Streams",
         "SECTION_3_BODY": """
         <p>
-          Why did the IETF invent a completely new protocol on top of UDP rather than modifying TCP? Because of <strong>middlebox ossification</strong>: firewalls, NAT routers, and load balancers across the global internet drop any TCP packet with unrecognized flags or new options. UDP allowed deployment without upgrading every router on earth.
+          Why did HTTP/2 stumble so badly on cellular networks? Because of an architectural mismatch between user-space application protocols and the operating system kernel.
         </p>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
-          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-1.5">
-            <div class="text-xs font-mono font-bold text-cyan-400">Fused 0-RTT / 1-RTT Handshake</div>
-            <p class="text-xs text-[var(--muted-foreground)] m-0 leading-relaxed">
-              In HTTP/2 over TCP+TLS 1.3: 1 RTT for TCP SYN/ACK + 1 RTT for TLS ClientHello/ServerHello = 2 RTTs before application data.
-              In QUIC: The cryptographic handshake and transport connection are fused into a single exchange (1 RTT for new sessions, <strong>0-RTT</strong> for resumed sessions via TLS session tickets).
-            </p>
+        <div class="editorial-lead">
+          Here is the punchline that every senior systems architect must burn into their brain: <strong>HTTP/2 solved Head-of-Line blocking at the Application Layer (Layer 7), but in doing so, it concentrated all traffic into a single pipe—pushing Head-of-Line blocking down into the Transport Layer (Layer 4)!</strong>
+        </div>
+
+        <p>
+          Think about how the operating system kernel views the network. The Linux, iOS, macOS, and Windows TCP stack was designed in the 1980s. The OS kernel's TCP implementation <strong>knows absolutely nothing about HTTP/2 Stream IDs</strong>. To the kernel, a TCP socket is not a collection of 100 independent streams; it is simply an unbroken, strictly ordered conveyor belt of numbered byte offsets (Byte #1, Byte #2, Byte #3... Byte #1,000,000).
+        </p>
+
+        <div class="analogy-card">
+          <div class="analogy-header">
+            <span>🥚 Real-World Picture: The Shared Grocery Cart with a Cracked Egg</span>
           </div>
-          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-1.5">
-            <div class="text-xs font-mono font-bold text-purple-400">Connection Migration (Mobile 5G &larr;&rarr; Wi-Fi)</div>
-            <p class="text-xs text-[var(--muted-foreground)] m-0 leading-relaxed">
-              TCP identifies connections by a 4-tuple: <code>(Src IP, Src Port, Dst IP, Dst Port)</code>. When a phone leaves Wi-Fi and switches to cellular, its IP changes, breaking the TCP socket completely (broken download, video buffer reset).
-              QUIC uses a random 64-bit <strong>Connection ID (CID)</strong>. The IP can change freely while the session continues seamlessly.
-            </p>
+          <div class="analogy-body">
+            Under HTTP/1.1 with 6 connections, you had 6 separate shopping carts. If an egg cracked in Cart #1, only Cart #1 paused. Carts #2 through #6 kept wheeling out to the parking lot at full speed.<br/><br/>
+            Under HTTP/2, all 100 items are packed into <strong>one single shared shopping cart</strong>. If a single IP packet containing 1,400 bytes for Stream #1 drops on a cellular tower transition, the kernel TCP receive buffer slams on the brakes. Why? Because the kernel's contract is to deliver an unbroken stream of bytes. Even though all the packets for Stream #2 (CSS) and Stream #3 (JS) have safely arrived in memory, <strong>the kernel refuses to release them to the browser</strong> until that missing packet for Stream #1 is retransmitted and acknowledged! One lost packet freezes every single tab and request in your application.
           </div>
         </div>
+
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: The Kernel Receive Buffer Invariant</span>
+            <span class="jargon-pill">OS Architecture</span>
+          </div>
+          <div class="jargon-body">
+            The POSIX socket system call <code>read()</code> guarantees monotonic ordering: applications can never read Byte #401 before Byte #400. If Byte #400 drops on the wire, Bytes #401 through #2000 are trapped in kernel memory (the TCP receive window). The application thread sits asleep, blocked on the syscall, while round-trip retransmission occurs.
+          </div>
+        </div>
+
+        <p>
+          You don't have to take our word for it—you can watch this failure mode happen live in the simulator below. Toggle between the scenarios to see the exact moment where HTTP/2 wins (clean networks with slow endpoints) and where it collapses (lossy mobile networks).
+        </p>
         """ + sim_html + """
         <div class="callout-box callout-invariant">
-          <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-1">⚖️ The Mechanical Invariant</div>
+          <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-1">⚖️ The Universal Networking Invariant</div>
           <p class="text-sm text-[var(--foreground)] m-0">
-            <strong>Multiplexing over a single reliable stream guarantees Transport HoL Blocking under packet loss.</strong>
-            True multi-stream independence requires either multiple transport connections (HTTP/1.1 sharding) or moving stream sequencing into a packet-independent protocol (QUIC over UDP).
+            <strong>Whenever you multiplex independent logical streams over a single sequentially ordered transport pipe, loss in one stream guarantees Head-of-Line blocking for all other streams.</strong>
           </p>
         </div>
         """,
 
-        # PHASE 4: Mental Model Synthesis & Production Grounding
-        "SECTION_4_TITLE": "Mental Model Synthesis, Production Grounding & Sizing Reality",
+        # PHASE 4: Why QUIC Moved to UDP & Protocol Ossification
+        "SECTION_4_TITLE": "4. Why QUIC Moved to UDP: The Battle Against Protocol Ossification",
         "SECTION_4_BODY": """
         <p>
-          Modern web systems operate on a hybrid network tier. Here is how top engineering organizations ground HTTP version selection in production reality:
+          Once network engineers realized that TCP's single-byte-sequence model was fundamentally incompatible with multiplexing, the obvious engineering question arose:
         </p>
 
-        <table class="tradeoff-table my-4">
+        <p class="text-lg font-semibold text-[var(--foreground)] pl-4 border-l-2 border-amber-400 my-4">
+          <em>"Why didn't we just modify TCP? Why didn't we add Stream IDs to the TCP header so the kernel could release packets independently?"</em>
+        </p>
+
+        <p>
+          The answer is perhaps the most fascinating, infuriating constraint in modern computer systems: <strong>Middlebox Ossification</strong>.
+        </p>
+
+        <div class="jargon-card">
+          <div class="jargon-header">
+            <span class="jargon-title">💡 Jargon Unpacked: Middlebox & Protocol Ossification</span>
+            <span class="jargon-pill">The Physical Internet</span>
+          </div>
+          <div class="jargon-body">
+            A <strong>Middlebox</strong> is any piece of hardware or software between your device and the server that isn't a simple router—including enterprise firewalls, NAT gateways, deep-packet inspection boxes, and airport Wi-Fi captive portals.<br/>
+            <strong>Protocol Ossification</strong> means the internet has hardened like concrete. Over 30 years, millions of cheap middlebox devices were hardcoded to expect only standard TCP and UDP headers. If an engineer tries to create "TCP 2.0" or uses a new IP protocol number, these middleboxes silently drop the packets into the trash. You cannot upgrade two billion routers across the globe overnight!
+          </div>
+        </div>
+
+        <p>
+          This is where Google engineers had a stroke of practical genius. They realized: <em>We cannot change middleboxes, but middleboxes NEVER block UDP</em>. Why? Because DNS queries, WebRTC video calls, and multiplayer games run on UDP. If a hotel Wi-Fi or corporate firewall blocked UDP, their customers' video calls and domain lookups would break instantly!
+        </p>
+
+        <div class="aha-card">
+          <div class="aha-header">
+            <span>🚀 The HTTP/3 & QUIC Masterstroke</span>
+          </div>
+          <div class="aha-body">
+            Instead of begging operating systems and router vendors to update TCP, <strong>HTTP/3 runs on QUIC, which runs on top of UDP in user space</strong>. UDP is completely stateless and dumb: it just throws datagrams across the wire. QUIC implements its own stream-aware reliability, flow control, and TLS 1.3 encryption directly inside the browser and edge proxy!
+          </div>
+        </div>
+
+        <div class="space-y-4 my-6">
+          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+              <span>1. Truly Independent Streams (Zero Transport HoL Blocking)</span>
+            </div>
+            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed m-0">
+              In QUIC, each stream has its own independent byte-offset sequence. If Stream #1 drops a packet on a spotty cellular connection, <strong>only Stream #1 waits for a retransmit</strong>. Streams #2, #3, and #4 deliver their packets to the browser rendering engine immediately with 0ms delay!
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-sm font-bold text-cyan-400 flex items-center gap-2">
+              <span>2. Fused 0-RTT Connection Establishment</span>
+            </div>
+            <p class="text-sm text-[var(--muted-foreground)] leading-relaxed m-0">
+              In HTTP/2 over TCP+TLS, you pay 1 RTT for TCP SYN/ACK, then 1 RTT for TLS encryption handshakes. In QUIC, the transport connection and cryptographic handshake are <strong>fused into a single conversation</strong>. On initial connection, it takes just 1 RTT. On subsequent visits, it uses <strong>0-RTT</strong>: your device can send encrypted HTTP request data in the very first packet it transmits!
+            </p>
+          </div>
+
+          <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-sm font-bold text-purple-400 flex items-center gap-2">
+              <span>3. Seamless Mobile Connection Migration (64-Bit CID)</span>
+            </div>
+            <div class="jargon-card my-2">
+              <div class="jargon-header">
+                <span class="jargon-title">💡 Jargon Unpacked: The TCP 4-Tuple vs QUIC CID</span>
+                <span class="jargon-pill">Mobile Architecture</span>
+              </div>
+              <div class="jargon-body">
+                TCP defines a connection by four numbers: <code>(Source IP, Source Port, Destination IP, Destination Port)</code>. When you walk out of your house and your phone disconnects from Wi-Fi and connects to 5G, your phone's IP address changes! To TCP, the 4-tuple is broken—the connection dies immediately, freezing your video stream while your phone re-establishes a brand-new connection.<br/>
+                QUIC abandons IP-based identity. It identifies connections with a random <strong>64-bit Connection ID (CID)</strong>. When your IP changes, the CID remains unchanged. Your video stream or file download doesn't even stutter.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="callout-box callout-trap">
+          <div class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-1">⚠️ The Production Gotcha: UDP Port 443 Blocking & The Alt-Svc Fallback</div>
+          <p class="text-sm text-[var(--foreground)] m-0 leading-relaxed">
+            Here is a surprising production reality: between 3% to 7% of corporate enterprise networks, hotel Wi-Fi portals, and school firewalls still block UDP on port 443, assuming UDP is only for DNS or torrenting.
+            Because of this, <strong>browsers NEVER connect with HTTP/3 on the very first visit to a website</strong>! Instead, browsers connect via standard HTTP/2 over TCP first. The web server includes an HTTP response header:
+            <br/><code class="text-amber-300 font-mono mt-1 inline-block">Alt-Svc: h3=":443"; ma=86400</code><br/>
+            This tells the browser: <em>"I support HTTP/3 on UDP port 443 for the next 24 hours (86,400 seconds). Try that next time!"</em> On subsequent requests, the browser attempts QUIC, and if UDP is blocked by a corporate firewall, it silently falls back to HTTP/2 with zero user impact.
+          </p>
+        </div>
+
+        <table class="tradeoff-table my-6">
           <thead>
             <tr>
-              <th>Protocol Dimension</th>
+              <th>Architectural Dimension</th>
               <th>HTTP/1.1</th>
               <th>HTTP/2</th>
               <th>HTTP/3 (QUIC)</th>
@@ -1334,73 +1485,68 @@ def build_http_versions_data(theme, tier=None, cluster=None):
           </thead>
           <tbody>
             <tr>
-              <td class="font-semibold">Transport Protocol</td>
-              <td class="font-mono text-stone-300">TCP</td>
-              <td class="font-mono text-blue-400">TCP</td>
-              <td class="font-mono text-emerald-400">UDP</td>
+              <td class="font-semibold">Transport Layer</td>
+              <td class="font-mono text-stone-300">TCP (Kernel Space)</td>
+              <td class="font-mono text-blue-400">TCP (Kernel Space)</td>
+              <td class="font-mono text-emerald-400">UDP (User Space Engine)</td>
             </tr>
             <tr>
-              <td class="font-semibold">Multiplexing Mechanism</td>
-              <td class="font-mono text-rose-400">None (Domain Sharding: 6 TCP sockets)</td>
-              <td class="font-mono text-cyan-400">Binary Framing (1 TCP socket)</td>
+              <td class="font-semibold">Multiplexing Model</td>
+              <td class="font-mono text-rose-400">Domain Sharding (6 TCP sockets)</td>
+              <td class="font-mono text-cyan-400">Binary Frames (1 TCP socket)</td>
               <td class="font-mono text-emerald-400">Independent Streams (1 UDP session)</td>
             </tr>
             <tr>
               <td class="font-semibold">HoL Blocking Location</td>
               <td class="font-mono text-rose-400">Application Layer (FIFO queue)</td>
-              <td class="font-mono text-rose-400">Transport Layer (TCP receive queue)</td>
-              <td class="font-mono text-emerald-400">None (Fully Isolated Streams)</td>
+              <td class="font-mono text-rose-400">Transport Layer (Kernel TCP socket)</td>
+              <td class="font-mono text-emerald-400">None (Stream-Isolated)</td>
             </tr>
             <tr>
-              <td class="font-semibold">Connection Establishment</td>
+              <td class="font-semibold">Handshake Latency</td>
               <td class="font-mono text-stone-400">2–3 RTTs (TCP + TLS)</td>
               <td class="font-mono text-cyan-400">1–2 RTTs (TCP + TLS 1.3)</td>
-              <td class="font-mono text-emerald-400">0–1 RTT (Fused QUIC + TLS 1.3)</td>
+              <td class="font-mono text-emerald-400">0–1 RTT (Fused Handshake)</td>
             </tr>
             <tr>
-              <td class="font-semibold">Mobile IP Roaming</td>
-              <td class="font-mono text-rose-400">Connection drops & reconnects</td>
-              <td class="font-mono text-rose-400">Connection drops & reconnects</td>
-              <td class="font-mono text-emerald-400">Seamless Migration (via 64-bit CID)</td>
+              <td class="font-semibold">Connection Migration</td>
+              <td class="font-mono text-rose-400">Fails (4-Tuple IP Break)</td>
+              <td class="font-mono text-rose-400">Fails (4-Tuple IP Break)</td>
+              <td class="font-mono text-emerald-400">Seamless (64-bit CID)</td>
             </tr>
             <tr>
-              <td class="font-semibold">Server CPU Cost</td>
-              <td class="font-mono text-emerald-400">Low (Kernel offload)</td>
+              <td class="font-semibold">Server CPU Utilization</td>
+              <td class="font-mono text-emerald-400">Lowest (Kernel offload)</td>
               <td class="font-mono text-emerald-400">Low to Moderate</td>
-              <td class="font-mono text-amber-400">2–3× Higher (User-space crypto & UDP)</td>
+              <td class="font-mono text-amber-400">2–3&times; Higher (User-space crypto)</td>
             </tr>
           </tbody>
         </table>
-
-        <div class="callout-box callout-trap">
-          <div class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-1">⚠️ The Production Gotcha: UDP Blocking & Alt-Svc Fallback</div>
-          <p class="text-sm text-[var(--foreground)] m-0">
-            Many corporate firewalls, hotel Wi-Fi networks, and enterprise proxies strictly drop UDP traffic on port 443, assuming UDP is only for DNS or torrenting.
-            Because of this, <strong>browsers NEVER connect with HTTP/3 on the initial request</strong>. Browsers connect via HTTP/2 over TCP first; the server advertises HTTP/3 capability via an HTTP header: <code>Alt-Svc: h3=":443"; ma=86400</code>. Only on subsequent requests does the browser attempt QUIC over UDP, gracefully falling back to HTTP/2 if UDP is blocked.
-          </p>
-        </div>
         """,
 
         # PHASE 5: Contextual Sign-Off Verification Gate
-        "SECTION_5_TITLE": "Contextual Sign-Off Verification: Active Defense Gate",
+        "SECTION_5_TITLE": "5. Active Defense Gate: The Commuter Train Mystery",
         "SECTION_5_BODY": """
         <div class="callout-box callout-trap">
           <div class="flex items-start gap-3">
             <div class="text-amber-400 font-bold text-lg mt-0.5">⚠️</div>
-            <div class="space-y-2">
-              <h4 class="font-bold text-[var(--foreground)] text-base m-0">Production Incident: The Commuter Train Streaming Drop Mystery</h4>
+            <div class="space-y-3">
+              <h4 class="font-bold text-[var(--foreground)] text-base m-0">Real-World Incident: The Suburban Commuter Train Buffering Mystery</h4>
               <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                A video-on-demand streaming service deployed HTTP/2 multiplexing across their global CDN edge servers. Analytics reveal that users on suburban commuter trains experience frequent 2–4 second video buffering freezes, even though cell towers report solid 5G coverage with 40 Mbps bandwidth.
+                You are the Principal Infrastructure Architect at a global streaming video platform. Your analytics dashboard shows a bizarre anomaly: users streaming 1080p video on suburban commuter trains experience frequent <strong>2 to 4-second video buffering freezes</strong>.
               </p>
               <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
-                A junior engineer submits a pull request increasing the HTTP/2 maximum concurrent streams setting (<code>SETTINGS_MAX_CONCURRENT_STREAMS</code>) from 100 to 500, arguing: <em>"Higher concurrency will allow audio, video chunks, and subtitles to stream faster simultaneously."</em>
+                The strange part? Cell tower telemetry confirms strong 5G signal strength with over <strong>40 Mbps downstream bandwidth</strong> throughout the commute!
               </p>
-              <div class="p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">
-                <div class="text-xs font-mono font-bold text-rose-400 uppercase">Your Defense Challenge:</div>
-                <ul class="text-xs text-[var(--foreground)] space-y-1 m-0 pl-4 list-disc">
-                  <li>Why will increasing the concurrent stream limit completely fail to resolve the commuter train buffering spikes?</li>
-                  <li>Where in the network stack is the bottleneck occurring when the train transitions between cellular towers, and how does HTTP/2 multiplexing exacerbate the failure?</li>
-                  <li>Why does migrating to HTTP/3 (QUIC) resolve the issue, and what two specific QUIC mechanisms eliminate the buffering?</li>
+              <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                A junior engineer inspects your CDN edge configuration and notices that HTTP/2 is enabled with a default setting of <code>SETTINGS_MAX_CONCURRENT_STREAMS = 100</code>. They open an urgent pull request bumping the limit to <strong>500 streams</strong>, writing in the description: <em>"Higher concurrency will let audio, video segments, and subtitles stream faster in parallel."</em>
+              </p>
+              <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2">
+                <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider">Your Defense Challenge in Chat (/sds-discuss):</div>
+                <ul class="text-xs text-[var(--foreground)] space-y-1.5 m-0 pl-4 list-disc leading-relaxed">
+                  <li><strong>The Concurrency Fallacy:</strong> Why will increasing the HTTP/2 concurrent stream limit from 100 to 500 completely fail to fix the buffering freezes—and why might it actually make the freezes worse?</li>
+                  <li><strong>The Root Cause:</strong> What physical event is occurring on the commuter train, and where in the operating system / network stack does the bottleneck live?</li>
+                  <li><strong>The Architectural Solution:</strong> How does migrating to HTTP/3 (QUIC) eliminate this exact buffering failure, and what two specific mechanisms in QUIC protect the video stream?</li>
                 </ul>
               </div>
             </div>
@@ -1409,7 +1555,7 @@ def build_http_versions_data(theme, tier=None, cluster=None):
 
         <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
           <div class="font-bold text-[var(--primary)] flex items-center gap-2">
-            <span>🎯 Sign-Off Gate Defense Standard:</span>
+            <span>🎯 Sign-Off Standard:</span>
           </div>
           <p class="leading-relaxed m-0">
             Tick off when: you can explain this out loud, unprompted, in your own words, including why Head-of-Line blocking exists at each layer, what it costs in user experience, and why QUIC moved to UDP.
@@ -1421,7 +1567,7 @@ def build_http_versions_data(theme, tier=None, cluster=None):
         </div>
         """,
 
-        "BACKWARD_ANCHOR": "TCP vs UDP: Sliding Window, Flow Control, and Transport HoL Blocking",
+        "BACKWARD_ANCHOR": "TCP vs UDP: Reliability costs, kernel retransmission buffers, and transport HoL blocking",
         "FORWARD_HOOK": "TLS Handshake Cost & Session Resumption (0-RTT & Session Tickets)",
         "EMBEDDED_JAVASCRIPT": sim_js
     }
