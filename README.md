@@ -163,6 +163,16 @@ bash ~/.system-design-studio/skills/system-design-studio/scripts/init-learning-i
    - Or **Bring Your Own (BYO)**: Import any custom markdown syllabus (strictly validated against `Tier > Cluster > Topic`).
 3. **Project-Scoped Notes Location & Structure**: Default `<project>/notes` or custom path (e.g. Obsidian vault) structured as `per-topic` (default), `per-cluster`, `per-tier`, or `single-file`.
 
+#### Terminal Project Management (`sds` CLI)
+You can also inspect and manage projects directly from your terminal using `~/.system-design-studio/bin/sds`:
+```bash
+sds init              # Scaffold a new learning project
+sds list              # List registered projects, tracks, and progress (alias: sds projects)
+sds switch <id>       # Switch active project context across agent sessions
+sds notes [id]        # List generated study notes for active or specific project
+sds delete <id>       # Safely delete a project instance (-f to skip prompt, --dry-run to preview)
+```
+
 ---
 
 ### Step 3: Pure Chat Interaction (Zero Terminal Needed)

@@ -60,6 +60,14 @@ jobs:
           python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/sync-status.py .system-design
           python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/verify-instance.py .system-design
 
+      - name: Test Multi-Project Management & Safe Deletion
+        run: |
+          cd /tmp/test-instance
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/manage-projects.py list
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/manage-projects.py delete --dry-run "ci-test-instance"
+          python3 $GITHUB_WORKSPACE/skills/system-design-studio/scripts/manage-projects.py delete -f --delete-notes "ci-test-instance"
+          test ! -d /tmp/test-instance/.system-design
+
       - name: Test BYO Curriculum Import
         run: |
           mkdir -p /tmp/test-byo && cd /tmp/test-byo
@@ -101,13 +109,19 @@ jobs:
           rm -rf /tmp/test-un-home && mkdir -p /tmp/test-un-home
           HOME=/tmp/test-un-home bash $GITHUB_WORKSPACE/install.sh --all
           test -f /tmp/test-un-home/.gemini/antigravity/skills/sds-status/SKILL.md
+          test -f /tmp/test-un-home/.gemini/antigravity/skills/sds-delete/SKILL.md
           test -f /tmp/test-un-home/.gemini/config/skills/sds-status/SKILL.md
           test -f /tmp/test-un-home/.claude/commands/sds-status.md
+          test -f /tmp/test-un-home/.claude/commands/sds-delete.md
           test -f /tmp/test-un-home/.codex/prompts/sds-status.md
+          test -f /tmp/test-un-home/.codex/prompts/sds-delete.md
           
           # Run non-interactive clean uninstaller
           HOME=/tmp/test-un-home bash $GITHUB_WORKSPACE/uninstall.sh -y
           test ! -d /tmp/test-un-home/.gemini/antigravity/skills/system-design-studio
           test ! -d /tmp/test-un-home/.gemini/antigravity/skills/sds-status
+          test ! -d /tmp/test-un-home/.gemini/antigravity/skills/sds-delete
           test ! -f /tmp/test-un-home/.claude/commands/sds-status.md
+          test ! -f /tmp/test-un-home/.claude/commands/sds-delete.md
           test ! -f /tmp/test-un-home/.codex/prompts/sds-status.md
+          test ! -f /tmp/test-un-home/.codex/prompts/sds-delete.md

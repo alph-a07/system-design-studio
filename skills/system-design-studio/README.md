@@ -16,6 +16,8 @@ skills/system-design-studio/
 │   ├── sync-status.py              # Reports live cognitive status and causal anchors
 │   ├── verify-instance.py          # Verifies directory schema and lineage integrity
 │   ├── render-lesson.py            # Compiles interactive HTML teaching artifacts
+│   ├── manage-projects.py          # Multi-project registry, active switching & safe deletion
+│   ├── merge-settings.py           # Lossless settings migration across version upgrades
 │   └── import-curriculum.py        # Imports custom Markdown syllabi into manifest
 ├── references/              # Architectural specs and pedagogical references
 │   ├── project-learning-instance.md   # Filesystem contract & zero-cloud invariants
@@ -71,13 +73,37 @@ python3 skills/system-design-studio/scripts/advance-cursor.py \
   --next-action "Establish topic foundation for HTTP multiplexing"
 ```
 
-### 5. Import Custom Syllabus (BYO)
+### 5. Multi-Project Registry & Safe Deletion
+Lists registered instances, switches active learning context, inspects notes, or safely removes projects:
+```bash
+# List all registered instances and progress
+python3 skills/system-design-studio/scripts/manage-projects.py list
+
+# Switch active project context
+python3 skills/system-design-studio/scripts/manage-projects.py switch <project-id>
+
+# List generated study notes for project
+python3 skills/system-design-studio/scripts/manage-projects.py notes [project-id]
+
+# Safely delete project instance (strictly preserves user files & notes by default)
+python3 skills/system-design-studio/scripts/manage-projects.py delete <project-id> [--dry-run] [-f]
+```
+
+### 6. Import Custom Syllabus (BYO)
 Transforms any external Markdown curriculum into an indexed `.system-design/` instance:
 ```bash
 python3 skills/system-design-studio/scripts/import-curriculum.py \
   --input custom-syllabus.md \
   --instance-dir .system-design \
   --title "High-Frequency Trading Architecture"
+```
+
+### 7. Lossless Settings Migration
+Safely merges updated settings schema with user preferences without erasing customizations:
+```bash
+python3 skills/system-design-studio/scripts/merge-settings.py \
+  --instance-dir .system-design \
+  --defaults skills/system-design-studio/resources/settings-defaults.json
 ```
 
 ---

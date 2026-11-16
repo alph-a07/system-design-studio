@@ -102,16 +102,18 @@ for target_parent in $AGENT_TARGETS; do
     chmod +x "$target_dir/scripts/"*.sh "$target_dir/scripts/"*.py 2>/dev/null || true
 
     # Also update all companion sds-* command skills
+    companion_count=0
     for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
       if [ -d "$cmd_dir" ]; then
         cmd_name="$(basename "$cmd_dir")"
         rm -rf "${target_parent}/${cmd_name}"
         cp -R "$cmd_dir" "${target_parent}/${cmd_name}"
         chmod -R u+rwX,go+rX "${target_parent}/${cmd_name}" 2>/dev/null || true
+        companion_count=$((companion_count + 1))
       fi
     done
 
-    echo "   ✅ Updated at ${target_dir} (+ 10 in-chat commands)"
+    echo "   ✅ Updated at ${target_dir} (+ ${companion_count} in-chat commands)"
     UPDATED_COUNT=$((UPDATED_COUNT + 1))
   fi
 done
