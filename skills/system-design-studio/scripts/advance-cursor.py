@@ -150,6 +150,8 @@ def main():
     parser.add_argument("--forward-hook", help="Updated forward hook description")
     parser.add_argument("--lesson-artifact", help="Path to generated interactive HTML lesson artifact")
     parser.add_argument("--discussion-summary", help="Summary of chat defense and edge cases discussed for note synthesis")
+    parser.add_argument("--auto-notes", dest="auto_notes_opt", action="store_true", default=None, help="Force auto-generate notes regardless of settings")
+    parser.add_argument("--no-auto-notes", dest="auto_notes_opt", action="store_false", help="Disable auto-generation of notes for this completion")
 
     args = parser.parse_args()
     inst_dir = resolve_instance_dir(args.instance_dir)
@@ -211,6 +213,7 @@ def main():
             normalized_id = f"topic.{normalized_id}"
 
         matched_topic = None
+        # 1. Exact match
         for cluster in manifest["curriculum"]["clusters"]:
             for topic in cluster["topics"]:
                 if topic["id"] == args.complete_topic or topic["id"] == normalized_id:
@@ -220,6 +223,21 @@ def main():
                     break
             if matched_topic:
                 break
+
+        # 2. Substring / Prefix match fallback
+        if not matched_topic:
+            query = args.complete_topic.lower().replace("topic.", "").strip()
+            for cluster in manifest["curriculum"]["clusters"]:
+                for topic in cluster["topics"]:
+                    t_id_lower = topic["id"].lower()
+                    t_title_lower = topic["title"].lower()
+                    if query in t_id_lower or query in t_title_lower:
+                        matched_topic = topic
+                        completed_cluster = cluster
+                        args.complete_topic = topic["id"]
+                        break
+                if matched_topic:
+                    break
 
         if not matched_topic:
             print(f"❌ Error: Topic '{args.complete_topic}' not found in curriculum.", file=sys.stderr)
@@ -427,9 +445,24 @@ def main():
         c_title = completed_cluster.get("title", "") if completed_cluster else ""
         log_adr_record(inst_dir, args.complete_topic, completed_topic_title, c_title, c_code, args.evidence, args.discussion_summary, args.hypothesis, today_str)
 
+        # Check auto-notes preference
+        auto_notes_enabled = True
+        if args.auto_notes_opt is not None:
+            auto_notes_enabled = args.auto_notes_opt
+        elif os.path.exists(settings_path):
+            try:
+                with open(settings_path, "r", encoding="utf-8") as sf:
+                    s_cfg = json.load(sf)
+                    if "autoGenerateNotes" in s_cfg:
+                        val = s_cfg["autoGenerateNotes"]
+                        auto_notes_enabled = val is True or str(val).lower() in ("true", "1", "yes")
+            except Exception:
+                pass
+
         script_dir = os.path.dirname(os.path.abspath(__file__))
         gen_notes_script = os.path.join(script_dir, "generate-notes.py")
-        if os.path.exists(gen_notes_script):
+        note_generated = False
+        if auto_notes_enabled and os.path.exists(gen_notes_script):
             import subprocess
             cmd = [
                 sys.executable,
@@ -445,8 +478,28 @@ def main():
                 cmd.extend(["--discussion-summary", args.discussion_summary])
             try:
                 subprocess.run(cmd, check=False)
+                note_generated = True
             except Exception as e:
                 print(f"⚠️ Note generation hook: {e}")
+        elif not auto_notes_enabled:
+            print("ℹ️ Auto-notes generation is disabled (autoGenerateNotes: false). Run 'sds notes generate' or /sds-notes to compile study notes manually.")
+
+        # Record atomic Git checkpoint with tractable commit message
+        checkpoint_script = os.path.join(script_dir, "git-checkpoint.py")
+        if os.path.exists(checkpoint_script):
+            try:
+                import subprocess
+                subject = f"complete {args.complete_topic} - {completed_topic_title} [verified]"
+                subprocess.run([
+                    sys.executable,
+                    checkpoint_script,
+                    "commit",
+                    "--instance-dir", inst_dir,
+                    "--type", "learn",
+                    "--subject", subject
+                ], check=False)
+            except Exception as e:
+                print(f"⚠️ Git checkpoint warning: {e}")
 
 if __name__ == "__main__":
     main()

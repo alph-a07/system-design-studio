@@ -166,13 +166,82 @@ def build_filtered_curriculum(tiers, track_key=None, include_tiers=None, exclude
 
     return filtered_tiers
 
+def resolve_project_output_dir(raw_dir=None, project_id=None):
+    if project_id:
+        reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+        if os.path.isfile(reg_path):
+            try:
+                with open(reg_path, "r", encoding="utf-8") as f:
+                    reg = json.load(f)
+                for p in reg.get("projects", []):
+                    if p.get("id") == project_id:
+                        p_path = os.path.expanduser(p.get("projectPath", ""))
+                        return os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+            except Exception:
+                pass
+
+    if raw_dir:
+        expanded = os.path.expanduser(raw_dir)
+        if os.path.isdir(os.path.join(expanded, ".system-design")):
+            return os.path.join(expanded, ".system-design")
+        return expanded
+
+    cwd_inst = os.path.abspath(".system-design")
+    if os.path.isdir(cwd_inst) and os.path.isfile(os.path.join(cwd_inst, "manifest.json")):
+        return cwd_inst
+
+    curr = os.getcwd()
+    while True:
+        candidate = os.path.join(curr, ".system-design")
+        if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "manifest.json")):
+            return candidate
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            break
+        curr = parent
+
+    reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+    if os.path.isfile(reg_path):
+        try:
+            with open(reg_path, "r", encoding="utf-8") as f:
+                reg = json.load(f)
+            active_id = reg.get("activeProjectId")
+            for p in reg.get("projects", []):
+                if p.get("id") == active_id:
+                    cand = os.path.join(os.path.expanduser(p.get("projectPath", "")), ".system-design")
+                    if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "manifest.json")):
+                        return cand
+        except Exception:
+            pass
+
+    return ".system-design"
+
 def export_curriculum(filtered_tiers, title, output_dir):
     os.makedirs(output_dir, exist_ok=True)
     os.makedirs(os.path.join(output_dir, "lessons"), exist_ok=True)
 
+    manifest_path = os.path.join(output_dir, "manifest.json")
+    curriculum_path = os.path.join(output_dir, "CURRICULUM.md")
+
+    # Load existing manifest to preserve user progress across track changes / pruning
+    old_manifest = None
+    status_map = {}
+    if os.path.isfile(manifest_path):
+        try:
+            with open(manifest_path, "r", encoding="utf-8") as mf:
+                old_manifest = json.load(mf)
+                for c in old_manifest.get("curriculum", {}).get("clusters", []):
+                    for t in c.get("topics", []):
+                        status_map[t["id"]] = {
+                            "status": t.get("status", "unseen"),
+                            "lessonArtifact": t.get("lessonArtifact")
+                        }
+        except Exception:
+            old_manifest = None
+
     curriculum_lines = [
         f"# {title}\n",
-        f"> **Custom Track Generation**: Generated on {datetime.date.today().isoformat()} via System Design Studio.\n",
+        f"> **Project Curriculum Track**: Scoped to project. Generated on {datetime.date.today().isoformat()} via System Design Studio.\n",
         "---\n"
     ]
 
@@ -182,7 +251,30 @@ def export_curriculum(filtered_tiers, title, output_dir):
     for t in filtered_tiers:
         curriculum_lines.append(f"\n# Tier {t['code']} — {t['title']}\n")
         for c in t["clusters"]:
-            curriculum_lines.extend(c["raw_lines"])
+            # Process topics and restore completed status if previously completed
+            updated_topics = []
+            for top in c["topics"]:
+                top_copy = dict(top)
+                if top["id"] in status_map:
+                    top_copy["status"] = status_map[top["id"]]["status"]
+                    if status_map[top["id"]]["lessonArtifact"]:
+                        top_copy["lessonArtifact"] = status_map[top["id"]]["lessonArtifact"]
+                updated_topics.append(top_copy)
+
+            # Build raw lines for CURRICULUM.md, checking [x] for completed topics
+            c_raw = []
+            for rline in c["raw_lines"]:
+                # If topic line, check if completed
+                matched = False
+                for ut in updated_topics:
+                    if ut["status"] == "completed" and ut["title"] in rline:
+                        c_raw.append(re.sub(r'^-\s*\[\s*\]', '- [x]', rline))
+                        matched = True
+                        break
+                if not matched:
+                    c_raw.append(rline)
+
+            curriculum_lines.extend(c_raw)
             curriculum_lines.append("\n---\n")
 
             manifest_clusters.append({
@@ -191,12 +283,11 @@ def export_curriculum(filtered_tiers, title, output_dir):
                 "title": f"{c['order']}. [{c['code']}] {c['title']}",
                 "order": cluster_order,
                 "tierId": f"tier.{t['code']}",
-                "topics": c["topics"]
+                "topics": updated_topics
             })
             cluster_order += 1
 
     # Write CURRICULUM.md
-    curriculum_path = os.path.join(output_dir, "CURRICULUM.md")
     with open(curriculum_path, "w", encoding="utf-8") as f:
         f.write("\n".join(curriculum_lines))
 
@@ -205,53 +296,87 @@ def export_curriculum(filtered_tiers, title, output_dir):
     first_cluster = manifest_clusters[0] if manifest_clusters else None
     first_topic = first_cluster["topics"][0] if first_cluster and first_cluster["topics"] else None
 
+    # Find next active topic (first uncompleted)
+    active_cluster = first_cluster
+    active_topic = first_topic
+    for mc in manifest_clusters:
+        uncompleted = [top for top in mc["topics"] if top["status"] != "completed"]
+        if uncompleted:
+            active_cluster = mc
+            active_topic = uncompleted[0]
+            break
+
+    # Preserve or initialize manifest
     manifest = {
         "$schemaVersion": "3.2",
         "instanceName": title,
-        "createdAt": now_iso,
+        "createdAt": old_manifest.get("createdAt", now_iso) if old_manifest else now_iso,
         "lastUpdated": now_iso,
         "curriculum": {
             "id": f"curriculum.{re.sub(r'[^a-zA-Z0-9]+', '-', title.lower()).strip('-')[:30]}",
             "title": title,
-            "source": "curated-track",
+            "source": "project-scoped-track",
             "sourceRef": ".system-design/CURRICULUM.md",
-            "activeClusterId": first_cluster["id"] if first_cluster else None,
-            "activeTopicId": first_topic["id"] if first_topic else None,
+            "activeClusterId": active_cluster["id"] if active_cluster else None,
+            "activeTopicId": active_topic["id"] if active_topic else None,
             "clusters": manifest_clusters
         },
         "cursor": {
-            "version": 1,
+            "version": (old_manifest.get("cursor", {}).get("version", 0) + 1) if old_manifest else 1,
             "lastTickTimestamp": now_iso,
-            "activeClusterCode": first_cluster["code"] if first_cluster else "none",
-            "activeClusterName": first_cluster["title"] if first_cluster else "none",
+            "activeClusterCode": active_cluster["code"] if active_cluster else "none",
+            "activeClusterName": active_cluster["title"] if active_cluster else "none",
             "activeTier": f"Tier {filtered_tiers[0]['code']}" if filtered_tiers else "Tier 0",
-            "activeTopic": first_topic["title"] if first_topic else "none",
-            "topicFoundationId": f"foundation.{first_topic['id'].replace('topic.', '')}" if first_topic else "foundation.none",
+            "activeTopic": active_topic["title"] if active_topic else "none",
+            "topicFoundationId": f"foundation.{active_topic['id'].replace('topic.', '')}" if active_topic else "foundation.none",
             "topicFoundationStatus": "not-started",
-            "activeMechanismGroupId": f"group.{first_topic['id'].replace('topic.', '')}" if first_topic else "group.none",
-            "nextTeachingAction": f"Start foundational inquiry on {first_topic['title']}" if first_topic else "Review curriculum",
-            "backwardAnchor": "Track initialized via configure-curriculum.py",
-            "forwardHook": f"Connect foundational invariants to {first_topic['title']}" if first_topic else "Prepare initial lesson"
+            "activeMechanismGroupId": f"group.{active_topic['id'].replace('topic.', '')}" if active_topic else "group.none",
+            "nextTeachingAction": f"Start foundational inquiry on {active_topic['title']}" if active_topic else "Review curriculum",
+            "backwardAnchor": old_manifest.get("cursor", {}).get("backwardAnchor", "Track initialized via configure-curriculum.py") if old_manifest else "Track initialized via configure-curriculum.py",
+            "forwardHook": f"Connect foundational invariants to {active_topic['title']}" if active_topic else "Prepare initial lesson"
         },
-        "runningContext": {
+        "runningContext": old_manifest.get("runningContext", {
+            "coveredConcepts": [],
+            "examplesTaken": [],
+            "deferredQueue": [],
+            "causalAnchors": []
+        }) if old_manifest else {
             "coveredConcepts": [],
             "examplesTaken": [],
             "deferredQueue": [],
             "causalAnchors": []
         },
-        "evidence": []
+        "evidence": old_manifest.get("evidence", []) if old_manifest else []
     }
 
-    manifest_path = os.path.join(output_dir, "manifest.json")
     with open(manifest_path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
     total_topics = sum(len(c["topics"]) for c in manifest_clusters)
-    print(f"✅ Generated tailored curriculum track: '{title}'")
-    print(f"   • Tiers:    {len(filtered_tiers)}")
-    print(f"   • Clusters: {len(manifest_clusters)}")
-    print(f"   • Topics:   {total_topics}")
-    print(f"   • Files:    {curriculum_path}, {manifest_path}")
+    completed_topics = sum(1 for c in manifest_clusters for t in c["topics"] if t.get("status") == "completed")
+    print(f"✅ Generated project-scoped curriculum track: '{title}'")
+    print(f"   • Tiers:     {len(filtered_tiers)}")
+    print(f"   • Clusters:  {len(manifest_clusters)}")
+    print(f"   • Topics:    {total_topics} ({completed_topics} completed preserved)")
+    print(f"   • Directory: {output_dir}")
+
+    # Record atomic Git checkpoint
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    checkpoint_script = os.path.join(script_dir, "git-checkpoint.py")
+    if os.path.exists(checkpoint_script):
+        try:
+            import subprocess
+            subj = f"update track '{title}' ({len(manifest_clusters)} clusters, {total_topics} topics)"
+            subprocess.run([
+                sys.executable,
+                checkpoint_script,
+                "commit",
+                "--instance-dir", output_dir,
+                "--type", "curriculum",
+                "--subject", subj
+            ], check=False)
+        except Exception as e:
+            print(f"⚠️ Git checkpoint error: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Configure, prune, or select curriculum tracks for System Design Studio")
@@ -261,7 +386,8 @@ def main():
     parser.add_argument("--exclude-tiers", help="Comma-separated tier codes to exclude")
     parser.add_argument("--include-clusters", help="Comma-separated cluster codes to include (e.g. 0.1,0.2,1.3)")
     parser.add_argument("--reorder", help="Comma-separated cluster codes in desired sequence")
-    parser.add_argument("--output-dir", default=".system-design", help="Target output instance directory")
+    parser.add_argument("--output-dir", "--instance-dir", dest="output_dir", default=".system-design", help="Target output instance directory")
+    parser.add_argument("--project", dest="project_id", help="Target project ID from multi-project registry")
     parser.add_argument("--title", help="Custom curriculum title")
     parser.add_argument("--list-tracks", action="store_true", help="List available curated tracks")
 
@@ -302,7 +428,8 @@ def main():
     track_info = TRACK_DEFINITIONS.get(args.track) if args.track else None
     title = args.title or (track_info["name"] if track_info else "Custom System Design Curriculum")
 
-    export_curriculum(filtered, title, args.output_dir)
+    resolved_output_dir = resolve_project_output_dir(args.output_dir, args.project_id)
+    export_curriculum(filtered, title, resolved_output_dir)
 
 if __name__ == "__main__":
     main()
