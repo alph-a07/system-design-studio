@@ -9,9 +9,15 @@ reporting active focus, running context, artifact style preference, and deferred
 import os
 import sys
 import json
+import argparse
 
 def main():
-    instance_dir = sys.argv[1] if len(sys.argv) > 1 else ".system-design"
+    parser = argparse.ArgumentParser(description="Diagnostic tool for System Design Studio learning instances.")
+    parser.add_argument("pos_instance_dir", nargs="?", default=None, help="Path to .system-design directory (positional)")
+    parser.add_argument("--instance-dir", default=None, help="Path to .system-design directory")
+    args = parser.parse_args()
+
+    instance_dir = args.instance_dir or args.pos_instance_dir or ".system-design"
     manifest_path = os.path.join(instance_dir, "manifest.json")
     settings_path = os.path.join(instance_dir, "settings.json")
 
@@ -48,7 +54,9 @@ def main():
     print(f"🧠 SYSTEM DESIGN STUDIO — INSTANCE DIAGNOSTIC")
     print("=" * 60)
     print(f"Instance Name:   {m.get('instanceName', 'Unknown')}")
-    print(f"Curriculum:      {curriculum.get('title', 'Unknown')} ({curriculum.get('id', 'unknown')})")
+    print(f"Curriculum Track: {settings.get('track', 'full-mastery')} ({curriculum.get('title', 'Unknown')})")
+    print(f"Output Mode:     {settings.get('outputType', 'html')} | Theme: {settings.get('artifactStyle', 'slate-clean')}")
+    print(f"Study Notes:     {settings.get('paths', {}).get('notesDir', 'notes')} ({settings.get('notesStructure', 'per-topic')})")
     print(f"Overall Progress: {completed_topics} / {total_topics} Topics ({pct:.1f}%)")
     style_val = settings.get("artifactStyle", "slate-clean")
     abs_inst = os.path.abspath(instance_dir)

@@ -19,9 +19,10 @@ def merge_settings(current_settings, template_settings):
     """
     merged = dict(template_settings)
 
-    # 1. Preserve user-chosen active artifactStyle
-    if "artifactStyle" in current_settings:
-        merged["artifactStyle"] = current_settings["artifactStyle"]
+    # 1. Preserve user-chosen active artifactStyle, format, notes and project identity
+    for id_key in ["projectId", "projectName", "track", "artifactStyle", "outputType", "autoGenerateNotes", "notesStructure"]:
+        if id_key in current_settings:
+            merged[id_key] = current_settings[id_key]
 
     # 2. Preserve directory paths preferences (paths object & top-level aliases)
     if "paths" in current_settings and isinstance(current_settings["paths"], dict):
@@ -31,7 +32,7 @@ def merge_settings(current_settings, template_settings):
     elif "paths" in template_settings:
         merged["paths"] = dict(template_settings["paths"])
 
-    for dir_key in ["instanceDir", "cursorDir", "lessonsDir"]:
+    for dir_key in ["instanceDir", "cursorDir", "lessonsDir", "notesDir"]:
         if dir_key in current_settings:
             merged[dir_key] = current_settings[dir_key]
         elif "paths" in merged and dir_key in merged["paths"]:

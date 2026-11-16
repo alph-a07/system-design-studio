@@ -33,6 +33,19 @@ def verify_instance(instance_dir=".system-design"):
                 passes.append(f"settings.json defines recognized artifactStyle '{style}'")
             else:
                 warnings.append(f"settings.json artifactStyle '{style}' not in standard roster ({valid_styles})")
+
+            out_fmt = settings.get("outputType", "html")
+            if out_fmt in ["html", "markdown"]:
+                passes.append(f"settings.json defines valid outputType '{out_fmt}'")
+            else:
+                warnings.append(f"settings.json defines unknown outputType '{out_fmt}' (expected 'html' or 'markdown')")
+
+            struct = settings.get("notesStructure", "per-topic")
+            valid_structs = ["per-topic", "per-cluster", "per-tier", "single-file"]
+            if struct in valid_structs:
+                passes.append(f"settings.json defines valid notesStructure '{struct}'")
+            else:
+                warnings.append(f"settings.json notesStructure '{struct}' not in ({valid_structs})")
         except json.JSONDecodeError as e:
             errors.append(f"settings.json has JSON syntax error: {e}")
     else:
@@ -197,6 +210,12 @@ def verify_instance(instance_dir=".system-design"):
         return True
 
 if __name__ == "__main__":
-    target = sys.argv[1] if len(sys.argv) > 1 else ".system-design"
+    import argparse
+    parser = argparse.ArgumentParser(description="Automated health-check and integrity verification for System Design Studio instances.")
+    parser.add_argument("pos_instance_dir", nargs="?", default=None, help="Path to .system-design directory (positional)")
+    parser.add_argument("--instance-dir", default=None, help="Path to .system-design directory")
+    args = parser.parse_args()
+
+    target = args.instance_dir or args.pos_instance_dir or ".system-design"
     success = verify_instance(target)
     sys.exit(0 if success else 1)

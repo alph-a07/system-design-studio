@@ -47,11 +47,59 @@ def extract_cluster_reality_checks(inst_dir, cluster_code):
         '2. *"Derive the quantitative trade-off or latency impact when the primary assumption fails."*'
     ]
 
+def log_adr_record(inst_dir, topic_id, topic_title, cluster_title, cluster_code, evidence, discussion_summary, hypothesis, today_str):
+    decisions_path = os.path.join(inst_dir, "DECISIONS.md")
+    if not os.path.exists(decisions_path):
+        header = "# Architecture Decision Records (ADRs)\n\n"
+    else:
+        with open(decisions_path, "r", encoding="utf-8") as f:
+            header = f.read()
+
+    placeholder = "*No decisions accepted yet. Decisions will be recorded as architectural trade-offs are evaluated and defended in workshops.*"
+    if placeholder in header:
+        header = header.replace(placeholder, "").strip() + "\n\n"
+
+    existing_adrs = re.findall(r"##\s+ADR-(\d+)", header)
+    next_num = (max([int(x) for x in existing_adrs]) + 1) if existing_adrs else 1
+    adr_id = f"ADR-{next_num:03d}"
+
+    claim_text = evidence.strip() if evidence else "Verified cold in chat defense without notes."
+    discussion_text = discussion_summary.strip() if discussion_summary else "Learner evaluated physical failure modes and quantitative boundaries during defense gate."
+    hypo_text = hypothesis.strip() if hypothesis else "Assumed naive architectural approach prior to stress testing failure boundaries."
+
+    adr_entry = f"""## {adr_id}: {topic_title} Architectural Defense
+- **Date**: {today_str}
+- **Cluster**: {cluster_title} (`{cluster_code}`)
+- **Topic ID**: `{topic_id}`
+- **Status**: Accepted (Verified Sign-Off Gate)
+
+### Context & Problem Statement
+Evaluating architectural choices under physical network/hardware boundaries, uncoordinated failure modes, and latency floors.
+- **Initial Hypothesis**: {hypo_text}
+
+### Invariant Claim & Decision
+> {claim_text}
+
+### Trade-Off Discussion & Defense Summary
+{discussion_text}
+
+### Consequences & Non-Negotiable Invariants
+- **Guaranteed (Gain)**: Verified operational ordering, bounded blast radius, and deterministic recovery.
+- **Non-Guarantee (Tax)**: Coordination overhead, queueing jitter under packet loss, and protocol complexity.
+
+---
+
+"""
+    new_content = header.rstrip() + "\n\n" + adr_entry
+    atomic_write(decisions_path, new_content)
+    print(f"📋 Architecture Decision Record logged: {adr_id} in DECISIONS.md")
+
 def main():
     parser = argparse.ArgumentParser(description="Advance System Design Studio cursor state")
     parser.add_argument("--instance-dir", default=".system-design", help="Path to .system-design directory")
     parser.add_argument("--complete-topic", help="Topic ID to mark completed (e.g. topic.0.1.tcp-vs-udp)")
     parser.add_argument("--evidence", help="Evidence text demonstrating mastery")
+    parser.add_argument("--hypothesis", help="Learner's initial intuition or hypothesis at the start of the topic")
     parser.add_argument("--log-example-domain", help="Example domain name (e.g. Financial Ledger)")
     parser.add_argument("--log-example-scenario", help="Concrete scenario description")
     parser.add_argument("--log-example-tradeoffs", nargs="*", default=[], help="Tradeoffs exposed by this example")
@@ -64,6 +112,7 @@ def main():
     parser.add_argument("--backward-anchor", help="Updated backward anchor description")
     parser.add_argument("--forward-hook", help="Updated forward hook description")
     parser.add_argument("--lesson-artifact", help="Path to generated interactive HTML lesson artifact")
+    parser.add_argument("--discussion-summary", help="Summary of chat defense and edge cases discussed for note synthesis")
 
     args = parser.parse_args()
     inst_dir = args.instance_dir
@@ -118,17 +167,34 @@ def main():
 
     # 1. Complete topic
     completed_topic_title = None
+    completed_cluster = None
     if args.complete_topic:
+        normalized_id = args.complete_topic
+        if not normalized_id.startswith("topic."):
+            normalized_id = f"topic.{normalized_id}"
+
+        matched_topic = None
         for cluster in manifest["curriculum"]["clusters"]:
             for topic in cluster["topics"]:
-                if topic["id"] == args.complete_topic:
-                    topic["status"] = "completed"
-                    completed_topic_title = topic["title"]
-                    concept_id = f"concept.{args.complete_topic.replace('topic.', '')}"
-                    if concept_id not in manifest["runningContext"]["coveredConcepts"]:
-                        manifest["runningContext"]["coveredConcepts"].append(concept_id)
-                    if args.lesson_artifact:
-                        topic["lessonArtifact"] = f"lessons/{os.path.basename(args.lesson_artifact)}"
+                if topic["id"] == args.complete_topic or topic["id"] == normalized_id:
+                    matched_topic = topic
+                    completed_cluster = cluster
+                    args.complete_topic = topic["id"]
+                    break
+            if matched_topic:
+                break
+
+        if not matched_topic:
+            print(f"❌ Error: Topic '{args.complete_topic}' not found in curriculum.", file=sys.stderr)
+            sys.exit(1)
+
+        matched_topic["status"] = "completed"
+        completed_topic_title = matched_topic["title"]
+        concept_id = f"concept.{args.complete_topic.replace('topic.', '')}"
+        if concept_id not in manifest["runningContext"]["coveredConcepts"]:
+            manifest["runningContext"]["coveredConcepts"].append(concept_id)
+        if args.lesson_artifact:
+            matched_topic["lessonArtifact"] = f"lessons/{os.path.basename(args.lesson_artifact)}"
 
         if args.evidence:
             ev_id = f"evidence.{args.complete_topic.replace('topic.', '')}.{today_str}"
@@ -279,10 +345,10 @@ def main():
   - *Cluster Reality Checks*:
 {rc_md}
 - **Active Topic**: **{active_topic['title']}** (`{active_topic['id']}`)
-  - *Topic Foundation Status*: `{manifest['cursor']['topicFoundationStatus']}`
-  - *Active Mechanism Group*: `{manifest['cursor']['activeMechanismGroupId']}`
-  - *Last Checkpoint*: `{manifest['cursor']['lastCheckpointId']}` (Status: `{manifest['cursor']['lastCheckpointStatus']}`)
-  - *Immediate Next Teaching Action*: {manifest['cursor']['nextTeachingAction']}
+  - *Topic Foundation Status*: `{manifest['cursor'].get('topicFoundationStatus', 'in-progress')}`
+  - *Active Mechanism Group*: `{manifest['cursor'].get('activeMechanismGroupId', 'group.none')}`
+  - *Last Checkpoint*: `{manifest['cursor'].get('lastCheckpointId', 'none')}` (Status: `{manifest['cursor'].get('lastCheckpointStatus', 'unseen')}`)
+  - *Immediate Next Teaching Action*: {manifest['cursor'].get('nextTeachingAction', 'Review next topic')}
 
 ---
 
@@ -317,6 +383,33 @@ def main():
 
     print(f"✅ Cursor advanced! Active topic: {active_topic['title']}")
     print(f"   Progress: {completed_topics}/{total_topics} ({pct:.1f}%)")
+
+    # Auto-generate study note and log ADR if topic was completed
+    if args.complete_topic:
+        c_code = completed_cluster.get("code", "") if completed_cluster else ""
+        c_title = completed_cluster.get("title", "") if completed_cluster else ""
+        log_adr_record(inst_dir, args.complete_topic, completed_topic_title, c_title, c_code, args.evidence, args.discussion_summary, args.hypothesis, today_str)
+
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        gen_notes_script = os.path.join(script_dir, "generate-notes.py")
+        if os.path.exists(gen_notes_script):
+            import subprocess
+            cmd = [
+                sys.executable,
+                gen_notes_script,
+                "--instance-dir", inst_dir,
+                "--topic-id", args.complete_topic
+            ]
+            if args.evidence:
+                cmd.extend(["--evidence", args.evidence])
+            if args.hypothesis:
+                cmd.extend(["--hypothesis", args.hypothesis])
+            if args.discussion_summary:
+                cmd.extend(["--discussion-summary", args.discussion_summary])
+            try:
+                subprocess.run(cmd, check=False)
+            except Exception as e:
+                print(f"⚠️ Note generation hook: {e}")
 
 if __name__ == "__main__":
     main()

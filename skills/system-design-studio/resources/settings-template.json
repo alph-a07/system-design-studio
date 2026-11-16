@@ -1,10 +1,17 @@
 {
-  "$schemaVersion": "3.1",
+  "$schemaVersion": "3.2",
+  "projectId": "default",
+  "projectName": "System Design Learning Instance",
+  "track": "full-mastery",
   "artifactStyle": "slate-clean",
+  "outputType": "html",
+  "autoGenerateNotes": true,
+  "notesStructure": "per-topic",
   "paths": {
     "instanceDir": ".system-design",
     "cursorDir": ".system-design",
-    "lessonsDir": ".system-design/lessons"
+    "lessonsDir": ".system-design/lessons",
+    "notesDir": "notes"
   },
   "availableStyles": [
     {
@@ -36,6 +43,28 @@
       "name": "Warm Amber (Espresso Glow)",
       "theme": "dark",
       "description": "Rich espresso and sepia tones with warm amber/copper accents designed for low eye fatigue."
+    }
+  ],
+  "availableNotesStructures": [
+    {
+      "id": "per-topic",
+      "name": "Per-Topic Files",
+      "description": "Individual markdown note per topic (notes/<tier>/<cluster>/<topic>.md)."
+    },
+    {
+      "id": "per-cluster",
+      "name": "Per-Cluster Files",
+      "description": "Consolidated markdown note per cluster (notes/<tier>/<cluster>.md)."
+    },
+    {
+      "id": "per-tier",
+      "name": "Per-Tier Files",
+      "description": "Consolidated markdown note per tier (notes/tier-<N>-<tier-name>.md)."
+    },
+    {
+      "id": "single-file",
+      "name": "Single Master File",
+      "description": "All notes compiled into a single master document (notes/SYSTEM-DESIGN-NOTES.md)."
     }
   ],
   "deliveryMode": "strictly-artifact-first",
