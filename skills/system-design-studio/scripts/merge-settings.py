@@ -72,13 +72,68 @@ def merge_settings(current_settings, template_settings):
     return merged
 
 def main():
-    parser = argparse.ArgumentParser(description="Merge System Design Studio settings while preserving user preferences.")
-    parser.add_argument("--current", required=True, help="Path to current settings.json")
-    parser.add_argument("--template", required=True, help="Path to settings-template.json")
+    parser = argparse.ArgumentParser(description="Merge or update System Design Studio settings while preserving user preferences.")
+    parser.add_argument("--current", "--settings", dest="current", help="Path to current settings.json or .system-design directory")
+    parser.add_argument("--template", help="Path to settings-template.json")
+    parser.add_argument("--key", help="Specific setting key to update (e.g. artifactStyle, outputType, notesStructure)")
+    parser.add_argument("--value", help="Value to set for --key")
     parser.add_argument("--output", help="Path to output merged settings.json (defaults to --current)")
 
     args = parser.parse_args()
-    out_path = args.output or args.current
+
+    if not args.current:
+        print("❌ Error: --current or --settings path is required.", file=sys.stderr)
+        sys.exit(1)
+
+    target_path = args.current
+    if os.path.isdir(target_path):
+        candidate = os.path.join(target_path, "settings.json")
+        if not os.path.exists(candidate) and os.path.isdir(os.path.join(target_path, ".system-design")):
+            candidate = os.path.join(target_path, ".system-design", "settings.json")
+        target_path = candidate
+
+    out_path = args.output or target_path
+
+    # If updating a single key
+    if args.key and args.value is not None:
+        data = {}
+        if os.path.exists(target_path):
+            with open(target_path, "r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                except Exception:
+                    data = {}
+
+        # Handle boolean conversion
+        val = args.value
+        if val.lower() == "true":
+            val = True
+        elif val.lower() == "false":
+            val = False
+
+        # Support nested key paths (e.g., paths.notesDir)
+        if "." in args.key:
+            parts = args.key.split(".")
+            curr = data
+            for p in parts[:-1]:
+                if p not in curr or not isinstance(curr[p], dict):
+                    curr[p] = {}
+                curr = curr[p]
+            curr[parts[-1]] = val
+        else:
+            data[args.key] = val
+
+        os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+
+        print(f"✅ Setting updated in '{out_path}': {args.key} = {val}")
+        return
+
+    if not args.template:
+        print("❌ Error: Either (--key and --value) or --template is required.", file=sys.stderr)
+        sys.exit(1)
 
     if not os.path.exists(args.template):
         print(f"❌ Error: Template settings file not found: {args.template}", file=sys.stderr)
@@ -92,9 +147,9 @@ def main():
             sys.exit(1)
 
     current_data = {}
-    if os.path.exists(args.current):
+    if os.path.exists(target_path):
         try:
-            with open(args.current) as cf:
+            with open(target_path) as cf:
                 current_data = json.load(cf)
         except Exception as e:
             print(f"⚠️ Warning: Could not read current settings JSON ({e}); using template defaults.", file=sys.stderr)

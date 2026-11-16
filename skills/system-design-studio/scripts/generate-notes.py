@@ -297,9 +297,46 @@ def write_note_single_file(notes_dir, tier, cluster, topic, note_content):
 
     return target_path
 
+def resolve_instance_dir(raw_path=None):
+    if raw_path:
+        expanded = os.path.expanduser(raw_path)
+        if os.path.isdir(os.path.join(expanded, ".system-design")):
+            return os.path.join(expanded, ".system-design")
+        return expanded
+
+    cwd_inst = os.path.abspath(".system-design")
+    if os.path.isdir(cwd_inst) and os.path.isfile(os.path.join(cwd_inst, "manifest.json")):
+        return cwd_inst
+
+    curr = os.getcwd()
+    while True:
+        candidate = os.path.join(curr, ".system-design")
+        if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "manifest.json")):
+            return candidate
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            break
+        curr = parent
+
+    reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+    if os.path.isfile(reg_path):
+        try:
+            with open(reg_path, "r", encoding="utf-8") as f:
+                reg = json.load(f)
+            active_id = reg.get("activeProjectId")
+            for p in reg.get("projects", []):
+                if p.get("id") == active_id:
+                    cand = os.path.join(os.path.expanduser(p.get("projectPath", "")), ".system-design")
+                    if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "manifest.json")):
+                        return cand
+        except Exception:
+            pass
+
+    return ".system-design"
+
 def main():
     parser = argparse.ArgumentParser(description="Generate synthesized active-learning study notes for System Design Studio")
-    parser.add_argument("--instance-dir", default=".system-design", help="Path to .system-design directory")
+    parser.add_argument("--instance-dir", default=None, help="Path to .system-design directory")
     parser.add_argument("--topic-id", required=True, help="Completed topic identifier")
     parser.add_argument("--evidence", help="Mastery explanation text (derived invariant)")
     parser.add_argument("--hypothesis", help="Learner's initial intuition or hypothesis at the start of the topic")
@@ -309,9 +346,7 @@ def main():
 
     args = parser.parse_args()
 
-    instance_dir = args.instance_dir
-    if os.path.isdir(os.path.join(instance_dir, ".system-design")):
-        instance_dir = os.path.join(instance_dir, ".system-design")
+    instance_dir = resolve_instance_dir(args.instance_dir)
 
     settings = resolve_settings(instance_dir)
     if not settings.get("autoGenerateNotes", True):

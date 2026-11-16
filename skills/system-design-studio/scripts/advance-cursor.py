@@ -94,6 +94,43 @@ Evaluating architectural choices under physical network/hardware boundaries, unc
     atomic_write(decisions_path, new_content)
     print(f"📋 Architecture Decision Record logged: {adr_id} in DECISIONS.md")
 
+def resolve_instance_dir(raw_path=None):
+    if raw_path:
+        expanded = os.path.expanduser(raw_path)
+        if os.path.isdir(os.path.join(expanded, ".system-design")):
+            return os.path.join(expanded, ".system-design")
+        return expanded
+
+    cwd_inst = os.path.abspath(".system-design")
+    if os.path.isdir(cwd_inst) and os.path.isfile(os.path.join(cwd_inst, "manifest.json")):
+        return cwd_inst
+
+    curr = os.getcwd()
+    while True:
+        candidate = os.path.join(curr, ".system-design")
+        if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "manifest.json")):
+            return candidate
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            break
+        curr = parent
+
+    reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+    if os.path.isfile(reg_path):
+        try:
+            with open(reg_path, "r", encoding="utf-8") as f:
+                reg = json.load(f)
+            active_id = reg.get("activeProjectId")
+            for p in reg.get("projects", []):
+                if p.get("id") == active_id:
+                    cand = os.path.join(os.path.expanduser(p.get("projectPath", "")), ".system-design")
+                    if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "manifest.json")):
+                        return cand
+        except Exception:
+            pass
+
+    return ".system-design"
+
 def main():
     parser = argparse.ArgumentParser(description="Advance System Design Studio cursor state")
     parser.add_argument("--instance-dir", default=".system-design", help="Path to .system-design directory")
@@ -115,9 +152,7 @@ def main():
     parser.add_argument("--discussion-summary", help="Summary of chat defense and edge cases discussed for note synthesis")
 
     args = parser.parse_args()
-    inst_dir = args.instance_dir
-    if os.path.isdir(os.path.join(inst_dir, ".system-design")):
-        inst_dir = os.path.join(inst_dir, ".system-design")
+    inst_dir = resolve_instance_dir(args.instance_dir)
 
     # Resolve cursor and lessons directory preferences from settings.json if present
     abs_inst = os.path.abspath(inst_dir)

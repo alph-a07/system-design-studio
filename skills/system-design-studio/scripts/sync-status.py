@@ -11,17 +11,51 @@ import sys
 import json
 import argparse
 
+def resolve_instance_dir(raw_path=None):
+    if raw_path:
+        expanded = os.path.expanduser(raw_path)
+        if os.path.isdir(os.path.join(expanded, ".system-design")):
+            return os.path.join(expanded, ".system-design")
+        return expanded
+
+    cwd_inst = os.path.abspath(".system-design")
+    if os.path.isdir(cwd_inst) and os.path.isfile(os.path.join(cwd_inst, "manifest.json")):
+        return cwd_inst
+
+    curr = os.getcwd()
+    while True:
+        candidate = os.path.join(curr, ".system-design")
+        if os.path.isdir(candidate) and os.path.isfile(os.path.join(candidate, "manifest.json")):
+            return candidate
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            break
+        curr = parent
+
+    reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+    if os.path.isfile(reg_path):
+        try:
+            with open(reg_path, "r", encoding="utf-8") as f:
+                reg = json.load(f)
+            active_id = reg.get("activeProjectId")
+            for p in reg.get("projects", []):
+                if p.get("id") == active_id:
+                    cand = os.path.join(os.path.expanduser(p.get("projectPath", "")), ".system-design")
+                    if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "manifest.json")):
+                        return cand
+        except Exception:
+            pass
+
+    return ".system-design"
+
 def main():
     parser = argparse.ArgumentParser(description="Diagnostic tool for System Design Studio learning instances.")
     parser.add_argument("pos_instance_dir", nargs="?", default=None, help="Path to .system-design directory (positional)")
     parser.add_argument("--instance-dir", default=None, help="Path to .system-design directory")
     args = parser.parse_args()
 
-    raw_dir = args.instance_dir or args.pos_instance_dir or ".system-design"
-    if os.path.isdir(os.path.join(raw_dir, ".system-design")):
-        instance_dir = os.path.join(raw_dir, ".system-design")
-    else:
-        instance_dir = raw_dir
+    raw_dir = args.instance_dir or args.pos_instance_dir
+    instance_dir = resolve_instance_dir(raw_dir)
     manifest_path = os.path.join(instance_dir, "manifest.json")
     settings_path = os.path.join(instance_dir, "settings.json")
 

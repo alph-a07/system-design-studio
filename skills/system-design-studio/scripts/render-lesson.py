@@ -654,7 +654,13 @@ def render_markdown_lesson(data, topic_id, theme_name):
 def load_settings(settings_path=None):
     candidates = []
     if settings_path:
-        candidates.append(settings_path)
+        exp = os.path.expanduser(settings_path)
+        if os.path.isdir(exp):
+            candidates.append(os.path.join(exp, "settings.json"))
+            candidates.append(os.path.join(exp, ".system-design", "settings.json"))
+        else:
+            candidates.append(exp)
+
     candidates.extend([
         ".system-design/settings.json",
         "settings.json",
@@ -668,6 +674,38 @@ def load_settings(settings_path=None):
                     return json.load(f), p
             except Exception:
                 pass
+
+    # Walk up parent directories
+    curr = os.getcwd()
+    while True:
+        candidate = os.path.join(curr, ".system-design", "settings.json")
+        if os.path.isfile(candidate):
+            try:
+                with open(candidate) as f:
+                    return json.load(f), candidate
+            except Exception:
+                pass
+        parent = os.path.dirname(curr)
+        if parent == curr:
+            break
+        curr = parent
+
+    # Check central registry for active project
+    reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+    if os.path.isfile(reg_path):
+        try:
+            with open(reg_path, "r", encoding="utf-8") as f:
+                reg = json.load(f)
+            active_id = reg.get("activeProjectId")
+            for p in reg.get("projects", []):
+                if p.get("id") == active_id:
+                    cand = os.path.join(os.path.expanduser(p.get("projectPath", "")), ".system-design", "settings.json")
+                    if os.path.isfile(cand):
+                        with open(cand) as f:
+                            return json.load(f), cand
+        except Exception:
+            pass
+
     return {}, None
 
 def locate_resource_template():
