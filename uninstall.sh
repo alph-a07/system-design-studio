@@ -79,24 +79,30 @@ read_input() {
 }
 
 # Potential Skill Target Directories across all AI coding agents
-SKILL_LOCATIONS="
-$HOME_DIR/.gemini/antigravity/skills/$SKILL_NAME
-$HOME_DIR/.gemini/config/skills/$SKILL_NAME
-$HOME_DIR/.agents/skills/$SKILL_NAME
-$HOME_DIR/.claude/skills/$SKILL_NAME
-$XDG_CONFIG/claude/skills/$SKILL_NAME
-$HOME_DIR/.cursor/skills/$SKILL_NAME
-$HOME_DIR/Library/Application Support/Cursor/User/skills/$SKILL_NAME
-$XDG_CONFIG/Cursor/User/skills/$SKILL_NAME
-$HOME_DIR/.codex/skills/$SKILL_NAME
-$XDG_CONFIG/codex/skills/$SKILL_NAME
-$GLOBAL_STUDIO_DIR/skills/$SKILL_NAME
+SKILL_PARENTS="
+$HOME_DIR/.gemini/antigravity/skills
+$HOME_DIR/.gemini/config/skills
+$HOME_DIR/.agents/skills
+$HOME_DIR/.claude/skills
+$XDG_CONFIG/claude/skills
+$HOME_DIR/.cursor/skills
+$HOME_DIR/Library/Application Support/Cursor/User/skills
+$XDG_CONFIG/Cursor/User/skills
+$HOME_DIR/.codex/skills
+$XDG_CONFIG/codex/skills
+$GLOBAL_STUDIO_DIR/skills
 "
 
+ALL_TARGET_NAMES="system-design-studio sds-status sds-teach sds-discuss sds-complete sds-notes sds-projects sds-open sds-curriculum sds-config sds-update"
+
 FOUND_LOCATIONS=""
-for loc in $SKILL_LOCATIONS; do
-  if [ -d "$loc" ]; then
-    FOUND_LOCATIONS="$FOUND_LOCATIONS $loc"
+for parent in $SKILL_PARENTS; do
+  if [ -d "$parent" ]; then
+    for item in $ALL_TARGET_NAMES; do
+      if [ -d "$parent/$item" ]; then
+        FOUND_LOCATIONS="$FOUND_LOCATIONS $parent/$item"
+      fi
+    done
   fi
 done
 
@@ -141,6 +147,24 @@ done
 if [ -f "$GLOBAL_STUDIO_DIR/bin/sds" ]; then
   rm -f "$GLOBAL_STUDIO_DIR/bin/sds"
   echo "   🗑️  Removed CLI: $GLOBAL_STUDIO_DIR/bin/sds"
+fi
+
+# Remove command markdown wrappers for Claude Code and Codex if present
+if [ -d "$HOME_DIR/.claude/commands" ]; then
+  for item in $ALL_TARGET_NAMES; do
+    if [ -f "$HOME_DIR/.claude/commands/${item}.md" ]; then
+      rm -f "$HOME_DIR/.claude/commands/${item}.md"
+      echo "   🗑️  Removed command: $HOME_DIR/.claude/commands/${item}.md"
+    fi
+  done
+fi
+if [ -d "$HOME_DIR/.codex/prompts" ]; then
+  for item in $ALL_TARGET_NAMES; do
+    if [ -f "$HOME_DIR/.codex/prompts/${item}.md" ]; then
+      rm -f "$HOME_DIR/.codex/prompts/${item}.md"
+      echo "   🗑️  Removed prompt: $HOME_DIR/.codex/prompts/${item}.md"
+    fi
+  done
 fi
 
 # Optional global purge

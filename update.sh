@@ -50,15 +50,15 @@ if [ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ]; then
   SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" 2>/dev/null && pwd || echo "")"
 fi
 
-SOURCE_SKILL=""
+SOURCE_SKILLS_DIR=""
 # If inside developer repo
 if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/plugin.json" ] && [ -d "$SCRIPT_DIR/skills/$SKILL_NAME" ]; then
-  SOURCE_SKILL="$(cd "$SCRIPT_DIR/skills/$SKILL_NAME" && pwd)"
+  SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/skills" && pwd)"
 elif [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../../plugin.json" ] && [ -d "$SCRIPT_DIR/../../skills/$SKILL_NAME" ]; then
-  SOURCE_SKILL="$(cd "$SCRIPT_DIR/../../skills/$SKILL_NAME" && pwd)"
+  SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/../../skills" && pwd)"
 fi
 
-if [ -z "$SOURCE_SKILL" ]; then
+if [ -z "$SOURCE_SKILLS_DIR" ]; then
   TEMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'sds-update')"
   echo "📥 Fetching latest skill release from GitHub..."
   if command -v curl >/dev/null 2>&1; then
@@ -71,10 +71,10 @@ if [ -z "$SOURCE_SKILL" ]; then
   fi
 
   tar -xzf "$TEMP_DIR/sds.tar.gz" -C "$TEMP_DIR"
-  SOURCE_SKILL="$TEMP_DIR/system-design-studio-main/skills/$SKILL_NAME"
+  SOURCE_SKILLS_DIR="$TEMP_DIR/system-design-studio-main/skills"
 fi
 
-if [ ! -f "$SOURCE_SKILL/SKILL.md" ]; then
+if [ ! -f "$SOURCE_SKILLS_DIR/$SKILL_NAME/SKILL.md" ]; then
   echo "❌ Error: Update payload could not be verified (SKILL.md missing)." >&2
   exit 1
 fi
@@ -97,13 +97,43 @@ for target_parent in $AGENT_TARGETS; do
     target_dir="${target_parent}/${SKILL_NAME}"
     mkdir -p "$target_parent"
     rm -rf "$target_dir"
-    cp -R "$SOURCE_SKILL" "$target_dir"
+    cp -R "$SOURCE_SKILLS_DIR/$SKILL_NAME" "$target_dir"
     chmod -R u+rwX,go+rX "$target_dir" 2>/dev/null || true
     chmod +x "$target_dir/scripts/"*.sh "$target_dir/scripts/"*.py 2>/dev/null || true
-    echo "   ✅ Updated at ${target_dir}"
+
+    # Also update all companion sds-* command skills
+    for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
+      if [ -d "$cmd_dir" ]; then
+        cmd_name="$(basename "$cmd_dir")"
+        rm -rf "${target_parent}/${cmd_name}"
+        cp -R "$cmd_dir" "${target_parent}/${cmd_name}"
+        chmod -R u+rwX,go+rX "${target_parent}/${cmd_name}" 2>/dev/null || true
+      fi
+    done
+
+    echo "   ✅ Updated at ${target_dir} (+ 10 in-chat commands)"
     UPDATED_COUNT=$((UPDATED_COUNT + 1))
   fi
 done
+
+# Also update Claude Code and Codex commands if present
+if [ -d "$HOME_DIR/.claude/commands" ]; then
+  for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
+    if [ -d "$cmd_dir" ] && [ -f "$cmd_dir/SKILL.md" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      cp "$cmd_dir/SKILL.md" "$HOME_DIR/.claude/commands/${cmd_name}.md" 2>/dev/null || true
+    fi
+  done
+fi
+
+if [ -d "$HOME_DIR/.codex/prompts" ]; then
+  for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
+    if [ -d "$cmd_dir" ] && [ -f "$cmd_dir/SKILL.md" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      cp "$cmd_dir/SKILL.md" "$HOME_DIR/.codex/prompts/${cmd_name}.md" 2>/dev/null || true
+    fi
+  done
+fi
 
 # 3. Settings Merge & Local Instance Protection
 if [ -d "$INSTANCE_DIR" ]; then

@@ -294,7 +294,7 @@ trap cleanup EXIT INT TERM
 
 if [ -n "$SCRIPT_DIR" ] && [ -d "$SCRIPT_DIR/skills/$SKILL_NAME" ] && [ -f "$SCRIPT_DIR/skills/$SKILL_NAME/SKILL.md" ]; then
   echo "📂 Using local skill source from ${SCRIPT_DIR}..."
-  SOURCE_SKILL="$SCRIPT_DIR/skills/$SKILL_NAME"
+  SOURCE_SKILLS_DIR="$SCRIPT_DIR/skills"
 else
   TEMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'sds_install.XXXXXX' 2>/dev/null || echo "/tmp/sds_install_$$")"
   mkdir -p "$TEMP_DIR"
@@ -302,24 +302,24 @@ else
   if command -v git >/dev/null 2>&1; then
     echo "📥 Cloning skill package from GitHub via git..."
     git clone --depth 1 --quiet "$REPO_URL" "$TEMP_DIR/repo"
-    SOURCE_SKILL="$TEMP_DIR/repo/skills/$SKILL_NAME"
+    SOURCE_SKILLS_DIR="$TEMP_DIR/repo/skills"
   elif command -v curl >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
     echo "📥 Fetching skill package from GitHub via curl & tar..."
     mkdir -p "$TEMP_DIR/archive"
     curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TEMP_DIR/archive"
-    SOURCE_SKILL="$TEMP_DIR/archive/system-design-studio-main/skills/$SKILL_NAME"
+    SOURCE_SKILLS_DIR="$TEMP_DIR/archive/system-design-studio-main/skills"
   elif command -v wget >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
     echo "📥 Fetching skill package from GitHub via wget & tar..."
     mkdir -p "$TEMP_DIR/archive"
     wget -qO- "$ARCHIVE_URL" | tar -xz -C "$TEMP_DIR/archive"
-    SOURCE_SKILL="$TEMP_DIR/archive/system-design-studio-main/skills/$SKILL_NAME"
+    SOURCE_SKILLS_DIR="$TEMP_DIR/archive/system-design-studio-main/skills"
   else
     echo "❌ Error: git, curl, or wget with tar is required to install System Design Studio." >&2
     exit 1
   fi
 fi
 
-if [ ! -f "$SOURCE_SKILL/SKILL.md" ]; then
+if [ ! -f "$SOURCE_SKILLS_DIR/$SKILL_NAME/SKILL.md" ]; then
   echo "❌ Error: Skill package could not be verified (SKILL.md missing in source)." >&2
   exit 1
 fi
@@ -327,17 +327,28 @@ fi
 install_to_path() {
   target_parent="$1"
   agent_label="$2"
-  target_dir="${target_parent}/${SKILL_NAME}"
   
-  echo "📦 Installing for ${agent_label}..."
+  echo "📦 Installing skills for ${agent_label}..."
   mkdir -p "$target_parent"
-  rm -rf "$target_dir"
-  cp -R "$SOURCE_SKILL" "$target_dir"
-  chmod -R u+rwX,go+rX "$target_dir" 2>/dev/null || true
-  chmod +x "$target_dir/scripts/"*.sh "$target_dir/scripts/"*.py 2>/dev/null || true
 
-  if [ -f "$target_dir/SKILL.md" ]; then
-    echo "   ✅ Verified at ${target_dir}"
+  # 1. Primary studio engine skill
+  rm -rf "${target_parent}/${SKILL_NAME}"
+  cp -R "${SOURCE_SKILLS_DIR}/${SKILL_NAME}" "${target_parent}/${SKILL_NAME}"
+  chmod -R u+rwX,go+rX "${target_parent}/${SKILL_NAME}" 2>/dev/null || true
+  chmod +x "${target_parent}/${SKILL_NAME}/scripts/"*.sh "${target_parent}/${SKILL_NAME}/scripts/"*.py 2>/dev/null || true
+
+  # 2. Companion in-chat slash command skills (sds-status, sds-teach, etc.)
+  for cmd_dir in "${SOURCE_SKILLS_DIR}"/sds-*; do
+    if [ -d "$cmd_dir" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      rm -rf "${target_parent}/${cmd_name}"
+      cp -R "$cmd_dir" "${target_parent}/${cmd_name}"
+      chmod -R u+rwX,go+rX "${target_parent}/${cmd_name}" 2>/dev/null || true
+    fi
+  done
+
+  if [ -f "${target_parent}/${SKILL_NAME}/SKILL.md" ]; then
+    echo "   ✅ Verified system-design-studio + 10 in-chat slash commands at ${target_parent}"
   fi
 }
 
@@ -364,6 +375,15 @@ fi
 if [ "$INSTALL_CLAUDE" = true ]; then
   install_to_path "$HOME_DIR/.claude/skills" "Claude Code (~/.claude/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
+
+  # Also install into ~/.claude/commands/ for native Claude Code slash command palette
+  mkdir -p "$HOME_DIR/.claude/commands"
+  for cmd_dir in "${SOURCE_SKILLS_DIR}"/sds-*; do
+    if [ -d "$cmd_dir" ] && [ -f "$cmd_dir/SKILL.md" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      cp "$cmd_dir/SKILL.md" "$HOME_DIR/.claude/commands/${cmd_name}.md" 2>/dev/null || true
+    fi
+  done
 
   if [ "$PLATFORM" = "linux" ] && [ -d "$XDG_CONFIG/claude" ]; then
     install_to_path "$XDG_CONFIG/claude/skills" "Claude Code XDG (~/.config/claude/skills)"
@@ -396,6 +416,15 @@ fi
 if [ "$INSTALL_CODEX" = true ]; then
   install_to_path "$HOME_DIR/.codex/skills" "OpenAI Codex (~/.codex/skills)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
+
+  # Also install into ~/.codex/prompts/ for native Codex slash command palette
+  mkdir -p "$HOME_DIR/.codex/prompts"
+  for cmd_dir in "${SOURCE_SKILLS_DIR}"/sds-*; do
+    if [ -d "$cmd_dir" ] && [ -f "$cmd_dir/SKILL.md" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      cp "$cmd_dir/SKILL.md" "$HOME_DIR/.codex/prompts/${cmd_name}.md" 2>/dev/null || true
+    fi
+  done
 
   if [ "$PLATFORM" = "linux" ] && [ -d "$XDG_CONFIG/codex" ]; then
     install_to_path "$XDG_CONFIG/codex/skills" "OpenAI Codex XDG"
