@@ -147,6 +147,35 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
     ::-webkit-scrollbar-track { background: var(--background); }
     ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
     ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
+    /* Offline Fallback Styles (Air-Gapped & CDN Resilience) */
+    body { background-color: var(--background, #0f172a); color: var(--foreground, #f8fafc); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 1.5rem; }
+    .max-w-4xl { max-width: 56rem; margin-left: auto; margin-right: auto; }
+    .space-y-12 > * + * { margin-top: 3rem; }
+    .space-y-8 > * + * { margin-top: 2rem; }
+    .space-y-6 > * + * { margin-top: 1.5rem; }
+    .space-y-4 > * + * { margin-top: 1rem; }
+    .space-y-2 > * + * { margin-top: 0.5rem; }
+    .flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-4 { gap: 1rem; }
+    .gap-6 { gap: 1.5rem; }
+    .grid { display: grid; gap: 1rem; }
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+    @media (min-width: 768px) {
+      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .md\:p-8 { padding: 2rem; }
+      .md\:text-5xl { font-size: 3rem; line-height: 1; }
+      .md\:text-2xl { font-size: 1.5rem; }
+    }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-full { border-radius: 9999px; }
+    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    button { cursor: pointer; border: none; font-family: inherit; }
     .narrative-prose { color: var(--foreground); line-height: 1.75; font-size: 0.95rem; }
     .narrative-prose p { margin-bottom: 1.15rem; }
     .narrative-prose strong { color: var(--foreground); font-weight: 700; }
@@ -229,8 +258,33 @@ DEFAULT_TEMPLATE = """<!DOCTYPE html>
 </html>
 """
 
+ACRONYMS = {
+    'tcp': 'TCP', 'udp': 'UDP', 'http': 'HTTP', 'tls': 'TLS', 'rest': 'REST',
+    'grpc': 'gRPC', 'wal': 'WAL', 'crdt': 'CRDT', 'lld': 'LLD', 'hld': 'HLD',
+    'lru': 'LRU', 'lfu': 'LFU', 'raft': 'Raft', 'paxos': 'Paxos', 'sql': 'SQL',
+    'nosql': 'NoSQL', 'cdc': 'CDC', 'ttl': 'TTL', 'cpu': 'CPU', 'quic': 'QUIC',
+    'sse': 'SSE', 'api': 'API', 'adr': 'ADR', 'b-tree': 'B-Tree', 'lsm': 'LSM'
+}
+
+def format_topic_title(raw_id, raw_title=None):
+    if raw_title:
+        return raw_title
+    s = raw_id.replace('topic.', '')
+    s = re.sub(r'^\d+\.\d+\.', '', s)
+    words = s.split('-')
+    out = []
+    for w in words:
+        wl = w.lower()
+        if wl in ACRONYMS:
+            out.append(ACRONYMS[wl])
+        elif wl == 'vs':
+            out.append('vs')
+        else:
+            out.append(w.capitalize())
+    return ' '.join(out).strip()
+
 def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_id="slate-clean"):
-    clean_title = title or topic_id.replace("topic.", "").replace("-", " ").title()
+    clean_title = format_topic_title(topic_id, title)
     theme = STYLE_THEMES.get(style_id, STYLE_THEMES["slate-clean"])
 
     return {
@@ -460,6 +514,143 @@ def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_i
         """
     }
 
+def html_table_to_markdown(match):
+    table_html = match.group(0)
+    rows = re.findall(r'<tr[^>]*>([\s\S]*?)</tr>', table_html, flags=re.IGNORECASE)
+    if not rows:
+        return ""
+    md_rows = []
+    for row in rows:
+        headers = re.findall(r'<th[^>]*>([\s\S]*?)</th>', row, flags=re.IGNORECASE)
+        cells = re.findall(r'<td[^>]*>([\s\S]*?)</td>', row, flags=re.IGNORECASE)
+        if headers:
+            clean_headers = [re.sub(r'<[^>]+>', '', h).strip() for h in headers]
+            md_rows.append("| " + " | ".join(clean_headers) + " |")
+            md_rows.append("| " + " | ".join([":---"] * len(clean_headers)) + " |")
+        elif cells:
+            clean_cells = [re.sub(r'<[^>]+>', '', c).strip().replace('\n', ' ') for c in cells]
+            md_rows.append("| " + " | ".join(clean_cells) + " |")
+    return "\n" + "\n".join(md_rows) + "\n"
+
+def clean_html_to_markdown(html):
+    if not html:
+        return ""
+    # Strip scripts and styles
+    cleaned = re.sub(r'<(script|style)[^>]*>[\s\S]*?</\1>', '', html, flags=re.IGNORECASE)
+    # Strip simulator UI containers completely
+    cleaned = re.sub(r'<!-- Inline Embedded Execution Simulator -->[\s\S]*?(?=<div class="callout-box|\Z)', '', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'<div class="sim-container"[\s\S]*?(?=<div class="callout-box|\Z)', '', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'Click [\'"]Step Forward[\'"][^\n\.]*\.?', '', cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r'<!--[\s\S]*?-->', '', cleaned)
+    # Convert HTML tables to Markdown pipe syntax before tag stripping
+    cleaned = re.sub(r'<table[^>]*>[\s\S]*?</table>', html_table_to_markdown, cleaned, flags=re.IGNORECASE)
+    # Block conversions
+    cleaned = re.sub(r'</?(?:p|div|h\d|section|article)[^>]*>', '\n', cleaned)
+    cleaned = re.sub(r'<br\s*/?>', '\n', cleaned)
+    # Inline code
+    cleaned = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', cleaned)
+    # Bold / Strong
+    cleaned = re.sub(r'<(?:strong|b)[^>]*>(.*?)</(?:strong|b)>', r'**\1**', cleaned)
+    # Strip any remaining tags
+    cleaned = re.sub(r'<[^>]+>', '', cleaned)
+    # Strip residual simulator buttons or status text if any slipped through
+    cleaned = re.sub(r'^\s*(?:Step Forward\s*→?|Reset|STATE:\s*[A-Z\s\(\)]+|UNRELIABLE TRANSIT LINK|Sender\s*/\s*Host\s*[A-Z]|Receiver\s*/\s*Host\s*[A-Z])\s*$', '', cleaned, flags=re.MULTILINE)
+    # Collapse multiple blank lines
+    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
+    return cleaned.strip()
+
+def render_markdown_lesson(data, topic_id, theme_name):
+    """
+    Renders pure GitHub Flavored Markdown lesson artifact without raw HTML or JavaScript.
+    Embeds Mermaid diagrams, ASCII state trace tables, and unassisted sign-off scenarios.
+    """
+    title = data.get("LESSON_TITLE", "System Design Lesson")
+    subtitle = data.get("LESSON_SUBTITLE", "")
+    tier = data.get("TIER_BADGE", "Tier")
+    cluster = data.get("CLUSTER_BADGE", "Cluster")
+    depth = data.get("DEPTH_MARKERS", "[mechanics]")
+
+    dilemma_title = data.get("SECTION_1_TITLE", "1. The Inception & Forcing Problem")
+    dilemma_body = clean_html_to_markdown(data.get("SECTION_1_BODY", ""))
+
+    placement_title = data.get("SECTION_2_TITLE", "2. Core Architectural Abstraction")
+    placement_body = clean_html_to_markdown(data.get("SECTION_2_BODY", ""))
+
+    mechanics_title = data.get("SECTION_3_TITLE", "3. Internal Mechanics & Causality")
+    mechanics_body = clean_html_to_markdown(data.get("SECTION_3_BODY", ""))
+
+    mental_title = data.get("SECTION_4_TITLE", "4. Mental Model Synthesis & Production Grounding")
+    mental_body = clean_html_to_markdown(data.get("SECTION_4_BODY", ""))
+
+    signoff_title = data.get("SECTION_5_TITLE", "5. Contextual Sign-Off Verification Gate")
+    signoff_body = clean_html_to_markdown(data.get("SECTION_5_BODY", ""))
+
+    md = []
+    md.append(f"# {title}\n")
+    md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Depth**: `{depth}` | **Format**: Clean Markdown (Zero-JS)\n")
+    if subtitle:
+        md.append(f"*{subtitle}*\n")
+    md.append("---\n")
+
+    md.append(f"## {dilemma_title}\n")
+    md.append(f"{dilemma_body}\n")
+
+    md.append(f"## {placement_title}\n")
+    md.append(f"{placement_body}\n")
+
+    md.append(f"## {mechanics_title}\n")
+    md.append(f"{mechanics_body}\n")
+
+    # Embedded Mermaid Protocol Sequence Diagram
+    md.append("### Protocol & State Machine Transition")
+    md.append("```mermaid")
+    md.append("sequenceDiagram")
+    md.append("    autonumber")
+    md.append("    actor Client as Sender / Client Node")
+    md.append("    participant Network as Physical Network (RTT ~ 50ms)")
+    md.append("    actor Server as Receiver / Server Replica")
+    md.append("")
+    md.append("    Client->>Network: Packet / Handshake SYN (SEQ = 100)")
+    md.append("    Network->>Server: In-flight transit (RTT/2)")
+    md.append("    Note over Server: Allocate Socket Buffer & Parse Headers")
+    md.append("    Server->>Network: ACK / Response (ACK = 101, WIN = 65535)")
+    md.append("    Network->>Client: In-flight transit (RTT/2)")
+    md.append("    Note over Client: Sliding Window Advanced")
+    md.append("```\n")
+
+    # ASCII Hardware State Trace
+    md.append("### Hardware & Buffer State Trace")
+    md.append("```text")
+    md.append("+-----------------------------------------------------------------+")
+    md.append("| INVARIANT: Speed of Light in Silica ~ 5 μs/km                  |")
+    md.append("| TRANSIT:   Trans-Atlantic RTT ~ 70 ms | Local DC RTT ~ 0.5 ms   |")
+    md.append("+-----------------------------------------------------------------+")
+    md.append("| [Sender Socket Buffer] --------> [Kernel NIC Ring Buffer]       |")
+    md.append("|          |                                  |                   |")
+    md.append("|    (Write to FD)                    (Packet Serialization)      |")
+    md.append("|          v                                  v                   |")
+    md.append("| [TCP TX Queue: 64KB]             [Wire: IP/TCP Frame Header]   |")
+    md.append("+-----------------------------------------------------------------+")
+    md.append("```\n")
+
+    md.append(f"## {mental_title}\n")
+    md.append(f"{mental_body}\n")
+
+    md.append("### Architectural Trade-Off Invariant Matrix")
+    md.append("| Dimension | Primary Architectural Mechanism | Uncoordinated / Naive Alternative |")
+    md.append("| :--- | :--- | :--- |")
+    md.append("| **Latency Floor** | Predictable bound under normal conditions | Low initial RTT, catastrophic jitter on drop |")
+    md.append("| **Coordination Cost** | Strict ordering & write amplification | Split-brain risk, out-of-order anomalies |")
+    md.append("| **Failure Domain** | Bounded blast radius via timeouts & WAL | Cascading failure under thundering herd |\n")
+
+    md.append(f"## {signoff_title}\n")
+    md.append("> [!IMPORTANT]")
+    md.append("> **UNASSISTED SIGN-OFF CHALLENGE (DEFEND IN CHAT)**")
+    md.append(f"> {signoff_body}")
+    md.append(">\n> *Analyze the scenario above and defend your architectural recommendations cold in chat discussion to achieve topic sign-off.*\n")
+
+    return "\n".join(md)
+
 def load_settings(settings_path=None):
     candidates = []
     if settings_path:
@@ -492,12 +683,13 @@ def locate_resource_template():
     return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Render interactive HTML lesson artifact")
+    parser = argparse.ArgumentParser(description="Render interactive HTML or pure Markdown lesson artifact")
     parser.add_argument("--topic-id", required=True, help="Topic ID (e.g. topic.0.1.tcp-vs-udp)")
     parser.add_argument("--title", help="Lesson Title")
     parser.add_argument("--cluster", help="Cluster Title")
     parser.add_argument("--tier", help="Tier Title")
     parser.add_argument("--style", choices=list(STYLE_THEMES.keys()), help="Artifact visual style theme")
+    parser.add_argument("--format", choices=["html", "markdown"], help="Output artifact format (html or markdown)")
     parser.add_argument("--settings", help="Path to settings.json")
     parser.add_argument("--spec", help="Path to JSON file with lesson override tokens")
     parser.add_argument("--template", help="Path to custom HTML template")
@@ -507,6 +699,9 @@ def main():
     args = parser.parse_args()
 
     settings_data, loaded_settings_path = load_settings(args.settings)
+
+    # Resolve output format: CLI flag > settings.json > default "html"
+    output_format = args.format or settings_data.get("outputType") or "html"
 
     # Resolve theme style
     active_style = args.style or settings_data.get("artifactStyle") or "slate-clean"
@@ -536,33 +731,46 @@ def main():
     if "SIGN_OFF_SCENARIO" in data and "SECTION_5_BODY" not in data:
         data["SECTION_5_BODY"] = f"<p>{data['SIGN_OFF_SCENARIO']}</p>"
 
-    # Ensure theme variables are bound
-    data["THEME_CSS_VARS"] = theme["css_vars"]
-    data["THEME_NAME"] = theme["name"]
-    data["THEME_ID"] = theme["id"]
-
-    template_str = DEFAULT_TEMPLATE
-    custom_template = args.template or locate_resource_template()
-    if custom_template and os.path.exists(custom_template):
-        try:
-            with open(custom_template, "r", encoding="utf-8") as f:
-                template_str = f.read()
-        except Exception as e:
-            print(f"⚠️ Warning: Could not read template at {custom_template}: {e}. Using built-in default.")
-
-    rendered = template_str
-    for k, v in data.items():
-        rendered = rendered.replace(f"{{{{{k}}}}}", str(v))
-
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
-    filename = f"{slug}.html"
-
     os.makedirs(target_output_dir, exist_ok=True)
-    out_path = os.path.join(target_output_dir, filename)
-    with open(out_path, "w", encoding="utf-8") as f:
-        f.write(rendered)
 
-    print(f"✅ Lesson rendered to {out_path} [Style: {theme['name']}]")
+    if output_format == "markdown":
+        filename = f"{slug}.md"
+        rendered = render_markdown_lesson(data, args.topic_id, theme["name"])
+        out_path = os.path.join(target_output_dir, filename)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(rendered)
+        print(f"✅ Lesson rendered to {out_path} [Format: Markdown Clean]")
+    else:
+        filename = f"{slug}.html"
+        # Ensure theme variables are bound
+        data["THEME_CSS_VARS"] = theme["css_vars"]
+        data["THEME_NAME"] = theme["name"]
+        data["THEME_ID"] = theme["id"]
+
+        template_str = DEFAULT_TEMPLATE
+        custom_template = args.template or locate_resource_template()
+        if custom_template and os.path.exists(custom_template):
+            try:
+                with open(custom_template, "r", encoding="utf-8") as f:
+                    template_str = f.read()
+            except Exception as e:
+                print(f"⚠️ Warning: Could not read template at {custom_template}: {e}. Using built-in default.")
+
+        rendered = template_str
+        for k, v in data.items():
+            rendered = rendered.replace(f"{{{{{k}}}}}", str(v))
+
+        out_path = os.path.join(target_output_dir, filename)
+        with open(out_path, "w", encoding="utf-8") as f:
+            f.write(rendered)
+        print(f"✅ Lesson rendered to {out_path} [Format: HTML | Style: {theme['name']}]")
+
+    if args.brain_dir and os.path.exists(args.brain_dir):
+        brain_path = os.path.join(args.brain_dir, filename)
+        with open(brain_path, "w", encoding="utf-8") as f:
+            f.write(rendered)
+        print(f"✅ Staged to conversation artifact dir: {brain_path}")
 
     if args.brain_dir and os.path.exists(args.brain_dir):
         brain_path = os.path.join(args.brain_dir, filename)
