@@ -42,23 +42,53 @@ System Design Studio enforces a strict boundary between host setup and learning 
 
 ---
 
-## Complete Skill Commands Suite (In-Chat)
+## Complete Skill Commands Suite (Workflow-Based Guide)
 
-Every command works natively across all agents (Antigravity, Claude Code, Cursor, Codex):
+Rather than an arbitrary list of internal scripts, the studio commands map to your natural learning workflow:
 
-| Skill Command | Natural Language Trigger | Agent Action & Internal Script Dispatched |
-| :--- | :--- | :--- |
-| **`/sds-teach [topic]`** | "Teach topic 0.1", "Next topic" | Evaluates active focus. Enforces explainer contract (engaging editorial essay vibe, deep causal explanations, zero boilerplate, mandatory jargon unpacking) and renders bespoke tactile simulator. Prompts learner for working hypothesis before revealing solutions. |
-| **`/sds-discuss`** | "Here is my defense of the scenario...", "How should I think about..." | Active Learning Dialectic: Stress-tests the learner's hypothesis. For senior engineers, probes cold failure modes and latency math. For junior/hesitant engineers, provides Socratic scaffolding questions. Traces where the model breaks. |
-| **`/sds-complete [ev]`** | "Mark complete", "Sign off topic" | Runs `advance-cursor.py --complete-topic <id> --evidence <ev> --hypothesis <hypo> --discussion-summary <summary>`. Ticks `CURRICULUM.md`, logs ADR in `DECISIONS.md`, and compiles active-learning study note. |
-| **`/sds-projects`** | "Show all projects", "List projects" | Runs `manage-projects.py list`. Displays an overview table of all registered machine projects, locations, tracks, and progress. |
-| **`/sds-open <name>`** | "Switch to project X" | Runs `manage-projects.py switch <id>`. Switches active project context. |
-| **`/sds-delete [name]`** | "Delete project X", "Remove instance" | Runs `manage-projects.py delete <id>`. Safely removes project instance from registry and deletes `.system-design` state; preserves workspace source files and notes unless `--delete-notes` is specified. |
-| **`/sds-notes [topic]`** | "Show my notes", "Where are my notes?" | Runs `manage-projects.py notes`. Lists all generated study notes for the active project with direct clickable links (`file:///...`). |
-| **`/sds-curriculum`** | "Customize syllabus", "Reorder topics" | Runs `configure-curriculum.py` or guides curriculum restructuring from chat. |
-| **`/sds-config [k] [v]`**| "Switch theme to obsidian", "Change output to markdown" | Runs `merge-settings.py` or updates `.system-design/settings.json` dynamically for subsequent lessons. |
-| **`/sds-update`** | "Check for updates", "Are there updates?" | Runs `check-updates.py --force`. If an update is available, displays alert and prompts user to run `update.sh` in their terminal. |
-| **`/sds-status`** | "Show progress", "Where are we?" | Runs `sync-status.py`. Displays active topic, track, progress percentage, and cognitive state. |
+### Phase 1: Deep Dive & Visual Discovery
+- **`/sds-teach [topic]`**
+  - *User Value*: Explains complex systems with friendly editorial storytelling, deep causal mechanics, and mandatory inline jargon unpacking. Generates a standalone interactive HTML simulation (or rich Markdown diagrams) so you can visually inspect failure modes instead of skimming dry documentation.
+  - *Natural Language*: "Teach topic 0.1", "Next topic", "Show me the mechanics of TCP socket buffers"
+
+### Phase 2: Stress-Testing & Dialectic Defense
+- **`/sds-discuss`**
+  - *User Value*: Proves you actually understand production failure modes before you commit. The agent challenges your working assumptions cold in chat with unannounced scenarios, latency limits, and asymmetric network partitions.
+  - *Natural Language*: "Here is my defense of the scenario...", "How should I think about quorum loss?", "Stress test my design"
+
+### Phase 3: Automated Proof, Git Checkpointing & Retention
+- **`/sds-complete [evidence]`**
+  - *User Value*: Validates that you met the unannounced defense criteria, checks off the topic in `CURRICULUM.md`, records an ADR in `DECISIONS.md`, advances your living cursor, and records an atomic Git commit (`sds(learn): complete ...`).
+  - *Natural Language*: "Mark complete", "Sign off topic with evidence: derived quorum formula"
+- **`/sds-notes [topic]`**
+  - *User Value*: Accesses your synthesized active-learning study notes (Hypothesis → Friction → Derived Invariant → Sizing Rules). When `autoGenerateNotes` is true, notes compile automatically on sign-off; when disabled, compile notes on demand.
+  - *Natural Language*: "Show my notes", "Where are my study notes?", "Compile notes for topic 0.1"
+
+### Phase 4: Visual Tracking, Safety & Multi-Track Isolation
+- **`/sds-dashboard`**
+  - *User Value*: Launches a read-only progress tracker and artifact workbench on `http://localhost:8420`. Updates in real time with Git, rendering the 50-cluster syllabus, interactive HTML simulators, styled study notes, and ADRs.
+  - *Natural Language*: "Open dashboard", "Show progress on localhost", "Launch visual tracker"
+- **`/sds-rollback`**
+  - *User Value*: Zero-risk safety net. Safely revert an accidental topic sign-off or restore curriculum structure with atomic Git rollback and local snapshot recovery.
+  - *Natural Language*: "Roll back last topic", "Undo sign-off", "Restore earlier checkpoint"
+- **`/sds-status`**
+  - *User Value*: Instant snapshot of your active focus, backward causal hooks, forward hooks, and deferred question queue.
+  - *Natural Language*: "Show progress", "Where are we?", "Current status"
+- **`/sds-curriculum`**
+  - *User Value*: Reorder clusters, prune topics, or import a custom Markdown syllabus scoped strictly to your project without losing completed progress.
+  - *Natural Language*: "Customize syllabus", "Reorder clusters", "Import custom curriculum"
+- **`/sds-config [k] [v]`**
+  - *User Value*: Switch visual themes, toggle between HTML and Markdown output, or change notes structuring mode.
+  - *Natural Language*: "Switch theme to obsidian", "Disable auto-notes", "Change output to markdown"
+- **`/sds-projects` & `/sds-open <name>`**
+  - *User Value*: Manage multiple isolated learning workspaces across your workstation (e.g., an interview prep project in one repo and a distributed consensus project in another).
+  - *Natural Language*: "List projects", "Switch to project interview-prep"
+- **`/sds-delete <name>`**
+  - *User Value*: Safely clean up finished instances and keep your multi-project registry tidy without touching workspace source code.
+  - *Natural Language*: "Delete project old-study", "Remove learning instance"
+- **`/sds-update`**
+  - *User Value*: On-demand check for studio updates without background telemetry.
+  - *Natural Language*: "Check for updates", "Are there updates?"
 
 ---
 

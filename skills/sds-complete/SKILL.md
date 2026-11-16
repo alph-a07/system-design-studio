@@ -42,5 +42,5 @@ Verify that the learner has defended the unannounced gate scenario, tick off the
 3. **Verify Generated Artifacts**:
    - Confirm `CURRICULUM.md` shows `[x]`.
    - Confirm `DECISIONS.md` has logged a new ADR.
-   - Confirm `notes/` contains the synthesized study note.
-   - Present the path to the newly compiled note: `[Open Study Note](file:///<path-to-note.md>)`.
+   - If auto-notes is enabled, confirm `notes/` contains the newly compiled study note: `[Open Study Note](file:///<path-to-note.md>)`. If disabled, remind learner that notes can be compiled manually on demand via `/sds-notes`.
+   - Note the atomic Git commit created in your local repository (`sds(learn): complete ...`).
