@@ -201,8 +201,11 @@ DEFAULT_TEMPLATE = r"""<!DOCTYPE html>
       <div class="flex flex-wrap items-center gap-2">
         <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
         <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{DEPTH_MARKERS}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-mono rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--primary)] font-semibold">🎨 {{THEME_NAME}}</span>
+        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">⚡ First-Principles Systems</span>
+        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-950/40 border border-emerald-800 text-emerald-400 flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          Live Interactive Simulator
+        </span>
       </div>
       <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--foreground)]">{{LESSON_TITLE}}</h1>
       <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">{{LESSON_SUBTITLE}}</p>
@@ -283,8 +286,553 @@ def format_topic_title(raw_id, raw_title=None):
             out.append(w.capitalize())
     return ' '.join(out).strip()
 
+
+def build_tcp_vs_udp_data(theme, tier=None, cluster=None):
+    sim_html = """
+        <div class="sim-container">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3 border-b border-[var(--border)]">
+            <div>
+              <div class="text-sm font-bold text-[var(--foreground)] flex items-center gap-2">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Tactile Simulator: TCP vs UDP Head-of-Line Blocking & Packet Loss
+              </div>
+              <div class="text-xs text-[var(--muted-foreground)]">Compare kernel receive queue stalling vs immediate datagram consumption under packet drop.</div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1 bg-[var(--background)] p-1 rounded-lg border border-[var(--border)] text-xs font-mono">
+                <button id="proto-tcp-btn" onclick="setSimProtocol('tcp')" class="px-2.5 py-1 rounded font-bold bg-[var(--primary)] text-white transition">TCP</button>
+                <button id="proto-udp-btn" onclick="setSimProtocol('udp')" class="px-2.5 py-1 rounded text-[var(--muted-foreground)] hover:text-white transition">UDP</button>
+              </div>
+              <label class="flex items-center gap-1.5 text-xs font-mono text-amber-400 cursor-pointer bg-[var(--card)] px-2.5 py-1.5 rounded-lg border border-amber-900/50">
+                <input type="checkbox" id="drop-packet-2" checked onchange="toggleDrop(this.checked)" class="accent-amber-500 rounded">
+                <span>Drop Packet #2 (Router Burst)</span>
+              </label>
+              <button onclick="startSimulation()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--primary)] text-white hover:opacity-90 transition">Transmit 5 Packets →</button>
+              <button onclick="resetSimulation()" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--background)] border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--card)] transition">Reset</button>
+            </div>
+          </div>
+
+          <!-- Main Visual Canvas -->
+          <div class="sim-canvas my-4 space-y-4">
+            <!-- Top Lane: Sender to Network to Receiver -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+              <!-- Sender -->
+              <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-blue-400">Host A (Sender)</span>
+                  <span id="sender-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300">IDLE</span>
+                </div>
+                <div class="text-[11px] text-[var(--muted-foreground)]">Socket Send Buffer (5 Segments / 7,300 B)</div>
+                <div class="flex gap-1 mt-2" id="sender-queue">
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-900/60 text-blue-200 border border-blue-700">#1</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-900/60 text-blue-200 border border-blue-700">#2</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-900/60 text-blue-200 border border-blue-700">#3</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-900/60 text-blue-200 border border-blue-700">#4</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-blue-900/60 text-blue-200 border border-blue-700">#5</span>
+                </div>
+              </div>
+
+              <!-- Network Pipe -->
+              <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] flex flex-col items-center justify-center text-center">
+                <div class="text-[11px] font-mono text-[var(--muted-foreground)] mb-1">UNRELIABLE IP TRANSIT (MTU: 1500B)</div>
+                <div class="w-full h-8 bg-[var(--background)] rounded-lg border border-[var(--border)] relative overflow-hidden flex items-center px-2" id="network-pipe">
+                  <div class="text-[10px] text-stone-500 font-mono w-full text-center" id="pipe-placeholder">Ready for transmission</div>
+                </div>
+                <div class="text-[10px] font-mono mt-1 text-amber-400" id="network-loss-indicator">Loss Injection: Packet #2 will drop at congested router</div>
+              </div>
+
+              <!-- Receiver -->
+              <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-emerald-400">Host B (Receiver Kernel)</span>
+                  <span id="receiver-status-badge" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300">LISTENING</span>
+                </div>
+                <div class="text-[11px] text-[var(--muted-foreground)]">Kernel TCP Receive Buffer (Out-of-Order Queue)</div>
+                <div class="flex gap-1 mt-2 min-h-[22px]" id="kernel-buffer">
+                  <span class="text-[10px] text-stone-500 font-mono italic">Buffer empty</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Lane: Application Delivery Layer (The Crucial Difference!) -->
+            <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold uppercase tracking-wider text-[var(--foreground)]">User Application Read Stream (`recv()` / `read()`)</span>
+                  <span id="hol-badge" class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-400">IDLE</span>
+                </div>
+                <div id="retransmit-action-area" class="hidden">
+                  <button onclick="retransmitPacket2()" class="px-2.5 py-1 text-xs font-bold rounded bg-amber-500 text-black hover:bg-amber-400 transition animate-pulse">
+                    ⚡ Retransmit Packet #2 (Fast Retransmit / RTO)
+                  </button>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] min-h-[44px] flex items-center gap-2 flex-wrap" id="app-read-stream">
+                <span class="text-xs text-stone-500 font-mono italic">Waiting for application syscall delivery...</span>
+              </div>
+            </div>
+
+            <!-- Real-Time Telemetry Gauges -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 pt-1">
+              <div class="p-2.5 rounded-lg bg-[var(--card)] border border-[var(--card-border)] text-center">
+                <div class="text-[10px] font-mono text-[var(--muted-foreground)] uppercase">Delivery Latency</div>
+                <div class="text-sm font-bold font-mono text-[var(--foreground)]" id="telemetry-latency">-- ms</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-[var(--card)] border border-[var(--card-border)] text-center">
+                <div class="text-[10px] font-mono text-[var(--muted-foreground)] uppercase">Head-of-Line Blocking</div>
+                <div class="text-sm font-bold font-mono text-emerald-400" id="telemetry-hol">NONE</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-[var(--card)] border border-[var(--card-border)] text-center">
+                <div class="text-[10px] font-mono text-[var(--muted-foreground)] uppercase">Packets Consumed by App</div>
+                <div class="text-sm font-bold font-mono text-[var(--foreground)]" id="telemetry-consumed">0 / 5</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-[var(--card)] border border-[var(--card-border)] text-center">
+                <div class="text-[10px] font-mono text-[var(--muted-foreground)] uppercase">Memory Locked in Kernel</div>
+                <div class="text-sm font-bold font-mono text-stone-400" id="telemetry-mem">0 B</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sim-log" id="sim-log">
+            Click 'Transmit 5 Packets' to trace the packet flight across physical wire.
+          </div>
+        </div>
+    """
+
+    sim_js = """
+        let currentProtocol = 'tcp';
+        let dropPacket2 = true;
+        let isTransmitting = false;
+
+        function setSimProtocol(p) {
+          if (isTransmitting) return;
+          currentProtocol = p;
+          const tcpBtn = document.getElementById('proto-tcp-btn');
+          const udpBtn = document.getElementById('proto-udp-btn');
+          if (p === 'tcp') {
+            tcpBtn.className = 'px-2.5 py-1 rounded font-bold bg-[var(--primary)] text-white transition';
+            udpBtn.className = 'px-2.5 py-1 rounded text-[var(--muted-foreground)] hover:text-white transition';
+          } else {
+            udpBtn.className = 'px-2.5 py-1 rounded font-bold bg-[var(--primary)] text-white transition';
+            tcpBtn.className = 'px-2.5 py-1 rounded text-[var(--muted-foreground)] hover:text-white transition';
+          }
+          resetSimulation();
+        }
+
+        function toggleDrop(checked) {
+          dropPacket2 = checked;
+          const ind = document.getElementById('network-loss-indicator');
+          if (ind) {
+            ind.textContent = checked ? 'Loss Injection: Packet #2 will drop at congested router' : 'Loss Injection: Disabled (Clean Fiber Link)';
+            ind.className = checked ? 'text-[10px] font-mono mt-1 text-amber-400' : 'text-[10px] font-mono mt-1 text-emerald-400';
+          }
+        }
+
+        function resetSimulation() {
+          isTransmitting = false;
+          const sBadge = document.getElementById('sender-status-badge');
+          const rBadge = document.getElementById('receiver-status-badge');
+          const kBuf = document.getElementById('kernel-buffer');
+          const aStream = document.getElementById('app-read-stream');
+          const rArea = document.getElementById('retransmit-action-area');
+          const hBadge = document.getElementById('hol-badge');
+          const tLat = document.getElementById('telemetry-latency');
+          const tHol = document.getElementById('telemetry-hol');
+          const tCon = document.getElementById('telemetry-consumed');
+          const tMem = document.getElementById('telemetry-mem');
+          const nPipe = document.getElementById('network-pipe');
+          const log = document.getElementById('sim-log');
+
+          if (sBadge) { sBadge.textContent = 'IDLE'; sBadge.className = 'text-[10px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300'; }
+          if (rBadge) { rBadge.textContent = 'LISTENING'; }
+          if (kBuf) { kBuf.innerHTML = '<span class="text-[10px] text-stone-500 font-mono italic">Buffer empty</span>'; }
+          if (aStream) { aStream.innerHTML = '<span class="text-xs text-stone-500 font-mono italic">Waiting for application syscall delivery...</span>'; }
+          if (rArea) { rArea.classList.add('hidden'); }
+          if (hBadge) { hBadge.textContent = 'IDLE'; hBadge.className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-400'; }
+          if (tLat) { tLat.textContent = '-- ms'; }
+          if (tHol) { tHol.textContent = 'NONE'; tHol.className = 'text-sm font-bold font-mono text-emerald-400'; }
+          if (tCon) { tCon.textContent = '0 / 5'; }
+          if (tMem) { tMem.textContent = '0 B'; }
+          if (nPipe) { nPipe.innerHTML = '<div class="text-[10px] text-stone-500 font-mono w-full text-center" id="pipe-placeholder">Ready for transmission</div>'; }
+          if (log) { log.innerHTML = 'Select protocol, toggle loss injection, and click <strong>Transmit 5 Packets</strong>.'; }
+        }
+
+        function startSimulation() {
+          if (isTransmitting) return;
+          resetSimulation();
+          isTransmitting = true;
+          document.getElementById('sender-status-badge').textContent = 'TRANSMITTING';
+          document.getElementById('pipe-placeholder')?.remove();
+
+          const pipe = document.getElementById('network-pipe');
+          pipe.innerHTML = '';
+          const log = document.getElementById('sim-log');
+          log.innerHTML = `<span class="text-blue-400 font-bold">[SEND]</span> ${currentProtocol.toUpperCase()} Sender dispatched 5 segments (Packets #1..#5, 7,300 Bytes total)`;
+
+          for (let i = 1; i <= 5; i++) {
+            const pkt = document.createElement('div');
+            pkt.id = `pkt-${i}`;
+            pkt.className = 'px-2 py-0.5 text-[10px] font-mono rounded bg-blue-600 text-white font-bold mr-1 inline-block transition-all duration-500';
+            pkt.textContent = `#${i}`;
+            pipe.appendChild(pkt);
+          }
+
+          setTimeout(() => {
+            deliverPacket(1);
+
+            if (dropPacket2) {
+              const p2 = document.getElementById('pkt-2');
+              if (p2) {
+                p2.className = 'px-2 py-0.5 text-[10px] font-mono rounded bg-rose-600 text-white font-bold mr-1 inline-block animate-pulse';
+                p2.textContent = '💥 #2 DROPPED';
+              }
+              log.innerHTML += `<br/><span class="text-rose-400 font-bold">[ROUTER DROP]</span> Packet #2 dropped by intermediate queue overflow!`;
+            } else {
+              deliverPacket(2);
+            }
+
+            setTimeout(() => {
+              [3, 4, 5].forEach(i => deliverPacket(i));
+
+              if (currentProtocol === 'tcp' && dropPacket2) {
+                document.getElementById('hol-badge').textContent = '🚨 HEAD-OF-LINE BLOCKING';
+                document.getElementById('hol-badge').className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 animate-pulse';
+                document.getElementById('telemetry-hol').textContent = '340 ms STALL';
+                document.getElementById('telemetry-hol').className = 'text-sm font-bold font-mono text-rose-400';
+                document.getElementById('telemetry-latency').textContent = '340 ms (P99)';
+                document.getElementById('telemetry-consumed').textContent = '1 / 5';
+                document.getElementById('telemetry-mem').textContent = '4,380 B';
+
+                document.getElementById('app-read-stream').innerHTML += `
+                  <div class="w-full mt-2 p-2 rounded bg-rose-950/40 border border-rose-800 text-[11px] text-rose-300 font-mono">
+                    ⛔ App read() blocked: Kernel holds Packets #3, #4, #5 in receive queue, but cannot deliver them because Byte 1461 (#2) is missing from monotonic stream!
+                  </div>
+                `;
+                document.getElementById('retransmit-action-area').classList.remove('hidden');
+                log.innerHTML += `<br/><span class="text-amber-400 font-bold">[TCP STALL]</span> App blocked on socket read(). Packets 3, 4, 5 buffered out-of-order in kernel.`;
+              } else if (currentProtocol === 'udp' && dropPacket2) {
+                document.getElementById('hol-badge').textContent = '✅ FLUID DATAGRAM STREAM';
+                document.getElementById('hol-badge').className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800';
+                document.getElementById('telemetry-hol').textContent = 'NONE (0 ms)';
+                document.getElementById('telemetry-hol').className = 'text-sm font-bold font-mono text-emerald-400';
+                document.getElementById('telemetry-latency').textContent = '12 ms';
+                document.getElementById('telemetry-consumed').textContent = '4 / 5 (Best Effort)';
+                document.getElementById('telemetry-mem').textContent = '0 B';
+                log.innerHTML += `<br/><span class="text-emerald-400 font-bold">[UDP DELIVER]</span> 4 datagrams passed directly to app with 0ms stall. Packet 2 loss ignored!`;
+              } else {
+                document.getElementById('hol-badge').textContent = '✅ COMPLETE';
+                document.getElementById('hol-badge').className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300';
+                document.getElementById('telemetry-latency').textContent = '14 ms';
+                document.getElementById('telemetry-consumed').textContent = '5 / 5';
+                document.getElementById('telemetry-mem').textContent = '0 B';
+              }
+              isTransmitting = false;
+            }, 700);
+          }, 500);
+        }
+
+        function deliverPacket(num) {
+          const kernelBuf = document.getElementById('kernel-buffer');
+          const appStream = document.getElementById('app-read-stream');
+          if (kernelBuf.innerHTML.includes('Buffer empty')) kernelBuf.innerHTML = '';
+          if (appStream.innerHTML.includes('Waiting for application')) appStream.innerHTML = '';
+
+          if (currentProtocol === 'tcp') {
+            if (num === 1 || !dropPacket2) {
+              appStream.innerHTML += `<span class="px-2 py-1 text-[11px] font-mono rounded bg-emerald-950 border border-emerald-700 text-emerald-300">ByteSeq: #${num} (1460B)</span>`;
+            } else {
+              kernelBuf.innerHTML += `<span class="px-2 py-0.5 text-[10px] font-mono rounded bg-amber-950 border border-amber-700 text-amber-300">OutOfOrder: #${num}</span>`;
+            }
+          } else {
+            appStream.innerHTML += `<span class="px-2 py-1 text-[11px] font-mono rounded bg-emerald-950 border border-emerald-700 text-emerald-300">Datagram: #${num}</span>`;
+          }
+        }
+
+        function retransmitPacket2() {
+          const pipe = document.getElementById('network-pipe');
+          const log = document.getElementById('sim-log');
+          log.innerHTML += `<br/><span class="text-blue-400 font-bold">[RETRANSMIT]</span> Retransmitting Packet #2 across wire...`;
+
+          const pkt2 = document.createElement('div');
+          pkt2.className = 'px-2 py-0.5 text-[10px] font-mono rounded bg-amber-500 text-black font-bold mr-1 inline-block animate-bounce';
+          pkt2.textContent = '⚡ #2 RETRANSMIT';
+          pipe.appendChild(pkt2);
+
+          setTimeout(() => {
+            document.getElementById('kernel-buffer').innerHTML = '<span class="text-[10px] text-emerald-400 font-mono">✅ Monotonic sequence complete. Buffer flushed to application.</span>';
+            const appStream = document.getElementById('app-read-stream');
+            appStream.innerHTML = `
+              <span class="px-2 py-1 text-[11px] font-mono rounded bg-emerald-950 border border-emerald-700 text-emerald-300">ByteSeq: #1</span>
+              <span class="px-2 py-1 text-[11px] font-mono rounded bg-amber-900 border border-amber-500 text-white font-bold">ByteSeq: #2 (Recovered)</span>
+              <span class="px-2 py-1 text-[11px] font-mono rounded bg-emerald-950 border border-emerald-700 text-emerald-300">ByteSeq: #3</span>
+              <span class="px-2 py-1 text-[11px] font-mono rounded bg-emerald-950 border border-emerald-700 text-emerald-300">ByteSeq: #4</span>
+              <span class="px-2 py-1 text-[11px] font-mono rounded bg-emerald-950 border border-emerald-700 text-emerald-300">ByteSeq: #5</span>
+            `;
+            document.getElementById('hol-badge').textContent = '✅ RESOLVED (5/5 CONSUMED)';
+            document.getElementById('hol-badge').className = 'text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800';
+            document.getElementById('telemetry-hol').textContent = 'RESOLVED';
+            document.getElementById('telemetry-hol').className = 'text-sm font-bold font-mono text-emerald-400';
+            document.getElementById('telemetry-consumed').textContent = '5 / 5 (Monotonic)';
+            document.getElementById('telemetry-mem').textContent = '0 B';
+            document.getElementById('retransmit-action-area').classList.add('hidden');
+            log.innerHTML += `<br/><span class="text-emerald-400 font-bold">[FLUSH]</span> Packet #2 arrived! Kernel reassembled stream and flushed bytes 1461-7300 to application.`;
+          }, 600);
+        }
+    """
+
+    return {
+        "PAGE_TITLE": "Topic — TCP vs UDP",
+        "THEME_CSS_VARS": theme["css_vars"],
+        "THEME_NAME": theme["name"],
+        "THEME_ID": theme["id"],
+        "TIER_BADGE": tier or "Tier 0 · System Design Core",
+        "CLUSTER_BADGE": cluster or "1. [0.1] APIs & Network Transport for Design",
+        "LESSON_TITLE": "TCP vs UDP",
+        "LESSON_SUBTITLE": "A first-principles, causal breakdown of physical network constraints, packet loss recovery, and the trade-off between reliability and tail latency.",
+
+        # PHASE 1: The Raw Physical Reality & Forcing Dilemma
+        "SECTION_1_TITLE": "The Physical Reality: Why Transport Layer Abstractions Exist",
+        "SECTION_1_BODY": """
+        <p>
+          Before analyzing the software machinery of <strong>TCP and UDP</strong>, we must confront the immutable laws of physical network hardware: the non-zero speed of light in silica glass, finite router buffer memories, and the uncoordinated nature of packet-switched networks.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 my-4">
+          <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
+            <div class="text-[11px] font-mono font-bold text-amber-400 uppercase">Speed of Light in Fiber</div>
+            <div class="text-base font-bold text-[var(--foreground)] mt-1">~5 μs per km</div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
+              Propagating photons through glass refractive index (n ≈ 1.47) means a 6,000 km trans-Atlantic link has an unbreakable physical lower bound of ~30 ms one-way (~60 ms RTT).
+            </p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
+            <div class="text-[11px] font-mono font-bold text-blue-400 uppercase">Ethernet MTU Limit</div>
+            <div class="text-base font-bold text-[var(--foreground)] mt-1">1,500 Bytes</div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
+              Standard physical Ethernet frames cap payloads at 1500 bytes. A single 10 MB payload must be fragmented into ~7,100 discrete network frames.
+            </p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-[var(--card)] border border-[var(--card-border)]">
+            <div class="text-[11px] font-mono font-bold text-rose-400 uppercase">IP Layer Unreliability</div>
+            <div class="text-base font-bold text-[var(--foreground)] mt-1">Best-Effort Datagrams</div>
+            <p class="text-xs text-[var(--muted-foreground)] mt-1 mb-0 leading-relaxed">
+              Routers have finite queue buffers. Under burst load, routers silently drop packets (tail drop). Dynamic routing can deliver packets out-of-order or duplicated.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout-box callout-dilemma">
+          <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-1">⚡ The Core Architectural Tension</div>
+          <p class="text-sm text-[var(--foreground)] m-0">
+            If an application transmits 7,100 discrete IP packets across an uncoordinated network, it faces an inescapable dilemma:
+            <strong>Stop-and-Wait</strong> (send 1 packet, wait 60ms for ACK) collapses throughput to 1460 B / 0.06s = <strong>24 KB/s</strong> over a 10 Gbps fiber line.
+            <strong>Unthrottled Broadcast</strong> (blast all 7,100 packets immediately) overflows router buffers, causing catastrophic packet drops and silent corruption.
+            Transport protocols are the mathematical and operational resolution to this physical tension.
+          </p>
+        </div>
+        """,
+
+        # PHASE 2: The Core Abstraction & Header Anatomy
+        "SECTION_2_TITLE": "The Architectural Contract: Stream vs Datagram Semantics",
+        "SECTION_2_BODY": """
+        <p>
+          At Layer 4 of the OSI model, operating systems provide two fundamentally distinct contracts to bridge physical packet switching and user-space application code:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+          <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-blue-400 uppercase">Transmission Control Protocol (TCP)</span>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-blue-950 text-blue-300">20–60 Bytes Header</span>
+            </div>
+            <h4 class="text-sm font-bold text-[var(--foreground)]">Full-Duplex, Ordered Byte-Stream</h4>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
+              Presents the illusion of a continuous, error-free pipe. Sequences and acknowledges every byte offset. Maintains a Transmission Control Block (TCB) in kernel memory (~2–4 KB per socket) tracking window sizing, timers, and state machines.
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-mono font-bold text-emerald-400 uppercase">User Datagram Protocol (UDP)</span>
+              <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300">Lean 8 Bytes Header</span>
+            </div>
+            <h4 class="text-sm font-bold text-[var(--foreground)]">Stateless, Boundary-Preserving Datagram</h4>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
+              A thin multiplexing wrapper around raw IP. Adds only source/dest port addressing and an optional 16-bit checksum. Zero kernel connection state, zero handshakes, zero delivery or ordering guarantees.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout-box callout-mechanism">
+          <div class="text-xs font-mono font-bold text-[var(--primary)] uppercase tracking-wider mb-1">🔍 Byte-Level Header Anatomy</div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 font-mono text-xs">
+            <div class="p-3 rounded bg-[var(--background)] border border-[var(--border)]">
+              <div class="text-blue-400 font-bold mb-1">TCP Header Layout (Minimum 20 Bytes)</div>
+              <div class="space-y-1 text-[11px] text-[var(--muted-foreground)]">
+                <div>• Source Port (16b) | Dest Port (16b)</div>
+                <div>• Sequence Number (32b: byte offset in stream)</div>
+                <div>• Acknowledgment Number (32b: cumulative next byte)</div>
+                <div>• Data Offset (4b) | Flags: SYN, ACK, FIN, RST, PSH, URG (9b)</div>
+                <div>• Receive Window `rwnd` (16b: flow control buffer)</div>
+                <div>• Checksum (16b) | Urgent Pointer (16b)</div>
+                <div>• Options (0–40B: MSS, Window Scale, SACK)</div>
+              </div>
+            </div>
+            <div class="p-3 rounded bg-[var(--background)] border border-[var(--border)]">
+              <div class="text-emerald-400 font-bold mb-1">UDP Header Layout (Strictly 8 Bytes)</div>
+              <div class="space-y-1 text-[11px] text-[var(--muted-foreground)]">
+                <div>• Source Port (16 bits)</div>
+                <div>• Destination Port (16 bits)</div>
+                <div>• Length (16 bits: header + payload in bytes)</div>
+                <div>• Checksum (16 bits: header + pseudo-header)</div>
+                <div class="text-stone-500 italic pt-2">No sequence numbers. No window sizes. No flags. No connection state.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        """,
+
+        # PHASE 3: Under the Hood, HoL Blocking & Interactive Simulator
+        "SECTION_3_TITLE": "Under the Hood: Flow Control, Congestion Control & Head-of-Line Blocking",
+        "SECTION_3_BODY": f"""
+        <p>
+          To understand why one protocol thrives while the other collapses under specific network conditions, we must isolate three kernel mechanisms:
+        </p>
+
+        <div class="space-y-3 my-3">
+          <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)]">
+            <strong class="text-xs font-mono text-[var(--primary)]">1. The 1-RTT Handshake Penalty:</strong>
+            <span class="text-xs text-[var(--muted-foreground)] ml-1">
+              TCP mandates a 3-way handshake (<code>SYN &rarr; SYN-ACK &rarr; ACK</code>). Before any application byte moves, the client pays a full 60ms Round-Trip Time. UDP has zero connection establishment (0-RTT); the very first packet carries application data.
+            </span>
+          </div>
+          <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)]">
+            <strong class="text-xs font-mono text-[var(--primary)]">2. Flow Control (rwnd) vs Congestion Control (cwnd):</strong>
+            <span class="text-xs text-[var(--muted-foreground)] ml-1">
+              <strong>Flow control</strong> protects the <em>receiver</em> from buffer exhaustion via advertised <code>rwnd</code>. <strong>Congestion control</strong> protects the <em>network</em> from collapse using a dynamic congestion window (<code>cwnd</code>), dynamically probing bandwidth via Slow Start and AIMD (Additive Increase, Multiplicative Decrease).
+            </span>
+          </div>
+          <div class="p-3 rounded-lg bg-[var(--card)] border border-[var(--card-border)]">
+            <strong class="text-xs font-mono text-rose-400">3. Head-of-Line (HoL) Blocking at the Transport Layer:</strong>
+            <span class="text-xs text-[var(--muted-foreground)] ml-1">
+              The POSIX socket API (<code>read()</code> / <code>recv()</code>) exposes a contiguous, sequential byte stream. If Packet #2 is dropped by an intermediate router, but Packets #3, #4, and #5 arrive safely, the receiver kernel buffers them in its TCP socket queue, but <strong>strictly refuses</strong> to deliver them to user-space! The application thread stalls until Packet #2 is retransmitted and acknowledged.
+            </span>
+          </div>
+        </div>
+        {sim_html}
+        <div class="callout-box callout-invariant">
+          <div class="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-1">⚖️ The Fundamental Invariant Trade-off</div>
+          <p class="text-sm text-[var(--foreground)] m-0">
+            <strong>TCP guarantees completeness and monotonic ordering at the expense of unbounded tail latency.</strong> Under packet loss, jitter spikes uncontrollably.<br/>
+            <strong>UDP guarantees bounded latency and zero Head-of-Line blocking at the expense of completeness.</strong> The application must tolerate dropped or out-of-order datagrams.
+          </p>
+        </div>
+        """,
+
+        # PHASE 4: Mental Model Synthesis & Production Grounding
+        "SECTION_4_TITLE": "Mental Model Synthesis, Production Grounding & Sizing Reality",
+        "SECTION_4_BODY": """
+        <p>
+          Every architectural decision in production systems boils down to which penalty your domain can afford to pay: <em>tail-latency jitter</em> or <em>loss recovery complexity</em>.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+          <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-xs font-mono font-bold text-blue-400 uppercase">Durability-Critical: Financial Ledgers & DB Logs</div>
+            <h4 class="text-sm font-bold text-[var(--foreground)]">Postgres WAL Streaming / Payment Transactions</h4>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
+              Dropping a single byte of a write-ahead log invalidates database consistency. Systems gladly absorb a 400ms tail-latency stall while TCP recovers dropped segments, because data corruption is existential failure.
+            </p>
+          </div>
+          <div class="p-5 rounded-xl bg-[var(--card)] border border-[var(--card-border)] space-y-2">
+            <div class="text-xs font-mono font-bold text-emerald-400 uppercase">Latency-Critical: Real-Time Audio / Video & Games</div>
+            <h4 class="text-sm font-bold text-[var(--foreground)]">WebRTC Voice Stream / Online Game Physics</h4>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed m-0">
+              Human auditory perception detects speech stalls over 150ms. A 400ms late audio frame is worthless garbage. Dropping the late frame and rendering the next frame immediately produces seamless audio.
+            </p>
+          </div>
+        </div>
+
+        <div class="callout-box callout-trap">
+          <div class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-1">🚀 The Modern Revolution: QUIC & HTTP/3</div>
+          <p class="text-sm text-[var(--foreground)] m-0">
+            Why did HTTP/2 (multiplexing streams over a single TCP connection) suffer on lossy cellular networks? Because TCP's transport-level Head-of-Line blocking meant 1 dropped packet stalled <strong>every single multiplexed stream</strong> simultaneously!
+            <strong>QUIC (HTTP/3)</strong> solves this by moving reliable stream state and TLS 1.3 into user-space on top of <strong>UDP</strong>. A dropped packet on Stream A only pauses Stream A; Streams B and C proceed with zero stall!
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[var(--card)] border border-[var(--card-border)] my-4">
+          <h4 class="text-xs font-mono font-bold text-[var(--primary)] uppercase tracking-wider mb-2">📐 Production Sizing Formulas</h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-bold text-[var(--foreground)]">Bandwidth-Delay Product (BDP)</div>
+              <div class="font-mono text-cyan-400 mt-0.5">BDP = Bandwidth (bps) × RTT (s)</div>
+              <p class="text-[11px] text-[var(--muted-foreground)] mt-1 mb-0">
+                A 10 Gbps transcontinental link with 50ms RTT requires <code>10e9 × 0.050 / 8 = 62.5 MB</code> of in-flight unacknowledged data in socket buffers to fully saturate link capacity.
+              </p>
+            </div>
+            <div class="p-3 rounded bg-[var(--background)] border border-[var(--border)]">
+              <div class="font-bold text-[var(--foreground)]">Ephemeral Port Exhaustion (TIME_WAIT)</div>
+              <div class="font-mono text-amber-400 mt-0.5">2MSL = 60s to 120s Retention</div>
+              <p class="text-[11px] text-[var(--muted-foreground)] mt-1 mb-0">
+                A microservice opening and closing short-lived TCP connections at > 1,000 req/sec will rapidly exhaust the 65,535 ephemeral port range due to kernel TIME_WAIT socket states.
+              </p>
+            </div>
+          </div>
+        </div>
+        """,
+
+        # PHASE 5: Contextual Sign-Off Verification Gate
+        "SECTION_5_TITLE": "Contextual Sign-Off Verification: Active Defense Gate",
+        "SECTION_5_BODY": """
+        <div class="callout-box callout-trap">
+          <div class="flex items-start gap-3">
+            <div class="text-amber-400 font-bold text-lg mt-0.5">⚠️</div>
+            <div class="space-y-2">
+              <h4 class="font-bold text-[var(--foreground)] text-base m-0">Production Incident: The Cellular Dashboard Tail-Latency Mystery</h4>
+              <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                A distributed real-time dashboard tracking vehicle telemetry on 4G/5G cellular links experiences catastrophic P99 tail-latency spikes exceeding 850ms, even though backend server CPU utilization is below 20% and network bandwidth is only 15% utilized.
+              </p>
+              <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
+                A junior engineer suggests: <em>"Let's double the TCP socket receive buffer (<code>SO_RCVBUF</code>) on both client and server to smooth out the spikes."</em>
+              </p>
+              <div class="p-3 rounded-lg bg-[var(--background)] border border-[var(--border)] space-y-1">
+                <div class="text-xs font-mono font-bold text-rose-400 uppercase">Your Defense Challenge:</div>
+                <ul class="text-xs text-[var(--foreground)] space-y-1 m-0 pl-4 list-disc">
+                  <li>Why will expanding socket buffer sizes fail to resolve the latency spikes, and why does it actually worsen P99 tail latency (Bufferbloat)?</li>
+                  <li>Where in the physical and kernel stack is the queue accumulating when cellular packets encounter transient radio interference?</li>
+                  <li>How does transport protocol selection (TCP vs UDP/QUIC) causally explain why CPU is idle while latency is spiking?</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)] space-y-2 text-xs text-[var(--muted-foreground)]">
+          <div class="font-bold text-[var(--primary)] flex items-center gap-2">
+            <span>🎯 Sign-Off Gate Defense Standard:</span>
+          </div>
+          <p class="leading-relaxed m-0">
+            Tick off when: you can defend this incident scenario cold in chat discussion without notes, tracing the buffer queue location in cellular base stations, the mathematics of Bufferbloat, and why application-layer retry over TCP causes cascading tail spikes.
+          </p>
+          <div class="pt-2 text-[11px] font-mono text-amber-400 flex items-center gap-2">
+            <span class="inline-block w-2 h-2 rounded-full bg-amber-400"></span>
+            <span>No solution is provided in this artifact. Discuss and defend your architectural breakdown in chat using <code>/sds-discuss</code>.</span>
+          </div>
+        </div>
+        """,
+
+        "BACKWARD_ANCHOR": "Physical network boundaries & hardware constraints",
+        "FORWARD_HOOK": "HTTP/1.1 vs HTTP/2 vs HTTP/3: Multiplexing over Single Transport Stream",
+        "EMBEDDED_JAVASCRIPT": sim_js
+    }
+
 def generate_default_data(topic_id, title=None, cluster=None, tier=None, style_id="slate-clean"):
     clean_title = format_topic_title(topic_id, title)
+    theme = STYLE_THEMES.get(style_id, STYLE_THEMES["slate-clean"])
+    if "tcp-vs-udp" in topic_id.lower() or clean_title.lower() == "tcp vs udp":
+        return build_tcp_vs_udp_data(theme, tier, cluster)
+
     theme = STYLE_THEMES.get(style_id, STYLE_THEMES["slate-clean"])
 
     return {
