@@ -1,4 +1,4 @@
-# Shared Engineering Context — Manifest Specification v3.1
+# Shared Engineering Context — Manifest Specification v3.2
 
 ## Overview
 
@@ -17,7 +17,7 @@ The **Context Manifest** is the canonical, portable, machine-readable data model
 
 ```json
 {
-  "$schemaVersion": "3.1",
+  "$schemaVersion": "3.2",
   "instanceName": "string (Human-readable name of learning instance)",
   "createdAt": "ISO-8601 Timestamp",
   "lastUpdated": "ISO-8601 Timestamp",

@@ -59,7 +59,7 @@ Every learning workspace is a self-contained Git repository:
 my-project/
 ├── .git/
 ├── .system-design/
-│   ├── manifest.json              # Canonical machine-readable state (schema v3.1)
+│   ├── manifest.json              # Canonical machine-readable state (schema v3.2)
 │   ├── settings.json              # Theme & delivery preferences (5 visual styles)
 │   ├── CURSOR.md                  # Living running context (brain of the instance)
 │   ├── CURRICULUM.md              # Master 50-cluster syllabus with checkboxes
