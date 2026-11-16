@@ -24,24 +24,33 @@ my-learning-instance/
 
 ---
 
-## Configurable Directory Paths (`settings.json`)
+## Configurable Directory Paths & Notes (`settings.json`)
 
-By default, studio files reside under `.system-design/`. If your project or workspace requires custom storage locations (e.g. keeping lessons in `docs/lessons` or cursor state in `notes/`), configure paths in `.system-design/settings.json`:
+By default, studio files reside under `.system-design/` and notes in `notes/`. If your project or workspace requires custom storage locations (e.g. keeping notes in an external Obsidian vault or lessons in `docs/lessons`), configure paths in `.system-design/settings.json`:
 
 ```json
 {
-  "$schemaVersion": "2.0",
+  "$schemaVersion": "3.2",
+  "projectId": "my-project",
+  "track": "interview-sprint",
   "artifactStyle": "slate-clean",
+  "outputType": "html",
+  "autoGenerateNotes": true,
+  "notesStructure": "per-topic",
   "paths": {
     "instanceDir": ".system-design",
     "cursorDir": ".system-design",
-    "lessonsDir": ".system-design/lessons"
+    "lessonsDir": ".system-design/lessons",
+    "notesDir": "notes"
   }
 }
 ```
 
+- **`paths.notesDir`**: Custom directory where discussion-synthesized markdown study notes are stored.
+- **`notesStructure`**: Compilation mode: `per-topic` (default), `per-cluster`, `per-tier`, or `single-file`.
+- **`outputType`**: `html` (interactive simulators) or `markdown` (clean text with Mermaid/ASCII).
 - **`paths.cursorDir`**: Directory where `CURSOR.md` is saved and read.
-- **`paths.lessonsDir`**: Directory where generated interactive HTML lesson artifacts are saved.
+- **`paths.lessonsDir`**: Directory where generated lesson artifacts are saved.
 - **`paths.instanceDir`**: Root instance state directory for `manifest.json`, `settings.json`, and updates.
 
 All studio scripts (`render-lesson.py`, `advance-cursor.py`, `verify-instance.py`, `sync-status.py`, `update.sh`) automatically detect and respect these configured directory preferences.

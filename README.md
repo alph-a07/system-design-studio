@@ -106,75 +106,102 @@ By default, state and lessons are saved under `.system-design/`. You can customi
 - Personal notes remain completely your own.
 - The studio only inspects and updates the local `.system-design/` directory.
 
+### Active Learning Notes: Cognitive Abstraction (Not Textbook Boilerplate)
+Unlike traditional platforms that dump generic textbook summaries, System Design Studio synthesizes study notes governed strictly by **what you understood through active learning**:
+1. **Initial Intuition & Working Hypothesis**: The naive model, pattern, or assumption you brought to the topic before constraint analysis.
+2. **Dialectic & Friction Encountered**: The Socratic stress-test, failure modes (e.g., asymmetric partitions, head-of-line blocking), and edge cases where the initial hypothesis broke down in chat.
+3. **Derived Invariant (The 'Aha!' Synthesis)**: The non-negotiable physical or mathematical law you deduced and proved cold unassisted.
+4. **Personal Rule of Thumb & Sizing Reality**: Actionable engineering heuristics and quantitative bounds (Little's Law, Bandwidth-Delay Product, quorum intersection math) you can deploy under pressure in interviews and production.
+
+Supports 4 structuring modes (`per-topic`, `per-cluster`, `per-tier`, and `single-file`) compatible with Obsidian, VS Code, and Markdown note systems.
+
 ---
 
-## Quickstart (Universal 1-Line Installer)
+## Quickstart: The "Two Scripts, Then Pure Chat" Workflow
 
-Install the skill for all your AI coding agents in a single command:
+System Design Studio cleanly separates machine-level skill installation from project workspace initialization. **You only run terminal scripts twice**:
+
+### Step 1: Global Skill Installation (Run Once)
+Install the skill package globally and configure machine preferences (theme, HTML vs. Markdown output, and notes opt-in) through an interactive onboarding wizard:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash
 ```
 
-Or install for specific agents:
+Or run with flags for automated setup:
 ```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity --claude --cursor --codex
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- \
+  --theme slate-clean \
+  --output html \
+  --notes true \
+  --notes-structure per-topic \
+  --all
 ```
+*This configures `~/.system-design-studio/config.json`, initializes the multi-project registry, and links the studio skill across all detected AI agents (Antigravity, Claude Code, Cursor, Codex).*
+
+---
+
+### Step 2: Initialize a Learning Project (Run Once per Project)
+Scaffold an isolated learning instance in your current repository or in the default central directory (`~/.system-design-studio/projects/<name>`):
+
+```bash
+# Using the bundled 'sds' CLI:
+~/.system-design-studio/bin/sds init
+
+# Or directly via bash:
+bash ~/.system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh
+```
+
+**The interactive initializer configures**:
+1. **Workspace Location**: Default standalone directory (`~/.system-design-studio/projects/<name>`) or your active Git repo.
+2. **Curriculum Goal Track**:
+   - `interview-sprint`: Short-Term Interview Sprint (15 high-yield clusters, 114 topics)
+   - `distributed-systems`: Distributed Systems & Storage Deep-Dive (23 clusters, 171 topics)
+   - `staff-architect`: Staff+ / Principal Architecture & System Defense (25 clusters, 184 topics)
+   - `mobile-offline`: Mobile & Offline-First Systems (16 clusters, 113 topics)
+   - `full-mastery`: Comprehensive 50-cluster, 354-topic syllabus across all 5 tiers
+   - Or **Bring Your Own (BYO)**: Import any custom markdown syllabus (strictly validated against `Tier > Cluster > Topic`).
+3. **Project-Scoped Notes Location & Structure**: Default `<project>/notes` or custom path (e.g. Obsidian vault) structured as `per-topic` (default), `per-cluster`, `per-tier`, or `single-file`.
+
+---
+
+### Step 3: Pure Chat Interaction (Zero Terminal Needed)
+Once initialized, **you never need to switch to a terminal again**. Open your AI agent (Antigravity, Claude Code, Cursor, or Codex) and drive your entire learning journey directly in chat via custom skill commands:
+
+| Command | Action |
+| :--- | :--- |
+| **`/sds-teach [topic]`** | Generates & delivers the topic artifact (interactive HTML simulator or clean Markdown narrative). |
+| **`/sds-discuss`** | Evaluates your scenario cold defense, explores failure modes, and stress-tests invariants in chat. |
+| **`/sds-complete [ev]`** | Validates mastery, ticks `CURRICULUM.md`, advances cursor, and synthesizes study notes in your configured notes format. |
+| **`/sds-projects`** | Lists all registered projects, locations, tracks, and progress metrics across your machine. |
+| **`/sds-open <name>`** | Switches the agent's active project context. |
+| **`/sds-notes`** | Displays direct clickable links to all generated study notes for the active project. |
+| **`/sds-curriculum`** | Reorders, prunes, or fine-tunes syllabus clusters right from chat. |
+| **`/sds-config [k] [v]`**| Dynamically switches theme, output format (`html` ↔ `markdown`), or notes options. |
+| **`/sds-update`** | Checks for updates on demand. If available, prompts you to run `update.sh` in terminal. |
+| **`/sds-status`** | Displays active topic, track progress, and living cursor state. |
 
 ---
 
 ## Universal 1-Line Updater (Preserves All Progress & Settings)
 
-Keep System Design Studio and all your agent skills up to date with a single command:
+Updates are **strictly on-demand** (never checked silently during daily learning sessions). When notified via `/sds-update`, run:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
 ```
-
-### What Happens During Updates?
-- **Zero Progress Loss**: Your `manifest.json`, `CURSOR.md`, `CURRICULUM.md`, `DECISIONS.md`, and `lessons/*.html` remain 100% intact.
-- **Settings Merge Engine (`merge-settings.py`)**: Seamlessly incorporates newly released visual themes and configuration keys into your local `.system-design/settings.json` while **strictly preserving your active `artifactStyle`** and custom preferences.
-- **In-Chat Update Prompts (`check-updates.py`)**: When an update is available on GitHub, your agent detects it and presents a non-intrusive alert directly in chat so you are never left on an outdated syllabus.
+*(Your project progress in `manifest.json`, `CURSOR.md`, and custom study notes remain 100% intact via `merge-settings.py`)*.
 
 ---
 
-### Ready to Use in Any Chat
-Open a chat in any supported AI agent and ask:
-> *"Let's learn system design topic 0.1"*
+## Clean Uninstallation (Removes Skills Only)
 
-On first use, the skill automatically initializes the hidden `.system-design/` workspace folder at your repository root to persist `CURSOR.md` and your learning progress across sessions.
-
-Or run directly from a local clone:
-```bash
-bash skills/system-design-studio/scripts/init-learning-instance.sh "My Systems Architecture Journey"
-```
-
-### 2. Verify Instance Health
-Run the automated diagnostic suite:
+If you ever wish to remove the studio skill from your AI coding agents, run the uninstaller:
 
 ```bash
-python3 skills/system-design-studio/scripts/verify-instance.py .system-design
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/uninstall.sh | bash
 ```
-
-### 3. Check Live Running Context
-Inspect your active topic, progress percentage, examples log, and deferred questions:
-
-```bash
-python3 skills/system-design-studio/scripts/sync-status.py .system-design
-```
-
-### 4. Advance the Cursor Idempotently
-When an agent or learner completes a topic after Socratic validation:
-
-```bash
-python3 skills/system-design-studio/scripts/advance-cursor.py \
-  --complete-topic topic.0.1.tcp-vs-udp \
-  --evidence "Learner traced socket buffer head-of-line blocking under packet loss" \
-  --log-example-domain "Financial Ledger" \
-  --log-example-scenario "Merchant payment idempotency key retry on TCP timeout" \
-  --next-topic-id topic.0.1.http-1-1-vs-http-2-vs-http-3 \
-  --next-action "Establish topic foundation for HTTP multiplexing"
-```
+*(This **strictly eliminates only the agent skill files** across Antigravity, Claude Code, Cursor, and Codex. Your local Git repositories, `.system-design/` progress, personal study notes, and `DECISIONS.md` records are never touched)*.
 
 ---
 
