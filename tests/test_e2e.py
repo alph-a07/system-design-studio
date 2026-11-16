@@ -427,9 +427,69 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertIn("All learning progress and custom user settings were preserved", res.stdout)
 
     # =========================================================================
-    # SUITE 10: Clean Uninstallation Engine
+    # SUITE 10: Checkpoint, Rollback & Project-Scoped Curriculum
     # =========================================================================
-    def test_10_clean_uninstaller(self):
+    def test_10_checkpoint_rollback_and_dashboard(self):
+        cp_script = os.path.join(SCRIPTS_DIR, "git-checkpoint.py")
+        proj2_dir = os.path.join(self.sandbox_dir, "proj2-mastery")
+        proj2_inst = os.path.join(proj2_dir, ".system-design")
+
+        # 1. Test local snapshot creation
+        c_res = self.run_cmd([
+            sys.executable, cp_script,
+            "commit",
+            "--instance-dir", proj2_inst,
+            "--type", "learn",
+            "--subject", "complete 0.1 TCP vs UDP [verified]"
+        ])
+        self.assertIn("Local snapshot created", c_res.stdout)
+
+        # 2. Test listing checkpoints
+        l_res = self.run_cmd([sys.executable, cp_script, "list", "--instance-dir", proj2_inst])
+        self.assertIn("sds(learn)", l_res.stdout)
+        self.assertIn("complete 0.1 TCP vs UDP [verified]", l_res.stdout)
+
+        # 3. Test rollback
+        r_res = self.run_cmd([
+            sys.executable, cp_script,
+            "rollback",
+            "--instance-dir", proj2_inst,
+            "--steps", "0"
+        ])
+        self.assertIn("Successfully restored state to checkpoint", r_res.stdout)
+
+        # 4. Test project-scoped curriculum reconfiguration with progress preservation
+        cfg_curric_script = os.path.join(SCRIPTS_DIR, "configure-curriculum.py")
+        mut_res = self.run_cmd([
+            sys.executable, cfg_curric_script,
+            "--instance-dir", proj2_inst,
+            "--track", "interview-sprint",
+            "--title", "Mutated Mastery Track"
+        ])
+        self.assertIn("Generated project-scoped curriculum track", mut_res.stdout)
+        self.assertIn("completed preserved", mut_res.stdout)
+
+        # 5. Test auto-notes disabled setting
+        settings_file = os.path.join(proj2_inst, "settings.json")
+        with open(settings_file, "r", encoding="utf-8") as sf:
+            s_data = json.load(sf)
+        s_data["autoGenerateNotes"] = False
+        with open(settings_file, "w", encoding="utf-8") as sf:
+            json.dump(s_data, sf, indent=2)
+
+        advance_script = os.path.join(SCRIPTS_DIR, "advance-cursor.py")
+        no_notes_res = self.run_cmd([
+            sys.executable, advance_script,
+            "--instance-dir", proj2_inst,
+            "--complete-topic", "topic.0.2.b-tree-index",
+            "--evidence", "B-tree index write amplification proven unassisted"
+        ])
+        self.assertIn("Auto-notes generation is disabled", no_notes_res.stdout)
+
+    # =========================================================================
+    # SUITE 11: Clean Uninstallation Engine
+    # =========================================================================
+    def test_11_clean_uninstaller(self):
         uninstall_script = os.path.join(REPO_ROOT, "uninstall.sh")
         proj2_dir = os.path.join(self.sandbox_dir, "proj2-mastery")
 
