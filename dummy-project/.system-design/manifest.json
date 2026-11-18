@@ -2,14 +2,14 @@
   "$schemaVersion": "3.2",
   "instanceName": "System Design Dummy Lab",
   "createdAt": "2026-11-18T18:21:10.225287+00:00",
-  "lastUpdated": "2026-11-18T19:22:45.443251+00:00",
+  "lastUpdated": "2026-11-18T18:22:03.595695+00:00",
   "curriculum": {
     "id": "curriculum.system-design-dummy-lab",
     "title": "System Design Dummy Lab",
     "source": "project-scoped-track",
     "sourceRef": ".system-design/CURRICULUM.md",
     "activeClusterId": "cluster.0.1",
-    "activeTopicId": "topic.0.1.rest-vs-grpc-vs-graphql",
+    "activeTopicId": "topic.0.1.tls-handshake-cost-and-session-resumptio",
     "clusters": [
       {
         "id": "cluster.0.1",
@@ -21,19 +21,17 @@
           {
             "id": "topic.0.1.tcp-vs-udp",
             "title": "TCP vs UDP",
-            "status": "completed",
-            "lessonArtifact": "lessons/0-1-tcp-vs-udp.html"
+            "status": "completed"
           },
           {
             "id": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
             "title": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
-            "status": "completed",
-            "lessonArtifact": "lessons/0-1-http-1-1-vs-http-2-vs-http-3.html"
+            "status": "completed"
           },
           {
             "id": "topic.0.1.tls-handshake-cost-and-session-resumptio",
             "title": "TLS handshake cost and session resumption",
-            "status": "completed"
+            "status": "unseen"
           },
           {
             "id": "topic.0.1.rest-vs-grpc-vs-graphql",
@@ -727,18 +725,17 @@
     "activeClusterName": "1. [0.1] APIs & Network Transport for Design",
     "activeTier": "Tier 0",
     "activeTopic": "TCP vs UDP",
-    "topicFoundationId": "foundation.0.1.rest-vs-grpc-vs-graphql",
+    "topicFoundationId": "foundation.0.1.tls-handshake-cost-and-session-resumptio",
     "topicFoundationStatus": "not-started",
-    "activeMechanismGroupId": "group.0.1.rest-vs-grpc-vs-graphql",
-    "nextTeachingAction": "Review delivered lesson artifact (0-1-http-1-1-vs-http-2-vs-http-3.html) and engage in Socratic dialectic defense via /sds-discuss",
+    "activeMechanismGroupId": "group.0.1.tls-handshake-cost-and-session-resumptio",
+    "nextTeachingAction": "Start foundational inquiry on TCP vs UDP",
     "backwardAnchor": "Track initialized via configure-curriculum.py",
     "forwardHook": "Connect foundational invariants to TCP vs UDP"
   },
   "runningContext": {
     "coveredConcepts": [
       "concept.0.1.tcp-vs-udp",
-      "concept.0.1.http-1-1-vs-http-2-vs-http-3",
-      "concept.0.1.tls-handshake-cost-and-session-resumptio"
+      "concept.0.1.http-1-1-vs-http-2-vs-http-3"
     ],
     "examplesTaken": [],
     "deferredQueue": [],
