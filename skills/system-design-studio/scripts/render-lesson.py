@@ -1083,6 +1083,15 @@ def locate_resource_template():
     return None
 
 def main():
+    try:
+        from pathlib import Path
+        _ensure_script = Path(__file__).resolve().parent / 'ensure-highlight-server.py'
+        if _ensure_script.is_file():
+            import subprocess, sys
+            subprocess.run([sys.executable, str(_ensure_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1.0)
+    except Exception:
+        pass
+    
     parser = argparse.ArgumentParser(description="Render interactive HTML or pure Markdown lesson artifact")
     parser.add_argument("--topic-id", required=True, help="Topic ID (e.g. topic.0.1.tcp-vs-udp)")
     parser.add_argument("--title", help="Lesson Title")

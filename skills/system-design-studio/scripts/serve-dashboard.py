@@ -1436,6 +1436,15 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
             self.wfile.write(b"Not found")
 
 def main():
+    try:
+        from pathlib import Path
+        _ensure_script = Path(__file__).resolve().parent / 'ensure-highlight-server.py'
+        if _ensure_script.is_file():
+            import subprocess, sys
+            subprocess.run([sys.executable, str(_ensure_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1.0)
+    except Exception:
+        pass
+    
     parser = argparse.ArgumentParser(description="System Design Studio Live Localhost Curriculum & Progress Tracker")
     parser.add_argument("--instance-dir", help="Path to .system-design directory")
     parser.add_argument("--project", help="Target project ID from multi-project registry")
