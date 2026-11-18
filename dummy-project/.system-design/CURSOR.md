@@ -11,11 +11,11 @@
   - *Cluster Reality Checks*:
     1. *"For each provider API your client application calls, do you know whether it paginates by page number, cursor or link header — and what your loop does if the list shifts mid-fetch?"*
     2. *"Explain how a retry after a timeout can double-charge without an idempotency key. Where exactly is the ambiguity: client, network, or server?"*
-- **Active Topic**: **TLS handshake cost and session resumption** (`topic.0.1.tls-handshake-cost-and-session-resumptio`)
+- **Active Topic**: **REST vs gRPC vs GraphQL** (`topic.0.1.rest-vs-grpc-vs-graphql`)
   - *Topic Foundation Status*: `not-started`
-  - *Active Mechanism Group*: `group.0.1.tls-handshake-cost-and-session-resumptio`
+  - *Active Mechanism Group*: `group.0.1.rest-vs-grpc-vs-graphql`
   - *Last Checkpoint*: `none` (Status: `unseen`)
-  - *Immediate Next Teaching Action*: Start foundational inquiry on TCP vs UDP
+  - *Immediate Next Teaching Action*: Review delivered lesson artifact (0-1-http-1-1-vs-http-2-vs-http-3.html) and engage in Socratic dialectic defense via /sds-discuss
 
 ---
 
@@ -44,8 +44,8 @@
 
 - [x] **TCP vs UDP** (`topic.0.1.tcp-vs-udp`)
 - [x] **HTTP/1.1 vs HTTP/2 vs HTTP/3** (`topic.0.1.http-1-1-vs-http-2-vs-http-3`)
-- [ ] **CURRENT** ➔ **TLS handshake cost and session resumption** (`topic.0.1.tls-handshake-cost-and-session-resumptio`)
-- [ ] **REST vs gRPC vs GraphQL** (`topic.0.1.rest-vs-grpc-vs-graphql`)
+- [x] **TLS handshake cost and session resumption** (`topic.0.1.tls-handshake-cost-and-session-resumptio`)
+- [ ] **CURRENT** ➔ **REST vs gRPC vs GraphQL** (`topic.0.1.rest-vs-grpc-vs-graphql`)
 - [ ] **Polling vs long-polling vs SSE vs WebSocket** (`topic.0.1.polling-vs-long-polling-vs-sse-vs-websoc`)
 - [ ] **Pagination: offset vs cursor/keyset** (`topic.0.1.pagination-offset-vs-cursor-keyset`)
 - [ ] **Idempotency** (`topic.0.1.idempotency`)
@@ -53,4 +53,4 @@
 
 ---
 
-## Progress Overview: 2 / 114 Topics (1.8%)
+## Progress Overview: 3 / 114 Topics (2.6%)
