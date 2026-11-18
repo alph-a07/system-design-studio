@@ -1,0 +1,752 @@
+{
+  "$schemaVersion": "3.2",
+  "instanceName": "System Design Dummy Lab",
+  "createdAt": "2026-11-18T18:21:10.225287+00:00",
+  "lastUpdated": "2026-11-18T18:21:45.390488+00:00",
+  "curriculum": {
+    "id": "curriculum.system-design-dummy-lab",
+    "title": "System Design Dummy Lab",
+    "source": "project-scoped-track",
+    "sourceRef": ".system-design/CURRICULUM.md",
+    "activeClusterId": "cluster.0.1",
+    "activeTopicId": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
+    "clusters": [
+      {
+        "id": "cluster.0.1",
+        "code": "0.1",
+        "title": "1. [0.1] APIs & Network Transport for Design",
+        "order": 1,
+        "tierId": "tier.0",
+        "topics": [
+          {
+            "id": "topic.0.1.tcp-vs-udp",
+            "title": "TCP vs UDP",
+            "status": "completed"
+          },
+          {
+            "id": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
+            "title": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.1.tls-handshake-cost-and-session-resumptio",
+            "title": "TLS handshake cost and session resumption",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.1.rest-vs-grpc-vs-graphql",
+            "title": "REST vs gRPC vs GraphQL",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.1.polling-vs-long-polling-vs-sse-vs-websoc",
+            "title": "Polling vs long-polling vs SSE vs WebSocket",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.1.pagination-offset-vs-cursor-keyset",
+            "title": "Pagination: offset vs cursor/keyset",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.1.idempotency",
+            "title": "Idempotency",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.1.api-versioning-and-backward-compatibilit",
+            "title": "API versioning and backward compatibility",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.0.2",
+        "code": "0.2",
+        "title": "2. [0.2] Databases: Indexes, Transactions & Isolation",
+        "order": 2,
+        "tierId": "tier.0",
+        "topics": [
+          {
+            "id": "topic.0.2.b-tree-index",
+            "title": "B-tree index",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.lsm-tree",
+            "title": "LSM tree",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.composite-indexes",
+            "title": "Composite indexes",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.reading-a-query-plan",
+            "title": "Reading a query plan",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.acid",
+            "title": "ACID",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.isolation-levels",
+            "title": "Isolation levels",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.optimistic-vs-pessimistic-concurrency-co",
+            "title": "Optimistic vs pessimistic concurrency control; version columns; lost updates",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.normalization-vs-denormalization",
+            "title": "Normalization vs denormalization",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.2.sql-vs-nosql",
+            "title": "SQL vs NoSQL",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.0.3",
+        "code": "0.3",
+        "title": "3. [0.3] Caching Fundamentals",
+        "order": 3,
+        "tierId": "tier.0",
+        "topics": [
+          {
+            "id": "topic.0.3.cache-aside-vs-read-through-vs-write-thr",
+            "title": "Cache-aside vs read-through vs write-through vs write-back vs write-around",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.3.eviction",
+            "title": "Eviction",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.3.invalidation",
+            "title": "Invalidation",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.3.cache-stampede-thundering-herd",
+            "title": "Cache stampede / thundering herd",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.3.cache-penetration-nonexistent-keys",
+            "title": "Cache penetration (nonexistent keys)",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.3.http-caching",
+            "title": "HTTP caching",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.3.cdn-basics",
+            "title": "CDN basics",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.0.4",
+        "code": "0.4",
+        "title": "4. [0.4] Queues, Async Messaging & Delivery Semantics",
+        "order": 4,
+        "tierId": "tier.0",
+        "topics": [
+          {
+            "id": "topic.0.4.queue-competing-consumers-vs-pub-sub-fan",
+            "title": "Queue (competing consumers) vs pub/sub (fan-out)",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.4.at-most-once-vs-at-least-once-vs-exactly",
+            "title": "At-most-once vs at-least-once vs exactly-once",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.4.acknowledgement-visibility-timeout-redel",
+            "title": "Acknowledgement, visibility timeout, redelivery, poison messages, dead-letter queues",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.4.ordering-guarantees",
+            "title": "Ordering guarantees",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.4.backpressure",
+            "title": "Backpressure",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.4.why-async-at-all",
+            "title": "Why async at all",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.4.outbox-pattern-concept-level",
+            "title": "Outbox pattern (concept level)",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.0.5",
+        "code": "0.5",
+        "title": "5. [0.5] Estimation, Latency Numbers & Availability Math",
+        "order": 5,
+        "tierId": "tier.0",
+        "topics": [
+          {
+            "id": "topic.0.5.latency-orders-of-magnitude",
+            "title": "Latency orders of magnitude",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.5.back-of-envelope-method",
+            "title": "Back-of-envelope method",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.5.powers-of-two-and-rounding-discipline",
+            "title": "Powers of two and rounding discipline",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.5.availability-nines",
+            "title": "Availability nines",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.5.sli-slo-sla-error-budget",
+            "title": "SLI / SLO / SLA / error budget",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.0.5.throughput-vs-latency-percentiles-p50-p9",
+            "title": "Throughput vs latency; percentiles (p50/p95/p99); tail-latency amplification under fan-out",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.1.1",
+        "code": "1.1",
+        "title": "6. [1.1] From Requirements to Model: Entities, Invariants & Ownership",
+        "order": 6,
+        "tierId": "tier.1",
+        "topics": [
+          {
+            "id": "topic.1.1.extract-nouns-and-verbs-then-separate-re",
+            "title": "Extract nouns and verbs, then separate real entities from attributes and from behaviors",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.1.value-object-vs-entity",
+            "title": "Value object vs entity",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.1.invariants",
+            "title": "Invariants",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.1.aggregate-boundary",
+            "title": "Aggregate boundary",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.1.state-ownership",
+            "title": "State ownership",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.1.make-illegal-states-unrepresentable",
+            "title": "Make illegal states unrepresentable",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.1.clarifying-questions-before-modeling",
+            "title": "Clarifying questions before modeling",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.1.2",
+        "code": "1.2",
+        "title": "7. [1.2] Designing for Change: Cohesion, Coupling & Variation Points",
+        "order": 7,
+        "tierId": "tier.1",
+        "topics": [
+          {
+            "id": "topic.1.2.cohesion-and-coupling",
+            "title": "Cohesion and coupling",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.2.find-the-axis-of-change-first-and-abstra",
+            "title": "Find the axis of change first and abstract only what varies",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.2.composition-over-inheritance-as-a-defaul",
+            "title": "Composition over inheritance as a default",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.2.depend-on-abstractions-at-boundaries-you",
+            "title": "Depend on abstractions at boundaries you own, on concretes inside a module",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.2.dependency-direction-and-layering",
+            "title": "Dependency direction and layering",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.2.law-of-demeter-and-tell-don-t-ask-as-cou",
+            "title": "Law of Demeter and tell-don't-ask as coupling reducers",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.2.over-engineering-signals",
+            "title": "Over-engineering signals",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.1.3",
+        "code": "1.3",
+        "title": "8. [1.3] Patterns in Context I: Choosing by Problem Shape",
+        "order": 8,
+        "tierId": "tier.1",
+        "topics": [
+          {
+            "id": "topic.1.3.strategy",
+            "title": "Strategy",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.3.state",
+            "title": "State",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.3.observer-in-process-pub-sub",
+            "title": "Observer / in-process pub-sub",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.3.command",
+            "title": "Command",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.3.decorator",
+            "title": "Decorator",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.3.factory-method-abstract-factory-builder",
+            "title": "Factory Method / Abstract Factory / Builder",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.1.3.for-every-pattern-the-force-that-justifi",
+            "title": "For every pattern: the force that justifies it, and the cost it adds",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.1",
+        "code": "2.1",
+        "title": "20. [2.1] Scalability Fundamentals & Load Balancing",
+        "order": 9,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.1.vertical-vs-horizontal-scaling",
+            "title": "Vertical vs horizontal scaling",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.stateless-services",
+            "title": "Stateless services",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.load-balancer-l4-vs-l7",
+            "title": "Load balancer L4 vs L7",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.algorithms",
+            "title": "Algorithms",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.health-checks-connection-draining-sticky",
+            "title": "Health checks, connection draining, sticky sessions and why they hurt",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.autoscaling-signals-lag-thrash-and-warm-",
+            "title": "Autoscaling signals, lag, thrash and warm-up",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.single-points-of-failure",
+            "title": "Single points of failure",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.1.bottleneck-analysis",
+            "title": "Bottleneck analysis",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.2",
+        "code": "2.2",
+        "title": "21. [2.2] Data Partitioning & Consistent Hashing",
+        "order": 10,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.2.why-partition",
+            "title": "Why partition",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.range-vs-hash-vs-directory-based-partiti",
+            "title": "Range vs hash vs directory-based partitioning",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.consistent-hashing-and-virtual-nodes",
+            "title": "Consistent hashing and virtual nodes",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.hot-keys-and-hot-partitions",
+            "title": "Hot keys and hot partitions",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.rebalancing-strategies",
+            "title": "Rebalancing strategies",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.secondary-indexes-in-sharded-stores",
+            "title": "Secondary indexes in sharded stores",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.cross-shard-queries-and-transactions",
+            "title": "Cross-shard queries and transactions",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.2.choosing-a-shard-key",
+            "title": "Choosing a shard key",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.3",
+        "code": "2.3",
+        "title": "22. [2.3] Replication, Consistency Models & CAP/PACELC",
+        "order": 11,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.3.leader-follower-multi-leader-leaderless",
+            "title": "Leader-follower, multi-leader, leaderless",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.sync-vs-async-replication",
+            "title": "Sync vs async replication",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.replication-lag-anomalies",
+            "title": "Replication-lag anomalies",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.quorums-w-r-n",
+            "title": "Quorums (W+R>N)",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.conflict-resolution",
+            "title": "Conflict resolution",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.consistency-spectrum",
+            "title": "Consistency spectrum",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.cap",
+            "title": "CAP",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.3.split-brain-failover-and-fencing",
+            "title": "Split brain, failover and fencing",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.4",
+        "code": "2.4",
+        "title": "23. [2.4] Distributed Coordination & Transactions",
+        "order": 12,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.4.why-distributed-transactions-are-hard",
+            "title": "Why distributed transactions are hard",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.2pc",
+            "title": "2PC",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.saga",
+            "title": "Saga",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.outbox-plus-idempotent-consumers",
+            "title": "Outbox plus idempotent consumers",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.idempotency-keys-end-to-end-deduplicatio",
+            "title": "Idempotency keys end to end; deduplication windows",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.distributed-locks",
+            "title": "Distributed locks",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.leader-election-and-consensus-at-concept",
+            "title": "Leader election and consensus at concept level",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.4.time",
+            "title": "Time",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.5",
+        "code": "2.5",
+        "title": "24. [2.5] Storage Engines & Choosing the Right Database",
+        "order": 13,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.5.b-tree-vs-lsm-in-practice",
+            "title": "B-tree vs LSM in practice",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.row-vs-columnar",
+            "title": "Row vs columnar",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.key-value-document-wide-column-relationa",
+            "title": "Key-value, document, wide-column, relational, graph, time-series, search",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.query-first-modeling-dynamodb-cassandra-",
+            "title": "Query-first modeling (DynamoDB/Cassandra) vs entity-first modeling (relational)",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.polyglot-persistence",
+            "title": "Polyglot persistence",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.blob-object-storage",
+            "title": "Blob/object storage",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.choosing-by-consistency-need-query-shape",
+            "title": "Choosing by consistency need, query shapes, scale, ops cost, team skill",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.5.schema-evolution-at-scale",
+            "title": "Schema evolution at scale",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.7",
+        "code": "2.7",
+        "title": "26. [2.7] Messaging, Streaming & Event-Driven Design",
+        "order": 14,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.7.kafka-model",
+            "title": "Kafka model",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.ordering",
+            "title": "Ordering",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.delivery-semantics",
+            "title": "Delivery semantics",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.consumer-lag-rebalancing-poison-messages",
+            "title": "Consumer lag, rebalancing, poison messages, replay",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.event-sourcing",
+            "title": "Event sourcing",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.cqrs",
+            "title": "CQRS",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.change-data-capture",
+            "title": "Change data capture",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.7.stream-vs-batch-processing-windowing-and",
+            "title": "Stream vs batch processing; windowing and late data at concept level",
+            "status": "unseen"
+          }
+        ]
+      },
+      {
+        "id": "cluster.2.10",
+        "code": "2.10",
+        "title": "29. [2.10] Security & Identity in System Design",
+        "order": 15,
+        "tierId": "tier.2",
+        "topics": [
+          {
+            "id": "topic.2.10.authn-vs-authz",
+            "title": "AuthN vs AuthZ",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.oauth2-and-oidc",
+            "title": "OAuth2 and OIDC",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.sessions-vs-jwts",
+            "title": "Sessions vs JWTs",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.service-to-service-auth",
+            "title": "Service-to-service auth",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.encryption-in-transit-and-at-rest-key-ma",
+            "title": "Encryption in transit and at rest; key management; secrets handling",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.abuse-defenses",
+            "title": "Abuse defenses",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.multi-tenancy-isolation",
+            "title": "Multi-tenancy isolation",
+            "status": "unseen"
+          },
+          {
+            "id": "topic.2.10.privacy-design-inputs",
+            "title": "Privacy design inputs",
+            "status": "unseen"
+          }
+        ]
+      }
+    ]
+  },
+  "cursor": {
+    "version": 1,
+    "lastTickTimestamp": "2026-11-18T18:21:10.225287+00:00",
+    "activeClusterCode": "0.1",
+    "activeClusterName": "1. [0.1] APIs & Network Transport for Design",
+    "activeTier": "Tier 0",
+    "activeTopic": "TCP vs UDP",
+    "topicFoundationId": "foundation.0.1.http-1-1-vs-http-2-vs-http-3",
+    "topicFoundationStatus": "not-started",
+    "activeMechanismGroupId": "group.0.1.http-1-1-vs-http-2-vs-http-3",
+    "nextTeachingAction": "Start foundational inquiry on TCP vs UDP",
+    "backwardAnchor": "Track initialized via configure-curriculum.py",
+    "forwardHook": "Connect foundational invariants to TCP vs UDP"
+  },
+  "runningContext": {
+    "coveredConcepts": [
+      "concept.0.1.tcp-vs-udp"
+    ],
+    "examplesTaken": [],
+    "deferredQueue": [],
+    "causalAnchors": []
+  },
+  "evidence": [
+    {
+      "id": "evidence.0.1.tcp-vs-udp.2026-11-18",
+      "topicId": "topic.0.1.tcp-vs-udp",
+      "type": "verified-explanation",
+      "demonstratedClaim": "Defended TCP monotonic byte stream and socket buffer backpressure against HoL blocking cold in chat under 1% loss model",
+      "date": "2026-11-18"
+    }
+  ]
+}

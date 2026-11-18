@@ -1,0 +1,76 @@
+{
+  "$schemaVersion": "3.2",
+  "projectId": "dummy-lab",
+  "projectName": "System Design Dummy Lab",
+  "track": "interview-sprint",
+  "artifactStyle": "slate-clean",
+  "outputType": "html",
+  "autoGenerateNotes": true,
+  "notesStructure": "per-topic",
+  "paths": {
+    "instanceDir": ".system-design",
+    "cursorDir": ".system-design",
+    "lessonsDir": ".system-design/lessons",
+    "notesDir": "./dummy-project/notes"
+  },
+  "availableStyles": [
+    {
+      "id": "slate-clean",
+      "name": "Modern Slate (Dark Tech)",
+      "theme": "dark",
+      "description": "Deep slate background with vibrant blue/indigo accents. Modern developer IDE aesthetic."
+    },
+    {
+      "id": "editorial-paper",
+      "name": "Clean Editorial (Warm Light)",
+      "theme": "light",
+      "description": "High-readability warm paper off-white canvas with sharp typography and ink/coral accents."
+    },
+    {
+      "id": "midnight-neon",
+      "name": "Cyber Obsidian (High Contrast)",
+      "theme": "dark",
+      "description": "Pitch black obsidian canvas with electric cyan and mint neon highlights and futuristic HUD feel."
+    },
+    {
+      "id": "nordic-frost",
+      "name": "Nordic Frost (Polar Calm)",
+      "theme": "dark",
+      "description": "Arctic cool dark palette with frosty teal and snow-storm text for calm, focused study."
+    },
+    {
+      "id": "warm-amber",
+      "name": "Warm Amber (Espresso Glow)",
+      "theme": "dark",
+      "description": "Rich espresso and sepia tones with warm amber/copper accents designed for low eye fatigue."
+    }
+  ],
+  "availableNotesStructures": [
+    {
+      "id": "per-topic",
+      "name": "Per-Topic Files",
+      "description": "Individual markdown note per topic (notes/<tier>/<cluster>/<topic>.md)."
+    },
+    {
+      "id": "per-cluster",
+      "name": "Per-Cluster Files",
+      "description": "Consolidated markdown note per cluster (notes/<tier>/<cluster>.md)."
+    },
+    {
+      "id": "per-tier",
+      "name": "Per-Tier Files",
+      "description": "Consolidated markdown note per tier (notes/tier-<N>-<tier-name>.md)."
+    },
+    {
+      "id": "single-file",
+      "name": "Single Master File",
+      "description": "All notes compiled into a single master document (notes/SYSTEM-DESIGN-NOTES.md)."
+    }
+  ],
+  "deliveryMode": "strictly-artifact-first",
+  "inlineDiscussions": true,
+  "instanceDir": ".system-design",
+  "cursorDir": ".system-design",
+  "lessonsDir": ".system-design/lessons",
+  "notesDir": "./dummy-project/notes"
+}
