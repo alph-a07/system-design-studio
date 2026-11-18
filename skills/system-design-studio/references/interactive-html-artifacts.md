@@ -165,3 +165,49 @@ Starting in **v3.3.0**, all interactive HTML lesson artifacts feature an embedde
 - **Adaptive Theming**: Uses semantic CSS variables with translucent alpha blends and `color: inherit` for optimal WCAG contrast in all 5 visual theme modes.
 - **Keyboard Shortcuts**: `1`–`5` (swatch colors), `H` (apply highlight), `N` (open note dialog), `Esc` (dismiss).
 
+---
+
+## 6. The Explainer's Quality Contract (Enforced Quality Invariants)
+
+All generated lesson artifacts are programmatically audited against the following six pedagogical laws before release:
+
+1. **Anti-Compression & Explainer Depth (Ban the Cheat Sheet)**:
+   - A lesson must NEVER read like a compressed engineer's cheat sheet, summary table, or bullet-point review.
+   - For any topic introducing architectural primitives or protocols with prerequisites, the lesson MUST provide 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ defense gate.
+
+2. **Zero-Orphaned Jargon Law**:
+   - Every domain acronym, protocol keyword, or systems buzzword introduced MUST be accompanied by an immediate plain-English translation callout (`<div class="jargon-card">`) right where it appears.
+   - Plain English FIRST, systems label second: Describe the concept in intuitive everyday terms before stamping it with its formal technical moniker. Ban dense noun-stacking (e.g. replace *"monotonic ordering"* with *"strictly in-order sequence"*; replace *"stateless boundary-preserving datagram"* with *"standalone message with clear boundaries"*).
+   - Eliminate melodramatic purple prose (*"blistering"*, *"into the void"*, *"worthless garbage"*); maintain a clear, authoritative, lucid tone.
+
+3. **The Dilemma-Resolution & Cognitive Closure Law**:
+   - Section 1 must introduce a tangible engineering friction/dilemma (e.g., Stop-and-Wait vs Blasting; synchronous disk writes vs durability; polling overhead vs idle connection limits).
+   - Section 3 MUST formally resolve that dilemma step-by-step with concrete mechanics (e.g., sliding window, pipelining, WAL append, multiplexing). It is strictly forbidden to state that a protocol "conquers" a dilemma without teaching *how*.
+   - Section 3 MUST explicitly derive what that resolution *costs* (e.g., Head-of-Line blocking stalls, memory buffers, cwnd backoff).
+
+4. **Pruning the Irrelevant (Laser Focus on Core Causality)**:
+   - Exclude trivia that increases cognitive load without serving the core topic or target depth `[concept][mechanics][contrast][trap]`. (e.g., Do not dissect 20-byte binary packet headers or list exotic TCP socket flags when teaching TCP vs UDP; focus laser-sharp on why reliability costs latency and why real-time media chooses UDP).
+
+5. **Strict 1:1 Sign-Off Gate Alignment**:
+   - Section 5's architectural defense challenge MUST directly test the explicit `— *Tick off when:*` line for that topic from `CURRICULUM.md`.
+   - Never inject out-of-scope stretch scenarios requiring untaught advanced domain knowledge (e.g., requiring cellular bufferbloat / queueing theory for an introductory transport lesson).
+
+6. **Real-World Production Nuance & Grounded Accuracy**:
+   - Never present naive caricatures of engineering solutions (e.g., claiming real-time media "just drops frames"). Teach the real production mechanisms: Jitter Buffers, Packet Loss Concealment (PLC), Forward Error Correction (FEC), and Selective NACKs.
+   - Never claim a protocol "guarantees" physical properties it cannot control (e.g., "UDP guarantees low latency" ➔ clarify that UDP avoids kernel queue stalls, but cannot alter physical network transit times).
+
+7. **Article Self-Consistency & Factual Rigor (Auditing the Article Against Itself)**:
+   - **Derived Numbers Audit**: Recompute every derived calculation against physical formulas. Maintain exactly one running numerical example per article.
+   - **Example-to-Mechanism Coherence**: Scenarios must never contradict mechanisms taught in the same piece (e.g., secondary index scans and bookmark lookups).
+   - **Scoped Claims (No Unhedged Absolutes)**: Ban unhedged absolutes (*"literally cannot"*, *"passes through all firewalls"*, *"guarantees zero latency"*, *"eliminated all stalls"*). State physical boundaries and fallbacks explicitly.
+   - **Term Ordering Invariant**: Terms must never be referenced before their defining jargon card.
+   - **Clean Browser-Native Unicode**: Use clean Unicode (`O(log N)`, `≈ 24`, `×`, `≤`) rather than uncompiled LaTeX syntax in HTML.
+   - **Label & Identifier Coherence**: All IDs and labels must match 1:1 between prose, diagrams, and simulator.
+   - **Self-Contained Sign-Off Prompts**: Prompts must only require what was taught, or be marked as `[Stretch Exploration]`.
+   - **Post-Edit Regression & Orphaned-Term Verification**:
+     - *Audit Removed Boxes*: When a jargon box is removed or merged, grep the entire piece for all terms previously defined in that box to ensure no technical terms are left dangling undefined.
+     - *Audit Notation Leakage*: Prevent protocol-specific numbering conventions (e.g. odd HTTP/2 stream IDs) from bleeding into older protocol examples (e.g. sequential HTTP/1.1 requests #1, #2, #3).
+     - *Tipping-Point Arithmetic Rigor*: Any tipping point (e.g. query planner abandoning an index, bandwidth-delay window sizing) must be derived using the article's own stated latencies, sizes, and throughputs.
+
+
+

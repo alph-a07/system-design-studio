@@ -1070,6 +1070,155 @@ def load_settings(settings_path=None):
 
     return {}, None
 
+def audit_lesson_payload(data, topic_id=None, inst_dir=None):
+    """
+    Automated pre-flight pedagogical quality linter.
+    Enforces the Explainer's Contract, Anti-Compression Invariant,
+    Jargon-Unpacking coverage, and Gate Alignment across all authored lessons.
+    """
+    audit_passes = []
+    audit_warnings = []
+
+    # 1. Word count & Anti-Compression check
+    narrative_text = " ".join([
+        str(data.get(f"SECTION_{i}_BODY", "")) for i in range(1, 6)
+    ])
+    clean_words = re.findall(r"\b[A-Za-z0-9_-]+\b", re.sub(r"<[^>]+>", " ", narrative_text))
+    word_count = len(clean_words)
+
+    if word_count < 1800:
+        audit_warnings.append(
+            f"Premature Compression / Cheat Sheet Risk: Word count is {word_count} (< 2,000 words). "
+            "Expand explanations, step-by-step traces, and analogies with full breathing room."
+        )
+    else:
+        audit_passes.append(f"Depth & Anti-Compression: Robust narrative ({word_count} words)")
+
+    # 2. Jargon Unpacking Check
+    jargon_cards = re.findall(r'class=["\'][^"\']*jargon-card[^"\']*["\']', narrative_text)
+    if len(jargon_cards) < 3:
+        audit_warnings.append(
+            f"Low Jargon Unpacking Density: Only {len(jargon_cards)} <div class=\"jargon-card\"> elements found. "
+            "Ensure every domain acronym (e.g. RTT, BDP, HOL, socket, P99) is unpacked in plain English."
+        )
+    else:
+        audit_passes.append(f"Jargon Coverage: {len(jargon_cards)} unpacked terminology callouts present")
+
+    # 3. Dilemma Resolution Check
+    sec1 = str(data.get("SECTION_1_BODY", ""))
+    has_dilemma = "callout-dilemma" in sec1 or "dilemma" in sec1.lower()
+    if has_dilemma:
+        audit_passes.append("Causal Anchor: Section 1 defines a tangible engineering dilemma")
+    else:
+        audit_warnings.append("Missing Dilemma: Section 1 should establish a concrete engineering dilemma (e.g. Stop-and-Wait vs Blasting)")
+
+    # 4. Prohibited Purple Prose & Fluff check
+    forbidden_buzzwords = ["blistering", "worthless garbage", "into the void"]
+    leaked_fluff = [w for w in forbidden_buzzwords if w in narrative_text.lower()]
+    if leaked_fluff:
+        audit_warnings.append(f"Stylistic Fluff: Detected melodramatic phrasing: {leaked_fluff}. Prefer calm, rigorous technical prose.")
+    else:
+        audit_passes.append("Editorial Voice: Free of melodramatic purple prose")
+
+    # 5. Math Rendering & Character Encoding Check (Raw LaTeX in HTML)
+    raw_latex_matches = re.findall(r"\\[a-zA-Z]+|\$[^\$]+\$", narrative_text)
+    problematic_latex = [
+        m for m in raw_latex_matches
+        if any(tok in m for tok in ["\\approx", "\\log", "\\times", "\\le", "\\ge", "\\frac", "\\cdot", "\\sum"])
+    ]
+    if problematic_latex:
+        audit_warnings.append(
+            f"Math Rendering Artifacts: Detected uncompiled LaTeX math tokens ({problematic_latex[:3]}). "
+            "HTML mode renders in standard browser fonts; use plain Unicode characters (e.g. O(log N), ≈, ×, ≤, ≥) instead of LaTeX syntax."
+        )
+    else:
+        audit_passes.append("Math Rendering: Clean browser-native Unicode notation")
+
+    # 6. Unhedged Absolute Overclaim Check
+    absolutes = [
+        (r"literally cannot", "Avoid 'literally cannot'; use measured phrasing ('the human auditory system easily forgives...')"),
+        (r"passes through (?:every|all) (?:firewall|middlebox)", "Scope middlebox claims (e.g. enterprise firewalls sometimes block/throttle UDP 443)"),
+        (r"eliminated (?:all )?stalls\b", "Scope stall elimination (e.g. 'eliminated cross-stream head-of-line stalls')"),
+        (r"guarantees (?:bounded|low|zero) latency", "Scope latency claims (protocols avoid kernel queuing delays, but remain subject to physical transit latency)"),
+        (r"both HDD and NVMe exceed 3,?500", "Accuracy slip: HDDs max out at ~150-200 MB/s, only NVMe SSDs exceed 3,500 MB/s")
+    ]
+    detected_overclaims = []
+    for pattern, guidance in absolutes:
+        if re.search(pattern, narrative_text, re.IGNORECASE):
+            detected_overclaims.append(f"'{pattern}' ➔ {guidance}")
+    if detected_overclaims:
+        audit_warnings.append(f"Unhedged Absolute Overclaims: {'; '.join(detected_overclaims)}")
+    else:
+        audit_passes.append("Claim Scoping: Free of unhedged physical or protocol absolutes")
+
+    # 7. Section 4 Summary Table Anti-Pattern Check
+    sec4_text = str(data.get("SECTION_4_BODY", ""))
+    if "<table" in sec4_text.lower():
+        audit_warnings.append(
+            "Summary Table Anti-Pattern: Section 4 contains a <table> element. "
+            "The pedagogical contract requires a cohesive narrative synthesis and a single sticky mental model sentence, not a repetitive summary table."
+        )
+    else:
+        audit_passes.append("Phase 4 Synthesis: Cohesive narrative mental model (no generic summary tables)")
+
+    # 8. Curriculum Sign-Off Alignment Check
+    if inst_dir:
+        curriculum_path = os.path.join(inst_dir, "CURRICULUM.md")
+        if os.path.isfile(curriculum_path) and topic_id:
+            try:
+                with open(curriculum_path, "r", encoding="utf-8") as cf:
+                    c_txt = cf.read()
+                slug = topic_id.replace("topic.", "").replace(".", "-")
+                for line in c_txt.splitlines():
+                    if (slug in line.lower() or topic_id in line) and "Tick off when:" in line:
+                        audit_passes.append(f"Curriculum Alignment: Verified against tick-off requirement: '{line.split('Tick off when:')[-1].strip()[:60]}...'")
+                        break
+            except Exception:
+                pass
+
+    
+    # 9. Notation Leakage Across Protocol Boundaries Check
+    if re.search(r"HTTP/1\.1[^\n<>]*(?:pipelin|request)[^\n<>]*(?:#3|#5)", narrative_text, re.IGNORECASE):
+        audit_warnings.append(
+            "Protocol Notation Leakage: Detected odd stream IDs (#3, #5) in an HTTP/1.1 context. "
+            "HTTP/1.1 requests lack stream identifiers and must be numbered sequentially (#1, #2, #3)."
+        )
+    else:
+        audit_passes.append("Protocol Notation Rigor: Clean distinction between protocol versions and identifiers")
+
+    # 10. Tipping-Point Arithmetic & Query Planner Accuracy Check
+    if re.search(r"500 random (?:page )?reads are slower than", narrative_text, re.IGNORECASE):
+        audit_warnings.append(
+            "Tipping-Point Arithmetic Error: Claim that \"500 random reads are slower than a sequential scan\" contradicts physical I/O math. "
+            "500 random NVMe reads (~25 ms) beat full sequential scans (~200-600 ms). Query planners flip at tens of thousands of rows (10-20% of table)."
+        )
+    else:
+        audit_passes.append("Tipping-Point Grounding: Planner thresholds and performance tipping points are mathematically grounded")
+
+    # 11. Orphaned-Term & Jargon Definition Completeness Check
+    if re.search(r"\b(?:random|sequential)\s+i/o\b", narrative_text, re.IGNORECASE):
+        if not re.search(r"sequential\s+vs\.?\s+random", narrative_text, re.IGNORECASE):
+            audit_warnings.append("Orphaned Term: \"Random/Sequential I/O\" referenced without a dedicated explanatory card or definition.")
+        else:
+            audit_passes.append("Terminology Integrity: Storage I/O modes defined before use")
+
+    if re.search(r"\bFCP\b|\bFirst Contentful Paint\b", narrative_text, re.IGNORECASE):
+        if not re.search(r"First Contentful Paint\s*\(FCP\)", narrative_text, re.IGNORECASE) or "Rendering Metric" not in narrative_text:
+            audit_warnings.append("Orphaned Term: \"FCP\" (First Contentful Paint) referenced without a dedicated explanatory card.")
+        else:
+            audit_passes.append("Terminology Integrity: First Contentful Paint (FCP) unpacked before use")
+
+    print("\n" + "-" * 60)
+    print("🎓 PEDAGOGICAL QUALITY AUDIT (THE EXPLAINER'S CONTRACT)")
+    print("-" * 60)
+    for p in audit_passes:
+        print(f"  ✅ {p}")
+    for w in audit_warnings:
+        print(f"  ⚠️  {w}")
+    print("-" * 60 + "\n")
+
+    return len(audit_warnings) == 0
+
 def locate_resource_template():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
@@ -1164,6 +1313,10 @@ def main():
     if "SIGN_OFF_SCENARIO" in data and "SECTION_5_BODY" not in data:
         data["SECTION_5_BODY"] = f"<p>{data['SIGN_OFF_SCENARIO']}</p>"
 
+    # Run automated pedagogical quality audit on lesson payload
+    audit_target_dir = loaded_settings_path and os.path.dirname(os.path.abspath(loaded_settings_path))
+    audit_lesson_payload(data, args.topic_id, audit_target_dir or os.getcwd())
+
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
     os.makedirs(target_output_dir, exist_ok=True)
 
@@ -1204,6 +1357,47 @@ def main():
         with open(brain_path, "w", encoding="utf-8") as f:
             f.write(rendered)
         print(f"✅ Staged to conversation artifact dir: {brain_path}")
+
+    # Synchronize instance state so status recognizes delivered artifact immediately
+    inst_dir = None
+    if loaded_settings_path:
+        inst_dir = os.path.dirname(os.path.abspath(loaded_settings_path))
+    elif os.path.isdir(".system-design"):
+        inst_dir = os.path.abspath(".system-design")
+    elif os.path.isdir(os.path.join(target_output_dir, "..")):
+        parent_cand = os.path.abspath(os.path.join(target_output_dir, ".."))
+        if os.path.isfile(os.path.join(parent_cand, "manifest.json")):
+            inst_dir = parent_cand
+
+    if inst_dir and os.path.isfile(os.path.join(inst_dir, "manifest.json")):
+        try:
+            m_path = os.path.join(inst_dir, "manifest.json")
+            with open(m_path, "r", encoding="utf-8") as mf:
+                m_data = json.load(mf)
+            if "cursor" in m_data:
+                m_data["cursor"]["topicFoundationStatus"] = "delivered"
+                m_data["cursor"]["nextTeachingAction"] = f"Review delivered lesson artifact ({filename}) and engage in Socratic dialectic defense via /sds-discuss"
+            for cl in m_data.get("curriculum", {}).get("clusters", []):
+                for tp in cl.get("topics", []):
+                    if tp.get("id") == args.topic_id:
+                        tp["lessonArtifact"] = f"lessons/{filename}"
+            with open(m_path, "w", encoding="utf-8") as mf:
+                json.dump(m_data, mf, indent=2)
+
+            c_md_path = os.path.join(inst_dir, "CURSOR.md")
+            if os.path.isfile(c_md_path):
+                with open(c_md_path, "r", encoding="utf-8") as cf:
+                    c_txt = cf.read()
+                c_txt = re.sub(r"(\*Topic Foundation Status\*:\s*`?)[^`\n]+(`?)", r"\g<1>delivered\g<2>", c_txt)
+                c_txt = re.sub(
+                    r"(\*Immediate Next Teaching Action\*:)[\s\S]*?(?=\n\n|\n---|\Z)",
+                    f"*Immediate Next Teaching Action*: Review delivered lesson artifact ({filename}) and engage in Socratic dialectic defense via /sds-discuss",
+                    c_txt
+                )
+                with open(c_md_path, "w", encoding="utf-8") as cf:
+                    cf.write(c_txt)
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     main()

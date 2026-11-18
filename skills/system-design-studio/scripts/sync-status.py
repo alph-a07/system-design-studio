@@ -129,6 +129,61 @@ def main():
     else:
         lessons_dir = os.path.join(instance_dir, "lessons")
 
+    # Inspect if a lesson artifact has already been generated/delivered for the active topic
+    slug = active_topic_id.replace("topic.", "").replace(".", "-") if active_topic_id else ""
+    artifact_found = None
+    if slug and os.path.isdir(lessons_dir):
+        for ext in [".html", ".md"]:
+            cand = os.path.join(lessons_dir, f"{slug}{ext}")
+            if os.path.isfile(cand):
+                artifact_found = cand
+                break
+
+    # If artifact exists and topic is not yet completed, synchronize cursor state
+    if artifact_found and active_topic and active_topic.get("status") != "completed":
+        rel_art = os.path.relpath(artifact_found, base_dir) if base_dir else os.path.basename(artifact_found)
+        manifest_changed = False
+        if cursor.get("topicFoundationStatus") != "delivered":
+            cursor["topicFoundationStatus"] = "delivered"
+            manifest_changed = True
+
+        expected_action = f"Review delivered lesson artifact ({os.path.basename(artifact_found)}) and engage in Socratic dialectic defense via /sds-discuss"
+        if cursor.get("nextTeachingAction") != expected_action:
+            cursor["nextTeachingAction"] = expected_action
+            manifest_changed = True
+
+        if active_topic.get("lessonArtifact") != f"lessons/{os.path.basename(artifact_found)}":
+            active_topic["lessonArtifact"] = f"lessons/{os.path.basename(artifact_found)}"
+            manifest_changed = True
+
+        if manifest_changed:
+            try:
+                with open(manifest_path, "w", encoding="utf-8") as mf:
+                    json.dump(m, mf, indent=2)
+            except Exception:
+                pass
+
+        # Ensure CURSOR.md is synchronized with delivered artifact state
+        if os.path.isfile(cursor_path):
+            try:
+                with open(cursor_path, "r", encoding="utf-8") as cf:
+                    c_text = cf.read()
+                if "*Topic Foundation Status*: `delivered`" not in c_text and "*Topic Foundation Status*: delivered" not in c_text:
+                    c_text = re.sub(
+                        r"(\*Topic Foundation Status\*:\s*`?)[^`\n]+(`?)",
+                        r"\g<1>delivered\g<2>",
+                        c_text
+                    )
+                    c_text = re.sub(
+                        r"(\*Immediate Next Teaching Action\*:)[\s\S]*?(?=\n\n|\n---|\Z)",
+                        f"*Immediate Next Teaching Action*: {expected_action}",
+                        c_text
+                    )
+                    with open(cursor_path, "w", encoding="utf-8") as cf:
+                        cf.write(c_text)
+            except Exception:
+                pass
+
     print(f"Artifact Style:  {style_val}")
     print(f"Cursor Path:     {cursor_path}")
     print(f"Lessons Dir:     {lessons_dir}/")
@@ -136,6 +191,8 @@ def main():
     print(f"Active Cluster:  {active_cluster.get('title', active_cluster_id) if active_cluster else active_cluster_id}")
     print(f"Active Topic:    {active_topic.get('title', active_topic_id) if active_topic else active_topic_id}")
     print(f"Foundation:      {cursor.get('topicFoundationStatus', 'unknown')}")
+    if artifact_found:
+        print(f"Lesson Artifact: {os.path.basename(artifact_found)} (Delivered · Ready for /sds-discuss)")
     print(f"Mechanism Group: {cursor.get('activeMechanismGroupId', 'none')}")
     print("-" * 60)
     print(f"Examples Logged: {len(rc.get('examplesTaken', []))}")

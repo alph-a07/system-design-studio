@@ -3,7 +3,7 @@ name: sds-status
 description: Check current progress, active topic, cognitive focus, and learning statistics in System Design Studio.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.3.0
+  version: 3.3.1
 ---
 
 # /sds-status
@@ -24,4 +24,7 @@ Check current progress, active topic, cognitive focus, and learning statistics f
    - Active Topic ID & Title
    - Current Progress Percentage across active curriculum track
    - Lineage anchors and verified physical invariants
-   - Next pedagogical action
+   - **Artifact Status**: Check if a lesson artifact (`.system-design/lessons/<slug>.<ext>`) exists for the active topic. If delivered and pending discussion, explicitly report: `Delivered — pending review & dialectic defense` and provide a clickable link to the lesson.
+   - **Next pedagogical action**:
+     - If an artifact is delivered and awaiting defense: Prompt the user to review the lesson and engage in dialectic defense via `/sds-discuss` (or provide their defense directly in chat). **DO NOT** prompt for `/sds-teach` when an artifact is already delivered.
+     - Only if no artifact exists: Prompt the user to run `/sds-teach` to deliver the foundational lesson.
