@@ -2,7 +2,7 @@
   "$schemaVersion": "3.2",
   "instanceName": "System Design Dummy Lab",
   "createdAt": "2026-11-18T18:21:10.225287+00:00",
-  "lastUpdated": "2026-11-18T18:22:03.595695+00:00",
+  "lastUpdated": "2026-11-18T20:26:54.836895+00:00",
   "curriculum": {
     "id": "curriculum.system-design-dummy-lab",
     "title": "System Design Dummy Lab",
@@ -21,7 +21,8 @@
           {
             "id": "topic.0.1.tcp-vs-udp",
             "title": "TCP vs UDP",
-            "status": "completed"
+            "status": "completed",
+            "lessonArtifact": "lessons/0-1-tcp-vs-udp.md"
           },
           {
             "id": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
@@ -728,7 +729,7 @@
     "topicFoundationId": "foundation.0.1.tls-handshake-cost-and-session-resumptio",
     "topicFoundationStatus": "not-started",
     "activeMechanismGroupId": "group.0.1.tls-handshake-cost-and-session-resumptio",
-    "nextTeachingAction": "Start foundational inquiry on TCP vs UDP",
+    "nextTeachingAction": "Review delivered lesson artifact (0-1-tcp-vs-udp.md) and engage in Socratic dialectic defense via /sds-discuss",
     "backwardAnchor": "Track initialized via configure-curriculum.py",
     "forwardHook": "Connect foundational invariants to TCP vs UDP"
   },

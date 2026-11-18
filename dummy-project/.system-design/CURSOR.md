@@ -15,7 +15,7 @@
   - *Topic Foundation Status*: `not-started`
   - *Active Mechanism Group*: `group.0.1.tls-handshake-cost-and-session-resumptio`
   - *Last Checkpoint*: `none` (Status: `unseen`)
-  - *Immediate Next Teaching Action*: Start foundational inquiry on TCP vs UDP
+  - *Immediate Next Teaching Action*: Review delivered lesson artifact (0-1-tcp-vs-udp.md) and engage in Socratic dialectic defense via /sds-discuss
 
 ---
 

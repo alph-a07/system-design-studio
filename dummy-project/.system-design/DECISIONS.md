@@ -44,3 +44,25 @@ Analyzed packet loss curves: at 2% loss HTTP/1.1 with 6 parallel connections act
 
 ---
 
+## ADR-003: HTTP/1.1 vs HTTP/2 vs HTTP/3 Architectural Defense
+- **Date**: 2026-11-19
+- **Cluster**: 1. [0.1] APIs & Network Transport for Design (`0.1`)
+- **Topic ID**: `topic.0.1.http-1-1-vs-http-2-vs-http-3`
+- **Status**: Accepted (Verified Sign-Off Gate)
+
+### Context & Problem Statement
+Evaluating architectural choices under physical network/hardware boundaries, uncoordinated failure modes, and latency floors.
+- **Initial Hypothesis**: Assumed naive architectural approach prior to stress testing failure boundaries.
+
+### Invariant Claim & Decision
+> Verified cold in chat defense without notes.
+
+### Trade-Off Discussion & Defense Summary
+Learner evaluated physical failure modes and quantitative boundaries during defense gate.
+
+### Consequences & Non-Negotiable Invariants
+- **Guaranteed (Gain)**: Verified operational ordering, bounded blast radius, and deterministic recovery.
+- **Non-Guarantee (Tax)**: Coordination overhead, queueing jitter under packet loss, and protocol complexity.
+
+---
+
