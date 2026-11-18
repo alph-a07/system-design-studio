@@ -9,7 +9,7 @@ description: >-
   systems, architect backend or mobile infrastructure, advance through the system design curriculum, or inspect learning progress.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex, Gemini CLI)
 metadata:
-  version: 3.2.0
+  version: 3.3.0
   author: Jeel Patel
   license: MIT
 ---

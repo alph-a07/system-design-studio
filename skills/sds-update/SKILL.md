@@ -3,7 +3,7 @@ name: sds-update
 description: Check on-demand for System Design Studio updates without background telemetry.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.2.0
+  version: 3.3.0
 ---
 
 # /sds-update

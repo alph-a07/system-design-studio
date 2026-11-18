@@ -3,7 +3,7 @@ name: sds-dashboard
 description: Launch or view the read-only curriculum progress tracker, interactive lessons, and styled study notes on localhost in sync with Git.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.2.0
+  version: 3.3.0
 ---
 
 # /sds-dashboard

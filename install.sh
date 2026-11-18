@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Universal Agent Skill Installer (v3.2)
+# System Design Studio — Universal Agent Skill Installer (v3.3)
 # Configures global studio preferences (~/.system-design-studio/config.json)
 # and installs skill packages across AI coding agents (Antigravity, Claude, Cursor, Codex).
 # Compatible with macOS, Linux, BSD, and Windows (Git Bash/WSL).

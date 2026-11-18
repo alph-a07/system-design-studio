@@ -147,3 +147,21 @@ Every interactive lesson artifact is structured as **one continuous, cohesive di
 5. **Phase 5: Contextual Sign-Off Verification Gate**:
    - Leaves the reader with one or more contextual engineering scenarios / challenges without pre-baked answers.
    - Tests the unprompted tick-off criteria from `CURRICULUM.md`. The learner defends their analysis and breakdown in chat to achieve sign-off.
+
+---
+
+## 5. Built-in Active Reading Highlighter & Annotation Tool
+
+Starting in **v3.3.0**, all interactive HTML lesson artifacts feature an embedded, non-destructive **Highlighter & Annotation Tool**:
+
+### Architecture & Capabilities:
+- **Zero Configuration**: Embedded directly into the artifact shell; runs automatically without manual setup or dependencies.
+- **Atomic Block Slicing Engine**: Highlighting never breaks HTML layout, drops text, or displaces formatting tags (`<strong>`, `<em>`, `<code>`). Selections spanning across paragraphs, inline tags, or tables slice cleanly per block.
+- **Dual-Layer Zero-Latency Persistence**:
+  1. **Primary Layer**: Synchronous `localStorage` cache guarantees 0ms instantaneous restoration on page reloads with zero flicker.
+  2. **Secondary Layer**: Background asynchronous sync to `highlight_server.py` writes sidecar annotations to `<artifact>.highlights.json` on disk.
+- **Cohesive Group Hover**: Hovering over any segment of a multi-line or cross-tag highlight simultaneously lights up the entire highlighted passage.
+- **Click-to-Annotate**: Click any highlight to view, add, edit, or delete notes.
+- **Adaptive Theming**: Uses semantic CSS variables with translucent alpha blends and `color: inherit` for optimal WCAG contrast in all 5 visual theme modes.
+- **Keyboard Shortcuts**: `1`–`5` (swatch colors), `H` (apply highlight), `N` (open note dialog), `Esc` (dismiss).
+

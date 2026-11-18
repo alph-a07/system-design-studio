@@ -3,7 +3,7 @@ name: sds-curriculum
 description: Inspect, customize, or reorder curriculum tracks or import BYO syllabus in System Design Studio.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.2.0
+  version: 3.3.0
 ---
 
 # /sds-curriculum

@@ -4,7 +4,7 @@ description: Verify defense against unannounced gate, sign off topic, record dec
 argument-hint: "[evidence]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.2.0
+  version: 3.3.0
 ---
 
 # /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis
