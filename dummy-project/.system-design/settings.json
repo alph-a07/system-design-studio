@@ -3,7 +3,7 @@
   "projectId": "dummy-lab",
   "projectName": "System Design Dummy Lab",
   "track": "interview-sprint",
-  "artifactStyle": "slate-clean",
+  "artifactStyle": "editorial",
   "outputType": "html",
   "autoGenerateNotes": true,
   "notesStructure": "per-topic",

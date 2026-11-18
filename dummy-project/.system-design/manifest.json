@@ -2,7 +2,7 @@
   "$schemaVersion": "3.2",
   "instanceName": "System Design Dummy Lab",
   "createdAt": "2026-11-18T18:21:10.225287+00:00",
-  "lastUpdated": "2026-11-18T20:26:54.836895+00:00",
+  "lastUpdated": "2026-11-18T20:47:53.401020+00:00",
   "curriculum": {
     "id": "curriculum.system-design-dummy-lab",
     "title": "System Design Dummy Lab",
@@ -22,12 +22,13 @@
             "id": "topic.0.1.tcp-vs-udp",
             "title": "TCP vs UDP",
             "status": "completed",
-            "lessonArtifact": "lessons/0-1-tcp-vs-udp.md"
+            "lessonArtifact": "lessons/0-1-tcp-vs-udp.html"
           },
           {
             "id": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
             "title": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
-            "status": "completed"
+            "status": "completed",
+            "lessonArtifact": "lessons/0-1-http-1-1-vs-http-2-vs-http-3.html"
           },
           {
             "id": "topic.0.1.tls-handshake-cost-and-session-resumptio",
