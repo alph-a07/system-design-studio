@@ -11,7 +11,7 @@
     "instanceDir": ".system-design",
     "cursorDir": ".system-design",
     "lessonsDir": ".system-design/lessons",
-    "notesDir": "./dummy-project/notes"
+    "notesDir": "notes"
   },
   "availableStyles": [
     {

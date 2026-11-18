@@ -2,14 +2,14 @@
   "$schemaVersion": "3.2",
   "instanceName": "System Design Dummy Lab",
   "createdAt": "2026-11-18T18:21:10.225287+00:00",
-  "lastUpdated": "2026-11-18T18:21:45.390488+00:00",
+  "lastUpdated": "2026-11-18T18:22:03.595695+00:00",
   "curriculum": {
     "id": "curriculum.system-design-dummy-lab",
     "title": "System Design Dummy Lab",
     "source": "project-scoped-track",
     "sourceRef": ".system-design/CURRICULUM.md",
     "activeClusterId": "cluster.0.1",
-    "activeTopicId": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
+    "activeTopicId": "topic.0.1.tls-handshake-cost-and-session-resumptio",
     "clusters": [
       {
         "id": "cluster.0.1",
@@ -26,7 +26,7 @@
           {
             "id": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
             "title": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
-            "status": "unseen"
+            "status": "completed"
           },
           {
             "id": "topic.0.1.tls-handshake-cost-and-session-resumptio",
@@ -725,16 +725,17 @@
     "activeClusterName": "1. [0.1] APIs & Network Transport for Design",
     "activeTier": "Tier 0",
     "activeTopic": "TCP vs UDP",
-    "topicFoundationId": "foundation.0.1.http-1-1-vs-http-2-vs-http-3",
+    "topicFoundationId": "foundation.0.1.tls-handshake-cost-and-session-resumptio",
     "topicFoundationStatus": "not-started",
-    "activeMechanismGroupId": "group.0.1.http-1-1-vs-http-2-vs-http-3",
+    "activeMechanismGroupId": "group.0.1.tls-handshake-cost-and-session-resumptio",
     "nextTeachingAction": "Start foundational inquiry on TCP vs UDP",
     "backwardAnchor": "Track initialized via configure-curriculum.py",
     "forwardHook": "Connect foundational invariants to TCP vs UDP"
   },
   "runningContext": {
     "coveredConcepts": [
-      "concept.0.1.tcp-vs-udp"
+      "concept.0.1.tcp-vs-udp",
+      "concept.0.1.http-1-1-vs-http-2-vs-http-3"
     ],
     "examplesTaken": [],
     "deferredQueue": [],
@@ -746,6 +747,13 @@
       "topicId": "topic.0.1.tcp-vs-udp",
       "type": "verified-explanation",
       "demonstratedClaim": "Defended TCP monotonic byte stream and socket buffer backpressure against HoL blocking cold in chat under 1% loss model",
+      "date": "2026-11-18"
+    },
+    {
+      "id": "evidence.0.1.http-1-1-vs-http-2-vs-http-3.2026-11-18",
+      "topicId": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
+      "type": "verified-explanation",
+      "demonstratedClaim": "Derived TCP-level head-of-line blocking in HTTP/2 single connection multiplexing; verified QUIC independent stream frames over UDP cold in chat",
       "date": "2026-11-18"
     }
   ]

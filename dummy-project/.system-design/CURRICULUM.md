@@ -14,7 +14,7 @@
 ### Atomic Topics∂
 
 - [x]  TCP vs UDP — what reliability costs, and why real-time media often picks UDP — *Tick off when: you can explain this out loud, unprompted, in your own words, including why it exists and what it costs.*
-- [ ]  HTTP/1.1 vs HTTP/2 vs HTTP/3 — where head-of-line blocking lives at each layer and why QUIC moved to UDP — *Tick off when: you can explain this out loud, unprompted, in your own words, including why it exists and what it costs.*
+- [x]  HTTP/1.1 vs HTTP/2 vs HTTP/3 — where head-of-line blocking lives at each layer and why QUIC moved to UDP — *Tick off when: you can explain this out loud, unprompted, in your own words, including why it exists and what it costs.*
 - [ ]  TLS handshake cost and session resumption — why connection reuse matters on cellular — *Tick off when: you can explain this out loud, unprompted, in your own words, including why it exists and what it costs.*
 - [ ]  REST vs gRPC vs GraphQL — payload shape, coupling, cacheability, tooling tradeoffs — *Tick off when: you can explain this out loud, unprompted, in your own words, including why it exists and what it costs.*
 - [ ]  Polling vs long-polling vs SSE vs WebSocket — connection cost vs latency — *Tick off when: you can explain this out loud, unprompted, in your own words, including why it exists and what it costs.*
