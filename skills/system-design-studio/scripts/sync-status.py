@@ -49,15 +49,6 @@ def resolve_instance_dir(raw_path=None):
     return ".system-design"
 
 def main():
-    try:
-        from pathlib import Path
-        _ensure_script = Path(__file__).resolve().parent / 'ensure-highlight-server.py'
-        if _ensure_script.is_file():
-            import subprocess, sys
-            subprocess.run([sys.executable, str(_ensure_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1.0)
-    except Exception:
-        pass
-    
     parser = argparse.ArgumentParser(description="Diagnostic tool for System Design Studio learning instances.")
     parser.add_argument("pos_instance_dir", nargs="?", default=None, help="Path to .system-design directory (positional)")
     parser.add_argument("--instance-dir", default=None, help="Path to .system-design directory")

@@ -27,12 +27,16 @@ if [ -z "$HOME_DIR" ] && [ -n "${USERPROFILE:-}" ]; then
 fi
 
 INSTANCE_DIR=".system-design"
-for arg in "$@"; do
-  case "$arg" in
+while [ $# -gt 0 ]; do
+  case "$1" in
     --instance-dir=*)
-      INSTANCE_DIR="${arg#*=}"
+      INSTANCE_DIR="${1#*=}"
+      ;;
+    --instance-dir)
+      shift; INSTANCE_DIR="$1"
       ;;
   esac
+  shift
 done
 
 # 1. Locate local source or fetch fresh archive
@@ -50,15 +54,27 @@ if [ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ]; then
   SCRIPT_DIR="$(cd "$(dirname "${SCRIPT_PATH}")" 2>/dev/null && pwd || echo "")"
 fi
 
-SOURCE_SKILL=""
+SOURCE_SKILLS_DIR=""
+SOURCE_AGENTS_DIR=""
 # If inside developer repo
-if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../../plugin.json" ] && [ -d "$SCRIPT_DIR/../../skills/$SKILL_NAME" ]; then
-  SOURCE_SKILL="$(cd "$SCRIPT_DIR/../../skills/$SKILL_NAME" && pwd)"
-elif [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../plugin.json" ] && [ -d "$SCRIPT_DIR/../skills/$SKILL_NAME" ]; then
-  SOURCE_SKILL="$(cd "$SCRIPT_DIR/../skills/$SKILL_NAME" && pwd)"
+if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/plugin.json" ] && [ -d "$SCRIPT_DIR/skills/$SKILL_NAME" ]; then
+  SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/skills" && pwd)"
+  if [ -d "$SCRIPT_DIR/agents" ]; then
+    SOURCE_AGENTS_DIR="$(cd "$SCRIPT_DIR/agents" && pwd)"
+  fi
+elif [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../../plugin.json" ] && [ -d "$SCRIPT_DIR/../../skills/$SKILL_NAME" ]; then
+  SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/../../skills" && pwd)"
+  if [ -d "$SCRIPT_DIR/../../agents" ]; then
+    SOURCE_AGENTS_DIR="$(cd "$SCRIPT_DIR/../../agents" && pwd)"
+  fi
+elif [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../../../plugin.json" ] && [ -d "$SCRIPT_DIR/../../$SKILL_NAME" ]; then
+  SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+  if [ -d "$SCRIPT_DIR/../../../agents" ]; then
+    SOURCE_AGENTS_DIR="$(cd "$SCRIPT_DIR/../../../agents" && pwd)"
+  fi
 fi
 
-if [ -z "$SOURCE_SKILL" ]; then
+if [ -z "$SOURCE_SKILLS_DIR" ]; then
   TEMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'sds-update')"
   echo "📥 Fetching latest skill release from GitHub..."
   if command -v curl >/dev/null 2>&1; then
@@ -71,8 +87,13 @@ if [ -z "$SOURCE_SKILL" ]; then
   fi
 
   tar -xzf "$TEMP_DIR/sds.tar.gz" -C "$TEMP_DIR"
-  SOURCE_SKILL="$TEMP_DIR/system-design-studio-main/skills/$SKILL_NAME"
+  SOURCE_SKILLS_DIR="$TEMP_DIR/system-design-studio-main/skills"
+  if [ -d "$TEMP_DIR/system-design-studio-main/agents" ]; then
+    SOURCE_AGENTS_DIR="$TEMP_DIR/system-design-studio-main/agents"
+  fi
 fi
+
+SOURCE_SKILL="${SOURCE_SKILLS_DIR}/${SKILL_NAME}"
 
 if [ ! -f "$SOURCE_SKILL/SKILL.md" ]; then
   echo "❌ Error: Update payload could not be verified (SKILL.md missing)." >&2
@@ -88,6 +109,7 @@ $HOME_DIR/.agents/skills
 $HOME_DIR/.claude/skills
 $HOME_DIR/.cursor/skills
 $HOME_DIR/.codex/skills
+$HOME_DIR/.system-design-studio/skills
 "
 
 UPDATED_COUNT=0
@@ -96,13 +118,67 @@ for target_parent in $AGENT_TARGETS; do
     target_dir="${target_parent}/${SKILL_NAME}"
     mkdir -p "$target_parent"
     rm -rf "$target_dir"
-    cp -R "$SOURCE_SKILL" "$target_dir"
+    cp -R "$SOURCE_SKILLS_DIR/$SKILL_NAME" "$target_dir"
     chmod -R u+rwX,go+rX "$target_dir" 2>/dev/null || true
     chmod +x "$target_dir/scripts/"*.sh "$target_dir/scripts/"*.py 2>/dev/null || true
-    echo "   ✅ Updated at ${target_dir}"
+
+    # Also update all companion sds-* command skills
+    companion_count=0
+    for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
+      if [ -d "$cmd_dir" ]; then
+        cmd_name="$(basename "$cmd_dir")"
+        rm -rf "${target_parent}/${cmd_name}"
+        cp -R "$cmd_dir" "${target_parent}/${cmd_name}"
+        chmod -R u+rwX,go+rX "${target_parent}/${cmd_name}" 2>/dev/null || true
+        companion_count=$((companion_count + 1))
+      fi
+    done
+
+    echo "   ✅ Updated at ${target_dir} (+ ${companion_count} in-chat commands)"
     UPDATED_COUNT=$((UPDATED_COUNT + 1))
   fi
 done
+
+# Update specialized subagents across agent locations
+AGENT_SUBDIRS="
+$HOME_DIR/.gemini/antigravity/agents
+$HOME_DIR/.gemini/config/agents
+$HOME_DIR/.agents/agents
+$HOME_DIR/.claude/agents
+$HOME_DIR/.cursor/agents
+$HOME_DIR/.codex/agents
+$HOME_DIR/.system-design-studio/agents
+"
+
+if [ -n "$SOURCE_AGENTS_DIR" ] && [ -d "$SOURCE_AGENTS_DIR" ]; then
+  echo "🤖 Updating specialized subagents..."
+  for target_agent_parent in $AGENT_SUBDIRS; do
+    if [ -d "$target_agent_parent" ]; then
+      cp -R "${SOURCE_AGENTS_DIR}"/* "$target_agent_parent/" 2>/dev/null || true
+      chmod -R u+rwX,go+rX "$target_agent_parent" 2>/dev/null || true
+      echo "   ✅ Updated subagents at ${target_agent_parent}"
+    fi
+  done
+fi
+
+# Also update Claude Code and Codex commands if present
+if [ -d "$HOME_DIR/.claude/commands" ]; then
+  for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
+    if [ -d "$cmd_dir" ] && [ -f "$cmd_dir/SKILL.md" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      cp "$cmd_dir/SKILL.md" "$HOME_DIR/.claude/commands/${cmd_name}.md" 2>/dev/null || true
+    fi
+  done
+fi
+
+if [ -d "$HOME_DIR/.codex/prompts" ]; then
+  for cmd_dir in "$SOURCE_SKILLS_DIR"/sds-*; do
+    if [ -d "$cmd_dir" ] && [ -f "$cmd_dir/SKILL.md" ]; then
+      cmd_name="$(basename "$cmd_dir")"
+      cp "$cmd_dir/SKILL.md" "$HOME_DIR/.codex/prompts/${cmd_name}.md" 2>/dev/null || true
+    fi
+  done
+fi
 
 # 3. Settings Merge & Local Instance Protection
 if [ -d "$INSTANCE_DIR" ]; then

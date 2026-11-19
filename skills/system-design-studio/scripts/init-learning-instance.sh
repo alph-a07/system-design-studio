@@ -97,8 +97,20 @@ while [ $# -gt 0 ]; do
     --theme=*)
       THEME_STYLE="${1#*=}"
       ;;
+    --theme)
+      shift; THEME_STYLE="$1"
+      ;;
     --output=*)
       OUTPUT_FORMAT="${1#*=}"
+      ;;
+    --output)
+      shift; OUTPUT_FORMAT="$1"
+      ;;
+    --notes=*)
+      AUTO_NOTES="${1#*=}"
+      ;;
+    --notes)
+      shift; AUTO_NOTES="$1"
       ;;
     --defaults|--non-interactive|-y)
       INTERACTIVE=false
@@ -116,6 +128,7 @@ while [ $# -gt 0 ]; do
       echo "  --notes-structure <str>  per-topic (default) | per-cluster | per-tier | single-file"
       echo "  --theme <id>             slate-clean, editorial-paper, midnight-neon, nordic-frost, warm-amber"
       echo "  --output <type>          html (default) | markdown"
+      echo "  --notes <bool>           true | false (auto-generate discussion notes)"
       echo "  --defaults, -y           Non-interactive, use defaults"
       exit 0
       ;;
@@ -128,6 +141,50 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
+
+# Validate visual preferences to prevent invalid settings
+case "$THEME_STYLE" in
+  slate-clean|editorial-paper|midnight-neon|nordic-frost|warm-amber)
+    ;;
+  *)
+    echo "⚠️  Warning: Unknown theme '$THEME_STYLE'. Falling back to 'slate-clean'."
+    THEME_STYLE="slate-clean"
+    ;;
+esac
+
+case "$OUTPUT_FORMAT" in
+  html|markdown)
+    ;;
+  md)
+    OUTPUT_FORMAT="markdown"
+    ;;
+  *)
+    echo "⚠️  Warning: Unknown output format '$OUTPUT_FORMAT'. Falling back to 'html'."
+    OUTPUT_FORMAT="html"
+    ;;
+esac
+
+case "$AUTO_NOTES" in
+  true|false)
+    ;;
+  1|yes|y)
+    AUTO_NOTES="true"
+    ;;
+  0|no|n)
+    AUTO_NOTES="false"
+    ;;
+  *)
+    AUTO_NOTES="true"
+    ;;
+esac
+
+case "$NOTES_STRUCTURE" in
+  per-topic|per-cluster|per-tier|single-file)
+    ;;
+  *)
+    NOTES_STRUCTURE="per-topic"
+    ;;
+esac
 
 # Check if terminal interaction is possible (direct TTY or redirected via /dev/tty)
 TTY_IN=""

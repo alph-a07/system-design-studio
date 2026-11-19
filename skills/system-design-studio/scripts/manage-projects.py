@@ -70,6 +70,38 @@ def resolve_project_progress(project_path):
     except Exception:
         return {"completed": 0, "total": 0, "activeTopicId": "none", "activeClusterId": "none"}
 
+def find_project(projects, query):
+    if not query:
+        return None
+
+    # 1. Exact match against id, name, or projectPath
+    for p in projects:
+        if p.get("id") == query or p.get("name") == query or p.get("projectPath") == query:
+            return p
+
+    query_str = str(query).strip()
+    query_lower = query_str.lower()
+
+    # 2. Case-insensitive exact match against id, name, or directory basename
+    for p in projects:
+        pid = (p.get("id") or "").lower()
+        pname = (p.get("name") or "").lower()
+        ppath = p.get("projectPath") or ""
+        pbase = os.path.basename(ppath.rstrip("/\\")).lower()
+        if query_lower == pid or query_lower == pname or query_lower == pbase:
+            return p
+
+    # 3. Substring match against id, name, or directory basename
+    for p in projects:
+        pid = (p.get("id") or "").lower()
+        pname = (p.get("name") or "").lower()
+        ppath = p.get("projectPath") or ""
+        pbase = os.path.basename(ppath.rstrip("/\\")).lower()
+        if query_lower in pid or query_lower in pname or query_lower in pbase:
+            return p
+
+    return None
+
 def cmd_list(args):
     reg = load_registry()
     projects = reg.get("projects", [])
@@ -153,23 +185,25 @@ def cmd_unregister(args):
     reg = load_registry()
     projects = reg.get("projects", [])
     before_count = len(projects)
-    projects = [p for p in projects if p.get("id") != args.id]
+    target = find_project(projects, args.id)
+    target_id = target["id"] if target else args.id
+    projects = [p for p in projects if p.get("id") != target_id]
     
     if len(projects) == before_count:
         print(f"⚠️ Project '{args.id}' not found in registry.")
         return
 
     reg["projects"] = projects
-    if reg.get("activeProjectId") == args.id:
+    if reg.get("activeProjectId") == target_id:
         reg["activeProjectId"] = projects[0]["id"] if projects else None
 
     save_registry(reg)
-    print(f"✅ Project '{args.id}' removed from registry (files on disk preserved).")
+    print(f"✅ Project '{target_id}' removed from registry (files on disk preserved).")
 
 def cmd_delete(args):
     reg = load_registry()
     projects = reg.get("projects", [])
-    target = next((p for p in projects if p.get("id") == args.id or p.get("name") == args.id), None)
+    target = find_project(projects, args.id)
 
     if not target:
         resolved_path = os.path.abspath(os.path.expanduser(args.id))
@@ -281,7 +315,7 @@ def cmd_delete(args):
 def cmd_switch(args):
     reg = load_registry()
     projects = reg.get("projects", [])
-    target = next((p for p in projects if p.get("id") == args.id or p.get("name") == args.id), None)
+    target = find_project(projects, args.id)
     
     if not target:
         print(f"❌ Error: Project '{args.id}' not found in registry.", file=sys.stderr)
@@ -321,7 +355,7 @@ def cmd_notes(args):
     reg = load_registry()
     projects = reg.get("projects", [])
     target_id = args.id or reg.get("activeProjectId")
-    target_proj = next((p for p in projects if p.get("id") == target_id), None)
+    target_proj = find_project(projects, target_id) if target_id else None
 
     # Fallback to current directory if not found in registry
     if not target_proj and os.path.exists(".system-design/settings.json"):

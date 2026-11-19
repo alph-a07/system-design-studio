@@ -233,8 +233,18 @@ def write_note_per_cluster(notes_dir, tier, cluster, topic, note_content):
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(header + f"---\n\n{demoted_content}\n")
     else:
-        with open(target_path, "a", encoding="utf-8") as f:
-            f.write(f"\n\n---\n\n{demoted_content}\n")
+        with open(target_path, "r", encoding="utf-8") as f:
+            existing = f.read()
+        topic_title = topic.get("title", topic["id"])
+        topic_header = f"## {topic_title}"
+        if topic_header in existing:
+            pattern = re.escape(topic_header) + r"[\s\S]*?(?=(?:\n---\n|\Z))"
+            updated = re.sub(pattern, demoted_content.strip(), existing)
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(updated)
+        else:
+            with open(target_path, "a", encoding="utf-8") as f:
+                f.write(f"\n\n---\n\n{demoted_content}\n")
 
     return target_path
 
@@ -251,8 +261,18 @@ def write_note_per_tier(notes_dir, tier, cluster, topic, note_content):
         with open(target_path, "w", encoding="utf-8") as f:
             f.write(header + f"---\n\n{demoted_content}\n")
     else:
-        with open(target_path, "a", encoding="utf-8") as f:
-            f.write(f"\n\n---\n\n{demoted_content}\n")
+        with open(target_path, "r", encoding="utf-8") as f:
+            existing = f.read()
+        topic_title = topic.get("title", topic["id"])
+        topic_header = f"## {topic_title}"
+        if topic_header in existing:
+            pattern = re.escape(topic_header) + r"[\s\S]*?(?=(?:\n---\n|\Z))"
+            updated = re.sub(pattern, demoted_content.strip(), existing)
+            with open(target_path, "w", encoding="utf-8") as f:
+                f.write(updated)
+        else:
+            with open(target_path, "a", encoding="utf-8") as f:
+                f.write(f"\n\n---\n\n{demoted_content}\n")
 
     return target_path
 

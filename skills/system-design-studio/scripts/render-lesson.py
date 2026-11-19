@@ -453,31 +453,47 @@ DEFAULT_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     async function syncServer() {
-      try {
-        await fetch(`${SERVER}/highlights?artifact=${encodeURIComponent(ARTIFACT_PATH)}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(highlights),
-          signal: AbortSignal.timeout(1200)
-        });
-        showStatus('synced');
-      } catch (e) {}
+      const endpoints = [
+        (window.location.origin && window.location.origin.startsWith('http')) ? `${window.location.origin}/api/highlights` : 'http://127.0.0.1:8420/api/highlights',
+        'http://127.0.0.1:7723/highlights'
+      ];
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(`${ep}?artifact=${encodeURIComponent(ARTIFACT_PATH)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(highlights),
+            signal: AbortSignal.timeout(1000)
+          });
+          if (res.ok) {
+            showStatus('synced');
+            return;
+          }
+        } catch (e) {}
+      }
     }
 
     async function fetchServer() {
-      try {
-        const res = await fetch(`${SERVER}/highlights?artifact=${encodeURIComponent(ARTIFACT_PATH)}`, {
-          signal: AbortSignal.timeout(800)
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            highlights = data;
-            saveLocal();
-            renderAllHighlights();
+      const endpoints = [
+        (window.location.origin && window.location.origin.startsWith('http')) ? `${window.location.origin}/api/highlights` : 'http://127.0.0.1:8420/api/highlights',
+        'http://127.0.0.1:7723/highlights'
+      ];
+      for (const ep of endpoints) {
+        try {
+          const res = await fetch(`${ep}?artifact=${encodeURIComponent(ARTIFACT_PATH)}`, {
+            signal: AbortSignal.timeout(800)
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              highlights = data;
+              saveLocal();
+              renderAllHighlights();
+              return;
+            }
           }
-        }
-      } catch (e) {}
+        } catch (e) {}
+      }
     }
 
     function unwrapBlockMarks(block) {
@@ -1095,10 +1111,10 @@ def audit_lesson_payload(data, topic_id=None, inst_dir=None):
         audit_passes.append(f"Depth & Anti-Compression: Robust narrative ({word_count} words)")
 
     # 2. Jargon Unpacking Check
-    jargon_cards = re.findall(r'class=["\'][^"\']*jargon-card[^"\']*["\']', narrative_text)
+    jargon_cards = re.findall(r'class=["\'][^"\']*(?:jargon-card|jargon-pill|jargon-box)[^"\']*["\']', narrative_text)
     if len(jargon_cards) < 3:
         audit_warnings.append(
-            f"Low Jargon Unpacking Density: Only {len(jargon_cards)} <div class=\"jargon-card\"> elements found. "
+            f"Low Jargon Unpacking Density: Only {len(jargon_cards)} jargon callout elements (<div class=\"jargon-card|jargon-pill|jargon-box\">) found. "
             "Ensure every domain acronym (e.g. RTT, BDP, HOL, socket, P99) is unpacked in plain English."
         )
     else:
@@ -1232,15 +1248,6 @@ def locate_resource_template():
     return None
 
 def main():
-    try:
-        from pathlib import Path
-        _ensure_script = Path(__file__).resolve().parent / 'ensure-highlight-server.py'
-        if _ensure_script.is_file():
-            import subprocess, sys
-            subprocess.run([sys.executable, str(_ensure_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1.0)
-    except Exception:
-        pass
-    
     parser = argparse.ArgumentParser(description="Render interactive HTML or pure Markdown lesson artifact")
     parser.add_argument("--topic-id", required=True, help="Topic ID (e.g. topic.0.1.tcp-vs-udp)")
     parser.add_argument("--title", help="Lesson Title")

@@ -132,15 +132,6 @@ def resolve_instance_dir(raw_path=None):
     return ".system-design"
 
 def main():
-    try:
-        from pathlib import Path
-        _ensure_script = Path(__file__).resolve().parent / 'ensure-highlight-server.py'
-        if _ensure_script.is_file():
-            import subprocess, sys
-            subprocess.run([sys.executable, str(_ensure_script)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=1.0)
-    except Exception:
-        pass
-    
     parser = argparse.ArgumentParser(description="Advance System Design Studio cursor state")
     parser.add_argument("--instance-dir", default=".system-design", help="Path to .system-design directory")
     parser.add_argument("--complete-topic", help="Topic ID to mark completed (e.g. topic.0.1.tcp-vs-udp)")
@@ -318,6 +309,64 @@ def main():
                 if topic["id"] == args.next_topic_id:
                     manifest["curriculum"]["activeClusterId"] = cluster["id"]
                     manifest["cursor"]["activeMechanismGroupId"] = f"group.{args.next_topic_id.replace('topic.', '')}"
+    elif args.complete_topic:
+        # Auto-advance cursor target to the next uncompleted topic when --next-topic-id is omitted
+        auto_next_topic = None
+        auto_next_cluster = None
+
+        curr_cluster = completed_cluster
+        if not curr_cluster:
+            for cluster in manifest["curriculum"]["clusters"]:
+                for topic in cluster["topics"]:
+                    if topic["id"] == args.complete_topic:
+                        curr_cluster = cluster
+                        break
+                if curr_cluster:
+                    break
+
+        if curr_cluster:
+            comp_idx = -1
+            for idx, t in enumerate(curr_cluster["topics"]):
+                if t["id"] == args.complete_topic:
+                    comp_idx = idx
+                    break
+
+            # 1. Look within the current cluster first for the next topic where topic.status != 'completed'
+            if comp_idx != -1:
+                for t in curr_cluster["topics"][comp_idx + 1:]:
+                    if t.get("status") != "completed":
+                        auto_next_topic = t
+                        auto_next_cluster = curr_cluster
+                        break
+
+            if not auto_next_topic:
+                for t in curr_cluster["topics"]:
+                    if t.get("status") != "completed":
+                        auto_next_topic = t
+                        auto_next_cluster = curr_cluster
+                        break
+
+        # 2. If all topics in the current cluster are completed, advance to the next cluster's first uncompleted topic
+        if not auto_next_topic:
+            clusters = manifest["curriculum"]["clusters"]
+            curr_cluster_idx = clusters.index(curr_cluster) if (curr_cluster and curr_cluster in clusters) else -1
+            for i in range(1, len(clusters) + 1):
+                idx = (curr_cluster_idx + i) % len(clusters)
+                cand_cluster = clusters[idx]
+                for t in cand_cluster["topics"]:
+                    if t.get("status") != "completed":
+                        auto_next_topic = t
+                        auto_next_cluster = cand_cluster
+                        break
+                if auto_next_topic:
+                    break
+
+        if auto_next_topic and auto_next_cluster:
+            manifest["curriculum"]["activeTopicId"] = auto_next_topic["id"]
+            manifest["curriculum"]["activeClusterId"] = auto_next_cluster["id"]
+            manifest["cursor"]["topicFoundationId"] = f"foundation.{auto_next_topic['id'].replace('topic.', '')}"
+            manifest["cursor"]["topicFoundationStatus"] = "not-started"
+            manifest["cursor"]["activeMechanismGroupId"] = f"group.{auto_next_topic['id'].replace('topic.', '')}"
 
     if args.next_action:
         manifest["cursor"]["nextTeachingAction"] = args.next_action
@@ -492,6 +541,15 @@ def main():
                 print(f"⚠️ Note generation hook: {e}")
         elif not auto_notes_enabled:
             print("ℹ️ Auto-notes generation is disabled (autoGenerateNotes: false). Run 'sds notes generate' or /sds-notes to compile study notes manually.")
+
+        # Auto-update Revision Mode flashcards in background
+        rev_script = os.path.join(script_dir, "update-revisions.py")
+        if os.path.exists(rev_script):
+            try:
+                import subprocess
+                subprocess.run([sys.executable, rev_script, "--instance-dir", inst_dir, "--sync"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+            except Exception:
+                pass
 
         # Record atomic Git checkpoint with tractable commit message
         checkpoint_script = os.path.join(script_dir, "git-checkpoint.py")
