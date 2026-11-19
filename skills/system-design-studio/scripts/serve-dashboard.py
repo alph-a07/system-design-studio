@@ -1420,6 +1420,309 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       margin-top: 24px;
     }
 
+    /* SHARED WORKBENCH DIALOG MODAL BOX (LESSONS & STUDY NOTES) */
+    .workbench-modal-box,
+    .note-dialog-box,
+    .lesson-dialog-box {
+      width: 94%;
+      max-width: 1040px;
+      height: 86vh;
+      max-height: 86vh;
+      background-color: var(--surface-container-lowest);
+      border: 3px solid var(--border-color);
+      box-shadow: 6px 6px 0px var(--shadow-color);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 24px;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .note-dialog-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 2px solid var(--border-color);
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .note-modal-subtitle-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+
+    .note-path-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      background: var(--surface-container-high);
+      padding: 3px 8px;
+      border: 1px solid var(--border-color);
+      max-width: 480px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .note-stats-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--on-surface-variant);
+      background: var(--surface-container-high);
+      padding: 3px 8px;
+      border: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    /* NOTION TABLE & UNIVERSAL MARKDOWN RENDERING */
+    .table-responsive-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      margin: 18px 0;
+      border: 2px solid var(--border-color);
+      box-shadow: 3px 3px 0px var(--shadow-color);
+      background: var(--surface-container-lowest);
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .notion-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+      min-width: 520px;
+    }
+
+    .notion-table th {
+      background-color: var(--surface-container-high);
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      color: var(--on-surface);
+      white-space: nowrap;
+    }
+
+    .notion-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      color: var(--on-surface);
+      line-height: 1.6;
+      vertical-align: top;
+    }
+
+    .notion-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .notion-table th:last-child,
+    .notion-table td:last-child {
+      border-right: none;
+    }
+
+    .notion-table tbody tr:nth-child(even) td {
+      background-color: var(--surface-container-low);
+    }
+
+    .notion-table tbody tr:hover td {
+      background-color: var(--surface-container);
+    }
+
+    .notion-task-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 14px 0;
+    }
+
+    .notion-task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 4px 0;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .notion-task-item.checked span {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .notion-checkbox {
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--border-color);
+      border-radius: 3px;
+      background: var(--surface-container);
+      cursor: pointer;
+      margin-top: 2px;
+      display: inline-grid;
+      place-content: center;
+      flex-shrink: 0;
+    }
+
+    .notion-checkbox:checked {
+      background: var(--primary-container);
+      border-color: var(--border-color);
+    }
+
+    .notion-checkbox:checked::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+      background-color: #1a1a1a;
+    }
+
+    .notion-inline-code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--surface-container-high);
+      color: var(--primary-container);
+      padding: 2px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--border-color);
+    }
+
+    .notion-quote {
+      border-left: 4px solid var(--primary-container);
+      background-color: var(--surface-container-low);
+      padding: 12px 18px;
+      margin: 18px 0;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .notion-hr {
+      border: none;
+      border-top: 2px solid var(--border-color);
+      margin: 28px 0;
+    }
+
+    .notion-link {
+      color: var(--tertiary);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .notion-h1 {
+      font-family: var(--font-headline);
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
+      margin: 24px 0 14px 0;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--primary-container);
+      color: var(--on-surface);
+    }
+
+    .notion-h2 {
+      font-family: var(--font-headline);
+      font-size: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin: 26px 0 12px 0;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--border-color);
+      color: var(--on-surface);
+    }
+
+    .notion-h3 {
+      font-family: var(--font-headline);
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin: 20px 0 10px 0;
+      color: var(--on-surface);
+    }
+
+    .notion-p {
+      margin: 12px 0;
+      font-size: 13.5px;
+      line-height: 1.75;
+      color: var(--on-surface);
+    }
+
+    .notion-bullet-list,
+    .notion-ordered-list {
+      margin: 12px 0;
+      padding-left: 24px;
+      line-height: 1.7;
+      font-size: 13.5px;
+    }
+
+    .code-block-container {
+      border: 2px solid var(--border-color);
+      background-color: #0d1117;
+      color: #c9d1d9;
+      margin: 20px 0;
+      box-shadow: 3px 3px 0px var(--shadow-color);
+      overflow: hidden;
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      background-color: #161b22;
+      border-bottom: 1px solid #30363d;
+      font-family: var(--font-headline);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-container);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .code-copy-btn {
+      background: transparent;
+      border: 1px solid #30363d;
+      color: #8b949e;
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .code-copy-btn:hover {
+      color: #fff;
+      background: #30363d;
+    }
+
+    .code-block-container pre {
+      padding: 16px;
+      margin: 0;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.55;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      color: #e6edf3;
+    }
+
     /* LESSON & SIMULATOR DIALOG (MATCHES NOTES MODAL WITH FULLSCREEN SUPPORT) */
     .lesson-dialog-box {
       width: 94%;
@@ -2480,15 +2783,27 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- NOTE VIEWER & EDITOR MODAL -->
   <div id="note-modal" class="modal-overlay">
-    <div class="modal-box" style="max-width:800px; max-height:90vh; display:flex; flex-direction:column;">
-      <div class="modal-header">
-        <div>
-          <h3 id="note-modal-title" style="font-family:var(--font-headline); font-size:16px; font-weight:700; text-transform:uppercase;">
-            Study Note
-          </h3>
-          <div id="note-modal-subtitle" style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px;"></div>
+    <div class="modal-box note-dialog-box">
+      <div class="modal-header note-dialog-header">
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+          <span class="material-symbols-outlined" style="font-size:22px; color:var(--primary-container);">description</span>
+          <div style="min-width:0;">
+            <h3 id="note-modal-title" style="font-family:var(--font-headline); font-size:16px; font-weight:800; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+              Study Note
+            </h3>
+            <div class="note-modal-subtitle-row">
+              <span class="note-path-badge" id="note-path-badge" title="Repository file path">
+                <span class="material-symbols-outlined" style="font-size:13px;">folder</span>
+                <span id="note-path-text">notes/...</span>
+              </span>
+              <span class="note-stats-badge" id="note-stats-badge">
+                <span class="material-symbols-outlined" style="font-size:13px;">schedule</span>
+                <span id="note-stats-text">0 words &bull; ~1 min read</span>
+              </span>
+            </div>
+          </div>
         </div>
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <button id="note-copy-btn" class="btn-ghost" onclick="copyNoteMarkdown()" title="Copy Markdown to Clipboard">
             <span class="material-symbols-outlined" style="font-size:14px;">content_copy</span>
             <span>Copy</span>
@@ -2502,7 +2817,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </button>
         </div>
       </div>
-      <div id="note-view-body" class="md-rendered" style="flex:1; overflow-y:auto; padding:8px 0; font-size:13px;"></div>
+      <div id="note-view-body" class="md-rendered" style="flex:1; overflow-y:auto; padding:12px 4px; font-size:13px;"></div>
       <textarea id="note-edit-body" class="form-input" style="flex:1; min-height:360px; font-family:var(--font-mono); font-size:12px; display:none;"></textarea>
       <div id="note-edit-actions" style="display:none; justify-content:flex-end; gap:8px; margin-top:14px;">
         <button class="btn-ghost" onclick="toggleNoteEditMode()">
@@ -2924,115 +3239,199 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    // Artifact-Grade Client Markdown Renderer (with Diagram, Table & Alert support)
+    // Artifact-Grade Client Markdown Renderer (Block-Level Notion Tokenizer)
     function renderMarkdown(md) {
       if (!md) return '';
       let src = md.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-      // Extract code blocks first to protect raw diagrams and code from formatting
+      // 1. Extract Code Blocks first to protect diagrams and code from formatting
       const codeBlocks = [];
       src = src.replace(/```([a-z0-9_-]*)\n([\s\S]*?)```/g, function(match, lang, code) {
-        const id = `__CODE_BLOCK_${codeBlocks.length}__`;
-        codeBlocks.push({ lang: (lang || '').trim().toLowerCase(), code });
+        const id = '__CODE_BLOCK_' + codeBlocks.length + '__';
+        codeBlocks.push({ lang: (lang || '').trim().toLowerCase(), code: code });
         return id;
       });
 
-      // Escape raw HTML entities
-      let html = src
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
+      const lines = src.split('\n');
+      const out = [];
+      let i = 0;
 
-      // Tables (Pipe Tables)
-      html = html.replace(/(?:^|\n)(\|.+?\|\n\|[-:| ]+?\|\n(?:\|.+?\|\n?)+)/g, function(match, tableBlock) {
-        const lines = tableBlock.trim().split('\n');
-        if (lines.length < 2) return match;
-        const headerCols = lines[0].split('|').slice(1, -1).map(c => `<th>${c.trim()}</th>`).join('');
-        let rows = '';
-        for (let i = 2; i < lines.length; i++) {
-          const rowCols = lines[i].split('|').slice(1, -1).map(c => `<td>${c.trim()}</td>`).join('');
-          rows += `<tr>${rowCols}</tr>`;
+      function formatInline(text) {
+        if (!text) return '';
+        return text
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/`([^`]+)`/g, '<code class="notion-inline-code">$1</code>')
+          .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+          .replace(/~~([^~]+)~~/g, '<del>$1</del>')
+          .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" class="notion-link">$1</a>');
+      }
+
+      while (i < lines.length) {
+        const line = lines[i];
+        const trimmed = line.trim();
+
+        // Empty line
+        if (!trimmed) {
+          i++;
+          continue;
         }
-        return `<table><thead><tr>${headerCols}</tr></thead><tbody>${rows}</tbody></table>`;
-      });
 
-      // Headers
-      html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
-      html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
-      html = html.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-
-      // Horizontal rules
-      html = html.replace(/^---$/gim, '<hr />');
-
-      // GitHub-style Alerts inside blockquotes (> [!IMPORTANT])
-      html = html.replace(/^(?:&gt; *\[!(IMPORTANT|NOTE|WARNING|TIP|CAUTION|DANGER|INVARIANT|MECHANISM)\] *(?:\n|$))(?:&gt; *(?:.*)(?:\n|$))*/gim, function(match) {
-        const lines = match.trim().split('\n');
-        const alertType = lines[0].replace(/^&gt; *\[!/, '').replace(/\] *$/, '').toUpperCase();
-        const contentLines = lines.slice(1).map(l => l.replace(/^&gt; */, '')).join('<br />');
-        let icon = 'info';
-        let cls = 'alert-note';
-        let title = alertType;
-        if (alertType === 'IMPORTANT' || alertType === 'DANGER' || alertType === 'CAUTION') {
-          icon = 'crisis_alert';
-          cls = 'alert-important';
-        } else if (alertType === 'WARNING') {
-          icon = 'warning';
-          cls = 'alert-warning';
-        } else if (alertType === 'TIP' || alertType === 'INVARIANT') {
-          icon = 'verified';
-          cls = 'alert-tip';
+        // Code block placeholder
+        if (trimmed.startsWith('__CODE_BLOCK_') && trimmed.endsWith('__')) {
+          out.push(trimmed);
+          i++;
+          continue;
         }
-        return `<div class="callout-alert ${cls}">
-          <div class="callout-header">
-            <span class="material-symbols-outlined" style="font-size:16px;">${icon}</span>
-            <span>${title}</span>
-          </div>
-          <div style="font-size:13px; line-height:1.65;">${contentLines}</div>
-        </div>`;
-      });
 
-      // General blockquotes (e.g. Lead meta or citations)
-      html = html.replace(/(?:^|\n)(?:&gt; *(?:.*)(?:\n|$))+/g, function(match) {
-        const text = match.trim().split('\n').map(l => l.replace(/^&gt; */, '')).join('<br />');
-        if (text.includes('Hierarchy') || text.includes('Depth') || text.includes('Format')) {
-          return `<div class="lead-meta">${text}</div>`;
+        // Horizontal Rule
+        if (/^(---|___|\*\*\*)$/.test(trimmed)) {
+          out.push('<hr class="notion-hr" />');
+          i++;
+          continue;
         }
-        return `<blockquote>${text}</blockquote>`;
-      });
 
-      // Inline code
-      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-
-      // Bold & Italic
-      html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-      html = html.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-
-      // Unordered lists
-      html = html.replace(/(?:^|\n)(?:\s*[-*]\s+.*(?:\n|$))+/g, function(match) {
-        const items = match.trim().split('\n').map(l => l.replace(/^\s*[-*]\s+/, '')).map(c => `<li>${c}</li>`).join('');
-        return `<ul>${items}</ul>`;
-      });
-
-      // Ordered lists
-      html = html.replace(/(?:^|\n)(?:\s*\d+\.\s+.*(?:\n|$))+/g, function(match) {
-        const items = match.trim().split('\n').map(l => l.replace(/^\s*\d+\.\s+/, '')).map(c => `<li>${c}</li>`).join('');
-        return `<ol>${items}</ol>`;
-      });
-
-      // Paragraphs
-      html = html.split('\n\n').map(p => {
-        p = p.trim();
-        if (!p) return '';
-        if (p.startsWith('<h') || p.startsWith('__CODE_BLOCK_') || p.startsWith('<blockquote') || p.startsWith('<div') || p.startsWith('<ul') || p.startsWith('<ol') || p.startsWith('<table') || p.startsWith('<hr')) {
-          return p;
+        // Headings
+        if (/^#{1,6}\s/.test(trimmed)) {
+          const match = trimmed.match(/^(#{1,6})\s+(.*)$/);
+          if (match) {
+            const level = match[1].length;
+            const text = formatInline(match[2]);
+            out.push('<h' + level + ' class="notion-h' + level + '">' + text + '</h' + level + '>');
+            i++;
+            continue;
+          }
         }
-        return `<p>${p}</p>`;
-      }).join('\n');
 
-      // Re-insert protected code blocks with artifact styling
+        // GitHub/Notion Callout Alert: > [!TYPE]
+        if (/^>\s*\[!(IMPORTANT|NOTE|WARNING|TIP|CAUTION|DANGER|INVARIANT|MECHANISM|IDEA)\]/i.test(trimmed)) {
+          const alertMatch = trimmed.match(/^>\s*\[!(IMPORTANT|NOTE|WARNING|TIP|CAUTION|DANGER|INVARIANT|MECHANISM|IDEA)\]\s*(.*)$/i);
+          const alertType = (alertMatch[1] || 'NOTE').toUpperCase();
+          let alertContent = alertMatch[2] ? [alertMatch[2]] : [];
+          i++;
+          while (i < lines.length && /^>/.test(lines[i].trim())) {
+            alertContent.push(lines[i].trim().replace(/^>\s?/, ''));
+            i++;
+          }
+          let icon = 'info';
+          let cls = 'alert-note';
+          if (['IMPORTANT', 'DANGER', 'CAUTION'].includes(alertType)) { icon = 'crisis_alert'; cls = 'alert-important'; }
+          else if (alertType === 'WARNING') { icon = 'warning'; cls = 'alert-warning'; }
+          else if (['TIP', 'INVARIANT', 'MECHANISM'].includes(alertType)) { icon = 'verified'; cls = 'alert-tip'; }
+          else if (alertType === 'IDEA') { icon = 'lightbulb'; cls = 'alert-idea'; }
+
+          out.push('<div class="callout-alert ' + cls + '"><div class="callout-header"><span class="material-symbols-outlined" style="font-size:16px;">' + icon + '</span><span>' + alertType + '</span></div><div class="callout-content" style="font-size:13px; line-height:1.65;">' + formatInline(alertContent.join('<br />')) + '</div></div>');
+          continue;
+        }
+
+        // Standard Blockquote
+        if (/^>/.test(trimmed)) {
+          const quoteLines = [];
+          while (i < lines.length && /^>/.test(lines[i].trim())) {
+            quoteLines.push(lines[i].trim().replace(/^>\s?/, ''));
+            i++;
+          }
+          const quoteText = quoteLines.join('<br />');
+          if (quoteText.includes('Hierarchy') || quoteText.includes('Depth') || quoteText.includes('Format')) {
+            out.push('<div class="lead-meta">' + formatInline(quoteText) + '</div>');
+          } else {
+            out.push('<blockquote class="notion-quote">' + formatInline(quoteText) + '</blockquote>');
+          }
+          continue;
+        }
+
+        // GFM Table: line contains '|' and next line is delimiter row
+        if (line.includes('|') && i + 1 < lines.length && /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$/.test(lines[i + 1])) {
+          const headerLine = line;
+          const tableRows = [];
+          i += 2; // skip header & delimiter
+          while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
+            tableRows.push(lines[i]);
+            i++;
+          }
+
+          const parseCols = (l) => {
+            let trimmedLine = l.trim();
+            if (trimmedLine.startsWith('|')) trimmedLine = trimmedLine.slice(1);
+            if (trimmedLine.endsWith('|')) trimmedLine = trimmedLine.slice(0, -1);
+            return trimmedLine.split('|').map(c => c.trim());
+          };
+
+          const headers = parseCols(headerLine);
+          const thHtml = headers.map(h => '<th>' + formatInline(h) + '</th>').join('');
+          let tbodyHtml = '';
+          tableRows.forEach(r => {
+            const cells = parseCols(r);
+            const tdHtml = cells.map(c => '<td>' + formatInline(c) + '</td>').join('');
+            tbodyHtml += '<tr>' + tdHtml + '</tr>';
+          });
+
+          out.push('<div class="table-responsive-wrapper"><table class="notion-table"><thead><tr>' + thHtml + '</tr></thead><tbody>' + tbodyHtml + '</tbody></table></div>');
+          continue;
+        }
+
+        // Task list / Checklist: - [ ] or - [x]
+        if (/^-\s+\[([ xX])\]\s+(.*)$/.test(trimmed)) {
+          const taskItems = [];
+          while (i < lines.length && /^-\s+\[([ xX])\]\s+(.*)$/.test(lines[i].trim())) {
+            const m = lines[i].trim().match(/^-\s+\[([ xX])\]\s+(.*)$/);
+            const checked = m[1].toLowerCase() === 'x';
+            taskItems.push('<li class="notion-task-item ' + (checked ? 'checked' : '') + '"><input type="checkbox" ' + (checked ? 'checked' : '') + ' disabled class="notion-checkbox" /><span>' + formatInline(m[2]) + '</span></li>');
+            i++;
+          }
+          out.push('<ul class="notion-task-list">' + taskItems.join('') + '</ul>');
+          continue;
+        }
+
+        // Unordered List
+        if (/^[-*+]\s+(.*)$/.test(trimmed)) {
+          const listItems = [];
+          while (i < lines.length && /^[-*+]\s+(.*)$/.test(lines[i].trim()) && !/^-\s+\[[ xX]\]/.test(lines[i].trim())) {
+            const m = lines[i].trim().match(/^[-*+]\s+(.*)$/);
+            listItems.push('<li>' + formatInline(m[1]) + '</li>');
+            i++;
+          }
+          out.push('<ul class="notion-bullet-list">' + listItems.join('') + '</ul>');
+          continue;
+        }
+
+        // Ordered List
+        if (/^\d+\.\s+(.*)$/.test(trimmed)) {
+          const listItems = [];
+          while (i < lines.length && /^\d+\.\s+(.*)$/.test(lines[i].trim())) {
+            const m = lines[i].trim().match(/^\d+\.\s+(.*)$/);
+            listItems.push('<li>' + formatInline(m[1]) + '</li>');
+            i++;
+          }
+          out.push('<ol class="notion-ordered-list">' + listItems.join('') + '</ol>');
+          continue;
+        }
+
+        // Normal Paragraph (consume lines until blank line or block start)
+        const paraLines = [];
+        while (
+          i < lines.length &&
+          lines[i].trim() !== '' &&
+          !/^#{1,6}\s/.test(lines[i].trim()) &&
+          !lines[i].trim().startsWith('__CODE_BLOCK_') &&
+          !/^>/.test(lines[i].trim()) &&
+          !/^[-*+]\s/.test(lines[i].trim()) &&
+          !/^\d+\.\s/.test(lines[i].trim()) &&
+          !(lines[i].includes('|') && i + 1 < lines.length && /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)+\|?\s*$/.test(lines[i + 1]))
+        ) {
+          paraLines.push(lines[i].trim());
+          i++;
+        }
+        out.push('<p class="notion-p">' + formatInline(paraLines.join(' ')) + '</p>');
+      }
+
+      let finalHtml = out.join('\n');
+
+      // Re-insert Code Blocks with artifact styling
       codeBlocks.forEach((cb, idx) => {
-        const placeholder = `__CODE_BLOCK_${idx}__`;
+        const id = '__CODE_BLOCK_' + idx + '__';
         let blockHtml = '';
+        const safeCode = cb.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         if (cb.lang === 'mermaid') {
           blockHtml = `<div class="diagram-box">
             <div class="diagram-header">
@@ -3042,9 +3441,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               </span>
               <span style="font-size:10px; opacity:0.8;">Zero-JS Diagram</span>
             </div>
-            <pre><code>${cb.code.trim()}</code></pre>
+            <pre><code>${safeCode.trim()}</code></pre>
           </div>`;
-        } else if (cb.lang === 'text' || cb.code.includes('+---') || cb.code.includes('|')) {
+        } else if (cb.lang === 'ascii' || cb.lang === 'diagram' || cb.code.includes('+---') || (cb.lang === 'text' && cb.code.includes('|'))) {
           blockHtml = `<div class="diagram-box">
             <div class="diagram-header">
               <span style="display:flex; align-items:center; gap:6px;">
@@ -3053,23 +3452,26 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               </span>
               <span style="font-size:10px; opacity:0.8;">ASCII Hardware Invariant</span>
             </div>
-            <pre><code>${cb.code.trim()}</code></pre>
+            <pre><code>${safeCode.trim()}</code></pre>
           </div>`;
         } else {
-          blockHtml = `<div class="diagram-box">
-            <div class="diagram-header">
+          blockHtml = `<div class="code-block-container">
+            <div class="code-block-header">
               <span style="display:flex; align-items:center; gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:14px;">terminal</span>
                 <span>${(cb.lang || 'CODE').toUpperCase()}</span>
               </span>
+              <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('code').innerText); showToast('Code copied');" title="Copy code">
+                <span class="material-symbols-outlined" style="font-size:13px;">content_copy</span>
+              </button>
             </div>
-            <pre><code>${cb.code.trim()}</code></pre>
+            <pre><code>${safeCode.trim()}</code></pre>
           </div>`;
         }
-        html = html.replace(placeholder, blockHtml);
+        finalHtml = finalHtml.replace(id, blockHtml);
       });
 
-      return html;
+      return finalHtml;
     }
 
     // Modal Control (with Body Scroll Locking to prevent background scroll leaks)
@@ -4022,7 +4424,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       activeNoteRelPath = resolvedPath;
       document.getElementById('note-modal-title').innerText = topicTitle || `Notes: ${topicId}`;
-      document.getElementById('note-modal-subtitle').innerText = `Location: notes/${resolvedPath}`;
+      const pathText = document.getElementById('note-path-text');
+      const pathBadge = document.getElementById('note-path-badge');
+      const statsText = document.getElementById('note-stats-text');
+      if (pathText) pathText.innerText = `notes/${resolvedPath}`;
+      if (pathBadge) pathBadge.title = `notes/${resolvedPath}`;
+      if (statsText) statsText.innerHTML = `Loading...`;
       openModal('note-modal');
 
       const viewBody = document.getElementById('note-view-body');
@@ -4040,11 +4447,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const content = await res.text();
           const words = content.trim().split(/\s+/).filter(Boolean).length;
           const readTime = Math.max(1, Math.ceil(words / 200));
-          document.getElementById('note-modal-subtitle').innerHTML = `Location: notes/${resolvedPath} &bull; ${words} words &bull; ~${readTime} min read`;
+          if (statsText) statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
           viewBody.innerHTML = renderMarkdown(content);
           editBody.value = content;
         } else {
-          document.getElementById('note-modal-subtitle').innerHTML = `Location: notes/${resolvedPath} &bull; New Note`;
+          if (statsText) statsText.innerHTML = `New Note`;
           viewBody.innerHTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant);">No note recorded yet for this topic. Click "Edit Markdown" to create one.</div>';
           editBody.value = `# System Architecture Notes: ${topicTitle || topicId}
 
