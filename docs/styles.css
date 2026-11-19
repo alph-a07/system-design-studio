@@ -20,7 +20,7 @@
   --inverse-on-surface: #f5f0e8;
   --surface-variant: #e8e3da;
   --tertiary-fixed: #d6e3ff;
-  --secondary: #e63b2e;
+  --secondary: #dc2626;
   --on-tertiary: #ffffff;
   --primary-fixed: #ffcc00;
   --background: #f5f0e8;
@@ -393,7 +393,7 @@ html.dark a.bg-primary:active, html.dark button.bg-primary:active {
 
 /* Secondary Red Buttons */
 .bg-secondary {
-  background-color: #e63b2e !important;
+  background-color: #dc2626 !important;
   color: #ffffff !important;
 }
 
@@ -820,6 +820,23 @@ html.dark .cluster-badge.bg-emerald-400 {
 }
 
 /* 7. Search Input Leading Icon in Light & Dark Mode */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  user-select: none;
+}
+
 #search-icon-wrap,
 #search-icon-wrap .material-symbols-outlined {
   color: #1a1a1a !important;
