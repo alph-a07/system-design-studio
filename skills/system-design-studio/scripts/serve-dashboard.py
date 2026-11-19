@@ -1421,13 +1421,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* SHARED WORKBENCH DIALOG MODAL BOX (LESSONS & STUDY NOTES) */
-    .workbench-modal-box,
-    .note-dialog-box,
-    .lesson-dialog-box {
-      width: 94%;
-      max-width: 1040px;
-      height: 86vh;
-      max-height: 86vh;
+    .modal-box.workbench-modal-box,
+    .modal-box.note-dialog-box,
+    .modal-box.lesson-dialog-box {
+      width: 94% !important;
+      max-width: 1040px !important;
+      height: 86vh !important;
+      max-height: 86vh !important;
       background-color: var(--surface-container-lowest);
       border: 3px solid var(--border-color);
       box-shadow: 6px 6px 0px var(--shadow-color);
@@ -4572,6 +4572,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (statsText) statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
           viewBody.innerHTML = renderMarkdown(content);
           editBody.value = content;
+          if (new URLSearchParams(window.location.search).get('notescroll') === 'bottom') {
+            viewBody.scrollTop = viewBody.scrollHeight;
+          }
         } else {
           if (statsText) statsText.innerHTML = `New Note`;
           viewBody.innerHTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant);">No note recorded yet for this topic. Switch to Edit or Split mode to create one.</div>';
@@ -5137,6 +5140,18 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
       if (params.get('view')) {
         setTimeout(() => setViewMode(params.get('view')), 200);
+      }
+      if (params.get('notemode')) {
+        setTimeout(() => setNoteMode(params.get('notemode')), 450);
+      }
+      if (params.get('notescroll') === 'bottom') {
+        setTimeout(() => {
+          const view = document.getElementById('note-view-body');
+          if (view) view.scrollTop = view.scrollHeight;
+        }, 550);
+      }
+      if (params.get('statusmenu')) {
+        setTimeout(() => openTopicStatusMenu(null, params.get('statusmenu'), 'verified', 'TCP vs UDP'), 400);
       }
     });
   </script>
