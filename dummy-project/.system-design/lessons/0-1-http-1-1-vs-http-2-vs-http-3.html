@@ -36,23 +36,7 @@
     .animate-pulse-subtle { animation: pulse-subtle 2.5s infinite ease-in-out; }
     .interactive-element { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
 
-    /* Custom Theme CSS Variables Injected at Runtime */
-    
-    :root {
-      --background: #0f172a;
-      --foreground: #f8fafc;
-      --card: #1e293b;
-      --card-border: #334155;
-      --border: #334155;
-      --muted-foreground: #94a3b8;
-      --primary: #3b82f6;
-      --primary-hover: #2563eb;
-      --accent-badge: #1e3a8a;
-      --accent-badge-text: #93c5fd;
-    }
-
-
-    /* Scrollbar styling */
+    /* Theming delegated dynamically to SDS Dashboard */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--background); }
     ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }

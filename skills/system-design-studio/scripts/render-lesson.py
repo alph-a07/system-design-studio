@@ -174,13 +174,26 @@ DEFAULT_TEMPLATE = r"""<!DOCTYPE html>
     }
     .animate-pulse-subtle { animation: pulse-subtle 2.5s infinite ease-in-out; }
     .interactive-element { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-    {{THEME_CSS_VARS}}
+    /* Dynamic Theme Variables (Delegated to SDS Dashboard) */
+    :root {
+      --background: transparent;
+      --foreground: inherit;
+      --card: transparent;
+      --card-border: rgba(128, 128, 128, 0.2);
+      --border: rgba(128, 128, 128, 0.2);
+      --muted-foreground: inherit;
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent-badge: rgba(37, 99, 235, 0.1);
+      --accent-badge-text: #2563eb;
+    }
+    /* Scrollbar styling */
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--background); }
-    ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground); }
-    /* Offline Fallback Styles (Air-Gapped & CDN Resilience) */
-    body { background-color: var(--background, #0f172a); color: var(--foreground, #f8fafc); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 1.5rem; }
+    ::-webkit-scrollbar-track { background: var(--background, transparent); }
+    ::-webkit-scrollbar-thumb { background: var(--card-border, #cbd5e1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground, #94a3b8); }
+    /* Universal Responsive Layout */
+    body { background-color: var(--background, transparent); color: var(--foreground, inherit); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 1.5rem; }
     .max-w-4xl { max-width: 56rem; margin-left: auto; margin-right: auto; }
     .space-y-12 > * + * { margin-top: 3rem; }
     .space-y-8 > * + * { margin-top: 2rem; }
@@ -1368,10 +1381,10 @@ def main():
         print(f"✅ Lesson rendered to {out_path} [Format: Markdown Clean]")
     else:
         filename = f"{slug}.html"
-        # Ensure theme variables are bound
-        data["THEME_CSS_VARS"] = theme["css_vars"]
-        data["THEME_NAME"] = theme["name"]
-        data["THEME_ID"] = theme["id"]
+        # Theming is delegated dynamically to dashboard based on live theme preset
+        data["THEME_CSS_VARS"] = ""
+        data["THEME_NAME"] = "Dynamic Dashboard Theme"
+        data["THEME_ID"] = "dynamic"
 
         template_str = DEFAULT_TEMPLATE
         custom_template = args.template or locate_resource_template()

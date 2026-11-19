@@ -5455,6 +5455,9 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
                 if not is_md:
                     try:
                         html_str = content_bytes.decode("utf-8")
+                        # Strip any legacy baked-in theme CSS variables from artifact so they cannot leak into dashboard rendering
+                        html_str = re.sub(r'/\*\s*Custom Theme CSS Variables[^*]*\*/\s*:root\s*\{[^}]*\}', '', html_str, flags=re.DOTALL)
+                        html_str = re.sub(r':root\s*\{\s*--background:[^}]*\}', '', html_str, flags=re.DOTALL)
                         theme_param = query.get("theme", ["dark"])[0]
                         preset_param = query.get("preset", ["slate-clean"])[0]
                         theme_injection = f"""<style id="sds-dynamic-theme-vars">
