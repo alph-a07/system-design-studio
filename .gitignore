@@ -25,3 +25,4 @@ scratch/
 !dummy-project/.system-design/
 !dummy-project/.system-design/**
 dummy-project/.system-design/.checkpoints/
+**/.update-check.json

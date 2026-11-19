@@ -173,27 +173,42 @@ def scan_notes(base_dir, inst_dir):
                 })
     return sorted(items, key=lambda x: x["relPath"])
 
-def get_highlights_path(inst_dir, artifact_path):
+def get_highlights_candidates(inst_dir, artifact_path):
     clean_p = artifact_path.replace("\\", "/").strip("/")
+    candidates = []
+    # If it is a note (starts with tier- or notes/ or ends with .md)
     if clean_p.startswith("notes/"):
         slug = clean_p.replace("/", "--")
-        return os.path.join(inst_dir, "highlights", f"{slug}.json")
+        candidates.append(os.path.join(inst_dir, "highlights", f"{slug}.json"))
+        unprefixed = clean_p[6:]
+        candidates.append(os.path.join(inst_dir, "highlights", f"{unprefixed.replace('/', '--')}.json"))
+    elif any(clean_p.startswith(pfx) for pfx in ["tier-", "tier_"]):
+        candidates.append(os.path.join(inst_dir, "highlights", f"notes--{clean_p.replace('/', '--')}.json"))
+        candidates.append(os.path.join(inst_dir, "highlights", f"{clean_p.replace('/', '--')}.json"))
+    else:
+        candidates.append(os.path.join(inst_dir, "highlights", f"{clean_p.replace('/', '--')}.json"))
     safe_name = os.path.basename(clean_p)
-    return os.path.join(inst_dir, "highlights", f"{safe_name}.json")
+    candidates.append(os.path.join(inst_dir, "highlights", f"{safe_name}.json"))
+    # Legacy next to artifact
+    candidates.append(os.path.join(inst_dir, clean_p + ".highlights.json"))
+    return candidates
+
+def get_highlights_path(inst_dir, artifact_path):
+    candidates = get_highlights_candidates(inst_dir, artifact_path)
+    for c in candidates:
+        if os.path.isfile(c):
+            return c
+    return candidates[0]
 
 def load_highlights_data(inst_dir, artifact_path):
-    p = get_highlights_path(inst_dir, artifact_path)
-    if not os.path.isfile(p):
-        legacy = os.path.join(inst_dir, artifact_path + ".highlights.json")
-        if os.path.isfile(legacy):
-            p = legacy
-        else:
-            return []
-    try:
-        with open(p, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        pass
+    candidates = get_highlights_candidates(inst_dir, artifact_path)
+    for c in candidates:
+        if os.path.isfile(c):
+            try:
+                with open(c, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except Exception:
+                pass
     return []
 
 def save_highlights_data(inst_dir, artifact_path, data):
@@ -471,6 +486,138 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+    }
+
+    .nav-project-dropdown {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px 3px 10px;
+      border: 2px solid var(--border-color);
+      background-color: var(--surface-container-low);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      position: relative;
+      cursor: pointer;
+      min-width: 190px;
+      max-width: 320px;
+      transition: all 0.15s ease;
+    }
+    .nav-project-dropdown:hover, .nav-project-dropdown:focus-within {
+      border-color: var(--primary-container);
+      box-shadow: 3px 3px 0px var(--shadow-color);
+    }
+    .nav-project-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--on-surface);
+      cursor: pointer;
+      padding-right: 22px;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
+      width: 100%;
+    }
+    .nav-project-select option {
+      background-color: var(--surface-container-high);
+      color: var(--on-surface);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .nav-project-caret {
+      position: absolute;
+      right: 6px;
+      pointer-events: none;
+      font-size: 14px;
+      color: var(--on-surface-variant);
+    }
+
+    .version-tag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border: 1.5px solid var(--border-color);
+      background: var(--surface-container-low);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 1px 1px 0px var(--shadow-color);
+    }
+    .version-tag-pill:hover {
+      border-color: var(--primary-container);
+      color: var(--on-surface);
+      background: var(--surface-container-high);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+    }
+    .status-dot.green {
+      background-color: var(--emerald-light, #10b981);
+    }
+
+    /* INDIVIDUAL HIGHLIGHTS POPOVER MENU */
+    .hl-popover-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      width: 290px;
+      max-height: 280px;
+      overflow-y: auto;
+      background: var(--surface-container-high);
+      border: 2px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--shadow-color);
+      padding: 6px;
+      z-index: 2000;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+    .hl-popover-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 6px;
+      background: var(--surface-container-lowest);
+      border: 1px solid var(--border-color);
+      margin-bottom: 4px;
+      transition: background 0.15s ease;
+    }
+    .hl-popover-item:hover {
+      background: var(--surface-container-low);
+    }
+    .hl-popover-text {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--on-surface);
+      font-size: 11px;
+    }
+    .hl-popover-del-btn {
+      background: transparent;
+      border: none;
+      color: var(--secondary);
+      cursor: pointer;
+      padding: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 2px;
+      transition: all 0.1s ease;
+    }
+    .hl-popover-del-btn:hover {
+      background: var(--secondary);
+      color: #fff;
     }
 
     .status-dot {
@@ -2611,7 +2758,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     /* RESPONSIVE BREAKPOINTS (<850px) */
     @media (max-width: 850px) {
-      .active-project-pill { display: none !important; }
+      .active-project-pill, .nav-project-dropdown, .version-tag-pill { display: none !important; }
       .studio-header { padding: 0 10px; gap: 8px; }
       .brand-title { display: none; }
       .nav-tabs {
@@ -2743,11 +2890,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <span class="brand-title">System Design Studio</span>
       </div>
 
-      <!-- Active Project Quick Pill -->
-      <div id="nav-active-project-pill" class="active-project-pill" onclick="switchTab('projects')" title="Active Project (Click to view workspaces)">
+      <!-- Active Project Dropdown Switcher (Synchronized with Projects Tab) -->
+      <div id="nav-project-dropdown-container" class="nav-project-dropdown" title="Active Project (Select to switch workspace)">
         <span class="status-dot"></span>
-        <span id="nav-active-project-name">Loading...</span>
-        <span class="material-symbols-outlined" style="font-size:14px; color:var(--on-surface-variant); margin-left:auto;">unfold_more</span>
+        <select id="nav-project-select" class="nav-project-select" onchange="handleNavProjectSelect(this.value)" aria-label="Switch active workspace">
+          <option value="">Loading workspaces...</option>
+        </select>
+        <span class="material-symbols-outlined nav-project-caret">unfold_more</span>
       </div>
     </div>
 
@@ -2773,6 +2922,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <span class="status-dot pulse"></span>
         <span>Sync</span>
       </div>
+
+      <!-- Studio Version Badge (Click to check updates) -->
+      <button type="button" class="version-tag-pill" id="nav-version-pill" onclick="openSettingsModal('updates')" title="System Design Studio Version (Click to check for updates)">
+        <span class="status-dot green" style="width:6px; height:6px;"></span>
+        <span id="nav-version-label">v3.3.1</span>
+      </button>
 
       <button aria-label="Refresh data" class="icon-action-btn" onclick="refreshData(true)" type="button" title="Refresh local data">
         <span class="material-symbols-outlined" style="font-size:18px;">refresh</span>
@@ -3011,11 +3166,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </div>
 
           <!-- Highlighter controls for reader -->
-          <div id="lesson-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px;">
+          <div id="lesson-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px; position:relative;">
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'lesson')" title="Yellow highlight"></button>
             <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'lesson')" title="Emerald highlight"></button>
             <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'lesson')" title="Cyan highlight"></button>
-            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('lesson')">Clear</button>
+            <button type="button" id="lesson-hl-list-btn" class="btn-ghost" style="padding:2px 6px; font-size:10px; display:inline-flex; align-items:center; gap:2px;" onclick="toggleHighlightsPopover('lesson')" title="View and remove individual highlights">
+              <span class="material-symbols-outlined" style="font-size:12px;">format_ink_highlighter</span>
+              <span id="lesson-hl-count">0</span>
+              <span class="material-symbols-outlined" style="font-size:11px;">arrow_drop_down</span>
+            </button>
+            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('lesson')" title="Clear all highlights in this lesson">Clear All</button>
+            <div id="lesson-hl-popover" class="hl-popover-menu" style="display:none;"></div>
           </div>
 
           <!-- Fullscreen Toggle Button -->
@@ -3084,11 +3245,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <span>Copy</span>
           </button>
           <!-- Highlighter controls for Notes -->
-          <div id="note-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px;">
+          <div id="note-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px; position:relative;">
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'note')" title="Yellow highlight"></button>
             <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'note')" title="Emerald highlight"></button>
             <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'note')" title="Cyan highlight"></button>
-            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('note')">Clear</button>
+            <button type="button" id="note-hl-list-btn" class="btn-ghost" style="padding:2px 6px; font-size:10px; display:inline-flex; align-items:center; gap:2px;" onclick="toggleHighlightsPopover('note')" title="View and remove individual highlights">
+              <span class="material-symbols-outlined" style="font-size:12px;">format_ink_highlighter</span>
+              <span id="note-hl-count">0</span>
+              <span class="material-symbols-outlined" style="font-size:11px;">arrow_drop_down</span>
+            </button>
+            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('note')" title="Clear all highlights in this note">Clear All</button>
+            <div id="note-hl-popover" class="hl-popover-menu" style="display:none;"></div>
           </div>
           <button type="button" id="note-save-btn" class="btn-primary" onclick="saveNoteFromEditor()" style="display:none;" title="Save Note to Disk (⌘S / Ctrl+S)">
             <span class="material-symbols-outlined" style="font-size:14px;">save</span>
@@ -3140,11 +3307,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         </h3>
         <div style="display:flex; align-items:center; gap:8px;">
           <!-- ADR Highlighter controls -->
-          <div id="adr-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px;">
+          <div id="adr-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px; position:relative;">
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'adr')" title="Yellow highlight"></button>
             <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'adr')" title="Emerald highlight"></button>
             <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'adr')" title="Cyan highlight"></button>
-            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('adr')">Clear</button>
+            <button type="button" id="adr-hl-list-btn" class="btn-ghost" style="padding:2px 6px; font-size:10px; display:inline-flex; align-items:center; gap:2px;" onclick="toggleHighlightsPopover('adr')" title="View and remove individual highlights">
+              <span class="material-symbols-outlined" style="font-size:12px;">format_ink_highlighter</span>
+              <span id="adr-hl-count">0</span>
+              <span class="material-symbols-outlined" style="font-size:11px;">arrow_drop_down</span>
+            </button>
+            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('adr')" title="Clear all highlights in DECISIONS.md">Clear All</button>
+            <div id="adr-hl-popover" class="hl-popover-menu" style="display:none;"></div>
           </div>
           <button class="modal-close-btn" onclick="closeModal('adr-modal')">
             <span class="material-symbols-outlined">close</span>
@@ -3315,6 +3488,33 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <label for="settings-auto-notes" style="font-size:12px; font-family:var(--font-body); cursor:pointer;">
             Automatically compile active-learning notes on topic verification
           </label>
+        </div>
+
+        <!-- System Design Studio Updates & Maintenance Section -->
+        <div id="settings-updates-section" style="margin-top:16px; padding:12px; border:2px solid var(--border-color); background:var(--surface-container-low);">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+            <div>
+              <div style="font-family:var(--font-headline); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.02em;">
+                Studio Updates &amp; Version
+              </div>
+              <div style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px;">
+                Installed Version: <strong id="settings-installed-version" style="color:var(--primary-container); background:var(--primary); padding:1px 5px;">v3.3.1</strong>
+              </div>
+            </div>
+            <button type="button" class="btn-ghost" id="btn-check-updates" onclick="checkForUpdates(true)" style="padding:4px 8px; font-size:10px; display:inline-flex; align-items:center; gap:4px;">
+              <span class="material-symbols-outlined" id="update-spinner-icon" style="font-size:13px;">sync</span>
+              <span>Check for Updates</span>
+            </button>
+          </div>
+          <div id="settings-update-status" style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); line-height:1.4;">
+            Updates are strictly on-demand. All user progress, notes, and ADRs are preserved during updates.
+          </div>
+          <div id="settings-update-command-box" style="margin-top:8px; display:none;">
+            <div style="display:flex; align-items:center; gap:6px; background:var(--surface-container-high); border:1px solid var(--border-color); padding:4px 8px;">
+              <code id="settings-update-cmd" style="font-family:var(--font-mono); font-size:10.5px; font-weight:700; color:var(--primary); overflow-x:auto; white-space:nowrap; flex:1; scrollbar-width:none;">curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash</code>
+              <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="copyUpdateCommand(this)">Copy</button>
+            </div>
+          </div>
         </div>
         <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:20px;">
           <button type="button" class="btn-ghost" onclick="closeModal('settings-modal')">
@@ -3818,6 +4018,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           document.body.style.overflow = '';
         }
       }
+      document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
     }
 
     // Theme Management
@@ -3925,11 +4126,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         if (!res.ok) return;
         globalStatus = await res.json();
 
-        // Update nav active project label
+        // Update nav active project label & select
         const m = globalStatus.manifest || {};
         const instName = m.instanceName || 'Project Instance';
-        document.getElementById('nav-active-project-name').innerText = instName;
-        document.getElementById('curriculum-view-project-title').innerText = `${instName} — CURRICULUM`;
+        const navNamePill = document.getElementById('nav-active-project-name');
+        if (navNamePill) navNamePill.innerText = instName;
+        const curProjTitle = document.getElementById('curriculum-view-project-title');
+        if (curProjTitle) curProjTitle.innerText = `${instName} — CURRICULUM`;
 
         // Render curriculum syllabus while preserving open tier state
         renderCurriculum(m);
@@ -4031,6 +4234,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           grid.appendChild(card);
         });
 
+        // Update Top Navbar Project Select Dropdown
+        const navSelect = document.getElementById('nav-project-select');
+        if (navSelect && projects.length > 0) {
+          navSelect.innerHTML = projects.map(p => `
+            <option value="${p.id}" ${p.id === activeId ? 'selected' : ''}>${p.name}</option>
+          `).join('');
+          navSelect.value = activeId || (projects[0] ? projects[0].id : '');
+        }
+
         // Append "+ Scaffolding Card"
         const scaffoldCard = document.createElement('div');
         scaffoldCard.className = 'scaffolding-card';
@@ -4057,6 +4269,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       switchTab('curriculum');
     }
 
+    async function handleNavProjectSelect(projectId) {
+      if (!projectId || projectId === projectsData?.activeProjectId) return;
+      await handleSwitchProject(projectId);
+    }
+
     async function handleSwitchProject(projectId) {
       try {
         const res = await fetch('/api/projects/switch', {
@@ -4065,6 +4282,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({ projectId })
         });
         if (res.ok) {
+          const navSelect = document.getElementById('nav-project-select');
+          if (navSelect) navSelect.value = projectId;
           showToast('Switched active workspace');
           await refreshData();
         }
@@ -4618,7 +4837,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               else iframe.contentDocument.documentElement.classList.remove('dark');
               iframe.contentDocument.documentElement.setAttribute('data-theme-preset', activePreset);
               injectHighlightStylesIntoDoc(iframe.contentDocument);
-              loadAndApplyHighlights(currentLessonContext.htmlPath, iframe.contentDocument.body);
+              loadAndApplyHighlights(currentLessonContext.htmlPath, iframe.contentDocument.body, 'lesson');
             }
           } catch (e) {}
         };
@@ -4636,7 +4855,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (res.ok) {
             const raw = await res.text();
             mdView.innerHTML = renderMarkdown(raw);
-            loadAndApplyHighlights(currentLessonContext.mdPath, mdView);
+            loadAndApplyHighlights(currentLessonContext.mdPath, mdView, 'lesson');
           } else {
             mdView.innerHTML = '<div style="font-family:var(--font-mono); color:var(--secondary); padding:20px;">Failed to load markdown lesson artifact.</div>';
           }
@@ -4716,6 +4935,66 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       openLessonModal(lessonRelPath, title, lessonRelPath);
     };
 
+    // Active Highlights Cache & State per Surface
+    const activeHighlightsCache = {
+      lesson: { path: '', list: [] },
+      note: { path: '', list: [] },
+      adr: { path: 'DECISIONS.md', list: [] }
+    };
+
+    function updateHighlightCountBadge(surfaceHint) {
+      if (!surfaceHint) return;
+      const cnt = activeHighlightsCache[surfaceHint]?.list?.length || 0;
+      const el = document.getElementById(`${surfaceHint}-hl-count`);
+      if (el) el.innerText = cnt;
+    }
+
+    function toggleHighlightsPopover(surfaceHint) {
+      const popover = document.getElementById(`${surfaceHint}-hl-popover`);
+      if (!popover) return;
+      const isVisible = (popover.style.display === 'block');
+
+      // Close all highlight popovers first
+      document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
+
+      if (isVisible) return;
+
+      const cache = activeHighlightsCache[surfaceHint] || { list: [], path: '' };
+      const list = cache.list || [];
+
+      if (list.length === 0) {
+        popover.innerHTML = `
+          <div style="padding:10px 8px; text-align:center; color:var(--on-surface-variant); font-size:11px;">
+            No active highlights yet.<br/>Select text and click a swatch to add one.
+          </div>
+        `;
+      } else {
+        let itemsHtml = `
+          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:4px; margin-bottom:6px;">
+            <strong style="text-transform:uppercase; font-size:10px; color:var(--on-surface);">Highlights (${list.length})</strong>
+            <button type="button" class="btn-ghost" style="padding:1px 4px; font-size:9px; color:var(--secondary);" onclick="clearActiveHighlights('${surfaceHint}')">Clear All</button>
+          </div>
+        `;
+        list.forEach(hl => {
+          const color = hl.color || 'yellow';
+          const rawText = (hl.text || '').replace(/\s+/g, ' ');
+          const previewText = rawText.length > 34 ? rawText.substring(0, 34) + '…' : rawText;
+          const escText = rawText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          itemsHtml += `
+            <div class="hl-popover-item" title="${escText}">
+              <span class="hl-swatch-btn ${color}" style="width:10px; height:10px; pointer-events:none; flex-shrink:0;"></span>
+              <span class="hl-popover-text">"${previewText}"</span>
+              <button type="button" class="hl-popover-del-btn" onclick="deleteSingleHighlight('${cache.path}', '${hl.id}', null, '${surfaceHint}')" title="Delete this highlight">
+                <span class="material-symbols-outlined" style="font-size:13px;">close</span>
+              </button>
+            </div>
+          `;
+        });
+        popover.innerHTML = itemsHtml;
+      }
+      popover.style.display = 'block';
+    }
+
     // Universal Highlighting Engine (DOM TreeWalker & Multi-Surface Persistence)
     function injectHighlightStylesIntoDoc(doc) {
       if (!doc || doc.getElementById('sds-highlight-styles')) return;
@@ -4731,8 +5010,35 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           font-weight: 500;
         }
         .sds-highlight:hover {
-          filter: brightness(0.95);
-          outline: 1px dashed currentColor;
+          filter: brightness(0.92);
+          outline: 1.5px solid #dc2626;
+        }
+        .sds-highlight::after {
+          content: "×";
+          position: absolute;
+          top: -10px;
+          right: -6px;
+          background: #dc2626;
+          color: #ffffff;
+          font-family: monospace;
+          font-size: 11px;
+          font-weight: 800;
+          line-height: 13px;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          pointer-events: auto;
+          cursor: pointer;
+          transition: opacity 0.15s ease;
+          z-index: 50;
+          box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+        }
+        .sds-highlight:hover::after {
+          opacity: 1;
         }
         .sds-hl-yellow {
           background-color: #fef08a !important;
@@ -4768,7 +5074,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       (doc.head || doc.body).appendChild(st);
     }
 
-    function renderHighlightsInContainer(container, highlights, artifactPath) {
+    function renderHighlightsInContainer(container, highlights, artifactPath, surfaceHint = null) {
       if (!container || !highlights || !Array.isArray(highlights)) return;
       const doc = container.ownerDocument || document;
 
@@ -4810,10 +5116,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const mark = doc.createElement('mark');
           mark.className = `sds-highlight sds-hl-${hl.color || 'yellow'}`;
           mark.dataset.hlId = hl.id || '';
-          mark.title = `Click to delete highlight (${hl.color || 'yellow'})`;
+          mark.title = `Click × to delete highlight (${hl.color || 'yellow'})`;
           mark.onclick = (e) => {
             e.stopPropagation();
-            deleteSingleHighlight(artifactPath, hl.id, mark);
+            const fn = window.deleteSingleHighlight || window.parent?.deleteSingleHighlight;
+            if (typeof fn === 'function') {
+              fn(artifactPath, hl.id, mark, surfaceHint);
+            }
           };
 
           if (matchNode.parentNode) {
@@ -4822,16 +5131,30 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           }
         });
       });
+
+      // Synchronize iframe global functions
+      const iframe = document.getElementById('lesson-modal-iframe');
+      if (iframe && iframe.contentWindow) {
+        iframe.contentWindow.deleteSingleHighlight = deleteSingleHighlight;
+        iframe.contentWindow.clearActiveHighlights = clearActiveHighlights;
+      }
     }
 
-    async function loadAndApplyHighlights(artifactPath, container) {
+    async function loadAndApplyHighlights(artifactPath, container, surfaceHint = 'lesson') {
       if (!artifactPath || !container) return;
+      if (activeHighlightsCache[surfaceHint]) {
+        activeHighlightsCache[surfaceHint].path = artifactPath;
+      }
       try {
         const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}`);
         if (res.ok) {
           const data = await res.json();
           const highlights = Array.isArray(data) ? data : (data.highlights || []);
-          renderHighlightsInContainer(container, highlights, artifactPath);
+          if (activeHighlightsCache[surfaceHint]) {
+            activeHighlightsCache[surfaceHint].list = highlights;
+          }
+          updateHighlightCountBadge(surfaceHint);
+          renderHighlightsInContainer(container, highlights, artifactPath, surfaceHint);
         }
       } catch (e) {
         console.warn('Failed to load highlights for', artifactPath, e);
@@ -4842,7 +5165,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     async function loadHighlightsForCurrentArtifact() {
       if (!currentActiveArtifact) return;
       const container = document.getElementById('lesson-modal-markdown');
-      if (container) loadAndApplyHighlights(currentActiveArtifact, container);
+      if (container) loadAndApplyHighlights(currentActiveArtifact, container, 'lesson');
     }
 
     async function applyHighlight(color, surfaceHint = null) {
@@ -4857,16 +5180,19 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const lessonModal = document.getElementById('lesson-modal');
 
       if (surfaceHint === 'adr' || (adrModal && adrModal.classList.contains('active'))) {
+        surfaceHint = 'adr';
         artifactPath = 'DECISIONS.md';
         targetContainer = document.getElementById('adr-modal-content');
         selObj = window.getSelection();
         selectedText = selObj ? selObj.toString().trim() : '';
       } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
+        surfaceHint = 'note';
         artifactPath = activeNoteRelPath;
         targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
         selObj = window.getSelection();
         selectedText = selObj ? selObj.toString().trim() : '';
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
+        surfaceHint = 'lesson';
         if (currentLessonContext.activeFormat === 'html') {
           artifactPath = currentLessonContext.htmlPath;
           const iframe = document.getElementById('lesson-modal-iframe');
@@ -4895,6 +5221,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             targetContainer = iframe.contentDocument.body;
             artifactPath = currentLessonContext.htmlPath;
             selObj = ifSel;
+            surfaceHint = 'lesson';
           }
         }
       }
@@ -4921,8 +5248,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify([hlObj])
         });
         if (res.ok) {
+          if (surfaceHint && activeHighlightsCache[surfaceHint]) {
+            activeHighlightsCache[surfaceHint].list.push(hlObj);
+            updateHighlightCountBadge(surfaceHint);
+          }
           if (targetContainer) {
-            renderHighlightsInContainer(targetContainer, [hlObj], artifactPath);
+            renderHighlightsInContainer(targetContainer, [hlObj], artifactPath, surfaceHint);
           }
           if (selObj) {
             selObj.removeAllRanges();
@@ -4936,7 +5267,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    async function deleteSingleHighlight(artifactPath, hlId, markElement) {
+    async function deleteSingleHighlight(artifactPath, hlId, markElement, surfaceHint = null) {
       if (!artifactPath || !hlId) return;
       try {
         const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}&id=${encodeURIComponent(hlId)}`, {
@@ -4950,6 +5281,36 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             }
             parent.removeChild(markElement);
             parent.normalize();
+          } else {
+            const unwrapMarks = (rootDoc) => {
+              if (!rootDoc) return;
+              rootDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`).forEach(m => {
+                const p = m.parentNode;
+                if (p) {
+                  while (m.firstChild) p.insertBefore(m.firstChild, m);
+                  p.removeChild(m);
+                  p.normalize();
+                }
+              });
+            };
+            unwrapMarks(document);
+            const iframe = document.getElementById('lesson-modal-iframe');
+            if (iframe && iframe.contentDocument) unwrapMarks(iframe.contentDocument);
+          }
+
+          if (surfaceHint && activeHighlightsCache[surfaceHint]) {
+            activeHighlightsCache[surfaceHint].list = (activeHighlightsCache[surfaceHint].list || []).filter(h => h.id !== hlId);
+            updateHighlightCountBadge(surfaceHint);
+            const popover = document.getElementById(`${surfaceHint}-hl-popover`);
+            if (popover && popover.style.display === 'block') {
+              toggleHighlightsPopover(surfaceHint);
+              toggleHighlightsPopover(surfaceHint);
+            }
+          } else {
+            Object.keys(activeHighlightsCache).forEach(s => {
+              activeHighlightsCache[s].list = (activeHighlightsCache[s].list || []).filter(h => h.id !== hlId);
+              updateHighlightCountBadge(s);
+            });
           }
           showToast('Highlight removed');
         }
@@ -4967,12 +5328,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const lessonModal = document.getElementById('lesson-modal');
 
       if (surfaceHint === 'adr' || (adrModal && adrModal.classList.contains('active'))) {
+        surfaceHint = 'adr';
         artifactPath = 'DECISIONS.md';
         targetContainer = document.getElementById('adr-modal-content');
       } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
+        surfaceHint = 'note';
         artifactPath = activeNoteRelPath;
         targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
+        surfaceHint = 'lesson';
         if (currentLessonContext.activeFormat === 'html') {
           artifactPath = currentLessonContext.htmlPath;
           const iframe = document.getElementById('lesson-modal-iframe');
@@ -4983,6 +5347,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
       }
 
+      if (!artifactPath && surfaceHint && activeHighlightsCache[surfaceHint]?.path) {
+        artifactPath = activeHighlightsCache[surfaceHint].path;
+      }
+
       if (!artifactPath) return;
 
       try {
@@ -4990,8 +5358,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           method: 'DELETE'
         });
         if (res.ok) {
-          if (targetContainer) {
-            targetContainer.querySelectorAll('.sds-highlight').forEach(mark => {
+          const clearMarks = (cnt) => {
+            if (!cnt) return;
+            cnt.querySelectorAll('.sds-highlight').forEach(mark => {
               const parent = mark.parentNode;
               if (parent) {
                 while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
@@ -4999,6 +5368,21 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 parent.normalize();
               }
             });
+          };
+
+          clearMarks(targetContainer);
+          clearMarks(document.getElementById('lesson-modal-markdown'));
+          clearMarks(document.getElementById('note-view-body'));
+          clearMarks(document.getElementById('note-split-preview'));
+          clearMarks(document.getElementById('adr-modal-content'));
+          const iframe = document.getElementById('lesson-modal-iframe');
+          if (iframe && iframe.contentDocument) clearMarks(iframe.contentDocument.body);
+
+          if (surfaceHint && activeHighlightsCache[surfaceHint]) {
+            activeHighlightsCache[surfaceHint].list = [];
+            updateHighlightCountBadge(surfaceHint);
+            const popover = document.getElementById(`${surfaceHint}-hl-popover`);
+            if (popover) popover.style.display = 'none';
           }
           showToast('All highlights cleared');
         }
@@ -5006,6 +5390,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         showToast('Error clearing highlights');
       }
     }
+
+    // Attach functions globally so iframe click handlers never fail
+    window.deleteSingleHighlight = deleteSingleHighlight;
+    window.clearActiveHighlights = clearActiveHighlights;
 
     // Dynamic Notes Resolution (Fixes 404 Bug)
     async function openTopicNote(clusterId, topicId, topicTitle) {
@@ -5050,7 +5438,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (statsText) statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
           viewBody.innerHTML = renderMarkdown(content);
           editBody.value = content;
-          loadAndApplyHighlights(activeNoteRelPath, viewBody);
+          loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
           if (new URLSearchParams(window.location.search).get('notescroll') === 'bottom') {
             viewBody.scrollTop = viewBody.scrollHeight;
           }
@@ -5100,7 +5488,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         if (viewBody) {
           viewBody.style.display = 'block';
           viewBody.innerHTML = renderMarkdown(editBody.value);
-          loadAndApplyHighlights(activeNoteRelPath, viewBody);
+          loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
         }
         if (editBody) editBody.style.display = 'none';
         if (splitPreview) splitPreview.style.display = 'none';
@@ -5116,7 +5504,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           splitPreview.style.display = 'block';
           splitPreview.style.flex = '1';
           splitPreview.innerHTML = renderMarkdown(editBody.value);
-          loadAndApplyHighlights(activeNoteRelPath, splitPreview);
+          loadAndApplyHighlights(activeNoteRelPath, splitPreview, 'note');
         }
         editBody.focus();
       } else if (mode === 'edit') {
@@ -5254,13 +5642,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               </div>
               <div>${renderMarkdown(matched)}</div>
             `;
-            loadAndApplyHighlights('DECISIONS.md', box);
+            loadAndApplyHighlights('DECISIONS.md', box, 'adr');
             return;
           }
         }
         titleEl.innerText = 'Architecture Decision Records (DECISIONS.md)';
         box.innerHTML = renderMarkdown(text);
-        loadAndApplyHighlights('DECISIONS.md', box);
+        loadAndApplyHighlights('DECISIONS.md', box, 'adr');
       } catch (e) {
         box.innerText = 'Failed to load decisions.';
       }
@@ -5471,8 +5859,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     });
 
-    // Settings Modal
-    async function openSettingsModal() {
+    // Settings Modal & Updates Engine
+    async function openSettingsModal(section = null) {
       openModal('settings-modal');
       const savedPreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
       document.getElementById('settings-theme-preset').value = savedPreset;
@@ -5486,6 +5874,72 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           document.getElementById('settings-lesson-format').value = p.outputType || 'html';
         }
       } catch (e) {}
+      checkForUpdates(false);
+      if (section === 'updates') {
+        setTimeout(() => {
+          const upSec = document.getElementById('settings-updates-section');
+          if (upSec) upSec.scrollIntoView({ behavior: 'smooth' });
+        }, 120);
+      }
+    }
+
+    async function checkForUpdates(force = false) {
+      const spinner = document.getElementById('update-spinner-icon');
+      const statusEl = document.getElementById('settings-update-status');
+      const cmdBox = document.getElementById('settings-update-command-box');
+      const verLabel = document.getElementById('nav-version-label');
+      const installedEl = document.getElementById('settings-installed-version');
+
+      if (spinner) spinner.style.animation = 'spin 1s linear infinite';
+      if (statusEl) statusEl.innerText = 'Checking remote repository for updates...';
+
+      try {
+        const res = await fetch(`/api/update?force=${force}`);
+        if (res.ok) {
+          const data = await res.json();
+          const curr = data.currentVersion || 'v3.3.1';
+          const remote = data.remoteVersion || curr;
+          const isAvail = (data.updateAvailable === true);
+
+          const formattedCurr = curr.startsWith('v') ? curr : `v${curr}`;
+          if (verLabel) verLabel.innerText = formattedCurr;
+          if (installedEl) installedEl.innerText = formattedCurr;
+
+          if (isAvail) {
+            if (statusEl) {
+              statusEl.innerHTML = `<span style="color:var(--primary-container); font-weight:bold;">🔔 Update available: v${remote}</span> (Installed: ${formattedCurr}). Run the safe updater below:`;
+            }
+            if (cmdBox) cmdBox.style.display = 'block';
+            showToast(`Update available: v${remote}!`);
+          } else {
+            if (statusEl) {
+              statusEl.innerHTML = `<span style="color:var(--emerald-light); font-weight:bold;">✅ You are on the latest version (${formattedCurr}).</span> All skills up to date.`;
+            }
+            if (cmdBox) cmdBox.style.display = 'block';
+            if (force) showToast(`Studio is up to date (${formattedCurr})`);
+          }
+        } else {
+          if (statusEl) statusEl.innerText = 'Unable to check for updates (offline or network error).';
+        }
+      } catch (e) {
+        if (statusEl) statusEl.innerText = 'Unable to reach update service.';
+      } finally {
+        if (spinner) spinner.style.animation = 'none';
+      }
+    }
+
+    function copyUpdateCommand(btn = null) {
+      const cmd = document.getElementById('settings-update-cmd')?.innerText || 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash';
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(cmd).then(() => {
+          showToast('Update command copied to clipboard');
+          if (btn) {
+            const orig = btn.innerText;
+            btn.innerText = 'Copied!';
+            setTimeout(() => { btn.innerText = orig; }, 1500);
+          }
+        });
+      }
     }
 
     async function handleSaveSettings(event) {
@@ -5564,6 +6018,16 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         });
       });
 
+      // Dismiss highlight popovers on click outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.highlighter-controls-group')) {
+          document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
+        }
+      });
+
+      // Initialize update version badge
+      checkForUpdates(false);
+
       // Deep linking via URL query parameters
       const params = new URLSearchParams(window.location.search);
       if (params.get('theme') === 'light') {
@@ -5581,6 +6045,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         document.documentElement.setAttribute('data-theme-preset', params.get('preset'));
         localStorage.setItem('sds_theme_preset', params.get('preset'));
       }
+      if (params.get('modal') === 'settings' || params.get('settings')) {
+        setTimeout(() => openSettingsModal('updates'), 150);
+      }
       if (params.get('tab')) {
         setTimeout(() => switchTab(params.get('tab')), 100);
       }
@@ -5595,7 +6062,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           }
         }, 350);
       } else if (params.get('note')) {
-        setTimeout(() => openTopicNote(params.get('cluster') || 'cluster.0.1', params.get('note'), params.get('title') || 'Study Note'), 350);
+        setTimeout(() => {
+          openTopicNote(params.get('cluster') || 'cluster.0.1', params.get('note'), params.get('title') || 'Study Note');
+          if (params.get('hlmenu')) {
+            setTimeout(() => toggleHighlightsPopover('note'), 450);
+          }
+        }, 350);
       }
       if (params.get('shortcuts') === 'true') {
         setTimeout(() => openShortcutsModal(), 350);
@@ -5744,6 +6216,31 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
             self.send_cors()
             self.end_headers()
             self.wfile.write(json.dumps(data).encode("utf-8"))
+            return
+
+        elif path in ["/update", "/api/update"]:
+            force_check = query.get("force", ["false"])[0].lower() in ["true", "1"]
+            try:
+                scripts_dir = os.path.dirname(os.path.abspath(__file__))
+                if scripts_dir not in sys.path:
+                    sys.path.insert(0, scripts_dir)
+                import importlib
+                check_mod = importlib.import_module("check-updates")
+                update_info = check_mod.check_for_updates(force=force_check, instance_dir=self.inst_dir)
+            except Exception as e:
+                update_info = {
+                    "status": "error",
+                    "currentVersion": "3.3.1",
+                    "remoteVersion": None,
+                    "updateAvailable": False,
+                    "error": str(e)
+                }
+            update_info["updateCommand"] = "curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash"
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_cors()
+            self.end_headers()
+            self.wfile.write(json.dumps(update_info).encode("utf-8"))
             return
 
         elif path == "/api/settings":
@@ -6537,6 +7034,12 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
                 self.end_headers()
                 self.wfile.write(json.dumps({"status": "deleted", "id": hl_id}).encode("utf-8"))
                 return
+            for c in get_highlights_candidates(self.inst_dir, raw_target):
+                if os.path.isfile(c):
+                    try:
+                        os.remove(c)
+                    except Exception:
+                        pass
             save_highlights_data(self.inst_dir, raw_target, [])
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")

@@ -203,14 +203,20 @@ Once initialized, **you never need to switch to a terminal again**. Open your AI
 
 ---
 
-## Universal 1-Line Updater (Preserves All Progress & Settings)
+## Keeping System Design Studio Updated
 
-Updates are **strictly on-demand** (never checked silently during daily learning sessions). When notified via `/sds-update`, run:
+Updates are **strictly on-demand** (never checked silently during daily learning sessions) and zero background telemetry is emitted. You can check for and apply updates through any of the three interfaces:
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
-```
-*(Your project progress in `manifest.json`, `CURSOR.md`, and custom study notes remain 100% intact via `merge-settings.py`)*.
+1. **In AI Agent Chat**:
+   Run `/sds-update` in your agent session to check on-demand.
+2. **In Localhost Dashboard (`:8420`)**:
+   Open **Settings** (or click the version tag in the top bar) and click **Check for Updates**.
+3. **From Any Terminal**:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
+   ```
+
+*(Your project progress in `manifest.json`, `CURSOR.md`, active learning notes in `notes/`, and verified `DECISIONS.md` records remain 100% intact via `merge-settings.py`)*.
 
 ---
 
