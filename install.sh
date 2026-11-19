@@ -536,12 +536,44 @@ fi
 install_to_path "$GLOBAL_STUDIO_DIR/skills" "Central Studio Runtime (${GLOBAL_STUDIO_DIR}/skills)"
 install_agents_to_path "$GLOBAL_STUDIO_DIR/agents" "Central Studio Runtime Agents (${GLOBAL_STUDIO_DIR}/agents)"
 
-# Create convenient CLI wrapper at ~/.system-design-studio/bin/sds
-cat <<'EOF' > "${GLOBAL_BIN}/sds"
+# ---------------------------------------------------------------------------
+# 8. Install System Design Studio CLI (sds) to ~/.system-design-studio/bin/
+# ---------------------------------------------------------------------------
+mkdir -p "${GLOBAL_BIN}"
+
+# Copy sds, sds.cmd, sds.ps1, and update scripts from local or fetched repo
+INSTALLED_CLI=false
+for search_root in "$SCRIPT_DIR" "$TEMP_DIR/repo" "$TEMP_DIR/archive/system-design-studio-main"; do
+  if [ -n "$search_root" ] && [ -f "$search_root/bin/sds" ]; then
+    cp "$search_root/bin/sds" "${GLOBAL_BIN}/sds"
+    [ -f "$search_root/bin/sds.cmd" ] && cp "$search_root/bin/sds.cmd" "${GLOBAL_BIN}/sds.cmd"
+    [ -f "$search_root/bin/sds.ps1" ] && cp "$search_root/bin/sds.ps1" "${GLOBAL_BIN}/sds.ps1"
+    [ -f "$search_root/update.sh" ] && cp "$search_root/update.sh" "${GLOBAL_STUDIO_DIR}/update.sh"
+    [ -f "$search_root/update.ps1" ] && cp "$search_root/update.ps1" "${GLOBAL_STUDIO_DIR}/update.ps1"
+    INSTALLED_CLI=true
+    break
+  fi
+done
+
+# If sds was not copied from source tree, write standalone wrapper
+if [ "$INSTALLED_CLI" = false ]; then
+  cat <<'EOF' > "${GLOBAL_BIN}/sds"
 #!/bin/sh
+# System Design Studio CLI (sds) - v3.4.0
+set -e
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOME_DIR="${HOME:-$USERPROFILE}"
 GLOBAL_DIR="${SDS_GLOBAL_DIR:-$HOME_DIR/.system-design-studio}"
 BASE_SCRIPTS="${GLOBAL_DIR}/skills/system-design-studio/scripts"
+
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+else
+  echo "❌ Error: Python 3 is required to run System Design Studio CLI." >&2
+  exit 1
+fi
 
 case "$1" in
   init)
@@ -550,27 +582,27 @@ case "$1" in
     ;;
   projects|list)
     shift
-    exec python3 "${BASE_SCRIPTS}/manage-projects.py" list "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/manage-projects.py" list "$@"
     ;;
   switch|open)
     shift
-    exec python3 "${BASE_SCRIPTS}/manage-projects.py" switch "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/manage-projects.py" switch "$@"
     ;;
   notes)
     shift
-    exec python3 "${BASE_SCRIPTS}/manage-projects.py" notes "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/manage-projects.py" notes "$@"
     ;;
   revisions|revision|rev)
     shift
-    exec python3 "${BASE_SCRIPTS}/update-revisions.py" "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/update-revisions.py" "$@"
     ;;
   delete|remove|rm)
     shift
-    exec python3 "${BASE_SCRIPTS}/manage-projects.py" delete "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/manage-projects.py" delete "$@"
     ;;
   dashboard|tracker|serve)
     shift
-    exec python3 "${BASE_SCRIPTS}/serve-dashboard.py" "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/serve-dashboard.py" "$@"
     ;;
   dummy|demo)
     shift
@@ -583,37 +615,49 @@ case "$1" in
       exit 1
     fi
     echo "🚀 Launching System Design Studio Dashboard for Dummy Project..."
-    exec python3 "${BASE_SCRIPTS}/serve-dashboard.py" --instance-dir "$DUMMY_DIR" "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/serve-dashboard.py" --instance-dir "$DUMMY_DIR" "$@"
     ;;
   rollback|restore|undo)
     shift
-    exec python3 "${BASE_SCRIPTS}/git-checkpoint.py" rollback "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/git-checkpoint.py" rollback "$@"
     ;;
   checkpoints)
     shift
-    exec python3 "${BASE_SCRIPTS}/git-checkpoint.py" list "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/git-checkpoint.py" list "$@"
     ;;
   curriculum)
     shift
-    exec python3 "${BASE_SCRIPTS}/configure-curriculum.py" "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/configure-curriculum.py" "$@"
     ;;
   config)
     shift
-    exec python3 "${BASE_SCRIPTS}/merge-settings.py" "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/merge-settings.py" "$@"
     ;;
   status)
     shift
-    exec python3 "${BASE_SCRIPTS}/sync-status.py" "$@"
+    exec "$PYTHON_BIN" "${BASE_SCRIPTS}/sync-status.py" "$@"
     ;;
-  *)
+  update|upgrade)
+    shift
+    if [ -f "${GLOBAL_DIR}/update.sh" ]; then
+      exec bash "${GLOBAL_DIR}/update.sh" "$@"
+    else
+      exec curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
+    fi
+    ;;
+  version|-v|--version)
+    echo "System Design Studio CLI v3.4.0"
+    ;;
+  help|-h|--help|*)
     echo "============================================================================"
-    echo "  SYSTEM DESIGN STUDIO CLI (sds)"
+    echo "  SYSTEM DESIGN STUDIO CLI (sds) - v3.4.0"
     echo "============================================================================"
     echo "Usage: sds <command> [options]"
     echo ""
     echo "Core Commands:"
     echo "  sds init [options]         Initialize or scaffold a project learning instance"
     echo "  sds dashboard [options]    Launch interactive curriculum studio & workbench on localhost"
+    echo "  sds dummy [options]        Launch dashboard for local dummy test project"
     echo "  sds revisions [options]    Review high-yield invariants & trade-off defenses"
     echo "  sds list / projects        List registered projects, tracks, and progress"
     echo "  sds switch <id>            Switch active project context"
@@ -626,11 +670,154 @@ case "$1" in
     echo "  sds curriculum [options]   Configure, prune, or reorder curriculum tracks"
     echo "  sds config [key] [val]     Inspect or dynamically update settings"
     echo "  sds status                 Display current living cursor and topic metrics"
+    echo "  sds update                 Update studio skills to the latest release"
+    echo "  sds version                Print version information"
     echo "============================================================================"
     ;;
 esac
 EOF
-chmod +x "${GLOBAL_BIN}/sds"
+fi
+
+chmod +x "${GLOBAL_BIN}/sds" 2>/dev/null || true
+[ -f "${GLOBAL_STUDIO_DIR}/update.sh" ] && chmod +x "${GLOBAL_STUDIO_DIR}/update.sh" 2>/dev/null || true
+
+# ---------------------------------------------------------------------------
+# 9. Auto Add 'sds' to PATH Across All Major Operating Systems & Shells
+# (macOS, Linux, BSD, and Windows Git Bash / WSL / MSYS2)
+# ---------------------------------------------------------------------------
+configure_user_path() {
+  target_bin="$1"
+  [ -d "$target_bin" ] || return 0
+
+  echo ""
+  echo "🔍 Verifying and configuring PATH for 'sds' command..."
+
+  MODIFIED_PROFILES=""
+
+  add_export_to_file() {
+    profile_path="$1"
+    [ -n "$profile_path" ] || return 0
+
+    profile_dir="$(dirname "$profile_path")"
+    [ -d "$profile_dir" ] || mkdir -p "$profile_dir" 2>/dev/null || return 0
+
+    if [ -f "$profile_path" ] && grep -q "\.system-design-studio/bin" "$profile_path" 2>/dev/null; then
+      return 0
+    fi
+
+    if [ -f "$profile_path" ]; then
+      [ -n "$(tail -c 1 "$profile_path" 2>/dev/null)" ] && echo "" >> "$profile_path"
+    fi
+
+    cat <<'PATH_EOF' >> "$profile_path"
+
+# System Design Studio CLI (sds)
+export PATH="$HOME/.system-design-studio/bin:$PATH"
+PATH_EOF
+
+    MODIFIED_PROFILES="$MODIFIED_PROFILES $profile_path"
+  }
+
+  add_to_fish() {
+    fish_conf_dir="$HOME_DIR/.config/fish/conf.d"
+    if [ -d "$HOME_DIR/.config/fish" ] || command -v fish >/dev/null 2>&1; then
+      mkdir -p "$fish_conf_dir" 2>/dev/null || return 0
+      fish_sds_file="$fish_conf_dir/sds.fish"
+      if [ ! -f "$fish_sds_file" ] || ! grep -q "\.system-design-studio/bin" "$fish_sds_file" 2>/dev/null; then
+        cat <<'FISH_EOF' > "$fish_sds_file"
+# System Design Studio CLI (sds)
+if test -d "$HOME/.system-design-studio/bin"
+    if not contains "$HOME/.system-design-studio/bin" $PATH
+        set -gx PATH "$HOME/.system-design-studio/bin" $PATH
+    end
+end
+FISH_EOF
+        MODIFIED_PROFILES="$MODIFIED_PROFILES $fish_sds_file"
+      fi
+    fi
+  }
+
+  CURRENT_SHELL="$(basename "${SHELL:-}" 2>/dev/null || echo "")"
+
+  # A. Zsh (macOS standard, Linux zsh)
+  if [ "$PLATFORM" = "macos" ] || [ "$CURRENT_SHELL" = "zsh" ] || [ -f "$HOME_DIR/.zshrc" ]; then
+    add_export_to_file "$HOME_DIR/.zshrc"
+  fi
+
+  # B. Bash profiles (Linux, macOS bash, Windows Git Bash / MSYS2)
+  if [ -f "$HOME_DIR/.bashrc" ] || [ "$CURRENT_SHELL" = "bash" ] || [ "$PLATFORM" = "linux" ] || [ "$PLATFORM" = "windows" ]; then
+    add_export_to_file "$HOME_DIR/.bashrc"
+  fi
+
+  # macOS bash login shells use ~/.bash_profile
+  if [ "$PLATFORM" = "macos" ] && { [ -f "$HOME_DIR/.bash_profile" ] || [ "$CURRENT_SHELL" = "bash" ]; }; then
+    add_export_to_file "$HOME_DIR/.bash_profile"
+  fi
+
+  # Windows Git Bash / MSYS2 uses ~/.bash_profile
+  if [ "$PLATFORM" = "windows" ]; then
+    add_export_to_file "$HOME_DIR/.bash_profile"
+  fi
+
+  # Universal fallback ~/.profile (Debian/Ubuntu, POSIX login shells)
+  if [ -f "$HOME_DIR/.profile" ] || [ "$PLATFORM" = "linux" ] || [ "$PLATFORM" = "bsd" ]; then
+    add_export_to_file "$HOME_DIR/.profile"
+  fi
+
+  # C. Fish shell
+  add_to_fish
+
+  # D. Windows Native PATH (PowerShell & Command Prompt Integration)
+  if [ "$PLATFORM" = "windows" ]; then
+    if command -v powershell.exe >/dev/null 2>&1; then
+      WIN_TARGET_DIR="$(cygpath -w "$target_bin" 2>/dev/null || python3 -c "import os; print(os.path.abspath('$target_bin'))" 2>/dev/null || echo "")"
+      if [ -n "$WIN_TARGET_DIR" ]; then
+        powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
+          \$target = '$WIN_TARGET_DIR'
+          \$current = [Environment]::GetEnvironmentVariable('Path', 'User')
+          if (\$current -split ';' -notcontains \$target) {
+            \$new = if ([string]::IsNullOrEmpty(\$current)) { \$target } else { \"\$current;\$target\" }
+            [Environment]::SetEnvironmentVariable('Path', \$new, 'User')
+            Write-Output 'UPDATED_WIN_REGISTRY'
+          }
+        " 2>/dev/null | grep -q "UPDATED_WIN_REGISTRY" && {
+          echo "   ✅ Added to Windows User Environment PATH registry (available in cmd.exe & PowerShell)"
+        } || true
+      fi
+    fi
+  fi
+
+  # E. Standard Symlinks (~/.local/bin and /usr/local/bin)
+  LOCAL_BIN="$HOME_DIR/.local/bin"
+  if [ -d "$LOCAL_BIN" ] || [ -w "$HOME_DIR/.local" ]; then
+    mkdir -p "$LOCAL_BIN" 2>/dev/null || true
+    if [ -d "$LOCAL_BIN" ] && [ -w "$LOCAL_BIN" ]; then
+      ln -sf "$target_bin/sds" "$LOCAL_BIN/sds" 2>/dev/null && {
+        echo "   ✅ Created symlink at ${LOCAL_BIN}/sds"
+      } || true
+    fi
+  fi
+
+  if [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
+    ln -sf "$target_bin/sds" "/usr/local/bin/sds" 2>/dev/null && {
+      echo "   ✅ Created symlink at /usr/local/bin/sds"
+    } || true
+  fi
+
+  # Report status to user
+  if [ -n "$MODIFIED_PROFILES" ]; then
+    for prof in $MODIFIED_PROFILES; do
+      echo "   ✅ Configured PATH in: $prof"
+    done
+  else
+    echo "   ℹ️  'sds' is already configured in your shell profile(s)."
+  fi
+
+  # Export for current script execution
+  export PATH="$target_bin:$PATH"
+}
+
+configure_user_path "${GLOBAL_BIN}"
 
 echo ""
 echo "=========================================================="
@@ -642,14 +829,15 @@ echo "   • Visual Theme:     ${THEME_STYLE}"
 echo "   • Output Format:    ${OUTPUT_FORMAT}"
 echo "   • Auto-Notes:       ${AUTO_NOTES} (${NOTES_STRUCTURE})"
 echo "   • Machine Root:     ${GLOBAL_STUDIO_DIR}"
+echo "   • CLI Binary:       ${GLOBAL_BIN}/sds"
 echo ""
 echo "🚀 Next Step — Initialize a Learning Project:"
 echo "   Skill installation and learning instance initialization are separated."
-echo "   To scaffold your first learning instance, run:"
+echo "   To scaffold your first learning instance, open any repo and run:"
 echo ""
-echo "     ${GLOBAL_BIN}/sds init"
-echo "   or:"
-echo "     bash ${GLOBAL_STUDIO_DIR}/skills/system-design-studio/scripts/init-learning-instance.sh"
+echo "     sds init"
+echo "     sds dashboard"
 echo ""
-echo "   (You can also add '${GLOBAL_BIN}' to your PATH for instant 'sds' access)."
+echo "   (If 'sds' is not yet recognized in your current terminal session:"
+echo "    run: source ~/.zshrc  # or: source ~/.bashrc)"
 echo "=========================================================="

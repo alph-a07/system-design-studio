@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Universal Agent Skill Uninstaller
+# System Design Studio — Universal Agent Skill Uninstaller (v3.4)
 # Safely eliminates the system-design-studio skill from all AI coding agents
 # (Google Antigravity, Claude Code, Cursor IDE, OpenAI Codex).
 #
@@ -49,7 +49,7 @@ for arg in "$@"; do
       echo "Usage: uninstall.sh [OPTIONS]"
       echo ""
       echo "Options:"
-      echo "  --purge        Also remove ~/.system-design-studio/ global cache & config"
+      echo "  --purge        Also remove ~/.system-design-studio/ global cache, CLI, and PATH entries"
       echo "  -y, --defaults Non-interactive, remove skill without confirmation prompt"
       echo ""
       echo "Note: Your local Git projects, notes, and .system-design/ folders are never deleted."
@@ -93,7 +93,7 @@ $XDG_CONFIG/codex/skills
 $GLOBAL_STUDIO_DIR/skills
 "
 
-ALL_TARGET_NAMES="system-design-studio sds-status sds-teach sds-discuss sds-complete sds-notes sds-projects sds-open sds-delete sds-curriculum sds-config sds-update"
+ALL_TARGET_NAMES="system-design-studio sds-status sds-teach sds-discuss sds-complete sds-notes sds-projects sds-open sds-delete sds-curriculum sds-config sds-update sds-dashboard sds-rollback"
 
 FOUND_LOCATIONS=""
 for parent in $SKILL_PARENTS; do
@@ -143,10 +143,20 @@ for loc in $FOUND_LOCATIONS; do
   fi
 done
 
-# Remove bin wrapper if present
-if [ -f "$GLOBAL_STUDIO_DIR/bin/sds" ]; then
-  rm -f "$GLOBAL_STUDIO_DIR/bin/sds"
-  echo "   🗑️  Removed CLI: $GLOBAL_STUDIO_DIR/bin/sds"
+# Remove bin wrappers if present
+if [ -d "$GLOBAL_STUDIO_DIR/bin" ]; then
+  rm -f "$GLOBAL_STUDIO_DIR/bin/sds" "$GLOBAL_STUDIO_DIR/bin/sds.cmd" "$GLOBAL_STUDIO_DIR/bin/sds.ps1"
+  echo "   🗑️  Removed CLI wrappers from $GLOBAL_STUDIO_DIR/bin"
+fi
+
+# Remove standard symlinks if pointing to sds
+if [ -L "$HOME_DIR/.local/bin/sds" ]; then
+  rm -f "$HOME_DIR/.local/bin/sds"
+  echo "   🗑️  Removed symlink: $HOME_DIR/.local/bin/sds"
+fi
+if [ -L "/usr/local/bin/sds" ] && [ -w "/usr/local/bin/sds" ]; then
+  rm -f "/usr/local/bin/sds"
+  echo "   🗑️  Removed symlink: /usr/local/bin/sds"
 fi
 
 # Remove command markdown wrappers for Claude Code and Codex if present
@@ -167,8 +177,64 @@ if [ -d "$HOME_DIR/.codex/prompts" ]; then
   done
 fi
 
-# Optional global purge
+# Optional global purge: clean ~/.system-design-studio and clean PATH entries from shell profiles
 if [ "$PURGE_GLOBAL_CONFIG" = true ]; then
+  echo ""
+  echo "🧹 Purging global studio cache and shell PATH configurations..."
+
+  clean_profile_path() {
+    p_file="$1"
+    [ -f "$p_file" ] || return 0
+    if grep -q "\.system-design-studio/bin" "$p_file" 2>/dev/null; then
+      if command -v python3 >/dev/null 2>&1; then
+        python3 -c "
+with open('$p_file', 'r', encoding='utf-8', errors='ignore') as f:
+    lines = f.readlines()
+new_lines = []
+skip_next = False
+for line in lines:
+    if '# System Design Studio CLI (sds)' in line:
+        continue
+    if '.system-design-studio/bin' in line:
+        continue
+    new_lines.append(line)
+with open('$p_file', 'w', encoding='utf-8') as f:
+    f.writelines(new_lines)
+" 2>/dev/null || true
+      else
+        sed -i.bak '/\.system-design-studio\/bin/d' "$p_file" 2>/dev/null || true
+        rm -f "${p_file}.bak" 2>/dev/null || true
+      fi
+      echo "   ✅ Cleaned PATH from: $p_file"
+    fi
+  }
+
+  clean_profile_path "$HOME_DIR/.zshrc"
+  clean_profile_path "$HOME_DIR/.bashrc"
+  clean_profile_path "$HOME_DIR/.bash_profile"
+  clean_profile_path "$HOME_DIR/.profile"
+
+  # Fish shell
+  fish_sds="$HOME_DIR/.config/fish/conf.d/sds.fish"
+  if [ -f "$fish_sds" ]; then
+    rm -f "$fish_sds"
+    echo "   ✅ Removed fish configuration: $fish_sds"
+  fi
+
+  # Windows Registry PATH
+  if command -v powershell.exe >/dev/null 2>&1; then
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "
+      \$current = [Environment]::GetEnvironmentVariable('Path', 'User')
+      if (\$current -match '\.system-design-studio') {
+        \$filtered = (\$current -split ';' | Where-Object { \$_ -notmatch '\.system-design-studio' }) -join ';'
+        [Environment]::SetEnvironmentVariable('Path', \$filtered, 'User')
+        Write-Output 'CLEANED_WIN_PATH'
+      }
+    " 2>/dev/null | grep -q "CLEANED_WIN_PATH" && {
+      echo "   ✅ Cleaned Windows User Environment PATH registry"
+    } || true
+  fi
+
   if [ -d "$GLOBAL_STUDIO_DIR" ]; then
     rm -rf "$GLOBAL_STUDIO_DIR"
     echo "   🗑️  Purged global directory: $GLOBAL_STUDIO_DIR"

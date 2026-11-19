@@ -1,5 +1,9 @@
 #!/bin/sh
 # System Design Studio CLI (sds)
+# Universal cross-platform command line interface for System Design Studio.
+# Works out-of-the-box on macOS, Linux, BSD, and Windows (Git Bash/WSL).
+
+set -e
 
 # Resolve installation or repository directory
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -9,6 +13,17 @@ else
   HOME_DIR="${HOME:-$USERPROFILE}"
   GLOBAL_DIR="${SDS_GLOBAL_DIR:-$HOME_DIR/.system-design-studio}"
   BASE_SCRIPTS_DIR="${GLOBAL_DIR}/skills/system-design-studio/scripts"
+fi
+
+# Resolve Python 3 executable (handles python3 vs python across Linux/macOS/Windows)
+if command -v python3 >/dev/null 2>&1; then
+  PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1; then
+  PYTHON_BIN="python"
+else
+  echo "❌ Error: Python 3 is required to run System Design Studio CLI." >&2
+  echo "   Please install Python 3 from https://python.org or via your package manager." >&2
+  exit 1
 fi
 
 INIT_SCRIPT="${BASE_SCRIPTS_DIR}/init-learning-instance.sh"
@@ -27,27 +42,27 @@ case "$1" in
     ;;
   projects|list)
     shift
-    exec python3 "$PROJECTS_SCRIPT" list "$@"
+    exec "$PYTHON_BIN" "$PROJECTS_SCRIPT" list "$@"
     ;;
   switch|open)
     shift
-    exec python3 "$PROJECTS_SCRIPT" switch "$@"
+    exec "$PYTHON_BIN" "$PROJECTS_SCRIPT" switch "$@"
     ;;
   notes)
     shift
-    exec python3 "$PROJECTS_SCRIPT" notes "$@"
+    exec "$PYTHON_BIN" "$PROJECTS_SCRIPT" notes "$@"
     ;;
   revisions|revision|rev)
     shift
-    exec python3 "$REVISIONS_SCRIPT" "$@"
+    exec "$PYTHON_BIN" "$REVISIONS_SCRIPT" "$@"
     ;;
   delete|remove|rm)
     shift
-    exec python3 "$PROJECTS_SCRIPT" delete "$@"
+    exec "$PYTHON_BIN" "$PROJECTS_SCRIPT" delete "$@"
     ;;
   dashboard|tracker|serve)
     shift
-    exec python3 "$DASHBOARD_SCRIPT" "$@"
+    exec "$PYTHON_BIN" "$DASHBOARD_SCRIPT" "$@"
     ;;
   dummy|demo)
     shift
@@ -62,31 +77,51 @@ case "$1" in
       exit 1
     fi
     echo "🚀 Launching System Design Studio Dashboard for Dummy Project..."
-    exec python3 "$DASHBOARD_SCRIPT" --instance-dir "$DUMMY_DIR" "$@"
+    exec "$PYTHON_BIN" "$DASHBOARD_SCRIPT" --instance-dir "$DUMMY_DIR" "$@"
     ;;
   rollback|restore|undo)
     shift
-    exec python3 "$CHECKPOINT_SCRIPT" rollback "$@"
+    exec "$PYTHON_BIN" "$CHECKPOINT_SCRIPT" rollback "$@"
     ;;
   checkpoints)
     shift
-    exec python3 "$CHECKPOINT_SCRIPT" list "$@"
+    exec "$PYTHON_BIN" "$CHECKPOINT_SCRIPT" list "$@"
     ;;
   curriculum)
     shift
-    exec python3 "$CURRICULUM_SCRIPT" "$@"
+    exec "$PYTHON_BIN" "$CURRICULUM_SCRIPT" "$@"
     ;;
   config)
     shift
-    exec python3 "$SETTINGS_SCRIPT" "$@"
+    exec "$PYTHON_BIN" "$SETTINGS_SCRIPT" "$@"
     ;;
   status)
     shift
-    exec python3 "$STATUS_SCRIPT" "$@"
+    exec "$PYTHON_BIN" "$STATUS_SCRIPT" "$@"
     ;;
-  *)
+  update|upgrade)
+    shift
+    UPDATE_SCRIPT=""
+    if [ -f "$SCRIPT_DIR/../update.sh" ]; then
+      UPDATE_SCRIPT="$SCRIPT_DIR/../update.sh"
+    elif [ -f "${GLOBAL_DIR}/update.sh" ]; then
+      UPDATE_SCRIPT="${GLOBAL_DIR}/update.sh"
+    elif [ -f "${BASE_SCRIPTS_DIR}/update.sh" ]; then
+      UPDATE_SCRIPT="${BASE_SCRIPTS_DIR}/update.sh"
+    fi
+    if [ -n "$UPDATE_SCRIPT" ] && [ -f "$UPDATE_SCRIPT" ]; then
+      exec bash "$UPDATE_SCRIPT" "$@"
+    else
+      echo "📥 Downloading latest update engine..."
+      exec curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
+    fi
+    ;;
+  version|-v|--version)
+    echo "System Design Studio CLI v3.4.0"
+    ;;
+  help|-h|--help|*)
     echo "============================================================================"
-    echo "  SYSTEM DESIGN STUDIO CLI (sds)"
+    echo "  SYSTEM DESIGN STUDIO CLI (sds) — v3.4.0"
     echo "============================================================================"
     echo "Usage: sds <command> [options]"
     echo ""
@@ -106,6 +141,8 @@ case "$1" in
     echo "  sds curriculum [options]   Configure, prune, or reorder curriculum tracks"
     echo "  sds config [key] [val]     Inspect or dynamically update settings"
     echo "  sds status                 Display current living cursor and topic metrics"
+    echo "  sds update                 Update studio skills to the latest release"
+    echo "  sds version                Print version information"
     echo "============================================================================"
     ;;
 esac
