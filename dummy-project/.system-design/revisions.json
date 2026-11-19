@@ -1,0 +1,155 @@
+{
+  "$schemaVersion": "1.0",
+  "lastUpdated": "2026-11-19T09:06:38.978527+00:00",
+  "totalRevisions": 6,
+  "revisions": [
+    {
+      "id": "rev.0.1.tcp-vs-udp",
+      "topicId": "topic.0.1.tcp-vs-udp",
+      "topicTitle": "TCP vs UDP",
+      "tierId": "tier.0",
+      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "clusterId": "cluster.0.1",
+      "clusterTitle": "1. [0.1] APIs & Network Transport for Design",
+      "invariant": "Verified cold in chat defense without notes.",
+      "failureBoundary": "Under 1% network packet loss, HTTP/2 connection throughput degrades by up to 50% because the kernel TCP receive buffer stalls all application streams while waiting for the dropped segment retransmission.",
+      "formula": "Throughput <= (MSS / RTT) * (1 / sqrt(p)) [Mathis Equation]",
+      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
+      "realityCheckPrompt": "Defend the core invariant and quantitative trade-off under failure.",
+      "guarantees": [
+        "Verified operational ordering, bounded blast radius, and deterministic recovery."
+      ],
+      "taxes": [
+        "Coordination overhead, queueing jitter under packet loss, and protocol complexity."
+      ],
+      "masteryStatus": "mastered",
+      "lastReviewed": "2026-11-19",
+      "source": "ADR-004",
+      "nextReviewDate": "2026-11-26",
+      "reviewCount": 1
+    },
+    {
+      "id": "rev.0.2.quic-http3",
+      "topicId": "topic.0.2.quic-and-http3",
+      "topicTitle": "QUIC Stream Multiplexing & Connection Migration",
+      "tierId": "tier.0",
+      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "clusterId": "cluster.0.1.transport",
+      "clusterTitle": "Transport Protocols & Kernel Sockets",
+      "invariant": "QUIC shifts reliable transport and crypto handshakes from kernel OS space into user-space UDP datagrams, isolating packet loss to individual stream frames.",
+      "failureBoundary": "NAT rebinding during cellular-to-Wi-Fi handoff breaks 4-tuple TCP connections; QUIC connection ID (CID) enables seamless migration without reconnecting.",
+      "formula": "Handshake RTT: 0-RTT (resumed) or 1-RTT (initial) vs TCP+TLS 1.3 (2-3 RTT)",
+      "defenseAnswer": "QUIC packets carry independent stream IDs. Dropping a packet for stream #3 halts decoding for stream #3 only; streams #1 and #2 continue reading immediately.",
+      "realityCheckPrompt": "How does QUIC maintain connection continuity across IP address changes without renegotiating TLS?",
+      "guarantees": [
+        "Zero stream-level Head-of-Line blocking",
+        "Cryptographic connection migration across cellular/Wi-Fi handoffs"
+      ],
+      "taxes": [
+        "Higher userspace CPU utilization (UDP syscall overhead)",
+        "Middlebox UDP rate limiting and packet drop policies"
+      ],
+      "masteryStatus": "learning",
+      "lastReviewed": "2026-11-19",
+      "source": "Foundational",
+      "nextReviewDate": "2026-11-20",
+      "reviewCount": 1
+    },
+    {
+      "id": "rev.1.1.lsm-compaction",
+      "topicId": "topic.1.1.lsm-trees",
+      "topicTitle": "LSM Trees: MemTable, SSTables, and Leveled Compaction",
+      "tierId": "tier.1",
+      "tierName": "Tier 1 — Storage Engines & Data Layout",
+      "clusterId": "cluster.1.1.storage",
+      "clusterTitle": "Storage Engines & Inverted Indices",
+      "invariant": "LSM engines trade read latency and compaction write amplification for sequential disk write throughput via append-only commit logs and sorted string tables.",
+      "failureBoundary": "Write stalls occur when background compaction threads cannot keep pace with write ingestion, forcing write rate throttling to avoid SSTable unbounded accumulation.",
+      "formula": "Write Amplification Factor (WAF) = Total Bytes Written to Disk / Bytes Ingested (typically 10-30x in leveled compaction)",
+      "defenseAnswer": "LSM writes strictly append to an in-memory MemTable and on-disk WAL. Reads must check MemTable, Bloom filters, and multi-level SSTables, demanding Bloom filter cache tuning.",
+      "realityCheckPrompt": "Why does an LSM engine trigger write stalls even when spare disk storage is plentiful?",
+      "guarantees": [
+        "Sequential disk writes for high ingest throughput",
+        "Immutable SSTables simplify crash recovery and concurrency"
+      ],
+      "taxes": [
+        "High background write amplification and disk wear",
+        "Read amplification mitigated only by Bloom filters"
+      ],
+      "masteryStatus": "learning",
+      "lastReviewed": "2026-11-18",
+      "source": "Foundational"
+    },
+    {
+      "id": "rev.2.1.raft-consensus",
+      "topicId": "topic.2.1.raft-consensus",
+      "topicTitle": "Raft Leader Election, Log Replication & Quorums",
+      "tierId": "tier.2",
+      "tierName": "Tier 2 — Distributed Coordination & Consensus",
+      "clusterId": "cluster.2.1.consensus",
+      "clusterTitle": "Consensus Protocols & Split-Brain Fencing",
+      "invariant": "Raft guarantees strong state machine safety across asymmetric network partitions through strict term monotonicity and majoritarian log matching: a leader must possess all committed entries from prior terms.",
+      "failureBoundary": "In an asymmetric network partition where a leader can talk to clients but not to a majority of followers, reads without lease verification return stale uncommitted data.",
+      "formula": "Quorum Size Q = floor(N / 2) + 1 (Fault tolerance F = floor((N - 1) / 2))",
+      "defenseAnswer": "Raft avoids split-brain by requiring strict majority quorum (N/2 + 1) for both leader election and entry commitment. Two majorities in a cluster of size N must intersect by at least one common node.",
+      "realityCheckPrompt": "Explain how Raft prevents two leaders from committing divergent entries in the same term.",
+      "guarantees": [
+        "Linearizable read/write consistency",
+        "Deterministic automatic failover within randomized election timeout"
+      ],
+      "taxes": [
+        "Minimum 3 nodes required to tolerate 1 failure; 5 nodes for 2 failures",
+        "Write latency bounded by slowest node in the majority quorum"
+      ],
+      "masteryStatus": "proficient",
+      "lastReviewed": "2026-11-18",
+      "source": "Foundational"
+    },
+    {
+      "id": "rev.0.1.http-1-1-vs-http-2-vs-http-3",
+      "topicId": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
+      "topicTitle": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
+      "tierId": "tier.0",
+      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "clusterId": "cluster.0.1",
+      "clusterTitle": "1. [0.1] APIs & Network Transport for Design",
+      "invariant": "Verified cold in chat defense without notes.",
+      "failureBoundary": "Evaluated failure modes and partition bounds under high load.",
+      "formula": "Quantitative trade-off defended during sign-off.",
+      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
+      "realityCheckPrompt": "Defend the core invariant and quantitative trade-off under failure.",
+      "guarantees": [
+        "Verified operational ordering, bounded blast radius, and deterministic recovery."
+      ],
+      "taxes": [
+        "Coordination overhead, queueing jitter under packet loss, and protocol complexity."
+      ],
+      "masteryStatus": "mastered",
+      "lastReviewed": "2026-11-18",
+      "source": "ADR-003"
+    },
+    {
+      "id": "rev.0.1.tls-handshake-cost-and-session-resumptio",
+      "topicId": "topic.0.1.tls-handshake-cost-and-session-resumptio",
+      "topicTitle": "TLS handshake cost and session resumption",
+      "tierId": "tier.0",
+      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "clusterId": "cluster.0.1",
+      "clusterTitle": "1. [0.1] APIs & Network Transport for Design",
+      "invariant": "Verified cold in chat defense without notes.",
+      "failureBoundary": "Evaluated failure modes and partition bounds under high load.",
+      "formula": "Quantitative trade-off defended during sign-off.",
+      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
+      "realityCheckPrompt": "Defend the core invariant and quantitative trade-off under failure.",
+      "guarantees": [
+        "Verified operational ordering, bounded blast radius, and deterministic recovery."
+      ],
+      "taxes": [
+        "Coordination overhead, queueing jitter under packet loss, and protocol complexity."
+      ],
+      "masteryStatus": "mastered",
+      "lastReviewed": "2026-11-18",
+      "source": "ADR-005"
+    }
+  ]
+}

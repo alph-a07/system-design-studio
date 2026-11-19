@@ -1,0 +1,22 @@
+[
+  {
+    "id": "hl_mock_4",
+    "color": "yellow",
+    "text": "In HTTP/2, multiplexing multiplexes streams over a single TCP connection, which means a single lost IP packet stalls ALL interleaved streams at the kernel layer.",
+    "blockIdx": 4,
+    "startOffset": 10,
+    "endOffset": 172,
+    "createdAt": "2026-11-18T20:45:00.000Z",
+    "note": "HTTP/2 transport-layer bottleneck under lossy cellular links."
+  },
+  {
+    "id": "hl_mock_5",
+    "color": "green",
+    "text": "HTTP/3 solves this by migrating to QUIC over UDP: each stream has independent flow control and loss recovery.",
+    "blockIdx": 8,
+    "startOffset": 5,
+    "endOffset": 114,
+    "createdAt": "2026-11-18T20:48:30.000Z",
+    "note": "QUIC independent stream frame abstraction."
+  }
+]

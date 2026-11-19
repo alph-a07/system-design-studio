@@ -1,0 +1,32 @@
+[
+  {
+    "id": "hl_mock_1",
+    "color": "yellow",
+    "text": "TCP creates the illusion of an unbroken, error-free pipe by forcing the kernel receive queue to hold all subsequent packets hostage until missing bytes arrive.",
+    "blockIdx": 3,
+    "startOffset": 12,
+    "endOffset": 178,
+    "createdAt": "2026-11-18T20:15:00.000Z",
+    "note": "Core Head-of-Line blocking mechanism in kernel receive queue."
+  },
+  {
+    "id": "hl_mock_2",
+    "color": "green",
+    "text": "Bandwidth-Delay Product (BDP) defines the total unacknowledged volume in transit: BDP = Bandwidth × Round-Trip Time.",
+    "blockIdx": 6,
+    "startOffset": 0,
+    "endOffset": 115,
+    "createdAt": "2026-11-18T20:18:22.000Z",
+    "note": "Key back-of-the-envelope formula for socket buffer sizing."
+  },
+  {
+    "id": "hl_mock_3",
+    "color": "purple",
+    "text": "Real-time interactive audio cannot wait for retransmissions; a late packet is worse than a dropped packet.",
+    "blockIdx": 10,
+    "startOffset": 45,
+    "endOffset": 152,
+    "createdAt": "2026-11-18T20:22:10.000Z",
+    "note": "Why WebRTC/VoIP prioritizes timeliness over complete delivery."
+  }
+]
