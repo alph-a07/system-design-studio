@@ -55,12 +55,17 @@ def get_projects_registry_path():
 def load_projects_registry():
     reg_path = get_projects_registry_path()
     if not os.path.exists(reg_path):
-        return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": []}
+        return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": [], "unregisteredPaths": []}
     try:
         with open(reg_path, "r", encoding="utf-8") as f:
-            return json.load(f)
+            data = json.load(f)
+            if not isinstance(data, dict):
+                return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": [], "unregisteredPaths": []}
+            if "unregisteredPaths" not in data:
+                data["unregisteredPaths"] = []
+            return data
     except Exception:
-        return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": []}
+        return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": [], "unregisteredPaths": []}
 
 def save_projects_registry(data):
     reg_path = get_projects_registry_path()
@@ -70,19 +75,233 @@ def save_projects_registry(data):
         json.dump(data, f, indent=2, ensure_ascii=False)
     os.replace(temp_path, reg_path)
 
-def resolve_instance_dir(raw_dir=None, project_id=None):
+def resolve_manifest_metrics(manifest_path, base_dir=None):
+    """Parses manifest.json live from disk and returns accurate topics metrics and active topic info."""
+    if not manifest_path or not os.path.isfile(manifest_path):
+        return None
+    try:
+        with open(manifest_path, "r", encoding="utf-8") as f:
+            manifest = json.load(f)
+        curriculum = manifest.get("curriculum", {})
+        clusters = curriculum.get("clusters", [])
+        total_topics = sum(len(c.get("topics", [])) for c in clusters)
+        verified_topics = sum(1 for c in clusters for t in c.get("topics", []) if t.get("status") in ("completed", "verified"))
+        active_topic_id = curriculum.get("activeTopicId", "none")
+        active_cluster_id = curriculum.get("activeClusterId", "none")
+        active_track = curriculum.get("activeTrackId") or curriculum.get("track") or "full-mastery"
+
+        active_topic_title = "Foundation Initialization"
+        for c in clusters:
+            for t in c.get("topics", []):
+                if t.get("id") == active_topic_id:
+                    active_topic_title = t.get("title") or t.get("name") or active_topic_title
+                    break
+
+        git_branch = "main"
+        if base_dir and os.path.isdir(base_dir):
+            git_branch = get_git_info(base_dir).get("branch", "main")
+
+        pct = round((verified_topics / total_topics) * 100) if total_topics > 0 else 0
+        return {
+            "instanceName": manifest.get("instanceName"),
+            "track": active_track,
+            "totalTopics": total_topics,
+            "verifiedTopics": verified_topics,
+            "completed": verified_topics,
+            "total": total_topics,
+            "percentage": pct,
+            "activeTopicId": active_topic_id,
+            "activeTopicTitle": active_topic_title,
+            "activeClusterId": active_cluster_id,
+            "gitBranch": git_branch,
+            "lastActive": datetime.datetime.fromtimestamp(os.path.getmtime(manifest_path), tz=datetime.timezone.utc).isoformat()
+        }
+    except Exception:
+        return None
+
+def get_live_projects_registry(current_inst_dir=None, save_back=True):
+    """
+    Live consumer of disk data:
+    1. Loads registered projects from projects.json.
+    2. Auto-discovers any learning projects across disk:
+       - ~/.system-design-studio/projects/*
+       - current server instance directory (current_inst_dir)
+       - current working directory (os.getcwd()) and sibling project directories
+    3. Re-reads every project's manifest.json live from disk to compute exact topics count,
+       active focus topic, and real-time completion percentages.
+    4. Persists the synced registry state so all CLI tools and web views share identical data.
+    """
     reg = load_projects_registry()
+    projects = reg.get("projects", [])
+    active_id = reg.get("activeProjectId")
+    unregistered = set(reg.get("unregisteredPaths", []))
+
+    seen_paths = {}
+    for p in projects:
+        pp = os.path.abspath(os.path.expanduser(p.get("projectPath", "")))
+        seen_paths[pp] = p
+
+    candidates = []
+
+    # 1. Central studio projects (~/.system-design-studio/projects/*)
+    studio_projects_dir = os.path.join(get_global_studio_dir(), "projects")
+    if os.path.isdir(studio_projects_dir):
+        try:
+            for entry in os.listdir(studio_projects_dir):
+                cand = os.path.join(studio_projects_dir, entry)
+                if os.path.isdir(cand):
+                    candidates.append(cand)
+        except Exception:
+            pass
+
+    # 2. Current server instance directory (if provided)
+    if current_inst_dir:
+        cand_inst = os.path.abspath(os.path.expanduser(current_inst_dir))
+        cand_base = os.path.dirname(cand_inst) if os.path.basename(cand_inst) == ".system-design" else cand_inst
+        candidates.append(cand_base)
+
+    # 3. Current working directory and immediate siblings (e.g. ~/Developer/*, only in normal workspace mode)
+    if not os.environ.get("SDS_GLOBAL_DIR"):
+        cwd = os.path.abspath(os.getcwd())
+        candidates.append(cwd)
+        parent_cwd = os.path.dirname(cwd)
+        if os.path.isdir(parent_cwd) and parent_cwd != cwd:
+            try:
+                for entry in os.listdir(parent_cwd):
+                    cand = os.path.join(parent_cwd, entry)
+                    if os.path.isdir(cand):
+                        candidates.append(cand)
+            except Exception:
+                pass
+
+    # Auto-discover candidates that contain .system-design/manifest.json
+    for cand_path in candidates:
+        cand_path = os.path.abspath(cand_path)
+        if cand_path in unregistered:
+            continue
+        m_path = os.path.join(cand_path, ".system-design", "manifest.json")
+        if not os.path.isfile(m_path):
+            continue
+
+        if cand_path not in seen_paths:
+            metrics = resolve_manifest_metrics(m_path, cand_path)
+            folder_name = os.path.basename(cand_path)
+            name = (metrics.get("instanceName") if metrics else None) or folder_name
+            slug_id = re.sub(r"[^a-zA-Z0-9_-]", "-", name.lower()).strip("-") or folder_name.lower()
+            existing_ids = {p.get("id") for p in projects}
+            final_id = slug_id
+            counter = 1
+            while final_id in existing_ids:
+                final_id = f"{slug_id}-{counter}"
+                counter += 1
+
+            location_type = "default" if cand_path.startswith(studio_projects_dir) else "custom"
+            now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            new_p = {
+                "id": final_id,
+                "name": name,
+                "locationType": location_type,
+                "projectPath": cand_path,
+                "track": (metrics.get("track") if metrics else None) or "full-mastery",
+                "notesDir": os.path.join(cand_path, "notes"),
+                "notesStructure": "per-topic",
+                "createdAt": now_iso,
+                "lastActive": now_iso
+            }
+            projects.append(new_p)
+            seen_paths[cand_path] = new_p
+
+    # Refresh live metrics for EVERY project directly from disk
+    refreshed_projects = []
+    for p in projects:
+        p_path = os.path.abspath(os.path.expanduser(p.get("projectPath", "")))
+        m_path = os.path.join(p_path, ".system-design", "manifest.json")
+        metrics = resolve_manifest_metrics(m_path, p_path)
+        if metrics:
+            p["name"] = metrics["instanceName"] or p.get("name")
+            p["track"] = metrics["track"] or p.get("track") or "full-mastery"
+            p["gitBranch"] = metrics["gitBranch"]
+            p["lastActive"] = metrics["lastActive"]
+            p["activeTopicTitle"] = metrics["activeTopicTitle"]
+            p["progress"] = {
+                "totalTopics": metrics["totalTopics"],
+                "verifiedTopics": metrics["verifiedTopics"],
+                "completed": metrics["completed"],
+                "total": metrics["total"],
+                "percentage": metrics["percentage"],
+                "activeTopicId": metrics["activeTopicId"],
+                "activeTopicTitle": metrics["activeTopicTitle"],
+                "activeClusterId": metrics["activeClusterId"]
+            }
+            refreshed_projects.append(p)
+        else:
+            if os.path.isdir(p_path):
+                default_total = 114 if p.get("track") == "interview-sprint" else 354
+                p["progress"] = {
+                    "totalTopics": default_total,
+                    "verifiedTopics": 0,
+                    "completed": 0,
+                    "total": default_total,
+                    "percentage": 0,
+                    "activeTopicId": "none",
+                    "activeTopicTitle": "Foundation Initialization",
+                    "activeClusterId": "none"
+                }
+                refreshed_projects.append(p)
+            else:
+                p["missingOnDisk"] = True
+                p["progress"] = {
+                    "totalTopics": 0,
+                    "verifiedTopics": 0,
+                    "completed": 0,
+                    "total": 0,
+                    "percentage": 0
+                }
+                refreshed_projects.append(p)
+
+    reg["projects"] = refreshed_projects
+
+    if not active_id or not any(p.get("id") == active_id for p in refreshed_projects):
+        if refreshed_projects:
+            matched = None
+            if current_inst_dir:
+                c_norm = os.path.abspath(os.path.expanduser(current_inst_dir))
+                c_base = os.path.dirname(c_norm) if os.path.basename(c_norm) == ".system-design" else c_norm
+                matched = next((p for p in refreshed_projects if os.path.abspath(os.path.expanduser(p.get("projectPath", ""))) == c_base), None)
+            reg["activeProjectId"] = matched["id"] if matched else refreshed_projects[0]["id"]
+
+    if save_back:
+        try:
+            save_projects_registry(reg)
+        except Exception:
+            pass
+
+    return reg
+
+def resolve_instance_dir(raw_dir=None, project_id=None):
+    reg = get_live_projects_registry(save_back=False)
     if project_id:
         for p in reg.get("projects", []):
             if p.get("id") == project_id:
                 p_path = os.path.expanduser(p.get("projectPath", ""))
-                return os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+                cand = os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+                if os.path.isdir(cand):
+                    return cand
 
     if raw_dir:
         expanded = os.path.expanduser(raw_dir)
         if os.path.isdir(os.path.join(expanded, ".system-design")):
             return os.path.join(expanded, ".system-design")
         return expanded
+
+    active_id = reg.get("activeProjectId")
+    if active_id:
+        for p in reg.get("projects", []):
+            if p.get("id") == active_id:
+                p_path = os.path.expanduser(p.get("projectPath", ""))
+                cand = os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+                if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "manifest.json")):
+                    return cand
 
     cwd_inst = os.path.abspath(".system-design")
     if os.path.isdir(cwd_inst) and os.path.isfile(os.path.join(cwd_inst, "manifest.json")):
@@ -97,12 +316,11 @@ def resolve_instance_dir(raw_dir=None, project_id=None):
         if parent == curr:
             break
 
-    active_id = reg.get("activeProjectId")
-    if active_id:
-        for p in reg.get("projects", []):
-            if p.get("id") == active_id:
-                p_path = os.path.expanduser(p.get("projectPath", ""))
-                return os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+    for p in reg.get("projects", []):
+        p_path = os.path.expanduser(p.get("projectPath", ""))
+        cand = os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+        if os.path.isdir(cand) and os.path.isfile(os.path.join(cand, "manifest.json")):
+            return cand
 
     return None
 
@@ -220,17 +438,34 @@ def save_highlights_data(inst_dir, artifact_path, data):
 def compute_instance_state_hash(inst_dir, base_dir):
     try:
         files_to_check = [
-            os.path.join(inst_dir, "manifest.json"),
-            os.path.join(inst_dir, "CURSOR.md"),
-            os.path.join(inst_dir, "DECISIONS.md"),
-            os.path.join(inst_dir, "settings.json"),
-            os.path.join(inst_dir, "revisions.json"),
+            os.path.join(inst_dir, "manifest.json") if inst_dir else "",
+            os.path.join(inst_dir, "CURSOR.md") if inst_dir else "",
+            os.path.join(inst_dir, "DECISIONS.md") if inst_dir else "",
+            os.path.join(inst_dir, "settings.json") if inst_dir else "",
+            os.path.join(inst_dir, "revisions.json") if inst_dir else "",
             get_projects_registry_path()
         ]
         mtimes = []
         for f in files_to_check:
-            if os.path.isfile(f):
-                mtimes.append(f"{os.path.basename(f)}:{os.path.getmtime(f)}")
+            if f and os.path.isfile(f):
+                mtimes.append(f"{os.path.basename(f)}:{os.path.getmtime(f)}:{os.path.getsize(f)}")
+
+        # Watch central studio projects directory for new/deleted project folders
+        studio_projects = os.path.join(get_global_studio_dir(), "projects")
+        if os.path.isdir(studio_projects):
+            mtimes.append(f"projects_dir:{os.path.getmtime(studio_projects)}:{len(os.listdir(studio_projects))}")
+
+        # Watch lessons and notes directories
+        if inst_dir:
+            lessons_dir = os.path.join(inst_dir, "lessons")
+            if os.path.isdir(lessons_dir):
+                mtimes.append(f"lessons:{os.path.getmtime(lessons_dir)}:{len(os.listdir(lessons_dir))}")
+
+        if base_dir:
+            notes_dir = os.path.join(base_dir, "notes")
+            if os.path.isdir(notes_dir):
+                mtimes.append(f"notes:{os.path.getmtime(notes_dir)}:{len(os.listdir(notes_dir))}")
+
         return "|".join(mtimes)
     except Exception:
         return str(time.time())
@@ -1162,6 +1397,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       letter-spacing: 0.06em;
       border-radius: 2px;
       box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
+      color: #ffffff !important;
     }
 
     .tier-badge {
@@ -1555,10 +1791,24 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-size: 13.5px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--on-surface) !important;
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .status-option-title.status-verified {
+      color: #059669 !important;
+    }
+    html.dark .status-option-title.status-verified {
+      color: #34d399 !important;
+    }
+    .status-option-title.status-active {
+      color: var(--primary-container) !important;
+    }
+    .status-option-title.status-not-started {
+      color: var(--on-surface) !important;
+    }
+    html.dark .status-option-title.status-not-started {
+      color: #f0f6fc !important;
     }
 
     .status-option-desc {
@@ -1567,6 +1817,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-family: var(--font-mono);
       margin-top: 3px;
       line-height: 1.4;
+    }
+    html.dark .status-option-desc {
+      color: #94a3b8 !important;
     }
 
     .status-selected-pill {
@@ -3186,7 +3439,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <h1 class="view-title">PROJECT WORKSPACES</h1>
           <p class="view-subtitle">Local-first learning instances tracked via Git repositories.</p>
         </div>
-        <div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button class="btn-ghost" onclick="refreshData(true)" title="Rescan disk for workspaces">
+            <span class="material-symbols-outlined" style="font-size:16px; margin-right:4px;">sync</span>
+            <span>Rescan Disk</span>
+          </button>
           <button class="btn-primary" onclick="openNewProjectModal()">
             <span class="material-symbols-outlined" style="font-size:16px;">add</span>
             <span>New Workspace</span>
@@ -3666,7 +3923,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <span class="material-symbols-outlined" style="color:#10b981; font-size:24px; flex-shrink:0;">check_circle</span>
             <div style="text-align:left; min-width:0;">
-              <div class="status-option-title" style="color:#10b981;">VERIFIED</div>
+              <div class="status-option-title status-verified" style="color:#10b981;">VERIFIED</div>
               <div class="status-option-desc">Invariant defended &amp; recorded in manifest</div>
             </div>
           </div>
@@ -3680,7 +3937,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <span class="material-symbols-outlined" style="color:var(--primary-container); font-size:24px; flex-shrink:0;">pending</span>
             <div style="text-align:left; min-width:0;">
-              <div class="status-option-title" style="color:var(--primary-container);">ACTIVE FOCUS</div>
+              <div class="status-option-title status-active" style="color:var(--primary-container);">ACTIVE FOCUS</div>
               <div class="status-option-desc">Currently learning or in active dialectic</div>
             </div>
           </div>
@@ -3694,7 +3951,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <span class="material-symbols-outlined" style="color:var(--on-surface-variant); font-size:24px; flex-shrink:0;">radio_button_unchecked</span>
             <div style="text-align:left; min-width:0;">
-              <div class="status-option-title" style="color:var(--on-surface);">NOT STARTED</div>
+              <div class="status-option-title status-not-started" style="color:var(--on-surface);">NOT STARTED</div>
               <div class="status-option-desc">Unseen curriculum topic</div>
             </div>
           </div>
@@ -4471,9 +4728,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const card = document.createElement('div');
           card.className = `project-card ${isActive ? 'active-card' : ''}`;
 
-          const verified = p.progress?.verifiedTopics || 0;
-          const total = p.progress?.totalTopics || 114;
-          const pct = Math.round((verified / (total || 1)) * 100);
+          const verified = p.progress?.verifiedTopics ?? p.progress?.completed ?? 0;
+          const total = p.progress?.totalTopics ?? p.progress?.total ?? (p.track === 'full-mastery' ? 354 : (p.track === 'interview-sprint' ? 114 : 0));
+          const pct = total > 0 ? Math.round((verified / total) * 100) : 0;
+          const focusTitle = p.progress?.activeTopicTitle || p.activeTopicTitle || 'Foundation Initialization';
 
           card.innerHTML = `
             <div>
@@ -4498,8 +4756,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <div class="progress-bar-fill" style="width: ${pct}%;"></div>
               </div>
 
-              <div class="active-topic-snippet" title="${p.activeTopicTitle || 'Foundation'}">
-                <strong>Focus:</strong> ${p.activeTopicTitle || 'Foundation Initialization'}
+              <div class="active-topic-snippet" title="${focusTitle}">
+                <strong>Focus:</strong> ${focusTitle}
               </div>
             </div>
 
@@ -4568,6 +4826,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const navSelect = document.getElementById('nav-project-select');
           if (navSelect) navSelect.value = projectId;
           showToast('Switched active workspace');
+          await loadProjects();
           await refreshData();
         }
       } catch (e) {
@@ -6826,6 +7085,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 class StudioDashboardHandler(BaseHTTPRequestHandler):
     inst_dir = None
     base_dir = None
+    pinned_instance = False
 
     def log_message(self, format, *args):
         pass
@@ -6840,10 +7100,31 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
         self.send_cors()
         self.end_headers()
 
+    def sync_active_instance(self):
+        if StudioDashboardHandler.pinned_instance:
+            return
+        try:
+            reg = get_live_projects_registry(current_inst_dir=StudioDashboardHandler.inst_dir)
+            active_id = reg.get("activeProjectId")
+            if active_id:
+                for p in reg.get("projects", []):
+                    if p.get("id") == active_id:
+                        p_path = os.path.expanduser(p.get("projectPath", ""))
+                        expected_inst = os.path.join(p_path, ".system-design") if not p_path.endswith(".system-design") else p_path
+                        if os.path.isdir(expected_inst) and os.path.isfile(os.path.join(expected_inst, "manifest.json")):
+                            if StudioDashboardHandler.inst_dir != expected_inst:
+                                StudioDashboardHandler.inst_dir = expected_inst
+                                StudioDashboardHandler.base_dir = os.path.dirname(expected_inst) if os.path.basename(expected_inst) == ".system-design" else expected_inst
+                        break
+        except Exception:
+            pass
+
     def do_GET(self):
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
+
+        self.sync_active_instance()
 
         if path in ["/", "/index.html"]:
             self.send_response(200)
@@ -6895,7 +7176,7 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
             return
 
         elif path == "/api/projects":
-            reg = load_projects_registry()
+            reg = get_live_projects_registry(current_inst_dir=StudioDashboardHandler.inst_dir)
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_cors()
@@ -7397,6 +7678,7 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
             self.wfile.write(b"Not found")
 
     def do_POST(self):
+        self.sync_active_instance()
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
@@ -7479,8 +7761,9 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
             return
 
         elif path == "/api/projects/switch":
+            StudioDashboardHandler.pinned_instance = False
             project_id = payload.get("projectId")
-            reg = load_projects_registry()
+            reg = get_live_projects_registry(current_inst_dir=StudioDashboardHandler.inst_dir)
             for p in reg.get("projects", []):
                 if p.get("id") == project_id:
                     reg["activeProjectId"] = project_id
@@ -7516,8 +7799,22 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
             res = subprocess.run(cmd, capture_output=True, text=True, check=False)
 
             if res.returncode == 0:
+                # Remove from unregisteredPaths if previously deleted
+                reg = load_projects_registry()
+                unreg = set(reg.get("unregisteredPaths", []))
+                norm_target = os.path.abspath(target_dir)
+                if norm_target in unreg:
+                    unreg.remove(norm_target)
+                    reg["unregisteredPaths"] = list(unreg)
+                    save_projects_registry(reg)
+
+                # Re-sync live projects
+                reg = get_live_projects_registry(current_inst_dir=StudioDashboardHandler.inst_dir)
+                reg["activeProjectId"] = proj_id
+                save_projects_registry(reg)
+
                 new_inst = resolve_instance_dir(project_id=proj_id)
-                if os.path.isdir(new_inst):
+                if new_inst and os.path.isdir(new_inst):
                     StudioDashboardHandler.inst_dir = new_inst
                     StudioDashboardHandler.base_dir = os.path.dirname(new_inst) if os.path.basename(new_inst) == ".system-design" else new_inst
                 self.send_response(200)
@@ -7547,15 +7844,23 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
                 if curr_path == d_path or curr_path.startswith(d_path + os.sep) or d_path.startswith(curr_path):
                     was_current = True
 
+            # Record in unregisteredPaths so auto-discovery does not immediately resurrect it
+            if deleted_proj and deleted_proj.get("projectPath"):
+                del_p = os.path.abspath(os.path.expanduser(deleted_proj.get("projectPath")))
+                unreg = set(reg.get("unregisteredPaths", []))
+                unreg.add(del_p)
+                reg["unregisteredPaths"] = list(unreg)
+
             reg["projects"] = [p for p in reg.get("projects", []) if p.get("id") != project_id]
             if was_current or reg.get("activeProjectId") == project_id:
                 reg["activeProjectId"] = reg["projects"][0]["id"] if reg["projects"] else None
 
-            if len(reg.get("projects", [])) < before_len:
+            if len(reg.get("projects", [])) < before_len or "unregisteredPaths" in reg:
                 save_projects_registry(reg)
 
             # Update in-memory handler if the active or current project was deleted
             if was_current and reg.get("activeProjectId"):
+                StudioDashboardHandler.pinned_instance = False
                 new_active_inst = resolve_instance_dir(project_id=reg["activeProjectId"])
                 if new_active_inst and os.path.isdir(new_active_inst):
                     StudioDashboardHandler.inst_dir = new_active_inst
@@ -7721,6 +8026,7 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
             self.wfile.write(b"Not found")
 
     def do_DELETE(self):
+        self.sync_active_instance()
         parsed = urllib.parse.urlparse(self.path)
         path = parsed.path
         query = urllib.parse.parse_qs(parsed.query)
@@ -7783,6 +8089,7 @@ def main():
 
     StudioDashboardHandler.inst_dir = inst_dir
     StudioDashboardHandler.base_dir = base_dir
+    StudioDashboardHandler.pinned_instance = bool(args.instance_dir or args.project_id)
 
     server = StudioHTTPServer(("127.0.0.1", port), StudioDashboardHandler)
     server.daemon_threads = True

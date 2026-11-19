@@ -30,15 +30,25 @@ def get_projects_registry_path():
 def get_global_config_path():
     return os.path.join(get_global_studio_dir(), "config.json")
 
-def load_registry():
+def load_registry(auto_discover=False):
     reg_path = get_projects_registry_path()
-    if not os.path.exists(reg_path):
-        return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": []}
-    try:
-        with open(reg_path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {"$schemaVersion": "3.2", "activeProjectId": None, "projects": []}
+    data = {"$schemaVersion": "3.2", "activeProjectId": None, "projects": [], "unregisteredPaths": []}
+    if os.path.exists(reg_path):
+        try:
+            with open(reg_path, "r", encoding="utf-8") as f:
+                loaded = json.load(f)
+                if isinstance(loaded, dict):
+                    data = loaded
+        except Exception:
+            pass
+
+    if "unregisteredPaths" not in data:
+        data["unregisteredPaths"] = []
+
+    if auto_discover:
+        data = discover_disk_projects(data)
+
+    return data
 
 def save_registry(data):
     reg_path = get_projects_registry_path()
@@ -48,27 +58,128 @@ def save_registry(data):
         json.dump(data, f, indent=2, ensure_ascii=False)
     os.replace(temp_path, reg_path)
 
+def discover_disk_projects(reg):
+    import re
+    projects = reg.get("projects", [])
+    unregistered = set(reg.get("unregisteredPaths", []))
+    seen_paths = {}
+    for p in projects:
+        pp = os.path.abspath(os.path.expanduser(p.get("projectPath", "")))
+        seen_paths[pp] = p
+
+    candidates = []
+    # 1. Central studio projects
+    studio_projects_dir = os.path.join(get_global_studio_dir(), "projects")
+    if os.path.isdir(studio_projects_dir):
+        try:
+            for entry in os.listdir(studio_projects_dir):
+                cand = os.path.join(studio_projects_dir, entry)
+                if os.path.isdir(cand):
+                    candidates.append(cand)
+        except Exception:
+            pass
+
+    # 2. Cwd and siblings (only in normal workspace mode, never inside isolated test suites)
+    if not os.environ.get("SDS_GLOBAL_DIR"):
+        cwd = os.path.abspath(os.getcwd())
+        candidates.append(cwd)
+        parent_cwd = os.path.dirname(cwd)
+        if os.path.isdir(parent_cwd) and parent_cwd != cwd:
+            try:
+                for entry in os.listdir(parent_cwd):
+                    cand = os.path.join(parent_cwd, entry)
+                    if os.path.isdir(cand):
+                        candidates.append(cand)
+            except Exception:
+                pass
+
+    changed = False
+    for cand_path in candidates:
+        cand_path = os.path.abspath(cand_path)
+        if cand_path in unregistered:
+            continue
+        m_path = os.path.join(cand_path, ".system-design", "manifest.json")
+        if not os.path.isfile(m_path):
+            continue
+
+        if cand_path not in seen_paths:
+            m = {}
+            try:
+                with open(m_path, "r", encoding="utf-8") as f:
+                    m = json.load(f)
+            except Exception:
+                pass
+            folder_name = os.path.basename(cand_path)
+            name = m.get("instanceName") or folder_name
+            slug_id = re.sub(r"[^a-zA-Z0-9_-]", "-", name.lower()).strip("-") or folder_name.lower()
+            existing_ids = {p.get("id") for p in projects}
+            final_id = slug_id
+            counter = 1
+            while final_id in existing_ids:
+                final_id = f"{slug_id}-{counter}"
+                counter += 1
+
+            location_type = "default" if cand_path.startswith(studio_projects_dir) else "custom"
+            now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            track = m.get("curriculum", {}).get("activeTrackId") or m.get("curriculum", {}).get("track") or "full-mastery"
+            new_p = {
+                "id": final_id,
+                "name": name,
+                "locationType": location_type,
+                "projectPath": cand_path,
+                "track": track,
+                "notesDir": os.path.join(cand_path, "notes"),
+                "notesStructure": "per-topic",
+                "createdAt": now_iso,
+                "lastActive": now_iso
+            }
+            projects.append(new_p)
+            seen_paths[cand_path] = new_p
+            changed = True
+
+    reg["projects"] = projects
+    if not reg.get("activeProjectId") and projects:
+        reg["activeProjectId"] = projects[0]["id"]
+        changed = True
+
+    if changed:
+        try:
+            save_registry(reg)
+        except Exception:
+            pass
+
+    return reg
+
 def resolve_project_progress(project_path):
     manifest_path = os.path.join(project_path, ".system-design", "manifest.json")
     if not os.path.exists(manifest_path):
-        return {"completed": 0, "total": 0, "activeTopicId": "none", "activeClusterId": "none"}
+        return {"completed": 0, "total": 0, "verifiedTopics": 0, "totalTopics": 0, "activeTopicId": "none", "activeClusterId": "none", "activeTopicTitle": "Foundation Initialization"}
     try:
         with open(manifest_path, "r", encoding="utf-8") as f:
             m = json.load(f)
         curriculum = m.get("curriculum", {})
         clusters = curriculum.get("clusters", [])
         total = sum(len(c.get("topics", [])) for c in clusters)
-        completed = sum(1 for c in clusters for t in c.get("topics", []) if t.get("status") == "completed")
+        completed = sum(1 for c in clusters for t in c.get("topics", []) if t.get("status") in ("completed", "verified"))
         active_topic_id = curriculum.get("activeTopicId", "none")
         active_cluster_id = curriculum.get("activeClusterId", "none")
+        active_topic_title = "Foundation Initialization"
+        for c in clusters:
+            for t in c.get("topics", []):
+                if t.get("id") == active_topic_id:
+                    active_topic_title = t.get("title") or t.get("name") or active_topic_title
+                    break
         return {
             "completed": completed,
             "total": total,
+            "verifiedTopics": completed,
+            "totalTopics": total,
             "activeTopicId": active_topic_id,
-            "activeClusterId": active_cluster_id
+            "activeClusterId": active_cluster_id,
+            "activeTopicTitle": active_topic_title
         }
     except Exception:
-        return {"completed": 0, "total": 0, "activeTopicId": "none", "activeClusterId": "none"}
+        return {"completed": 0, "total": 0, "verifiedTopics": 0, "totalTopics": 0, "activeTopicId": "none", "activeClusterId": "none", "activeTopicTitle": "Foundation Initialization"}
 
 def find_project(projects, query):
     if not query:
@@ -103,7 +214,7 @@ def find_project(projects, query):
     return None
 
 def cmd_list(args):
-    reg = load_registry()
+    reg = load_registry(auto_discover=True)
     projects = reg.get("projects", [])
     active_id = reg.get("activeProjectId")
 
@@ -152,6 +263,12 @@ def cmd_register(args):
     default_projects_dir = os.path.join(studio_dir, "projects")
     location_type = "default" if project_path.startswith(default_projects_dir) else "custom"
 
+    # Remove from unregisteredPaths if present
+    unregistered = set(reg.get("unregisteredPaths", []))
+    if project_path in unregistered:
+        unregistered.remove(project_path)
+        reg["unregisteredPaths"] = list(unregistered)
+
     existing = next((p for p in projects if p.get("id") == args.id or p.get("projectPath") == project_path), None)
     
     now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
@@ -187,6 +304,11 @@ def cmd_unregister(args):
     before_count = len(projects)
     target = find_project(projects, args.id)
     target_id = target["id"] if target else args.id
+    if target and target.get("projectPath"):
+        unreg = set(reg.get("unregisteredPaths", []))
+        unreg.add(os.path.abspath(os.path.expanduser(target.get("projectPath"))))
+        reg["unregisteredPaths"] = list(unreg)
+
     projects = [p for p in projects if p.get("id") != target_id]
     
     if len(projects) == before_count:
@@ -290,6 +412,11 @@ def cmd_delete(args):
     if will_delete_notes and os.path.exists(notes_dir):
         shutil.rmtree(notes_dir)
         deleted_items.append(f"Notes directory ({notes_dir})")
+
+    if target and target.get("projectPath"):
+        unreg = set(reg.get("unregisteredPaths", []))
+        unreg.add(os.path.abspath(os.path.expanduser(target.get("projectPath"))))
+        reg["unregisteredPaths"] = list(unreg)
 
     projects = [p for p in projects if p.get("id") != project_id]
     reg["projects"] = projects
