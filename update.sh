@@ -27,12 +27,16 @@ if [ -z "$HOME_DIR" ] && [ -n "${USERPROFILE:-}" ]; then
 fi
 
 INSTANCE_DIR=".system-design"
-for arg in "$@"; do
-  case "$arg" in
+while [ $# -gt 0 ]; do
+  case "$1" in
     --instance-dir=*)
-      INSTANCE_DIR="${arg#*=}"
+      INSTANCE_DIR="${1#*=}"
+      ;;
+    --instance-dir)
+      shift; INSTANCE_DIR="$1"
       ;;
   esac
+  shift
 done
 
 # 1. Locate local source or fetch fresh archive
@@ -51,11 +55,23 @@ if [ -n "$SCRIPT_PATH" ] && [ -f "$SCRIPT_PATH" ]; then
 fi
 
 SOURCE_SKILLS_DIR=""
+SOURCE_AGENTS_DIR=""
 # If inside developer repo
 if [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/plugin.json" ] && [ -d "$SCRIPT_DIR/skills/$SKILL_NAME" ]; then
   SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/skills" && pwd)"
+  if [ -d "$SCRIPT_DIR/agents" ]; then
+    SOURCE_AGENTS_DIR="$(cd "$SCRIPT_DIR/agents" && pwd)"
+  fi
 elif [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../../plugin.json" ] && [ -d "$SCRIPT_DIR/../../skills/$SKILL_NAME" ]; then
   SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/../../skills" && pwd)"
+  if [ -d "$SCRIPT_DIR/../../agents" ]; then
+    SOURCE_AGENTS_DIR="$(cd "$SCRIPT_DIR/../../agents" && pwd)"
+  fi
+elif [ -n "$SCRIPT_DIR" ] && [ -f "$SCRIPT_DIR/../../../plugin.json" ] && [ -d "$SCRIPT_DIR/../../$SKILL_NAME" ]; then
+  SOURCE_SKILLS_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+  if [ -d "$SCRIPT_DIR/../../../agents" ]; then
+    SOURCE_AGENTS_DIR="$(cd "$SCRIPT_DIR/../../../agents" && pwd)"
+  fi
 fi
 
 if [ -z "$SOURCE_SKILLS_DIR" ]; then
@@ -72,9 +88,14 @@ if [ -z "$SOURCE_SKILLS_DIR" ]; then
 
   tar -xzf "$TEMP_DIR/sds.tar.gz" -C "$TEMP_DIR"
   SOURCE_SKILLS_DIR="$TEMP_DIR/system-design-studio-main/skills"
+  if [ -d "$TEMP_DIR/system-design-studio-main/agents" ]; then
+    SOURCE_AGENTS_DIR="$TEMP_DIR/system-design-studio-main/agents"
+  fi
 fi
 
-if [ ! -f "$SOURCE_SKILLS_DIR/$SKILL_NAME/SKILL.md" ]; then
+SOURCE_SKILL="${SOURCE_SKILLS_DIR}/${SKILL_NAME}"
+
+if [ ! -f "$SOURCE_SKILL/SKILL.md" ]; then
   echo "❌ Error: Update payload could not be verified (SKILL.md missing)." >&2
   exit 1
 fi
@@ -117,6 +138,28 @@ for target_parent in $AGENT_TARGETS; do
     UPDATED_COUNT=$((UPDATED_COUNT + 1))
   fi
 done
+
+# Update specialized subagents across agent locations
+AGENT_SUBDIRS="
+$HOME_DIR/.gemini/antigravity/agents
+$HOME_DIR/.gemini/config/agents
+$HOME_DIR/.agents/agents
+$HOME_DIR/.claude/agents
+$HOME_DIR/.cursor/agents
+$HOME_DIR/.codex/agents
+$HOME_DIR/.system-design-studio/agents
+"
+
+if [ -n "$SOURCE_AGENTS_DIR" ] && [ -d "$SOURCE_AGENTS_DIR" ]; then
+  echo "🤖 Updating specialized subagents..."
+  for target_agent_parent in $AGENT_SUBDIRS; do
+    if [ -d "$target_agent_parent" ]; then
+      cp -R "${SOURCE_AGENTS_DIR}"/* "$target_agent_parent/" 2>/dev/null || true
+      chmod -R u+rwX,go+rX "$target_agent_parent" 2>/dev/null || true
+      echo "   ✅ Updated subagents at ${target_agent_parent}"
+    fi
+  done
+fi
 
 # Also update Claude Code and Codex commands if present
 if [ -d "$HOME_DIR/.claude/commands" ]; then

@@ -22,3 +22,6 @@ npm-debug.log*
 /tmp/
 scratch/
 .system-design/
+!dummy-project/.system-design/
+!dummy-project/.system-design/**
+dummy-project/.system-design/.checkpoints/

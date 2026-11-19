@@ -18,6 +18,7 @@ CHECKPOINT_SCRIPT="${BASE_SCRIPTS_DIR}/git-checkpoint.py"
 CURRICULUM_SCRIPT="${BASE_SCRIPTS_DIR}/configure-curriculum.py"
 SETTINGS_SCRIPT="${BASE_SCRIPTS_DIR}/merge-settings.py"
 STATUS_SCRIPT="${BASE_SCRIPTS_DIR}/sync-status.py"
+REVISIONS_SCRIPT="${BASE_SCRIPTS_DIR}/update-revisions.py"
 
 case "$1" in
   init)
@@ -36,6 +37,10 @@ case "$1" in
     shift
     exec python3 "$PROJECTS_SCRIPT" notes "$@"
     ;;
+  revisions|revision|rev)
+    shift
+    exec python3 "$REVISIONS_SCRIPT" "$@"
+    ;;
   delete|remove|rm)
     shift
     exec python3 "$PROJECTS_SCRIPT" delete "$@"
@@ -43,6 +48,21 @@ case "$1" in
   dashboard|tracker|serve)
     shift
     exec python3 "$DASHBOARD_SCRIPT" "$@"
+    ;;
+  dummy|demo)
+    shift
+    DUMMY_DIR=""
+    if [ -d "${SCRIPT_DIR}/../dummy-project/.system-design" ]; then
+      DUMMY_DIR="${SCRIPT_DIR}/../dummy-project/.system-design"
+    elif [ -d "${PWD}/dummy-project/.system-design" ]; then
+      DUMMY_DIR="${PWD}/dummy-project/.system-design"
+    fi
+    if [ -z "$DUMMY_DIR" ] || [ ! -d "$DUMMY_DIR" ]; then
+      echo "❌ Error: dummy-project/.system-design not found." >&2
+      exit 1
+    fi
+    echo "🚀 Launching System Design Studio Dashboard for Dummy Project..."
+    exec python3 "$DASHBOARD_SCRIPT" --instance-dir "$DUMMY_DIR" "$@"
     ;;
   rollback|restore|undo)
     shift
@@ -72,7 +92,9 @@ case "$1" in
     echo ""
     echo "Core Commands:"
     echo "  sds init [options]         Initialize or scaffold a project learning instance"
-    echo "  sds dashboard [options]    Launch read-only curriculum tracker on localhost"
+    echo "  sds dashboard [options]    Launch interactive curriculum studio & workbench on localhost"
+    echo "  sds dummy [options]        Launch dashboard for local dummy test project"
+    echo "  sds revisions [options]    Review high-yield invariants & trade-off defenses"
     echo "  sds list / projects        List registered projects, tracks, and progress"
     echo "  sds switch <id>            Switch active project context"
     echo "  sds notes [id]             List generated study notes for active project"

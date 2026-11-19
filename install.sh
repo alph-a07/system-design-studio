@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Universal Agent Skill Installer (v3.3)
+# System Design Studio — Universal Agent Skill Installer (v3.4)
 # Configures global studio preferences (~/.system-design-studio/config.json)
 # and installs skill packages across AI coding agents (Antigravity, Claude, Cursor, Codex).
 # Compatible with macOS, Linux, BSD, and Windows (Git Bash/WSL).
@@ -69,8 +69,8 @@ if [ -f "$GLOBAL_CONFIG" ] && command -v python3 >/dev/null 2>&1; then
 fi
 
 # Parse Flags
-for arg in "$@"; do
-  case "$arg" in
+while [ $# -gt 0 ]; do
+  case "$1" in
     --all|-a)
       INSTALL_ALL=true
       MANUAL_AGENT_SELECTION=true
@@ -92,16 +92,34 @@ for arg in "$@"; do
       MANUAL_AGENT_SELECTION=true
       ;;
     --theme=*)
-      THEME_STYLE="${arg#*=}"
+      THEME_STYLE="${1#*=}"
+      ;;
+    --theme)
+      shift; THEME_STYLE="$1"
       ;;
     --output=*)
-      OUTPUT_FORMAT="${arg#*=}"
+      OUTPUT_FORMAT="${1#*=}"
+      ;;
+    --output)
+      shift; OUTPUT_FORMAT="$1"
       ;;
     --notes=*)
-      AUTO_NOTES="${arg#*=}"
+      AUTO_NOTES="${1#*=}"
+      ;;
+    --notes)
+      shift; AUTO_NOTES="$1"
       ;;
     --notes-structure=*)
-      NOTES_STRUCTURE="${arg#*=}"
+      NOTES_STRUCTURE="${1#*=}"
+      ;;
+    --notes-structure)
+      shift; NOTES_STRUCTURE="$1"
+      ;;
+    --track=*)
+      DEFAULT_TRACK="${1#*=}"
+      ;;
+    --track)
+      shift; DEFAULT_TRACK="$1"
       ;;
     --defaults|--non-interactive|-y)
       INTERACTIVE=false
@@ -126,7 +144,52 @@ for arg in "$@"; do
     *)
       ;;
   esac
+  shift
 done
+
+# Validate visual preferences to prevent corrupting global config
+case "$THEME_STYLE" in
+  slate-clean|editorial-paper|midnight-neon|nordic-frost|warm-amber)
+    ;;
+  *)
+    echo "⚠️  Warning: Unknown theme '$THEME_STYLE'. Falling back to 'slate-clean'."
+    THEME_STYLE="slate-clean"
+    ;;
+esac
+
+case "$OUTPUT_FORMAT" in
+  html|markdown)
+    ;;
+  md)
+    OUTPUT_FORMAT="markdown"
+    ;;
+  *)
+    echo "⚠️  Warning: Unknown output format '$OUTPUT_FORMAT'. Falling back to 'html'."
+    OUTPUT_FORMAT="html"
+    ;;
+esac
+
+case "$AUTO_NOTES" in
+  true|false)
+    ;;
+  1|yes|y)
+    AUTO_NOTES="true"
+    ;;
+  0|no|n)
+    AUTO_NOTES="false"
+    ;;
+  *)
+    AUTO_NOTES="true"
+    ;;
+esac
+
+case "$NOTES_STRUCTURE" in
+  per-topic|per-cluster|per-tier|single-file)
+    ;;
+  *)
+    NOTES_STRUCTURE="per-topic"
+    ;;
+esac
 
 # Check if terminal interaction is possible (direct TTY or redirected via /dev/tty)
 TTY_IN=""
@@ -295,6 +358,9 @@ trap cleanup EXIT INT TERM
 if [ -n "$SCRIPT_DIR" ] && [ -d "$SCRIPT_DIR/skills/$SKILL_NAME" ] && [ -f "$SCRIPT_DIR/skills/$SKILL_NAME/SKILL.md" ]; then
   echo "📂 Using local skill source from ${SCRIPT_DIR}..."
   SOURCE_SKILLS_DIR="$SCRIPT_DIR/skills"
+  if [ -d "$SCRIPT_DIR/agents" ]; then
+    SOURCE_AGENTS_DIR="$SCRIPT_DIR/agents"
+  fi
 else
   TEMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t 'sds_install.XXXXXX' 2>/dev/null || echo "/tmp/sds_install_$$")"
   mkdir -p "$TEMP_DIR"
@@ -303,16 +369,25 @@ else
     echo "📥 Cloning skill package from GitHub via git..."
     git clone --depth 1 --quiet "$REPO_URL" "$TEMP_DIR/repo"
     SOURCE_SKILLS_DIR="$TEMP_DIR/repo/skills"
+    if [ -d "$TEMP_DIR/repo/agents" ]; then
+      SOURCE_AGENTS_DIR="$TEMP_DIR/repo/agents"
+    fi
   elif command -v curl >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
     echo "📥 Fetching skill package from GitHub via curl & tar..."
     mkdir -p "$TEMP_DIR/archive"
     curl -fsSL "$ARCHIVE_URL" | tar -xz -C "$TEMP_DIR/archive"
     SOURCE_SKILLS_DIR="$TEMP_DIR/archive/system-design-studio-main/skills"
+    if [ -d "$TEMP_DIR/archive/system-design-studio-main/agents" ]; then
+      SOURCE_AGENTS_DIR="$TEMP_DIR/archive/system-design-studio-main/agents"
+    fi
   elif command -v wget >/dev/null 2>&1 && command -v tar >/dev/null 2>&1; then
     echo "📥 Fetching skill package from GitHub via wget & tar..."
     mkdir -p "$TEMP_DIR/archive"
     wget -qO- "$ARCHIVE_URL" | tar -xz -C "$TEMP_DIR/archive"
     SOURCE_SKILLS_DIR="$TEMP_DIR/archive/system-design-studio-main/skills"
+    if [ -d "$TEMP_DIR/archive/system-design-studio-main/agents" ]; then
+      SOURCE_AGENTS_DIR="$TEMP_DIR/archive/system-design-studio-main/agents"
+    fi
   else
     echo "❌ Error: git, curl, or wget with tar is required to install System Design Studio." >&2
     exit 1
@@ -354,6 +429,19 @@ install_to_path() {
   fi
 }
 
+install_agents_to_path() {
+  target_agent_parent="$1"
+  agent_label="$2"
+
+  if [ -n "$SOURCE_AGENTS_DIR" ] && [ -d "$SOURCE_AGENTS_DIR" ]; then
+    echo "🤖 Installing specialized subagents for ${agent_label}..."
+    mkdir -p "$target_agent_parent"
+    cp -R "${SOURCE_AGENTS_DIR}"/* "$target_agent_parent/" 2>/dev/null || true
+    chmod -R u+rwX,go+rX "$target_agent_parent" 2>/dev/null || true
+    echo "   ✅ Verified specialized subagents at ${target_agent_parent}"
+  fi
+}
+
 echo ""
 
 # 7. Execute Installations
@@ -362,20 +450,24 @@ INSTALLED_COUNT=0
 # A. Google Antigravity & Agent Open Standards
 if [ "$INSTALL_ANTIGRAVITY" = true ]; then
   install_to_path "$HOME_DIR/.gemini/antigravity/skills" "Google Antigravity (~/.gemini/antigravity/skills)"
+  install_agents_to_path "$HOME_DIR/.gemini/antigravity/agents" "Google Antigravity Agents (~/.gemini/antigravity/agents)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
   if [ -d "$HOME_DIR/.gemini/config" ] || [ "$INSTALL_ALL" = true ]; then
     install_to_path "$HOME_DIR/.gemini/config/skills" "Antigravity Global Config (~/.gemini/config/skills)"
+    install_agents_to_path "$HOME_DIR/.gemini/config/agents" "Antigravity Global Agents (~/.gemini/config/agents)"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 
   install_to_path "$HOME_DIR/.agents/skills" "Agent Skills Open Standard (~/.agents/skills)"
+  install_agents_to_path "$HOME_DIR/.agents/agents" "Agent Open Standard Agents (~/.agents/agents)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 fi
 
 # B. Anthropic Claude Code
 if [ "$INSTALL_CLAUDE" = true ]; then
   install_to_path "$HOME_DIR/.claude/skills" "Claude Code (~/.claude/skills)"
+  install_agents_to_path "$HOME_DIR/.claude/agents" "Claude Code Agents (~/.claude/agents)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
   # Also install into ~/.claude/commands/ for native Claude Code slash command palette
@@ -396,20 +488,24 @@ fi
 # C. Cursor IDE
 if [ "$INSTALL_CURSOR" = true ]; then
   install_to_path "$HOME_DIR/.cursor/skills" "Cursor IDE Global (~/.cursor/skills)"
+  install_agents_to_path "$HOME_DIR/.cursor/agents" "Cursor IDE Agents (~/.cursor/agents)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
   if [ "$PLATFORM" = "macos" ] && [ -d "$HOME_DIR/Library/Application Support/Cursor" ]; then
     install_to_path "$HOME_DIR/Library/Application Support/Cursor/User/skills" "Cursor User Library"
+    install_agents_to_path "$HOME_DIR/Library/Application Support/Cursor/User/agents" "Cursor User Library Agents"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 
   if [ "$PLATFORM" = "linux" ] && [ -d "$XDG_CONFIG/Cursor" ]; then
     install_to_path "$XDG_CONFIG/Cursor/User/skills" "Cursor User XDG"
+    install_agents_to_path "$XDG_CONFIG/Cursor/User/agents" "Cursor User XDG Agents"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 
   if [ -n "${APPDATA:-}" ] && [ -d "$APPDATA/Cursor" ]; then
     install_to_path "$APPDATA/Cursor/User/skills" "Cursor Windows AppData"
+    install_agents_to_path "$APPDATA/Cursor/User/agents" "Cursor Windows AppData Agents"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 fi
@@ -417,6 +513,7 @@ fi
 # D. OpenAI Codex / CLI Agents
 if [ "$INSTALL_CODEX" = true ]; then
   install_to_path "$HOME_DIR/.codex/skills" "OpenAI Codex (~/.codex/skills)"
+  install_agents_to_path "$HOME_DIR/.codex/agents" "OpenAI Codex Agents (~/.codex/agents)"
   INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
 
   # Also install into ~/.codex/prompts/ for native Codex slash command palette
@@ -430,12 +527,14 @@ if [ "$INSTALL_CODEX" = true ]; then
 
   if [ "$PLATFORM" = "linux" ] && [ -d "$XDG_CONFIG/codex" ]; then
     install_to_path "$XDG_CONFIG/codex/skills" "OpenAI Codex XDG"
+    install_agents_to_path "$XDG_CONFIG/codex/agents" "OpenAI Codex XDG Agents"
     INSTALLED_COUNT=$((INSTALLED_COUNT + 1))
   fi
 fi
 
 # Also keep an internal copy in ~/.system-design-studio/skills/system-design-studio
 install_to_path "$GLOBAL_STUDIO_DIR/skills" "Central Studio Runtime (${GLOBAL_STUDIO_DIR}/skills)"
+install_agents_to_path "$GLOBAL_STUDIO_DIR/agents" "Central Studio Runtime Agents (${GLOBAL_STUDIO_DIR}/agents)"
 
 # Create convenient CLI wrapper at ~/.system-design-studio/bin/sds
 cat <<'EOF' > "${GLOBAL_BIN}/sds"
@@ -461,6 +560,10 @@ case "$1" in
     shift
     exec python3 "${BASE_SCRIPTS}/manage-projects.py" notes "$@"
     ;;
+  revisions|revision|rev)
+    shift
+    exec python3 "${BASE_SCRIPTS}/update-revisions.py" "$@"
+    ;;
   delete|remove|rm)
     shift
     exec python3 "${BASE_SCRIPTS}/manage-projects.py" delete "$@"
@@ -468,6 +571,19 @@ case "$1" in
   dashboard|tracker|serve)
     shift
     exec python3 "${BASE_SCRIPTS}/serve-dashboard.py" "$@"
+    ;;
+  dummy|demo)
+    shift
+    DUMMY_DIR=""
+    if [ -d "${PWD}/dummy-project/.system-design" ]; then
+      DUMMY_DIR="${PWD}/dummy-project/.system-design"
+    fi
+    if [ -z "$DUMMY_DIR" ] || [ ! -d "$DUMMY_DIR" ]; then
+      echo "❌ Error: dummy-project/.system-design not found in current directory." >&2
+      exit 1
+    fi
+    echo "🚀 Launching System Design Studio Dashboard for Dummy Project..."
+    exec python3 "${BASE_SCRIPTS}/serve-dashboard.py" --instance-dir "$DUMMY_DIR" "$@"
     ;;
   rollback|restore|undo)
     shift
@@ -497,7 +613,8 @@ case "$1" in
     echo ""
     echo "Core Commands:"
     echo "  sds init [options]         Initialize or scaffold a project learning instance"
-    echo "  sds dashboard [options]    Launch read-only curriculum tracker on localhost"
+    echo "  sds dashboard [options]    Launch interactive curriculum studio & workbench on localhost"
+    echo "  sds revisions [options]    Review high-yield invariants & trade-off defenses"
     echo "  sds list / projects        List registered projects, tracks, and progress"
     echo "  sds switch <id>            Switch active project context"
     echo "  sds notes [id]             List generated study notes for active project"
