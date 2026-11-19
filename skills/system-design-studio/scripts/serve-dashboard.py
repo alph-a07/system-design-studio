@@ -1555,7 +1555,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-size: 13.5px;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--on-surface);
+      color: var(--on-surface) !important;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -1563,7 +1563,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     .status-option-desc {
       font-size: 11.5px;
-      color: var(--on-surface-variant);
+      color: var(--on-surface-variant) !important;
       font-family: var(--font-mono);
       margin-top: 3px;
       line-height: 1.4;
@@ -1613,16 +1613,118 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     /* REVISION FLASHCARD MODE */
     .revision-deck-container {
-      max-width: 720px;
+      max-width: 860px;
       margin: 10px auto;
+    }
+
+    .revision-toolbar {
+      max-width: 860px;
+      margin: 0 auto 16px auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--surface-container-low);
+      border: 2px solid var(--border-color);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+    }
+
+    .revision-search-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .revision-search-wrapper {
+      flex: 1;
+      width: 100%;
+      max-width: none;
+    }
+
+    .revision-controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .revision-filter-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .revision-filter-btn {
+      padding: 5px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surface-container);
+      color: var(--on-surface);
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .revision-filter-btn:hover {
+      background: var(--surface-container-high);
+    }
+
+    .revision-filter-btn.active {
+      background: var(--primary-container);
+      color: #000;
+      border-color: #000;
+      box-shadow: 2px 2px 0px var(--shadow-color);
+    }
+
+    .revision-filter-btn .badge {
+      padding: 1px 5px;
+      font-size: 10px;
+      background: rgba(0,0,0,0.15);
+      border-radius: 2px;
+    }
+
+    .revision-filter-btn.active .badge {
+      background: #000;
+      color: #ffcc00;
+    }
+
+    .revision-view-toggle {
+      display: inline-flex;
+      border: 2px solid var(--border-color);
+    }
+
+    .revision-view-toggle .view-toggle-btn {
+      padding: 5px 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--surface-container);
+      color: var(--on-surface-variant);
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .revision-view-toggle .view-toggle-btn.active {
+      background: var(--on-surface);
+      color: var(--surface);
     }
 
     .flashcard {
       border: 3px solid var(--border-color);
       background-color: var(--surface-container-lowest);
-      box-shadow: 6px 6px 0px var(--shadow-color);
-      padding: 32px;
-      min-height: 380px;
+      box-shadow: 8px 8px 0px var(--shadow-color);
+      padding: 18px 24px;
+      min-height: 360px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -1633,35 +1735,153 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
       border-bottom: 2px solid var(--border-color);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .flashcard-challenge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      background: #00f0ff;
+      color: #000;
+      border: 2px solid #000;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      box-shadow: 2px 2px 0px #000;
     }
 
     .flashcard-prompt-text {
       font-family: var(--font-headline);
-      font-size: 21px;
+      font-size: 18px;
       font-weight: 700;
-      line-height: 1.4;
+      line-height: 1.35;
       color: var(--on-surface);
-      margin: 16px 0;
+      margin: 8px 0 6px 0;
     }
 
-    .flashcard-revealed-box {
-      background-color: var(--surface-container-low);
-      border-left: 4px solid var(--primary-container);
-      padding: 16px;
-      margin-top: 14px;
+    .flashcard-trap-box {
+      background: var(--surface-container-low);
+      border: 2px dashed var(--border-color);
+      padding: 6px 10px;
+      margin: 6px 0 8px 0;
+      font-size: 11.5px;
+      line-height: 1.4;
+    }
+
+    .flashcard-revealed-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .flashcard-revealed-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .defense-card-section {
+      background: var(--surface-container-low);
+      padding: 8px 12px;
+      border: 2px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .defense-card-section.invariant-sec {
+      border-left: 5px solid #10b981;
+    }
+
+    .defense-card-section.failure-sec {
+      border-left: 5px solid #ef4444;
+    }
+
+    .defense-card-section.formula-sec {
+      border-left: 5px solid #3b82f6;
+    }
+
+    .defense-card-section.rule-sec {
+      border-left: 5px solid #f59e0b;
+    }
+
+    .defense-section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .defense-section-body {
       font-family: var(--font-body);
-      font-size: 13px;
-      line-height: 1.6;
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--on-surface);
+    }
+
+    .defense-section-body.mono {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--surface-container-high);
+      padding: 4px 6px;
+      border-radius: 2px;
+      word-break: break-word;
     }
 
     .flashcard-ratings {
       display: flex;
       align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .flashcard-nav-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 2px solid var(--border-color);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* REVISION GRID VIEW */
+    .revision-grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+      margin-top: 10px;
+    }
+
+    .revision-grid-card {
+      background: var(--surface-container-lowest);
+      border: 2px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--shadow-color);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       gap: 12px;
-      margin-top: 24px;
+      transition: transform 0.1s ease;
+    }
+
+    .revision-grid-card:hover {
+      transform: translateY(-2px);
     }
 
     /* SHARED WORKBENCH DIALOG MODAL BOX (LESSONS & STUDY NOTES) */
@@ -1714,6 +1934,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      word-break: keep-all;
+    }
+
+    #note-path-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: inline-block;
+      max-width: 420px;
     }
 
     .note-stats-badge {
@@ -3116,19 +3345,61 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     <!-- PANEL 3: REVISION MODE (ACTIVE RECALL FLASHCARDS) -->
     <section id="panel-revision" class="view-panel">
-      <div class="view-header">
+      <div class="view-header" style="flex-wrap:wrap; gap:12px; margin-bottom:12px;">
         <div>
           <h1 class="view-title">INVARIANT REVISION DECK</h1>
-          <p class="view-subtitle">Active recall of failure modes, sizing math, and non-negotiable trade-offs derived from accepted ADRs.</p>
+          <p class="view-subtitle">Active recall of failure modes, sizing math, and non-negotiable trade-offs derived from accepted ADRs and study notes.</p>
         </div>
-        <div id="revision-counter" style="font-family:var(--font-mono); font-size:12px; font-weight:700;">
-          Loading cards...
+        <div id="revision-deck-stats" style="display:flex; align-items:center; gap:8px; font-family:var(--font-mono); font-size:12px; font-weight:700;">
+          <span class="badge-status" id="revision-counter">Loading cards...</span>
+        </div>
+      </div>
+
+      <!-- Revision Deck Controls Toolbar -->
+      <div class="revision-toolbar">
+        <!-- Top Row: Full-width Search Command Bar -->
+        <div class="revision-search-row">
+          <div class="search-input-wrapper revision-search-wrapper">
+            <span class="material-symbols-outlined search-leading-icon">search</span>
+            <input type="text" id="revision-search" class="search-input" placeholder="Search revision cards, formulas, failure modes, invariants... (Press /)" oninput="handleRevisionSearch(this.value)" onkeydown="if(event.key==='Escape'){clearRevisionSearch();}" autocomplete="off">
+            <span id="revision-search-count-badge" class="search-count-badge" style="display:none;"></span>
+            <button id="revision-search-clear" class="search-clear-btn" onclick="clearRevisionSearch()" title="Clear search (Esc)">
+              <span class="material-symbols-outlined" style="font-size:13px;">close</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Filter Pills + View Switcher + Shuffle -->
+        <div class="revision-controls-row">
+          <div class="revision-filter-group">
+            <button class="revision-filter-btn active" data-filter="all" onclick="setRevisionFilter('all', this)">ALL <span class="badge" id="rev-count-all">0</span></button>
+            <button class="revision-filter-btn" data-filter="due" onclick="setRevisionFilter('due', this)">DUE TODAY <span class="badge" id="rev-count-due">0</span></button>
+            <button class="revision-filter-btn" data-filter="needs_review" onclick="setRevisionFilter('needs_review', this)">NEEDS REVIEW <span class="badge" id="rev-count-needs-review">0</span></button>
+            <button class="revision-filter-btn" data-filter="learning" onclick="setRevisionFilter('learning', this)">LEARNING <span class="badge" id="rev-count-learning">0</span></button>
+            <button class="revision-filter-btn" data-filter="mastered" onclick="setRevisionFilter('mastered', this)">MASTERED <span class="badge" id="rev-count-mastered">0</span></button>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <div class="revision-view-toggle">
+              <button id="rev-view-cards" class="view-toggle-btn active" onclick="setRevisionViewMode('card')" title="Card Practice Mode">
+                <span class="material-symbols-outlined" style="font-size:15px;">style</span>
+                <span>Cards</span>
+              </button>
+              <button id="rev-view-grid" class="view-toggle-btn" onclick="setRevisionViewMode('grid')" title="Deck Overview Grid">
+                <span class="material-symbols-outlined" style="font-size:15px;">grid_view</span>
+                <span>Deck Grid</span>
+              </button>
+            </div>
+            <button class="btn-ghost" onclick="shuffleRevisions()" title="Shuffle Cards (🔀)" style="padding:4px 8px; font-size:11px; height:28px;">
+              <span class="material-symbols-outlined" style="font-size:15px;">shuffle</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <div class="revision-deck-container">
         <div id="revision-card-container">
-          <!-- Rendered dynamically via renderRevisionCard() -->
+          <!-- Rendered dynamically via renderRevisionDeck() -->
         </div>
       </div>
     </section>
@@ -3599,9 +3870,14 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
   <script>
     let globalStatus = null;
     let projectsData = null;
+    let revisionsData = { revisions: [], totalRevisions: 0, dueCount: 0, masteredCount: 0, learningCount: 0, needsReviewCount: 0 };
     let revisionsList = [];
     let currentRevisionIdx = 0;
     let revisionRevealed = false;
+    let trapRevealed = false;
+    let revisionFilter = 'all';
+    let revisionSearchQuery = '';
+    let revisionViewMode = 'card';
     let currentTopicFilter = 'all';
     let currentTierFilter = 'all';
     let currentTrackFilter = 'all';
@@ -3872,8 +4148,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const headerLine = line;
           const tableRows = [];
           i += 2; // skip header & delimiter
-          while (i < lines.length && lines[i].includes('|') && lines[i].trim() !== '') {
-            tableRows.push(lines[i]);
+          while (i < lines.length && (lines[i].includes('|') || (tableRows.length > 0 && lines[i].trim() !== '' && !lines[i].trim().startsWith('#') && !lines[i].trim().startsWith('__CODE_BLOCK_') && !lines[i].trim().startsWith('>')))) {
+            if (lines[i].includes('|')) {
+              tableRows.push(lines[i]);
+            } else if (tableRows.length > 0) {
+              tableRows[tableRows.length - 1] += ' ' + lines[i].trim();
+            }
             i++;
           }
 
@@ -3889,6 +4169,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           let tbodyHtml = '';
           tableRows.forEach(r => {
             const cells = parseCols(r);
+            while (cells.length < headers.length) {
+              cells.push('');
+            }
             const tdHtml = cells.map(c => '<td>' + formatInline(c) + '</td>').join('');
             tbodyHtml += '<tr>' + tdHtml + '</tr>';
           });
@@ -5654,48 +5937,256 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    // Revision Mode Engine (with Spaced Review Keybindings)
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Revision Mode Engine (Spaced Retrieval Practice & Invariant Challenges)
     async function loadRevisions() {
       try {
         const res = await fetch('/api/revisions');
         if (!res.ok) return;
         const data = await res.json();
+        revisionsData = data;
         revisionsList = data.revisions || [];
         currentRevisionIdx = 0;
         revisionRevealed = false;
-        renderRevisionCard();
+        trapRevealed = false;
+
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('reveal') === '1' || params.get('reveal') === 'true') {
+          revisionRevealed = true;
+        }
+        if (params.get('trap') === '1') {
+          trapRevealed = true;
+        }
+        if (params.get('view') === 'grid') {
+          revisionViewMode = 'grid';
+          const btnCards = document.getElementById('rev-view-cards');
+          const btnGrid = document.getElementById('rev-view-grid');
+          if (btnCards) btnCards.classList.remove('active');
+          if (btnGrid) btnGrid.classList.add('active');
+        }
+        if (params.get('card')) {
+          const cIdx = parseInt(params.get('card'));
+          if (!isNaN(cIdx)) currentRevisionIdx = cIdx;
+        }
+
+        updateRevisionCounters();
+        renderRevisionDeck();
       } catch (e) {
-        console.error('Revisions error:', e);
+        console.error('Revisions load error:', e);
+      }
+    }
+
+    function updateRevisionCounters() {
+      const allCount = revisionsList.length;
+      const dueCount = revisionsList.filter(r => r.isDue).length;
+      const needsReviewCount = revisionsList.filter(r => r.masteryStatus === 'needs_review').length;
+      const learningCount = revisionsList.filter(r => r.masteryStatus === 'learning' || r.masteryStatus === 'proficient').length;
+      const masteredCount = revisionsList.filter(r => r.masteryStatus === 'mastered').length;
+
+      const cAll = document.getElementById('rev-count-all');
+      const cDue = document.getElementById('rev-count-due');
+      const cNeeds = document.getElementById('rev-count-needs-review');
+      const cLearn = document.getElementById('rev-count-learning');
+      const cMast = document.getElementById('rev-count-mastered');
+      if (cAll) cAll.innerText = allCount;
+      if (cDue) cDue.innerText = dueCount;
+      if (cNeeds) cNeeds.innerText = needsReviewCount;
+      if (cLearn) cLearn.innerText = learningCount;
+      if (cMast) cMast.innerText = masteredCount;
+
+      const counter = document.getElementById('revision-counter');
+      if (counter) {
+        const pct = Math.round((masteredCount / (allCount || 1)) * 100);
+        counter.innerHTML = `<span style="color:#10b981;">●</span> ${masteredCount}/${allCount} Mastered (${pct}%) • ${dueCount} Due Today`;
+      }
+    }
+
+    function getFilteredRevisions() {
+      return revisionsList.filter(r => {
+        // Status filter
+        if (revisionFilter === 'due' && !r.isDue) return false;
+        if (revisionFilter === 'needs_review' && r.masteryStatus !== 'needs_review') return false;
+        if (revisionFilter === 'learning' && !['learning', 'proficient'].includes(r.masteryStatus)) return false;
+        if (revisionFilter === 'mastered' && r.masteryStatus !== 'mastered') return false;
+
+        // Search filter
+        if (revisionSearchQuery) {
+          const q = revisionSearchQuery;
+          const hay = `${r.topicTitle || ''} ${r.realityCheckPrompt || ''} ${r.invariant || ''} ${r.formula || ''} ${r.ruleOfThumb || ''} ${r.clusterTitle || ''}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+
+        return true;
+      });
+    }
+
+    function setRevisionFilter(filter, el) {
+      revisionFilter = filter;
+      currentRevisionIdx = 0;
+      revisionRevealed = false;
+      trapRevealed = false;
+      document.querySelectorAll('.revision-filter-btn').forEach(btn => btn.classList.remove('active'));
+      if (el) el.classList.add('active');
+      renderRevisionDeck();
+    }
+
+    function handleRevisionSearch(val) {
+      revisionSearchQuery = (val || '').trim().toLowerCase();
+      currentRevisionIdx = 0;
+      revisionRevealed = false;
+      trapRevealed = false;
+      const clearBtn = document.getElementById('revision-search-clear');
+      if (clearBtn) clearBtn.style.display = revisionSearchQuery ? 'inline-flex' : 'none';
+      const badge = document.getElementById('revision-search-count-badge');
+      const filtered = getFilteredRevisions();
+      if (badge) {
+        if (revisionSearchQuery) {
+          badge.style.display = 'inline-block';
+          badge.innerText = `${filtered.length} match${filtered.length === 1 ? '' : 'es'}`;
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+      renderRevisionDeck();
+    }
+
+    function clearRevisionSearch() {
+      const inp = document.getElementById('revision-search');
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+      }
+      handleRevisionSearch('');
+    }
+
+    function setRevisionViewMode(mode) {
+      revisionViewMode = mode;
+      const btnCards = document.getElementById('rev-view-cards');
+      const btnGrid = document.getElementById('rev-view-grid');
+      if (btnCards) btnCards.classList.toggle('active', mode === 'card');
+      if (btnGrid) btnGrid.classList.toggle('active', mode === 'grid');
+      renderRevisionDeck();
+    }
+
+    function toggleTrap() {
+      trapRevealed = !trapRevealed;
+      renderRevisionCard();
+    }
+
+    function navigateRevision(delta) {
+      const filtered = getFilteredRevisions();
+      if (!filtered.length) return;
+      currentRevisionIdx = (currentRevisionIdx + delta + filtered.length) % filtered.length;
+      revisionRevealed = false;
+      trapRevealed = false;
+      renderRevisionCard();
+    }
+
+    function shuffleRevisions() {
+      const filtered = getFilteredRevisions();
+      if (filtered.length <= 1) return;
+      let nextIdx = Math.floor(Math.random() * filtered.length);
+      if (nextIdx === currentRevisionIdx) nextIdx = (nextIdx + 1) % filtered.length;
+      currentRevisionIdx = nextIdx;
+      revisionRevealed = false;
+      trapRevealed = false;
+      renderRevisionCard();
+    }
+
+    function renderRevisionDeck() {
+      const container = document.getElementById('revision-card-container');
+      if (!container) return;
+
+      if (revisionViewMode === 'grid') {
+        renderRevisionGrid();
+      } else {
+        renderRevisionCard();
       }
     }
 
     function renderRevisionCard() {
       const container = document.getElementById('revision-card-container');
-      const counter = document.getElementById('revision-counter');
       if (!container) return;
 
-      if (!revisionsList.length) {
-        container.innerHTML = `
-          <div class="flashcard" style="text-align:center; justify-content:center;">
-            <div style="font-family:var(--font-headline); font-size:18px; font-weight:700;">No Revision Cards Yet</div>
-            <p style="font-size:13px; color:var(--on-surface-variant); margin-top:8px;">
-              Verify topic gates or log ADRs to populate active-recall flashcards.
-            </p>
-            <div style="margin-top:16px;">
-              <button class="btn-primary" onclick="switchTab('curriculum')">
-                <span>Go to Curriculum Syllabus</span>
-                <span class="material-symbols-outlined" style="font-size:14px; margin-left:4px;">arrow_forward</span>
-              </button>
+      const filtered = getFilteredRevisions();
+
+      if (!filtered.length) {
+        if (!revisionsList.length) {
+          container.innerHTML = `
+            <div class="flashcard" style="text-align:center; justify-content:center;">
+              <div style="font-family:var(--font-headline); font-size:20px; font-weight:700;">No Revision Cards Yet</div>
+              <p style="font-size:13px; color:var(--on-surface-variant); margin-top:8px;">
+                Verify topic gates or complete active learning dialectics to populate invariant flashcards.
+              </p>
+              <div style="margin-top:16px;">
+                <button class="btn-primary" onclick="switchTab('curriculum')">
+                  <span>Go to Curriculum Syllabus</span>
+                  <span class="material-symbols-outlined" style="font-size:14px; margin-left:4px;">arrow_forward</span>
+                </button>
+              </div>
             </div>
-          </div>
-        `;
-        counter.innerText = '0 Cards';
+          `;
+        } else if (revisionFilter === 'due') {
+          container.innerHTML = `
+            <div class="flashcard" style="text-align:center; justify-content:center; padding:48px 32px;">
+              <div style="width:56px; height:56px; border:3px solid #000; background:#10b981; color:#000; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; margin:0 auto 16px auto; box-shadow:4px 4px 0px #000;">
+                <span class="material-symbols-outlined" style="font-size:32px;">verified</span>
+              </div>
+              <div style="font-family:var(--font-headline); font-size:22px; font-weight:800; letter-spacing:-0.5px;">All Due Cards Reviewed!</div>
+              <p style="font-size:14px; color:var(--on-surface-variant); max-width:540px; margin:10px auto; line-height:1.5;">
+                You've completed all scheduled retrieval reviews for today. Spaced intervals strengthen structural invariants before the forgetting curve takes hold.
+              </p>
+              <div style="display:flex; justify-content:center; gap:12px; margin-top:20px; flex-wrap:wrap;">
+                <button class="btn-primary" onclick="setRevisionFilter('all', document.querySelector('.revision-filter-btn[data-filter=all]'))">
+                  <span class="material-symbols-outlined" style="font-size:16px;">style</span>
+                  <span>Review All Deck Cards (${revisionsList.length})</span>
+                </button>
+                <button class="btn-ghost" onclick="switchTab('curriculum')">
+                  <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+                  <span>Continue Curriculum</span>
+                </button>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="flashcard" style="text-align:center; justify-content:center;">
+              <div style="font-family:var(--font-headline); font-size:18px; font-weight:700;">No Matching Cards Found</div>
+              <p style="font-size:13px; color:var(--on-surface-variant); margin-top:8px;">
+                No flashcards matched your active filter or search query.
+              </p>
+              <div style="margin-top:16px;">
+                <button class="btn-primary" onclick="clearRevisionSearch(); setRevisionFilter('all', document.querySelector('.revision-filter-btn[data-filter=all]'));">
+                  <span>Reset Filters</span>
+                </button>
+              </div>
+            </div>
+          `;
+        }
         return;
       }
 
-      const rev = revisionsList[currentRevisionIdx];
-      const pct = Math.round(((currentRevisionIdx + 1) / revisionsList.length) * 100);
-      counter.innerText = `Card ${currentRevisionIdx + 1} of ${revisionsList.length} (Next due: ${rev.nextReviewDate || 'Today'})`;
+      if (currentRevisionIdx >= filtered.length) {
+        currentRevisionIdx = 0;
+      }
+
+      const rev = filtered[currentRevisionIdx];
+      const pct = Math.round(((currentRevisionIdx + 1) / filtered.length) * 100);
+
+      const statusTag = rev.masteryStatus === 'mastered' ?
+        '<span style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:11px; font-weight:700; color:#10b981; background:rgba(16,185,129,0.12); padding:2px 8px; border:1px solid #10b981;"><span class="material-symbols-outlined" style="font-size:12px;">verified</span> MASTERED</span>' :
+        (rev.masteryStatus === 'needs_review' ?
+          '<span style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:11px; font-weight:700; color:#ef4444; background:rgba(239,68,68,0.12); padding:2px 8px; border:1px solid #ef4444;"><span class="material-symbols-outlined" style="font-size:12px;">replay</span> NEEDS REVIEW</span>' :
+          '<span style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:11px; font-weight:700; color:#f59e0b; background:rgba(245,158,11,0.12); padding:2px 8px; border:1px solid #f59e0b;"><span class="material-symbols-outlined" style="font-size:12px;">schedule</span> LEARNING</span>');
 
       container.innerHTML = `
         <div class="flashcard">
@@ -5705,69 +6196,235 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
           <div>
             <div class="flashcard-header">
-              <span class="badge-active">
-                <span class="material-symbols-outlined" style="font-size:12px; margin-right:3px;">school</span>
-                ${rev.clusterTitle || 'Core Mechanics'}
-              </span>
+              <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                <span class="badge-active">
+                  <span class="material-symbols-outlined" style="font-size:12px; margin-right:3px;">school</span>
+                  ${escapeHtml(rev.clusterTitle || 'Core Mechanics')}
+                </span>
+                ${statusTag}
+                ${rev.isDue ? '<span style="font-family:var(--font-mono); font-size:10px; font-weight:800; background:#ff5f56; color:#fff; padding:2px 6px; border:1px solid #000;">DUE TODAY</span>' : ''}
+              </div>
+
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant);">${rev.topicTitle}</span>
+                <span style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); font-weight:700;">
+                  Card ${currentRevisionIdx + 1} of ${filtered.length}
+                </span>
                 ${rev.topicId ? `
-                  <button class="btn-ghost" style="padding:2px 8px; font-size:10px;" onclick="openLessonModal('${rev.topicId}', '${(rev.topicTitle || '').replace(/'/g, "\\\\'")}')" title="Open Topic Lesson">
+                  <button class="btn-ghost" style="padding:2px 8px; font-size:10px;" onclick="openLessonModal('${rev.topicId}', '${escapeHtml(rev.topicTitle || '')}')" title="Open Topic Lesson">
                     <span class="material-symbols-outlined" style="font-size:12px;">school</span><span>Lesson</span>
                   </button>
-                  <button class="btn-ghost" style="padding:2px 8px; font-size:10px;" onclick="openTopicNote('${rev.clusterId || 'general'}', '${rev.topicId}', '${(rev.topicTitle || '').replace(/'/g, "\\\\'")}')" title="Open Topic Notes">
+                  <button class="btn-ghost" style="padding:2px 8px; font-size:10px;" onclick="openTopicNote('${rev.clusterId || 'general'}', '${rev.topicId}', '${escapeHtml(rev.topicTitle || '')}')" title="Open Topic Notes">
                     <span class="material-symbols-outlined" style="font-size:12px;">edit_note</span><span>Notes</span>
                   </button>
                 ` : ''}
               </div>
             </div>
 
-            <div style="font-family:var(--font-mono); font-size:11px; color:var(--secondary); text-transform:uppercase; font-weight:700; display:flex; align-items:center; gap:4px;">
-              <span class="material-symbols-outlined" style="font-size:15px;">crisis_alert</span>
-              <span>Active Reality Check Challenge:</span>
-            </div>
-            <div class="flashcard-prompt-text">
-              "${rev.realityCheckPrompt || rev.invariant || 'Defend this architectural invariant under high packet loss.'}"
+            <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+              <span class="flashcard-challenge-pill">
+                <span class="material-symbols-outlined" style="font-size:14px;">crisis_alert</span>
+                <span>Active Scenario Challenge</span>
+              </span>
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); font-weight:700;">${escapeHtml(rev.topicTitle || '')}</span>
             </div>
 
+            <div class="flashcard-prompt-text">
+              "${escapeHtml(rev.realityCheckPrompt || rev.invariant || 'Defend this architectural invariant under high packet loss.')}"
+            </div>
+
+            ${rev.naiveTrap ? `
+              <div class="flashcard-trap-box" onclick="toggleTrap()" title="Click to toggle common trap hint">
+                <div style="display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                  <span style="font-family:var(--font-mono); font-size:11px; font-weight:700; color:#f59e0b; display:flex; align-items:center; gap:4px;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">warning</span>
+                    <span>Naive Intuition Trap (What caught your model?):</span>
+                  </span>
+                  <span class="material-symbols-outlined" style="font-size:16px; color:var(--on-surface-variant);">${trapRevealed ? 'expand_less' : 'expand_more'}</span>
+                </div>
+                ${trapRevealed ? `
+                  <div style="margin-top:6px; font-family:var(--font-body); font-size:12px; color:var(--on-surface); line-height:1.5;">
+                    ${escapeHtml(rev.naiveTrap)}
+                  </div>
+                ` : `
+                  <div style="margin-top:4px; font-family:var(--font-body); font-size:11px; color:var(--on-surface-variant); font-style:italic;">
+                    Click to inspect the naive assumption before answering...
+                  </div>
+                `}
+              </div>
+            ` : ''}
+
             ${revisionRevealed ? `
-              <div class="flashcard-revealed-box">
-                <div style="font-weight:700; color:var(--on-surface); margin-bottom:4px;">Defended Invariant:</div>
-                <div>${rev.invariant}</div>
-                ${rev.failureBoundary ? `<div style="margin-top:8px;"><strong>Failure Boundary:</strong> ${rev.failureBoundary}</div>` : ''}
-                ${rev.formula ? `<div style="margin-top:8px; font-family:var(--font-mono); font-size:11px; background:var(--surface-container-high); padding:6px 10px; border-left:3px solid var(--primary-container); display:flex; align-items:center; gap:6px;"><span class="material-symbols-outlined" style="font-size:15px; color:var(--primary-container);">functions</span><span>Formula: ${rev.formula}</span></div>` : ''}
+              <div class="flashcard-revealed-grid">
+                <div class="defense-card-section invariant-sec">
+                  <div class="defense-section-label" style="color:#10b981;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">verified</span>
+                    <span>Verified Mechanical Invariant</span>
+                  </div>
+                  <div class="defense-section-body">${escapeHtml(rev.invariant)}</div>
+                </div>
+
+                <div class="defense-card-section failure-sec">
+                  <div class="defense-section-label" style="color:#ef4444;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">dangerous</span>
+                    <span>Failure Boundary & Blast Radius</span>
+                  </div>
+                  <div class="defense-section-body">${escapeHtml(rev.failureBoundary || 'Evaluated failure modes and partition bounds under high load.')}</div>
+                </div>
+
+                <div class="defense-card-section formula-sec">
+                  <div class="defense-section-label" style="color:#3b82f6;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">functions</span>
+                    <span>Production Bound & Sizing Math</span>
+                  </div>
+                  <div class="defense-section-body mono">${escapeHtml(rev.formula || 'Quantitative trade-off defended during sign-off.')}</div>
+                </div>
+
+                <div class="defense-card-section rule-sec">
+                  <div class="defense-section-label" style="color:#f59e0b;">
+                    <span class="material-symbols-outlined" style="font-size:15px;">lightbulb</span>
+                    <span>Operational Rule of Thumb</span>
+                  </div>
+                  <div class="defense-section-body">${escapeHtml(rev.ruleOfThumb || 'Apply deterministic invariants to isolate blast radius.')}</div>
+                </div>
               </div>
             ` : ''}
           </div>
 
           <div>
             ${!revisionRevealed ? `
-              <button class="btn-primary" style="width:100%; justify-content:center; padding:12px;" onclick="revealRevisionCard()">
-                <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
+              <button class="btn-primary" style="width:100%; justify-content:center; padding:13px; font-size:13px;" onclick="revealRevisionCard()">
+                <span class="material-symbols-outlined" style="font-size:17px;">visibility</span>
                 <span>Reveal Defended Invariant & Sizing Math (Spacebar)</span>
               </button>
             ` : `
-              <div class="flashcard-ratings">
-                <button class="btn-ghost" style="flex:1; justify-content:center; color:var(--secondary);" onclick="rateRevision('learning')" title="Key [1]">
-                  <span class="material-symbols-outlined" style="font-size:14px;">replay</span>
-                  <span>Needs Review (1d)</span>
-                  <kbd style="margin-left:4px;">1</kbd>
-                </button>
-                <button class="btn-ghost" style="flex:1; justify-content:center;" onclick="rateRevision('proficient')" title="Key [2]">
-                  <span class="material-symbols-outlined" style="font-size:14px;">thumb_up</span>
-                  <span>Good (3d)</span>
-                  <kbd style="margin-left:4px;">2</kbd>
-                </button>
-                <button class="btn-primary" style="flex:1; justify-content:center;" onclick="rateRevision('mastered')" title="Key [3]">
-                  <span class="material-symbols-outlined" style="font-size:14px;">verified</span>
-                  <span>Mastered (7d)</span>
-                  <kbd style="margin-left:4px; background:#1a1a1a; color:#fff; border-color:#000;">3</kbd>
-                </button>
+              <div>
+                <div style="font-family:var(--font-mono); font-size:11px; text-transform:uppercase; font-weight:700; color:var(--on-surface-variant); margin-bottom:8px; display:flex; align-items:center; gap:4px;">
+                  <span class="material-symbols-outlined" style="font-size:14px;">psychology</span>
+                  <span>Rate Your Recall Precision (Key 1, 2, or 3):</span>
+                </div>
+                <div class="flashcard-ratings">
+                  <button class="btn-ghost" style="flex:1; justify-content:center; color:#ef4444; border-color:#ef4444; padding:10px;" onclick="rateRevision('learning')" title="Key [1]">
+                    <span class="material-symbols-outlined" style="font-size:16px;">replay</span>
+                    <span>Again (1d)</span>
+                    <kbd style="margin-left:4px;">1</kbd>
+                  </button>
+                  <button class="btn-ghost" style="flex:1; justify-content:center; color:#f59e0b; border-color:#f59e0b; padding:10px;" onclick="rateRevision('proficient')" title="Key [2]">
+                    <span class="material-symbols-outlined" style="font-size:16px;">thumb_up</span>
+                    <span>Good (3d)</span>
+                    <kbd style="margin-left:4px;">2</kbd>
+                  </button>
+                  <button class="btn-primary" style="flex:1; justify-content:center; background:#10b981; color:#000; border-color:#000; padding:10px;" onclick="rateRevision('mastered')" title="Key [3]">
+                    <span class="material-symbols-outlined" style="font-size:16px;">verified</span>
+                    <span>Mastered (7d+)</span>
+                    <kbd style="margin-left:4px; background:#000; color:#fff; border-color:#000;">3</kbd>
+                  </button>
+                </div>
               </div>
             `}
+
+            <div class="flashcard-nav-controls">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button class="btn-ghost" style="padding:4px 10px; font-size:11px;" onclick="navigateRevision(-1)" title="Previous card (Left Arrow)">
+                  <span class="material-symbols-outlined" style="font-size:14px;">arrow_back</span>
+                  <span>Prev</span>
+                </button>
+                <button class="btn-ghost" style="padding:4px 10px; font-size:11px;" onclick="navigateRevision(1)" title="Next card (Right Arrow)">
+                  <span>Next</span>
+                  <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+                </button>
+                <button class="btn-ghost" style="padding:4px 10px; font-size:11px;" onclick="shuffleRevisions()" title="Shuffle queue order">
+                  <span class="material-symbols-outlined" style="font-size:14px;">shuffle</span>
+                  <span>Shuffle</span>
+                </button>
+              </div>
+
+              <div style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant);">
+                Next Due: <strong>${rev.nextReviewDate || 'Today'}</strong>
+                ${rev.streak ? ` • Streak: <strong>${rev.streak}</strong>` : ''}
+              </div>
+            </div>
           </div>
         </div>
       `;
+    }
+
+    function renderRevisionGrid() {
+      const container = document.getElementById('revision-card-container');
+      if (!container) return;
+
+      const filtered = getFilteredRevisions();
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:48px 24px; border:2px dashed var(--border-color); background:var(--surface-container-lowest);">
+            <div style="font-family:var(--font-headline); font-size:18px; font-weight:700;">No Cards Found</div>
+            <p style="font-size:13px; color:var(--on-surface-variant); margin-top:8px;">No cards match the active filter or query.</p>
+            <button class="btn-primary" style="margin-top:14px;" onclick="clearRevisionSearch(); setRevisionFilter('all', document.querySelector('.revision-filter-btn[data-filter=all]'));">Reset Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="revision-grid-container">';
+      filtered.forEach((r, idx) => {
+        const isMastered = r.masteryStatus === 'mastered';
+        const isNeeds = r.masteryStatus === 'needs_review';
+        const statusColor = isMastered ? '#10b981' : (isNeeds ? '#ef4444' : '#f59e0b');
+        const statusLabel = isMastered ? 'MASTERED' : (isNeeds ? 'NEEDS REVIEW' : 'LEARNING');
+
+        html += `
+          <div class="revision-grid-card">
+            <div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; gap:8px;">
+                <span style="font-family:var(--font-mono); font-size:10px; font-weight:800; color:${statusColor}; border:1px solid ${statusColor}; padding:1px 6px;">
+                  ● ${statusLabel}
+                </span>
+                <span style="font-family:var(--font-mono); font-size:10px; color:var(--on-surface-variant);">
+                  Due: ${r.nextReviewDate || 'Today'}
+                </span>
+              </div>
+
+              <div style="font-family:var(--font-headline); font-size:15px; font-weight:700; line-height:1.3; color:var(--on-surface); margin-bottom:8px;">
+                ${escapeHtml(r.topicTitle || 'Topic')}
+              </div>
+
+              <div style="font-size:12px; color:var(--on-surface); line-height:1.45; margin-bottom:10px; font-style:italic;">
+                "${escapeHtml((r.realityCheckPrompt || r.invariant || '').slice(0, 140))}${((r.realityCheckPrompt || '').length > 140 ? '...' : '')}"
+              </div>
+
+              ${r.formula ? `
+                <div style="font-family:var(--font-mono); font-size:11px; background:var(--surface-container-high); padding:4px 8px; border-left:3px solid #3b82f6; margin-bottom:8px; word-break:break-word;">
+                  ${escapeHtml(r.formula.slice(0, 100))}
+                </div>
+              ` : ''}
+            </div>
+
+            <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-color); padding-top:10px; margin-top:8px;">
+              <span style="font-family:var(--font-mono); font-size:10px; color:var(--on-surface-variant);">
+                Reviewed: ${r.reviewCount || 0} times
+              </span>
+              <button class="btn-primary" style="padding:4px 10px; font-size:11px;" onclick="practiceCardById('${r.id || r.topicId}')">
+                <span class="material-symbols-outlined" style="font-size:13px;">play_arrow</span>
+                <span>Practice</span>
+              </button>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function practiceCardById(cardId) {
+      setRevisionViewMode('card');
+      const filtered = getFilteredRevisions();
+      const idx = filtered.findIndex(r => r.id === cardId || r.topicId === cardId);
+      if (idx !== -1) {
+        currentRevisionIdx = idx;
+      }
+      revisionRevealed = false;
+      trapRevealed = false;
+      renderRevisionCard();
     }
 
     function revealRevisionCard() {
@@ -5776,8 +6433,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     async function rateRevision(status) {
-      if (!revisionsList.length) return;
-      const rev = revisionsList[currentRevisionIdx];
+      const filtered = getFilteredRevisions();
+      if (!filtered.length) return;
+      const rev = filtered[currentRevisionIdx];
       try {
         await fetch('/api/revisions/rate', {
           method: 'POST',
@@ -5785,23 +6443,50 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({ revisionId: rev.id, masteryStatus: status })
         });
         showToast(`Marked ${status} (scheduled review updated)`);
+
+        // Update local state directly
+        rev.masteryStatus = status;
+        rev.isDue = false;
+        rev.reviewCount = (rev.reviewCount || 0) + 1;
+        if (status === 'mastered') {
+          rev.streak = (rev.streak || 0) + 1;
+        } else {
+          rev.streak = 0;
+        }
+        updateRevisionCounters();
       } catch (e) {}
 
       // Move to next card
-      currentRevisionIdx = (currentRevisionIdx + 1) % revisionsList.length;
+      if (filtered.length > 1) {
+        currentRevisionIdx = (currentRevisionIdx + 1) % filtered.length;
+      }
       revisionRevealed = false;
-      renderRevisionCard();
+      trapRevealed = false;
+      renderRevisionDeck();
     }
 
     // Keyboard navigation (Esc, Space, 1, 2, 3, ?, /)
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
+        const revSearchInp = document.getElementById('revision-search');
+        if (document.activeElement === revSearchInp) {
+          clearRevisionSearch();
+          revSearchInp.blur();
+          return;
+        }
+        const curSearchInp = document.getElementById('curriculum-search');
+        if (document.activeElement === curSearchInp) {
+          clearSearch();
+          curSearchInp.blur();
+          return;
+        }
         closeLessonModal();
         closeModal('note-modal');
         closeModal('adr-modal');
         closeModal('new-project-modal');
         closeModal('settings-modal');
         closeModal('shortcuts-modal');
+        closeModal('topic-status-modal');
       } else if (e.key === '?' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         e.preventDefault();
         const scModal = document.getElementById('shortcuts-modal');
@@ -5812,12 +6497,20 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
       } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
         const curPanel = document.getElementById('panel-curriculum');
+        const revPanel = document.getElementById('panel-revision');
         if (curPanel && curPanel.classList.contains('active')) {
           const searchInp = document.getElementById('curriculum-search');
           if (searchInp) {
             e.preventDefault();
             searchInp.focus();
             searchInp.select();
+          }
+        } else if (revPanel && revPanel.classList.contains('active')) {
+          const revSearchInp = document.getElementById('revision-search');
+          if (revSearchInp) {
+            e.preventDefault();
+            revSearchInp.focus();
+            revSearchInp.select();
           }
         }
       } else if (e.key === 'f' || e.key === 'F') {
@@ -5839,6 +6532,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           e.preventDefault();
           if (!revisionRevealed) {
             revealRevisionCard();
+          }
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          navigateRevision(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          navigateRevision(1);
+        } else if (e.key === 't' || e.key === 'T') {
+          if (!['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+            e.preventDefault();
+            toggleTrap();
           }
         } else if (revisionRevealed) {
           if (e.key === '1') {
@@ -6201,15 +6905,20 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
 
         elif path == "/api/revisions":
             revisions_file = os.path.join(self.inst_dir, "revisions.json")
-            data = {"revisions": []}
+            data = None
             if os.path.isfile(revisions_file):
                 try:
                     with open(revisions_file, "r", encoding="utf-8") as f:
                         data = json.load(f)
                 except Exception:
-                    pass
-            elif update_revisions_mod:
-                data = update_revisions_mod.sync_revisions(self.inst_dir)
+                    data = None
+            if (not data or not isinstance(data.get("revisions"), list)) and update_revisions_mod:
+                try:
+                    data = update_revisions_mod.sync_revisions(self.inst_dir)
+                except Exception:
+                    data = {"revisions": []}
+            if not data:
+                data = {"revisions": []}
 
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -6979,16 +7688,18 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
                         r_data = json.load(f)
 
                     # Anki-Style Spaced Repetition Scheduling
-                    interval_days = 1 if status == "learning" else (3 if status == "proficient" else 7)
+                    interval_days = 1 if status in ["learning", "needs_review"] else (3 if status == "proficient" else 7)
                     today = datetime.date.today()
                     next_dt = today + datetime.timedelta(days=interval_days)
 
                     for r in r_data.get("revisions", []):
-                        if r.get("id") == rev_id:
+                        if r.get("id") == rev_id or r.get("topicId") == rev_id:
                             r["masteryStatus"] = status
                             r["lastReviewed"] = today.strftime("%Y-%m-%d")
                             r["nextReviewDate"] = next_dt.strftime("%Y-%m-%d")
                             r["reviewCount"] = r.get("reviewCount", 0) + 1
+                            r["streak"] = (r.get("streak", 0) + 1) if status == "mastered" else 0
+                            r["isDue"] = False
                             break
 
                     with open(revisions_file, "w", encoding="utf-8") as f:

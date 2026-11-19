@@ -30,11 +30,6 @@
     "note": "Why WebRTC/VoIP prioritizes timeliness over complete delivery."
   },
   {
-    "id": "hl_html_1",
-    "color": "yellow",
-    "text": "TCP vs UDP"
-  },
-  {
     "id": "hl_html_2",
     "color": "emerald",
     "text": "The True Cost of Reliability"

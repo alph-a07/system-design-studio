@@ -1,21 +1,25 @@
 {
   "$schemaVersion": "1.0",
-  "lastUpdated": "2026-11-19T09:06:38.978527+00:00",
-  "totalRevisions": 6,
+  "lastUpdated": "2026-11-19T14:11:54.916609+00:00",
+  "totalRevisions": 7,
+  "dueCount": 3,
+  "masteredCount": 3,
+  "learningCount": 4,
+  "needsReviewCount": 0,
   "revisions": [
     {
       "id": "rev.0.1.tcp-vs-udp",
       "topicId": "topic.0.1.tcp-vs-udp",
       "topicTitle": "TCP vs UDP",
       "tierId": "tier.0",
-      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "tierName": "Tier 0 \u2014 Network & Transport Mechanics",
       "clusterId": "cluster.0.1",
       "clusterTitle": "1. [0.1] APIs & Network Transport for Design",
-      "invariant": "Verified cold in chat defense without notes.",
-      "failureBoundary": "Under 1% network packet loss, HTTP/2 connection throughput degrades by up to 50% because the kernel TCP receive buffer stalls all application streams while waiting for the dropped segment retransmission.",
-      "formula": "Throughput <= (MSS / RTT) * (1 / sqrt(p)) [Mathis Equation]",
+      "invariant": "Proved unassisted that TCP vs UDP enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path.",
+      "failureBoundary": "Under 1-2% loss on high BDP links (>50ms RTT), Mathis formula throughput collapses (Throughput <= (MSS / RTT) * (1 / sqrt(p))).",
+      "formula": "Throughput <= (MSS / RTT) * (1 / sqrt(p)) [Mathis Equation] | BDP = RTT \u00d7 Bandwidth",
       "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
-      "realityCheckPrompt": "Defend the core invariant and quantitative trade-off under failure.",
+      "realityCheckPrompt": "Under 1% network packet loss on a 50ms link, why does an HTTP/2 connection stall across all multiplexed streams, and why does VoD use TCP while live videoconferencing picks UDP?",
       "guarantees": [
         "Verified operational ordering, bounded blast radius, and deterministic recovery."
       ],
@@ -26,14 +30,18 @@
       "lastReviewed": "2026-11-19",
       "source": "ADR-004",
       "nextReviewDate": "2026-11-26",
-      "reviewCount": 1
+      "reviewCount": 2,
+      "ruleOfThumb": "Use single-stream TCP when sequential byte-stream order is strictly mandatory. Switch to QUIC/multiplexed UDP when concurrent independent requests share a lossy link.",
+      "naiveTrap": "Assumed critical RPCs should universally mandate TCP for reliability, treating packet loss purely as a transport concern transparent to application latency.",
+      "streak": 2,
+      "isDue": false
     },
     {
       "id": "rev.0.2.quic-http3",
       "topicId": "topic.0.2.quic-and-http3",
       "topicTitle": "QUIC Stream Multiplexing & Connection Migration",
       "tierId": "tier.0",
-      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "tierName": "Tier 0 \u2014 Network & Transport Mechanics",
       "clusterId": "cluster.0.1.transport",
       "clusterTitle": "Transport Protocols & Kernel Sockets",
       "invariant": "QUIC shifts reliable transport and crypto handshakes from kernel OS space into user-space UDP datagrams, isolating packet loss to individual stream frames.",
@@ -53,14 +61,17 @@
       "lastReviewed": "2026-11-19",
       "source": "Foundational",
       "nextReviewDate": "2026-11-20",
-      "reviewCount": 1
+      "reviewCount": 1,
+      "isDue": false,
+      "ruleOfThumb": "Deploy HTTP/2 on high-reliability internal server-to-server backbones; deploy HTTP/3/QUIC on public internet edge and lossy mobile client networks.",
+      "naiveTrap": "Assuming HTTP/2 multiplexing is unconditionally faster than HTTP/1.1 on lossy wireless networks."
     },
     {
       "id": "rev.1.1.lsm-compaction",
       "topicId": "topic.1.1.lsm-trees",
       "topicTitle": "LSM Trees: MemTable, SSTables, and Leveled Compaction",
       "tierId": "tier.1",
-      "tierName": "Tier 1 — Storage Engines & Data Layout",
+      "tierName": "Tier 1 \u2014 Storage Engines & Data Layout",
       "clusterId": "cluster.1.1.storage",
       "clusterTitle": "Storage Engines & Inverted Indices",
       "invariant": "LSM engines trade read latency and compaction write amplification for sequential disk write throughput via append-only commit logs and sorted string tables.",
@@ -78,14 +89,17 @@
       ],
       "masteryStatus": "learning",
       "lastReviewed": "2026-11-18",
-      "source": "Foundational"
+      "source": "Foundational",
+      "isDue": true,
+      "ruleOfThumb": "Use LSM-Trees for high-velocity write ingest (logs, metrics, timeseries); use B-Trees for read-heavy workloads with complex range filters and covering index requirements.",
+      "naiveTrap": "Assuming LSM disk append speed means compaction comes with zero background I/O performance tax."
     },
     {
       "id": "rev.2.1.raft-consensus",
       "topicId": "topic.2.1.raft-consensus",
       "topicTitle": "Raft Leader Election, Log Replication & Quorums",
       "tierId": "tier.2",
-      "tierName": "Tier 2 — Distributed Coordination & Consensus",
+      "tierName": "Tier 2 \u2014 Distributed Coordination & Consensus",
       "clusterId": "cluster.2.1.consensus",
       "clusterTitle": "Consensus Protocols & Split-Brain Fencing",
       "invariant": "Raft guarantees strong state machine safety across asymmetric network partitions through strict term monotonicity and majoritarian log matching: a leader must possess all committed entries from prior terms.",
@@ -103,21 +117,24 @@
       ],
       "masteryStatus": "proficient",
       "lastReviewed": "2026-11-18",
-      "source": "Foundational"
+      "source": "Foundational",
+      "isDue": true,
+      "ruleOfThumb": "Always deploy odd cluster sizes (3, 5, 7) for consensus. Implement leader leases and generation term counters before serving linearizable reads.",
+      "naiveTrap": "Assuming adding an even node (e.g. 4th node to a 3-node cluster) increases fault tolerance; it actually reduces availability under network partitions."
     },
     {
       "id": "rev.0.1.http-1-1-vs-http-2-vs-http-3",
       "topicId": "topic.0.1.http-1-1-vs-http-2-vs-http-3",
       "topicTitle": "HTTP/1.1 vs HTTP/2 vs HTTP/3",
       "tierId": "tier.0",
-      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "tierName": "Tier 0 \u2014 Network & Transport Mechanics",
       "clusterId": "cluster.0.1",
       "clusterTitle": "1. [0.1] APIs & Network Transport for Design",
-      "invariant": "Verified cold in chat defense without notes.",
-      "failureBoundary": "Evaluated failure modes and partition bounds under high load.",
-      "formula": "Quantitative trade-off defended during sign-off.",
+      "invariant": "Proved unassisted that HTTP/1.1 vs HTTP/2 vs HTTP/3 enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path.",
+      "failureBoundary": "HoL blocking in HTTP/2 stalls every request on the connection when 1 packet drops. HTTP/1.1 bounds the stall to 1 of 6 connections.",
+      "formula": "QUIC 0-RTT/1-RTT connection setup saves 1-2 network roundtrips over TCP + TLS 1.3.",
       "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
-      "realityCheckPrompt": "Defend the core invariant and quantitative trade-off under failure.",
+      "realityCheckPrompt": "Why can HTTP/1.1 with 6 parallel TCP connections outperform multiplexed HTTP/2 over a single connection under 2% packet loss, and what problem does QUIC solve?",
       "guarantees": [
         "Verified operational ordering, bounded blast radius, and deterministic recovery."
       ],
@@ -126,21 +143,27 @@
       ],
       "masteryStatus": "mastered",
       "lastReviewed": "2026-11-18",
-      "source": "ADR-003"
+      "source": "ADR-003",
+      "ruleOfThumb": "Use HTTP/2 on reliable low-loss internal backbones; deploy HTTP/3/QUIC on public internet edge and mobile clients.",
+      "naiveTrap": "Assumed standard synchronous request-response architecture would satisfy requirements for HTTP/1.1 vs HTTP/2 vs HTTP/3 before evaluating uncoordinated distributed failure states and physical resource saturation.",
+      "reviewCount": 0,
+      "streak": 1,
+      "nextReviewDate": "2026-11-26",
+      "isDue": false
     },
     {
       "id": "rev.0.1.tls-handshake-cost-and-session-resumptio",
       "topicId": "topic.0.1.tls-handshake-cost-and-session-resumptio",
       "topicTitle": "TLS handshake cost and session resumption",
       "tierId": "tier.0",
-      "tierName": "Tier 0 — Network & Transport Mechanics",
+      "tierName": "Tier 0 \u2014 Network & Transport Mechanics",
       "clusterId": "cluster.0.1",
       "clusterTitle": "1. [0.1] APIs & Network Transport for Design",
-      "invariant": "Verified cold in chat defense without notes.",
-      "failureBoundary": "Evaluated failure modes and partition bounds under high load.",
-      "formula": "Quantitative trade-off defended during sign-off.",
+      "invariant": "Proved unassisted that TLS handshake cost and session resumption enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path.",
+      "failureBoundary": "Replayed 0-RTT early data packets can duplicate payment or mutation requests unless server enforces anti-replay caches.",
+      "formula": "Cellular 1 RTT can exceed 100-200ms; warming connection pools with keep-alives cuts API tail latency by >300ms.",
       "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
-      "realityCheckPrompt": "Defend the core invariant and quantitative trade-off under failure.",
+      "realityCheckPrompt": "Why does connection reuse matter so critically on cellular networks, and what replay attack risk does TLS 1.3 0-RTT Early Data introduce to stateful APIs?",
       "guarantees": [
         "Verified operational ordering, bounded blast radius, and deterministic recovery."
       ],
@@ -149,7 +172,41 @@
       ],
       "masteryStatus": "mastered",
       "lastReviewed": "2026-11-18",
-      "source": "ADR-005"
+      "source": "ADR-005",
+      "ruleOfThumb": "Allow 0-RTT only for strictly idempotent GET requests; enforce persistent warmed connection pools with TLS keep-alives for critical RPCs.",
+      "naiveTrap": "Assumed standard synchronous request-response architecture would satisfy requirements for TLS handshake cost and session resumption before evaluating uncoordinated distributed failure states and physical resource saturation.",
+      "reviewCount": 0,
+      "streak": 1,
+      "nextReviewDate": "2026-11-26",
+      "isDue": false
+    },
+    {
+      "id": "rev.1.2.isolation-write-skew",
+      "topicId": "topic.0.2.isolation-levels",
+      "topicTitle": "Transaction Isolation Levels & Write Skew",
+      "tierId": "tier.0",
+      "tierName": "Tier 0 \u2014 Databases & Storage Mechanics",
+      "clusterId": "cluster.0.2.databases",
+      "clusterTitle": "Indexes, Transactions & Isolation",
+      "realityCheckPrompt": "In a hospital on-call database where at least one doctor must be active, two doctors simultaneously attempt to go off call under Snapshot Isolation. Both read 2 active doctors. Why does Snapshot Isolation permit both (Write Skew), and what pattern prevents it?",
+      "invariant": "Snapshot Isolation prevents dirty reads and non-repeatable reads by checking write-write conflicts on identical rows, but CANNOT detect cross-row constraint violations where concurrent transactions read overlapping rows and write to disjoint rows (Write Skew).",
+      "failureBoundary": "Both doctors successfully go off call, violating the invariant of having at least one active doctor, with zero transaction errors or deadlocks.",
+      "formula": "Serializable Isolation or explicit SELECT ... FOR UPDATE (pessimistic locking) is mathematically mandatory to eliminate Write Skew.",
+      "ruleOfThumb": "When a business decision reads across multiple rows to validate a constraint before writing, standard Snapshot Isolation is insufficient: enforce Serializable or SELECT ... FOR UPDATE.",
+      "naiveTrap": "Believing that 'running inside a database transaction' automatically prevents all concurrency bugs and data anomalies.",
+      "defenseAnswer": "Write skew occurs because neither transaction modifies a row that the other modified; they read overlapping state and write to separate rows, bypassing first-committer-wins row locks.",
+      "guarantees": [
+        "Consistent snapshot reads without blocking concurrent writers"
+      ],
+      "taxes": [
+        "Vulnerability to phantom reads and write skew without explicit locks"
+      ],
+      "masteryStatus": "learning",
+      "lastReviewed": null,
+      "reviewCount": 0,
+      "streak": 0,
+      "source": "Foundational",
+      "isDue": true
     }
   ]
 }
