@@ -2820,7 +2820,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <span class="material-symbols-outlined" style="font-size:22px; color:var(--primary-container);">school</span>
           <div style="min-width:0;">
             <h3 id="lesson-modal-title" style="font-family:var(--font-headline); font-size:16px; font-weight:800; text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-              Lesson &amp; Simulator
+              HTML Lesson
             </h3>
             <div id="lesson-modal-subtitle" style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px;"></div>
           </div>
@@ -2829,11 +2829,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
           <!-- Format Switcher Pill Group -->
           <div id="lesson-format-toggle" class="format-pill-group">
-            <button id="btn-format-html" class="format-pill-btn active" onclick="switchLessonFormat('html')" title="Interactive HTML Simulator">
+            <button id="btn-format-html" class="format-pill-btn active" onclick="switchLessonFormat('html')" title="Interactive HTML Lesson">
               <span class="material-symbols-outlined" style="font-size:14px;">view_in_ar</span>
-              <span>Simulator</span>
+              <span>HTML Lesson</span>
             </button>
-            <button id="btn-format-md" class="format-pill-btn" onclick="switchLessonFormat('md')" title="Artifact Markdown Lesson">
+            <button id="btn-format-md" class="format-pill-btn" onclick="switchLessonFormat('md')" title="Artifact Markdown Document">
               <span class="material-symbols-outlined" style="font-size:14px;">description</span>
               <span>Markdown</span>
             </button>
@@ -3103,7 +3103,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div class="form-group">
           <label class="form-label">Lesson Format Preference</label>
           <select id="settings-lesson-format" class="form-input">
-            <option value="html">Interactive HTML (Simulators & Hardware Gauges)</option>
+            <option value="html">Interactive HTML (Visual Gauges &amp; Systems)</option>
             <option value="markdown">Markdown Textual Document</option>
           </select>
         </div>
@@ -4386,7 +4386,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         iframe.style.display = 'block';
         currentActiveArtifact = currentLessonContext.htmlPath;
         const isDark = document.documentElement.classList.contains('dark');
-        iframe.src = `/api/lesson?path=${encodeURIComponent(currentLessonContext.htmlPath)}&theme=${isDark ? 'dark' : 'light'}`;
+        const activePreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
+        iframe.src = `/api/lesson?path=${encodeURIComponent(currentLessonContext.htmlPath)}&theme=${isDark ? 'dark' : 'light'}&preset=${encodeURIComponent(activePreset)}`;
       } else if (format === 'md' && currentLessonContext.mdPath) {
         if (btnMd) btnMd.classList.add('active');
         if (btnHtml) btnHtml.classList.remove('active');
@@ -4448,11 +4449,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const btnHtml = document.getElementById('btn-format-html');
       const btnMd = document.getElementById('btn-format-md');
 
+      // Honor user/manifest outputType preference (markdown vs html)
+      const outputPref = (globalStatus?.settings?.outputType || globalStatus?.manifest?.settings?.outputType || '').toLowerCase();
+      const preferredFormat = (outputPref === 'markdown' || outputPref === 'md') ? 'md' : 'html';
+
       if (currentLessonContext.htmlPath && currentLessonContext.mdPath) {
         toggleGroup.style.display = 'inline-flex';
         btnHtml.style.display = 'inline-flex';
         btnMd.style.display = 'inline-flex';
-        switchLessonFormat('html');
+        switchLessonFormat(preferredFormat);
       } else if (currentLessonContext.htmlPath) {
         toggleGroup.style.display = 'none';
         btnHtml.style.display = 'none';
@@ -4981,6 +4986,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     // Settings Modal
     async function openSettingsModal() {
       openModal('settings-modal');
+      const savedPreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
+      document.getElementById('settings-theme-preset').value = savedPreset;
       try {
         const res = await fetch('/api/settings');
         if (res.ok) {
@@ -4988,7 +4995,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const p = data.project || {};
           document.getElementById('settings-notes-dir').value = p.notesDir || 'notes';
           document.getElementById('settings-auto-notes').checked = (p.autoGenerateNotes !== false);
-          document.getElementById('settings-theme-preset').value = p.artifactStyle || 'slate';
           document.getElementById('settings-lesson-format').value = p.outputType || 'html';
         }
       } catch (e) {}
@@ -4999,7 +5005,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const notesDir = document.getElementById('settings-notes-dir').value;
       const autoNotes = document.getElementById('settings-auto-notes').checked;
       const outputType = document.getElementById('settings-lesson-format').value;
-      const artifactStyle = document.getElementById('settings-theme-preset').value;
+      const themePreset = document.getElementById('settings-theme-preset').value;
+
+      applyThemePreset(themePreset);
 
       try {
         await fetch('/api/settings', {
@@ -5008,14 +5016,14 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({
             notesDir: notesDir,
             autoGenerateNotes: autoNotes,
-            outputType: outputType,
-            artifactStyle: artifactStyle
+            outputType: outputType
           })
         });
         closeModal('settings-modal');
         showToast('Settings saved to disk');
+        refreshData();
       } catch (e) {
-        alert('Failed to save settings');
+        showToast('Failed to save settings');
       }
     }
 
@@ -5307,12 +5315,44 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
 
             if lesson_file:
                 self.send_response(200)
-                content_type = "text/markdown; charset=utf-8" if lesson_file.endswith(".md") else "text/html; charset=utf-8"
+                is_md = lesson_file.endswith(".md")
+                content_type = "text/markdown; charset=utf-8" if is_md else "text/html; charset=utf-8"
                 self.send_header("Content-Type", content_type)
                 self.send_cors()
                 self.end_headers()
                 with open(lesson_file, "rb") as f:
-                    self.wfile.write(f.read())
+                    content_bytes = f.read()
+
+                if not is_md:
+                    try:
+                        html_str = content_bytes.decode("utf-8")
+                        theme_param = query.get("theme", ["dark"])[0]
+                        preset_param = query.get("preset", ["slate-clean"])[0]
+                        theme_injection = f"""<script>
+(function() {{
+  const theme = '{theme_param}';
+  const preset = '{preset_param}';
+  if (theme === 'dark') document.documentElement.classList.add('dark');
+  else document.documentElement.classList.remove('dark');
+  document.documentElement.setAttribute('data-theme-preset', preset);
+  window.addEventListener('message', function(e) {{
+    if (e.data && e.data.type === 'sds-theme-change') {{
+      if (e.data.theme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      if (e.data.preset) document.documentElement.setAttribute('data-theme-preset', e.data.preset);
+    }}
+  }});
+}})();
+</script>"""
+                        if "</head>" in html_str:
+                            html_str = html_str.replace("</head>", theme_injection + "</head>", 1)
+                        else:
+                            html_str = theme_injection + html_str
+                        content_bytes = html_str.encode("utf-8")
+                    except Exception:
+                        pass
+
+                self.wfile.write(content_bytes)
             else:
                 self.send_response(404)
                 self.send_cors()
