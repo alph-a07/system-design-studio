@@ -4,12 +4,12 @@ description: List or view project-scoped active learning study notes with clicka
 argument-hint: "[topic]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.3.1
+  version: 3.4.0
 ---
 
 # /sds-notes
 
-Display direct clickable links (`file:///...`) to all active-learning study notes generated in this project, or manually compile notes when auto-notes is disabled.
+Display direct clickable links (`file:///...`) to all active-learning study notes generated in this project, or read and edit notes live in the visual dashboard on `http://localhost:8420`.
 
 ## Value to User
 - **Knowledge Retention**: Access synthesized study notes combining your initial intuition, cold dialectic friction, and verified physical sizing rules.

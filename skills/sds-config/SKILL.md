@@ -4,12 +4,12 @@ description: View or dynamically update studio settings (theme, HTML vs Markdown
 argument-hint: "[key] [value]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.3.1
+  version: 3.4.0
 ---
 
 # /sds-config
 
-Inspect or dynamically update `.system-design/settings.json` (visual theme, output mode, notes structure).
+Inspect or dynamically update `.system-design/settings.json` (visual theme, output mode, notes structure). Settings can also be updated directly in the visual dashboard on `http://localhost:8420`.
 
 ## Instructions
 

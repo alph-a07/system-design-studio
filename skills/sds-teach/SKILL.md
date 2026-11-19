@@ -4,12 +4,63 @@ description: Deliver the next or specified interactive system design lesson arti
 argument-hint: "[topic]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.3.1
+  version: 3.4.0
 ---
 
 # /sds-teach — Interactive System Design Lesson Engine
 
 Deliver an immersive, first-principles system design lesson artifact featuring tactile simulators (HTML) or visual diagrams (Markdown) based on instance settings.
+
+## Subagent Architecture & Agentic Efficiency
+
+To ensure the highest cognitive quality without polluting coordinator dialog history, `/sds-teach` employs a specialized subagent topology where supported, with deterministic scripts handling mechanical rendering:
+
+```
+┌────────────────────────────────────────────────────────┐
+│                   Coordinator Agent                    │
+│   • Inline context resolution (0 token overhead)       │
+│   • Hypothesis-first dialogue prompt                   │
+└───────────────┬────────────────────────▲───────────────┘
+                │                        │
+       1. Invoke (prompt)        3. Audited payload
+                │                        │
+                ▼                        │
+┌──────────────────────────────┐         │
+│      sds-lesson-crafter      │         │
+│   • 2,500+ word deep essay   │         │
+│   • Dilemma-resolution trace │         │
+│   • Inline jargon cards      │         │
+│   • Tactile simulator spec   │         │
+└───────────────┬──────────────┘         │
+                │                        │
+       2. Draft payload                  │
+                ▼                        │
+┌──────────────────────────────┐         │
+│     sds-pedagogy-auditor     │─────────┘
+│   • Adversarial math check   │
+│   • Jargon order verification│
+│   • Sign-off gate alignment  │
+└──────────────────────────────┘
+                │
+         4. Compiled by deterministic script
+                ▼
+┌──────────────────────────────┐
+│       render-lesson.py       │ ──► .system-design/lessons/<slug>.html
+│   • Template injection (<50ms│
+│   • Regex/AST verification   │
+└──────────────────────────────┘
+```
+
+### Token-Efficiency & Architectural Pruning Rationale
+
+To prevent token waste and latency degradation, tasks are partitioned strictly by cognitive ROI:
+- **`sds-lesson-crafter` (KEPT - LLM Subagent)**: High-ROI creative & causal authoring. Keeps thousands of words of draft scratch out of the coordinator's dialog context.
+- **`sds-pedagogy-auditor` (KEPT - LLM Subagent)**: High-ROI adversarial critique. Prevents authoring confirmation bias by verifying math, term ordering, and gate alignment.
+- **Context Analyzer (DROPPED - Inlined in Coordinator)**: Reading `CURSOR.md` and `settings.json` takes 5ms via `read_file`. Delegating to a subagent would waste ~3,000 tokens and 5s latency.
+- **Content Renderer & Reviewer (DROPPED - Script-Automated)**: `render-lesson.py` compiles HTML/JS templates and performs AST/regex validation deterministically in <50ms with 0 token cost.
+- **Notes & Revision Makers (DROPPED - Script-Automated)**: `compile-notes.py` and `update-revisions.py` handle disk formatting deterministically on sign-off with 0 token waste.
+
+---
 
 ## Mandatory Architectural & Pedagogical Invariants
 
@@ -94,12 +145,22 @@ Deliver an immersive, first-principles system design lesson artifact featuring t
 
 ## Execution Sequence
 
-1. **Resolve Topic & Settings**:
-   - Target Topic: If `$ARGUMENTS` is provided (e.g. `0.1` or `topic.0.1.tcp-vs-udp`), resolve that topic from `CURRICULUM.md`. Otherwise, read `activeFocus.topicId` from `.system-design/CURSOR.md`.
+### Mode A: Subagent Orchestration (When Subagent Invocation is Supported)
+1. **Context Resolution (Coordinator - Inlined)**:
+   - Target Topic: If `$ARGUMENTS` is provided (e.g. `0.1` or `topic.0.1.tcp-vs-udp`), resolve from `CURRICULUM.md`. Otherwise, read `activeFocus.topicId` from `.system-design/CURSOR.md`.
    - Settings: Inspect `.system-design/settings.json` for `outputType` (`html` or `markdown`), `artifactStyle`, and `paths.lessonsDir`.
+   - Active Dialogue: Prompt the learner for their initial hypothesis on the central dilemma.
 
-2. **Render Lesson Artifact**:
-   - For bespoke topics, craft the lesson payload JSON following the pedagogical invariants and compile via the studio lesson rendering engine:
+2. **Delegated Content Generation (`sds-lesson-crafter`)**:
+   - Invoke `sds-lesson-crafter` with the resolved topic context and curriculum requirements.
+   - Crafter produces the full 2,500+ word structured lesson payload JSON (dilemma, mental model, mechanical trace, failure modes, inline jargon cards, and tactile simulator config).
+
+3. **Adversarial Pedagogical Audit (`sds-pedagogy-auditor`)**:
+   - Invoke `sds-pedagogy-auditor` to audit the draft payload against derived math, term ordering, unhedged absolutes, and 1:1 sign-off gate alignment.
+   - If revisions required, crafter amends the payload until `APPROVED`.
+
+4. **Deterministic Script Compilation (`render-lesson.py`)**:
+   - Compile the approved JSON payload via the studio lesson rendering engine:
      ```bash
      python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
        --topic-id <topic-id> \
@@ -107,19 +168,19 @@ Deliver an immersive, first-principles system design lesson artifact featuring t
        --style <theme> \
        --data-file <payload.json>
      ```
-     *(If a reference fixture exists in `resources/examples/lessons/`, `--data-file` can be omitted).*
    - Target path: `<project-root>/.system-design/lessons/<slug>.<ext>`
-   - In **Antigravity**: Stage the artifact to `<appDataDir>/brain/<conversation-id>/<slug>.html` (or `.md`) and surface it in the chat for side-pane inspection.
+   - In **Antigravity**: Stage the artifact to `<appDataDir>/brain/<conversation-id>/<slug>.html` (or `.md`) and surface it in chat.
 
-3. **Mandatory Pre-Flight Quality Audit**:
-   - Inspect the compiled artifact before signaling completion. Verify that:
-     1. Tone check: Does this feel like an engaging, beautifully written tech essay rather than a documentation page?
-     2. Explainer check: Does it explain the *why* and mechanical causality rather than merely listing facts?
-     3. Jargon check: Are all buzzwords and acronyms unpacked in immediate plain-English callouts?
-     4. Zero unreplaced template tokens exist (no leaked `[concept]`, `{{...}}`, or theme labels).
-     5. The simulator or diagram directly models the specific failure mode of the topic.
-     6. Backward Anchor and Forward Hook accurately reflect the curriculum sequence.
+5. **Presentation & Dialogue**:
+   - Provide direct clickable link: `[Open Interactive Lesson: <Topic>](file:///<path-to-lesson>)`.
+   - Initiate the dialectic inquiry around the core dilemma.
 
-4. **Present Interactive Artifact & Prompt Dialogue**:
-   - Provide a direct markdown link: `[Open Interactive Lesson: <Topic>](file:///<path-to-lesson>)`.
-   - Highlight the central architectural dilemma and invite the learner's initial hypothesis.
+---
+
+### Mode B: Universal Single-Agent Fallback (Claude Code, Cursor, Codex)
+If running in an environment without subagent invocation tools:
+1. The coordinator acts as both author and auditor sequentially.
+2. In Turn 1, craft the structured payload in-context adhering strictly to the 15 pedagogical invariants.
+3. Perform an internal self-audit against the 7 Pre-Flight Checks (derived math, term ordering, gate alignment).
+4. Pipe the payload directly into `render-lesson.py` via `--data-file` or stdin.
+5. Present the rendered lesson link and prompt dialogue.

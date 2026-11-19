@@ -9,7 +9,7 @@ description: >-
   systems, architect backend or mobile infrastructure, advance through the system design curriculum, or inspect learning progress.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex, Gemini CLI)
 metadata:
-  version: 3.3.1
+  version: 3.4.0
   author: Jeel Patel
   license: MIT
 ---
@@ -24,6 +24,27 @@ The studio treats a **project as a learning instance**. There are no external No
 1. **The Curriculum (`CURRICULUM.md`)**: The master roadmap of clusters, topics, exercises, and reality checks adhering strictly to the `Tier > Cluster > Topic` hierarchy.
 2. **The Living Cursor (`CURSOR.md`)**: The operational cognitive brain tracking active focus, lineage anchors, examples, deferred questions, and next pedagogical steps.
 3. **The Studio Settings (`settings.json`)**: Configurable instance preferences including visual artifact styles, output format (`html` vs `markdown`), and discussion-synthesized study notes.
+
+---
+
+## Specialized Subagent Topology & Agentic Efficiency
+
+System Design Studio organizes cognitive labor into a high-ROI agentic topology where subagent invocation is supported, combining specialized cognitive agents with deterministic local automation to eliminate token waste:
+
+### 1. The Division of Cognitive & Mechanical Labor
+| Task Area | Implementation | Rationale & Token/Latency ROI |
+|---|---|---|
+| **Content Generation** | **`sds-lesson-crafter` (LLM Subagent)** | High ROI. Authors 2,500+ word first-principles systems lessons with physical dilemmas, mechanics, and simulator specifications without polluting the coordinator's dialog context. |
+| **Content Review** | **`sds-pedagogy-auditor` (LLM Subagent)** | High ROI. Adversarial gatekeeper enforcing the 7 Hard Pre-Flight Checks (recomputing derived math, verifying jargon ordering, banning unhedged absolutes, and auditing gate alignment). |
+| **Dialectic Challenge** | **`sds-dialectic-challenger` (LLM Subagent)** | High ROI. Socratic Staff+ Architect injecting concrete failure modes (queue drops, network partitions, fsync ceilings) cold in chat during `/sds-discuss`. |
+| **Context Analysis** | **Inlined in Coordinator (Local Disk Tool)** | Dropped as subagent. Coordinator reads `CURSOR.md` and `settings.json` in 5ms via `read_file`. Delegating would waste ~3,000 tokens and 5s latency with zero upside. |
+| **Content Rendering** | **`render-lesson.py` (Deterministic Script)** | Dropped as subagent. Compiles HTML/Markdown and injects interactive JS simulator engines in <50ms with 0 tokens. Eliminates syntax hallucinations. |
+| **Rendering Review** | **`render-lesson.py` (AST/Regex Assertions)** | Dropped as subagent. Automated Python checks verify word counts, jargon density, and interactive tags in 10ms with 0 tokens. |
+| **Notes & Revisions** | **`compile-notes.py` & `update-revisions.py`** | Dropped as subagent. Automatically synthesizes study notes and ADR flashcards on sign-off in 15ms with 0 token overhead. |
+
+### 2. Dual-Mode Universal Execution
+- **Mode A (Subagent-Orchestrated)**: Supported environments (Google Antigravity, Open Agent runners) invoke dedicated worker subagents (`sds-lesson-crafter`, `sds-pedagogy-auditor`, `sds-dialectic-challenger`) for maximum cognitive focus and isolated context windows.
+- **Mode B (Single-Agent Fallback)**: Environments without subagent invocation tools (Claude Code, Cursor IDE, OpenAI Codex) execute the phases sequentially in a single turn without degradation.
 
 ---
 

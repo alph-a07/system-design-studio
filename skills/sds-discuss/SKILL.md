@@ -4,12 +4,19 @@ description: Engage in active learning Socratic dialectic and stress-test trade-
 argument-hint: "[defense]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.3.1
+  version: 3.4.0
 ---
 
 # /sds-discuss — Socratic Dialectic & Trade-Off Defense
 
 Engage in active learning Socratic dialectic, stress-testing the learner's architectural mental model and trade-off defense against physical hardware constraints, latency bounds, and edge-case failure modes.
+
+## Subagent Architecture: Socratic Staff+ Architect
+
+Where subagent invocation is supported, `/sds-discuss` delegates the debate turn to `sds-dialectic-challenger` (or the coordinator directly adopts this specialized persona in single-agent environments):
+- **Role**: Socratic Staff+ Systems Architect & Chaos Invariant Tester.
+- **Focus**: Uncompromising on mechanical causality; probes kernel buffers, head-of-line blocking, split-brain quorum failure, and physical BDP limits.
+- **Token Efficiency**: Inlines dialectic context directly without redundant summarizer subagents.
 
 ## Mandatory Architectural Invariants
 

@@ -4,12 +4,17 @@ description: Verify defense against unannounced gate, sign off topic, record dec
 argument-hint: "[evidence]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.3.1
+  version: 3.4.0
 ---
 
 # /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis
 
 Verify that the learner has defended the unannounced gate scenario, tick off the topic, advance `CURSOR.md`, record an ADR in `DECISIONS.md`, and compile discussion-synthesized study notes.
+
+## Agentic Optimization: Deterministic Local Synthesis
+Rather than burning thousands of LLM tokens on trivial file formatting:
+- Note compilation (`compile-notes.py`) and revision card generation (`update-revisions.py`) are deterministically triggered by `advance-cursor.py` in under 15ms with 0 LLM token cost.
+- The coordinator extracts the learner's recorded hypothesis and dialectic friction directly from the chat context into the advance command.
 
 ## Mandatory Architectural Invariants
 
