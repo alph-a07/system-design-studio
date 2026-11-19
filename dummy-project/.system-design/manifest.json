@@ -2,14 +2,14 @@
   "$schemaVersion": "3.2",
   "instanceName": "System Design Dummy Lab",
   "createdAt": "2026-11-18T18:21:10.225287+00:00",
-  "lastUpdated": "2026-11-18T20:47:53.401020+00:00",
+  "lastUpdated": "2026-11-19T09:06:38.893598+00:00",
   "curriculum": {
     "id": "curriculum.system-design-dummy-lab",
     "title": "System Design Dummy Lab",
     "source": "project-scoped-track",
     "sourceRef": ".system-design/CURRICULUM.md",
     "activeClusterId": "cluster.0.1",
-    "activeTopicId": "topic.0.1.tls-handshake-cost-and-session-resumptio",
+    "activeTopicId": "topic.0.1.rest-vs-grpc-vs-graphql",
     "clusters": [
       {
         "id": "cluster.0.1",
@@ -33,7 +33,7 @@
           {
             "id": "topic.0.1.tls-handshake-cost-and-session-resumptio",
             "title": "TLS handshake cost and session resumption",
-            "status": "unseen"
+            "status": "completed"
           },
           {
             "id": "topic.0.1.rest-vs-grpc-vs-graphql",
@@ -727,9 +727,9 @@
     "activeClusterName": "1. [0.1] APIs & Network Transport for Design",
     "activeTier": "Tier 0",
     "activeTopic": "TCP vs UDP",
-    "topicFoundationId": "foundation.0.1.tls-handshake-cost-and-session-resumptio",
+    "topicFoundationId": "foundation.0.1.rest-vs-grpc-vs-graphql",
     "topicFoundationStatus": "not-started",
-    "activeMechanismGroupId": "group.0.1.tls-handshake-cost-and-session-resumptio",
+    "activeMechanismGroupId": "group.0.1.rest-vs-grpc-vs-graphql",
     "nextTeachingAction": "Review delivered lesson artifact (0-1-tcp-vs-udp.md) and engage in Socratic dialectic defense via /sds-discuss",
     "backwardAnchor": "Track initialized via configure-curriculum.py",
     "forwardHook": "Connect foundational invariants to TCP vs UDP"
@@ -737,7 +737,8 @@
   "runningContext": {
     "coveredConcepts": [
       "concept.0.1.tcp-vs-udp",
-      "concept.0.1.http-1-1-vs-http-2-vs-http-3"
+      "concept.0.1.http-1-1-vs-http-2-vs-http-3",
+      "concept.0.1.tls-handshake-cost-and-session-resumptio"
     ],
     "examplesTaken": [],
     "deferredQueue": [],
