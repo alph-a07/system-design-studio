@@ -29,7 +29,7 @@ STYLE_THEMES = {
         "id": "slate-clean",
         "name": "Modern Slate (Dark Tech)",
         "theme_type": "dark",
-        "css_vars": """
+        "css_vars": r"""
     :root {
       --background: #0f172a;
       --foreground: #f8fafc;
@@ -49,8 +49,8 @@ STYLE_THEMES = {
         "id": "editorial-paper",
         "name": "Clean Editorial (Warm Light)",
         "theme_type": "light",
-        "css_vars": """
-    :root {
+        "css_vars": r"""
+    :root, html:not(.dark), html[data-theme-preset="editorial-paper"] {
       --background: #fbfbfa;
       --foreground: #18181b;
       --card: #ffffff;
@@ -62,6 +62,38 @@ STYLE_THEMES = {
       --accent-badge: #eff6ff;
       --accent-badge-text: #1d4ed8;
     }
+
+    html:not(.dark) .bg-stone-900,
+    html:not(.dark) .bg-stone-900\/80,
+    html:not(.dark) .bg-stone-950 {
+      background-color: #f8fafc !important;
+      color: #0f172a !important;
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .bg-stone-800 {
+      background-color: #f1f5f9 !important;
+      color: #334155 !important;
+      border-color: #cbd5e1 !important;
+    }
+    html:not(.dark) .border-stone-800,
+    html:not(.dark) .border-stone-700 {
+      border-color: #e2e8f0 !important;
+    }
+    html:not(.dark) .text-stone-300,
+    html:not(.dark) .text-stone-400 {
+      color: #475569 !important;
+    }
+    html:not(.dark) .jargon-card {
+      background: #fffbeb !important;
+      border-color: #fcd34d !important;
+    }
+    html:not(.dark) .jargon-title {
+      color: #b45309 !important;
+    }
+    html:not(.dark) .jargon-pill {
+      background: #fef3c7 !important;
+      color: #92400e !important;
+    }
 """,
         "badge_class": "bg-blue-700 text-white",
     },
@@ -69,7 +101,7 @@ STYLE_THEMES = {
         "id": "midnight-neon",
         "name": "Cyber Obsidian (High Contrast)",
         "theme_type": "dark",
-        "css_vars": """
+        "css_vars": r"""
     :root {
       --background: #05070c;
       --foreground: #f1f5f9;
@@ -89,7 +121,7 @@ STYLE_THEMES = {
         "id": "nordic-frost",
         "name": "Nordic Frost (Polar Calm)",
         "theme_type": "dark",
-        "css_vars": """
+        "css_vars": r"""
     :root {
       --background: #2e3440;
       --foreground: #eceff4;
@@ -109,7 +141,7 @@ STYLE_THEMES = {
         "id": "warm-amber",
         "name": "Warm Amber (Espresso Glow)",
         "theme_type": "dark",
-        "css_vars": """
+        "css_vars": r"""
     :root {
       --background: #1c1917;
       --foreground: #fafaf9;

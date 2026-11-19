@@ -3735,6 +3735,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             iframe.contentWindow.postMessage({ type: 'sds-theme-change', theme: isDark ? 'dark' : 'light', preset: preset }, '*');
           } catch (e) {}
         }
+        if (iframe && iframe.contentDocument) {
+          try {
+            if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
+            else iframe.contentDocument.documentElement.classList.remove('dark');
+            iframe.contentDocument.documentElement.setAttribute('data-theme-preset', preset);
+          } catch (e) {}
+        }
       });
       showToast(isDark ? 'Dark theme enabled' : 'Light theme enabled');
     }
@@ -3766,6 +3773,14 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
               preset: preset
             }, '*');
+          } catch (e) {}
+        }
+        if (iframe && iframe.contentDocument) {
+          try {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
+            else iframe.contentDocument.documentElement.classList.remove('dark');
+            iframe.contentDocument.documentElement.setAttribute('data-theme-preset', preset);
           } catch (e) {}
         }
       });
@@ -4477,6 +4492,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         currentActiveArtifact = currentLessonContext.htmlPath;
         const isDark = document.documentElement.classList.contains('dark');
         const activePreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
+        iframe.onload = () => {
+          try {
+            if (iframe.contentDocument) {
+              if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
+              else iframe.contentDocument.documentElement.classList.remove('dark');
+              iframe.contentDocument.documentElement.setAttribute('data-theme-preset', activePreset);
+            }
+          } catch (e) {}
+        };
         iframe.src = `/api/lesson?path=${encodeURIComponent(currentLessonContext.htmlPath)}&theme=${isDark ? 'dark' : 'light'}&preset=${encodeURIComponent(activePreset)}`;
       } else if (format === 'md' && currentLessonContext.mdPath) {
         if (btnMd) btnMd.classList.add('active');
@@ -5433,18 +5457,226 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
                         html_str = content_bytes.decode("utf-8")
                         theme_param = query.get("theme", ["dark"])[0]
                         preset_param = query.get("preset", ["slate-clean"])[0]
-                        theme_injection = f"""<script>
+                        theme_injection = f"""<style id="sds-dynamic-theme-vars">
+/* System Design Studio - Dynamic Live Theme Injection */
+:root,
+html:not(.dark),
+html[data-theme-preset="editorial-paper"] {{
+  --background: #fbfbfa !important;
+  --foreground: #18181b !important;
+  --card: #ffffff !important;
+  --card-border: #e4e4e7 !important;
+  --border: #e4e4e7 !important;
+  --muted-foreground: #71717a !important;
+  --primary: #2563eb !important;
+  --primary-hover: #1d4ed8 !important;
+  --accent-badge: #eff6ff !important;
+  --accent-badge-text: #1d4ed8 !important;
+  color-scheme: light;
+}}
+
+html.dark,
+html.dark[data-theme-preset="slate-clean"] {{
+  --background: #0f172a !important;
+  --foreground: #f8fafc !important;
+  --card: #1e293b !important;
+  --card-border: #334155 !important;
+  --border: #334155 !important;
+  --muted-foreground: #94a3b8 !important;
+  --primary: #3b82f6 !important;
+  --primary-hover: #2563eb !important;
+  --accent-badge: #1e3a8a !important;
+  --accent-badge-text: #93c5fd !important;
+  color-scheme: dark;
+}}
+
+html.dark[data-theme-preset="cyber-obsidian"],
+html.dark[data-theme-preset="midnight-neon"] {{
+  --background: #05070c !important;
+  --foreground: #f1f5f9 !important;
+  --card: #0d1117 !important;
+  --card-border: #21262d !important;
+  --border: #21262d !important;
+  --muted-foreground: #8b949e !important;
+  --primary: #06b6d4 !important;
+  --primary-hover: #0891b2 !important;
+  --accent-badge: #083344 !important;
+  --accent-badge-text: #67e8f9 !important;
+  color-scheme: dark;
+}}
+
+html.dark[data-theme-preset="nordic-frost"] {{
+  --background: #242933 !important;
+  --foreground: #eceff4 !important;
+  --card: #2e3440 !important;
+  --card-border: #434c5e !important;
+  --border: #434c5e !important;
+  --muted-foreground: #d8dee9 !important;
+  --primary: #88c0d0 !important;
+  --primary-hover: #81a1c1 !important;
+  --accent-badge: #434c5e !important;
+  --accent-badge-text: #88c0d0 !important;
+  color-scheme: dark;
+}}
+
+html.dark[data-theme-preset="warm-amber"] {{
+  --background: #1c1917 !important;
+  --foreground: #fafaf9 !important;
+  --card: #292524 !important;
+  --card-border: #44403c !important;
+  --border: #44403c !important;
+  --muted-foreground: #a8a29e !important;
+  --primary: #f59e0b !important;
+  --primary-hover: #d97706 !important;
+  --accent-badge: #451a03 !important;
+  --accent-badge-text: #fcd34d !important;
+  color-scheme: dark;
+}}
+
+body {{
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+  transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}}
+
+/* Light mode component & container adaptations */
+html:not(.dark) .bg-\\[var\\(--card\\)\\],
+html:not(.dark) .bg-\\[var\\(--background\\)\\] {{
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}}
+
+html:not(.dark) .bg-stone-900,
+html:not(.dark) .bg-stone-900\\/80,
+html:not(.dark) .bg-stone-950 {{
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}}
+
+html:not(.dark) .bg-stone-800 {{
+  background-color: #f1f5f9 !important;
+  color: #334155 !important;
+  border-color: #cbd5e1 !important;
+}}
+
+html:not(.dark) .border-stone-800,
+html:not(.dark) .border-stone-700 {{
+  border-color: #e2e8f0 !important;
+}}
+
+html:not(.dark) .text-stone-300,
+html:not(.dark) .text-stone-400 {{
+  color: #475569 !important;
+}}
+
+html:not(.dark) .text-stone-500 {{
+  color: #64748b !important;
+}}
+
+html:not(.dark) .text-amber-300 {{
+  color: #b45309 !important;
+}}
+
+html:not(.dark) .text-amber-200 {{
+  color: #92400e !important;
+}}
+
+html:not(.dark) .jargon-card {{
+  background: #fffbeb !important;
+  border-color: #fcd34d !important;
+}}
+
+html:not(.dark) .jargon-title {{
+  color: #b45309 !important;
+}}
+
+html:not(.dark) .jargon-pill {{
+  background: #fef3c7 !important;
+  color: #92400e !important;
+}}
+
+html:not(.dark) .bg-blue-950,
+html:not(.dark) .bg-blue-950\\/80 {{
+  background-color: #eff6ff !important;
+  border-color: #bfdbfe !important;
+  color: #1e40af !important;
+}}
+
+html:not(.dark) .bg-emerald-950,
+html:not(.dark) .bg-emerald-950\\/80 {{
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}}
+
+html:not(.dark) .bg-amber-950,
+html:not(.dark) .bg-amber-950\\/80 {{
+  background-color: #fffbeb !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}}
+
+html:not(.dark) .bg-rose-950,
+html:not(.dark) .bg-rose-950\\/80 {{
+  background-color: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #9f1239 !important;
+}}
+
+html:not(.dark) .text-emerald-400 {{
+  color: #059669 !important;
+}}
+
+html:not(.dark) .text-blue-400 {{
+  color: #2563eb !important;
+}}
+
+html:not(.dark) .text-rose-400 {{
+  color: #e11d48 !important;
+}}
+
+html:not(.dark) #hl-toolbar,
+html:not(.dark) #hl-popover {{
+  background: #ffffff !important;
+  border-color: #e4e4e7 !important;
+  color: #18181b !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
+}}
+
+html:not(.dark) #hl-popover textarea {{
+  background: #fbfbfa !important;
+  border-color: #e4e4e7 !important;
+  color: #18181b !important;
+}}
+
+html:not(.dark) ::-webkit-scrollbar-track {{
+  background: var(--background) !important;
+}}
+html:not(.dark) ::-webkit-scrollbar-thumb {{
+  background: #cbd5e1 !important;
+}}
+</style>
+<script id="sds-theme-listener">
 (function() {{
-  const theme = '{theme_param}';
-  const preset = '{preset_param}';
-  if (theme === 'dark') document.documentElement.classList.add('dark');
-  else document.documentElement.classList.remove('dark');
-  document.documentElement.setAttribute('data-theme-preset', preset);
+  function applyTheme(theme, preset) {{
+    const isDark = (theme === 'dark');
+    if (isDark) {{
+      document.documentElement.classList.add('dark');
+    }} else {{
+      document.documentElement.classList.remove('dark');
+    }}
+    if (preset) {{
+      document.documentElement.setAttribute('data-theme-preset', preset);
+    }}
+  }}
+
+  const initialTheme = '{theme_param}';
+  const initialPreset = '{preset_param}';
+  applyTheme(initialTheme, initialPreset);
+
   window.addEventListener('message', function(e) {{
     if (e.data && e.data.type === 'sds-theme-change') {{
-      if (e.data.theme === 'dark') document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-      if (e.data.preset) document.documentElement.setAttribute('data-theme-preset', e.data.preset);
+      applyTheme(e.data.theme, e.data.preset);
     }}
   }});
 }})();
