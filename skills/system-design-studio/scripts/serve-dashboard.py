@@ -1290,16 +1290,36 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     .status-pill {
       font-family: var(--font-mono);
-      font-size: 10px;
+      font-size: 11px;
       font-weight: 700;
       text-transform: uppercase;
-      padding: 2px 8px;
-      border: 1px solid var(--border-color);
+      padding: 3px 8px;
+      border: 1.5px solid var(--border-color);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      gap: 5px;
       user-select: none;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .status-pill:hover {
+      filter: brightness(1.12);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      transform: translateY(-1px);
+    }
+
+    .status-caret {
+      font-size: 14px;
+      opacity: 0.75;
+      margin-left: -2px;
+      transition: transform 0.15s ease;
+    }
+
+    .status-pill:hover .status-caret {
+      opacity: 1;
+      transform: translateY(1px);
     }
 
     .status-completed {
@@ -1323,6 +1343,28 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       background-color: var(--surface-container-high);
       color: var(--on-surface-variant);
       border-color: var(--border-color);
+    }
+
+    .status-option-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface-container);
+      border: 1.5px solid var(--border-color);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+    }
+    .status-option-btn:hover {
+      background: var(--surface-container-high);
+      box-shadow: 2px 2px 0px var(--shadow-color);
+      transform: translateY(-1px);
+    }
+    .status-option-btn.selected {
+      border-color: var(--primary-container);
+      background: var(--surface-container-highest);
     }
 
     /* REVISION FLASHCARD MODE */
@@ -2535,6 +2577,71 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     </div>
   </div>
 
+  <!-- TOPIC PROGRESSION STATUS MODAL -->
+  <div id="topic-status-modal" class="modal-overlay">
+    <div class="modal-box" style="max-width:440px;">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-family:var(--font-headline); font-size:16px; font-weight:700; text-transform:uppercase;">
+            Topic Status
+          </h3>
+          <div id="status-modal-topic-title" style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px; word-break:break-word;"></div>
+        </div>
+        <button class="modal-close-btn" onclick="closeModal('topic-status-modal')">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div style="padding:16px 0; display:flex; flex-direction:column; gap:10px;">
+        <button class="status-option-btn" id="opt-status-verified" onclick="selectTopicStatus('verified')">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="material-symbols-outlined" style="color:#10b981; font-size:20px;">check_circle</span>
+            <div style="text-align:left;">
+              <div style="font-weight:700; font-size:13px;">VERIFIED</div>
+              <div style="font-size:11px; color:var(--on-surface-variant); font-family:var(--font-mono);">Invariant defended &amp; verified in manifest</div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined status-check-icon" id="check-verified" style="display:none; color:var(--primary-container);">done</span>
+        </button>
+
+        <button class="status-option-btn" id="opt-status-in-progress" onclick="selectTopicStatus('in_progress')">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--primary-container); font-size:20px;">pending</span>
+            <div style="text-align:left;">
+              <div style="font-weight:700; font-size:13px;">ACTIVE FOCUS</div>
+              <div style="font-size:11px; color:var(--on-surface-variant); font-family:var(--font-mono);">Currently learning or in active dialectic</div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined status-check-icon" id="check-in-progress" style="display:none; color:var(--primary-container);">done</span>
+        </button>
+
+        <button class="status-option-btn" id="opt-status-not-started" onclick="selectTopicStatus('not_started')">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="material-symbols-outlined" style="color:var(--on-surface-variant); font-size:20px;">radio_button_unchecked</span>
+            <div style="text-align:left;">
+              <div style="font-weight:700; font-size:13px;">NOT STARTED</div>
+              <div style="font-size:11px; color:var(--on-surface-variant); font-family:var(--font-mono);">Unseen curriculum topic</div>
+            </div>
+          </div>
+          <span class="material-symbols-outlined status-check-icon" id="check-not-started" style="display:none; color:var(--primary-container);">done</span>
+        </button>
+      </div>
+
+      <div id="status-reset-confirm-box" style="display:none; background:rgba(239,68,68,0.1); border:1.5px solid #ef4444; padding:12px; margin-top:8px;">
+        <div style="display:flex; align-items:flex-start; gap:8px;">
+          <span class="material-symbols-outlined" style="color:#ef4444; font-size:18px;">warning</span>
+          <div style="font-size:12px; line-height:1.4;">
+            <strong>Warning: Resetting Verification</strong>
+            <p style="margin:4px 0 8px 0; color:var(--on-surface-variant);">This will remove the verification entry for this topic from your repository manifest. Are you sure you want to proceed?</p>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn-primary" style="background:#ef4444; color:#fff; border-color:#dc2626;" onclick="executeConfirmedStatusChange()">Yes, Update Status</button>
+              <button type="button" class="btn-ghost" onclick="cancelStatusConfirmation()">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SETTINGS MODAL -->
   <div id="settings-modal" class="modal-overlay">
     <div class="modal-box">
@@ -3442,12 +3549,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             totalMatchingTopics++;
 
             let statusBadge = '';
+            const safeTitle = (t.title || '').replace(/'/g, "\\'");
             if (isCompleted) {
-              statusBadge = `<span class="status-pill status-completed" onclick="cycleTopicStatus('${t.id}', 'not_started')" title="Click to reset to Unseen"><span class="material-symbols-outlined" style="font-size:13px; margin-right:3px;">check_circle</span>VERIFIED</span>`;
+              statusBadge = `<button type="button" class="status-pill status-completed" onclick="openTopicStatusMenu(event, '${t.id}', 'verified', '${safeTitle}')" title="Status: Verified (Click to change)"><span class="material-symbols-outlined" style="font-size:13px;">check_circle</span><span>VERIFIED</span><span class="material-symbols-outlined status-caret">arrow_drop_down</span></button>`;
             } else if (isActive) {
-              statusBadge = `<span class="status-pill status-active" onclick="cycleTopicStatus('${t.id}', 'completed')" title="Click to verify"><span class="material-symbols-outlined" style="font-size:13px; margin-right:3px;">pending</span>ACTIVE</span>`;
+              statusBadge = `<button type="button" class="status-pill status-active" onclick="openTopicStatusMenu(event, '${t.id}', 'in_progress', '${safeTitle}')" title="Status: Active Focus (Click to change)"><span class="material-symbols-outlined" style="font-size:13px;">pending</span><span>ACTIVE</span><span class="material-symbols-outlined status-caret">arrow_drop_down</span></button>`;
             } else {
-              statusBadge = `<span class="status-pill status-unseen" onclick="cycleTopicStatus('${t.id}', 'in_progress')" title="Click to activate"><span class="material-symbols-outlined" style="font-size:13px; margin-right:3px;">radio_button_unchecked</span>UNSEEN</span>`;
+              statusBadge = `<button type="button" class="status-pill status-unseen" onclick="openTopicStatusMenu(event, '${t.id}', 'not_started', '${safeTitle}')" title="Status: Unseen (Click to change)"><span class="material-symbols-outlined" style="font-size:13px;">radio_button_unchecked</span><span>UNSEEN</span><span class="material-symbols-outlined status-caret">arrow_drop_down</span></button>`;
             }
 
             const topicLessonArtifact = t.lessonArtifact || '';
@@ -3457,8 +3565,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <div class="topic-left">
                   <span class="topic-index-badge" onclick="copyAgentCommand('/sds-teach ${t.id}')" title="Topic Code ${topicCode} (Click to copy /sds-teach command)">${topicCode}</span>
                   ${statusBadge}
-                  ${isActive ? '<span class="active-focus-pill"><span class="material-symbols-outlined" style="font-size:11px;">my_location</span>ACTIVE FOCUS</span>' : ''}
                   <span class="topic-title-text" title="${t.title}">${t.title}</span>
+                  ${isActive ? '<span class="active-focus-pill" style="margin-left:6px;"><span class="material-symbols-outlined" style="font-size:11px;">my_location</span>ACTIVE FOCUS</span>' : ''}
                 </div>
                 <div class="topic-actions">
                   <button class="btn-ghost" onclick="openLessonModal('${t.id}', '${t.title.replace(/'/g, "\\\\'")}', '${topicLessonArtifact.replace(/'/g, "\\\\'")}')" title="Open Lesson">
@@ -3633,20 +3741,80 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       handleSearch('');
     }
 
-    async function cycleTopicStatus(topicId, nextStatus) {
+    // Interactive Topic Progression Status Menu Engine
+    let pendingStatusChange = { topicId: null, targetStatus: null, currentStatus: null };
+
+    function openTopicStatusMenu(event, topicId, currentStatus, topicTitle) {
+      if (event) event.stopPropagation();
+      pendingStatusChange = { topicId, targetStatus: null, currentStatus };
+
+      const titleEl = document.getElementById('status-modal-topic-title');
+      if (titleEl) titleEl.innerText = `${topicId}: ${topicTitle || ''}`;
+
+      const confirmBox = document.getElementById('status-reset-confirm-box');
+      if (confirmBox) confirmBox.style.display = 'none';
+
+      ['verified', 'in_progress', 'not_started'].forEach(s => {
+        const btn = document.getElementById(`opt-status-${s.replace('_', '-')}`);
+        const check = document.getElementById(`check-${s.replace('_', '-')}`);
+        if (btn) btn.classList.toggle('selected', s === currentStatus);
+        if (check) check.style.display = (s === currentStatus) ? 'inline-block' : 'none';
+      });
+
+      openModal('topic-status-modal');
+    }
+
+    async function selectTopicStatus(targetStatus) {
+      if (!pendingStatusChange.topicId) return;
+      if (targetStatus === pendingStatusChange.currentStatus) {
+        closeModal('topic-status-modal');
+        return;
+      }
+
+      // If un-verifying from verified to not_started or in_progress, ask for confirmation to prevent accidental manifest damage
+      if (pendingStatusChange.currentStatus === 'verified' && targetStatus !== 'verified') {
+        pendingStatusChange.targetStatus = targetStatus;
+        const confirmBox = document.getElementById('status-reset-confirm-box');
+        if (confirmBox) confirmBox.style.display = 'block';
+        return;
+      }
+
+      pendingStatusChange.targetStatus = targetStatus;
+      await executeConfirmedStatusChange();
+    }
+
+    async function executeConfirmedStatusChange() {
+      const { topicId, targetStatus } = pendingStatusChange;
+      if (!topicId || !targetStatus) return;
+
       try {
         const res = await fetch('/api/topic/status', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ topicId, status: nextStatus })
+          body: JSON.stringify({ topicId, status: targetStatus })
         });
         if (res.ok) {
-          showToast(`Topic status updated: ${nextStatus}`);
+          showToast(`Topic status updated to ${targetStatus.replace('_', ' ').toUpperCase()}`);
+          closeModal('topic-status-modal');
           refreshData();
+        } else {
+          showToast('Failed to update topic status');
         }
       } catch (e) {
-        console.error('Status cycle error:', e);
+        showToast('Network error updating status');
       }
+    }
+
+    function cancelStatusConfirmation() {
+      const confirmBox = document.getElementById('status-reset-confirm-box');
+      if (confirmBox) confirmBox.style.display = 'none';
+      pendingStatusChange.targetStatus = null;
+    }
+
+    // Fallback for script compatibility
+    async function cycleTopicStatus(topicId, nextStatus) {
+      pendingStatusChange = { topicId, targetStatus: nextStatus, currentStatus: null };
+      await executeConfirmedStatusChange();
     }
 
     // Lesson & Simulator Modal Engine
@@ -4609,6 +4777,8 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
         if path == "/api/topic/status":
             topic_id = payload.get("topicId")
             status = payload.get("status", "completed")
+            if status == "verified":
+                status = "completed"
             evidence = payload.get("evidence", "")
             hypothesis = payload.get("hypothesis", "")
             discussion = payload.get("discussion_summary", "")
