@@ -1338,11 +1338,21 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       color: #1a1a1a;
       border-color: var(--border-color);
     }
+    html.dark .status-active {
+      background-color: var(--primary-container);
+      color: #000000;
+      border-color: var(--primary-container);
+    }
 
     .status-unseen {
-      background-color: var(--surface-container-high);
-      color: var(--on-surface-variant);
-      border-color: var(--border-color);
+      background-color: #f1f5f9;
+      color: #475569;
+      border-color: #cbd5e1;
+    }
+    html.dark .status-unseen {
+      background-color: #1e293b;
+      color: #cbd5e1;
+      border-color: #475569;
     }
 
     .status-option-btn {
@@ -1350,21 +1360,88 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 14px;
-      background: var(--surface-container);
+      padding: 12px 16px;
+      background: var(--surface-container-low);
+      color: var(--on-surface) !important;
       border: 1.5px solid var(--border-color);
       cursor: pointer;
       text-align: left;
       transition: all 0.15s ease;
+      border-radius: 4px;
     }
     .status-option-btn:hover {
       background: var(--surface-container-high);
+      color: var(--on-surface) !important;
       box-shadow: 2px 2px 0px var(--shadow-color);
       transform: translateY(-1px);
     }
     .status-option-btn.selected {
-      border-color: var(--primary-container);
-      background: var(--surface-container-highest);
+      border: 2px solid var(--primary-container) !important;
+      background: var(--surface-container);
+      color: var(--on-surface) !important;
+      box-shadow: 3px 3px 0px var(--shadow-color);
+    }
+
+    .status-option-title {
+      font-family: var(--font-headline);
+      font-weight: 800;
+      font-size: 13.5px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--on-surface);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-option-desc {
+      font-size: 11.5px;
+      color: var(--on-surface-variant);
+      font-family: var(--font-mono);
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .status-selected-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .status-selected-pill.verified {
+      background: rgba(16, 185, 129, 0.18);
+      color: #10b981;
+      border: 1px solid #10b981;
+    }
+    html.dark .status-selected-pill.verified {
+      background: #064e3b;
+      color: #a7f3d0;
+      border: 1px solid #059669;
+    }
+
+    .status-selected-pill.active {
+      background: rgba(255, 204, 0, 0.18);
+      color: #b45309;
+      border: 1px solid #d97706;
+    }
+    html.dark .status-selected-pill.active {
+      background: rgba(255, 204, 0, 0.2);
+      color: var(--primary-container);
+      border: 1px solid var(--primary-container);
+    }
+
+    .status-selected-pill.not-started {
+      background: var(--surface-container-high);
+      color: var(--on-surface-variant);
+      border: 1px solid var(--border-color);
     }
 
     /* REVISION FLASHCARD MODE */
@@ -3015,50 +3092,62 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
   <!-- TOPIC PROGRESSION STATUS MODAL -->
   <div id="topic-status-modal" class="modal-overlay">
-    <div class="modal-box" style="max-width:440px;">
+    <div class="modal-box" style="max-width:480px;">
       <div class="modal-header">
-        <div>
-          <h3 style="font-family:var(--font-headline); font-size:16px; font-weight:700; text-transform:uppercase;">
-            Topic Status
-          </h3>
-          <div id="status-modal-topic-title" style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px; word-break:break-word;"></div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span class="material-symbols-outlined" style="font-size:22px; color:var(--primary-container);">tune</span>
+          <div>
+            <h3 style="font-family:var(--font-headline); font-size:16px; font-weight:800; text-transform:uppercase; color:var(--on-surface);">
+              Topic Status
+            </h3>
+            <div id="status-modal-topic-title" style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px; word-break:break-word;"></div>
+          </div>
         </div>
         <button class="modal-close-btn" onclick="closeModal('topic-status-modal')">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
-      <div style="padding:16px 0; display:flex; flex-direction:column; gap:10px;">
-        <button class="status-option-btn" id="opt-status-verified" onclick="selectTopicStatus('verified')">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span class="material-symbols-outlined" style="color:#10b981; font-size:20px;">check_circle</span>
-            <div style="text-align:left;">
-              <div style="font-weight:700; font-size:13px;">VERIFIED</div>
-              <div style="font-size:11px; color:var(--on-surface-variant); font-family:var(--font-mono);">Invariant defended &amp; verified in manifest</div>
+      <div style="padding:16px 0; display:flex; flex-direction:column; gap:12px;">
+        <button type="button" class="status-option-btn" id="opt-status-verified" onclick="selectTopicStatus('verified')">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <span class="material-symbols-outlined" style="color:#10b981; font-size:24px; flex-shrink:0;">check_circle</span>
+            <div style="text-align:left; min-width:0;">
+              <div class="status-option-title" style="color:#10b981;">VERIFIED</div>
+              <div class="status-option-desc">Invariant defended &amp; recorded in manifest</div>
             </div>
           </div>
-          <span class="material-symbols-outlined status-check-icon" id="check-verified" style="display:none; color:var(--primary-container);">done</span>
+          <span class="status-selected-pill verified" id="check-verified" style="display:none;">
+            <span class="material-symbols-outlined" style="font-size:13px;">check</span>
+            <span>CURRENT</span>
+          </span>
         </button>
 
-        <button class="status-option-btn" id="opt-status-in-progress" onclick="selectTopicStatus('in_progress')">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span class="material-symbols-outlined" style="color:var(--primary-container); font-size:20px;">pending</span>
-            <div style="text-align:left;">
-              <div style="font-weight:700; font-size:13px;">ACTIVE FOCUS</div>
-              <div style="font-size:11px; color:var(--on-surface-variant); font-family:var(--font-mono);">Currently learning or in active dialectic</div>
+        <button type="button" class="status-option-btn" id="opt-status-in-progress" onclick="selectTopicStatus('in_progress')">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <span class="material-symbols-outlined" style="color:var(--primary-container); font-size:24px; flex-shrink:0;">pending</span>
+            <div style="text-align:left; min-width:0;">
+              <div class="status-option-title" style="color:var(--primary-container);">ACTIVE FOCUS</div>
+              <div class="status-option-desc">Currently learning or in active dialectic</div>
             </div>
           </div>
-          <span class="material-symbols-outlined status-check-icon" id="check-in-progress" style="display:none; color:var(--primary-container);">done</span>
+          <span class="status-selected-pill active" id="check-in-progress" style="display:none;">
+            <span class="material-symbols-outlined" style="font-size:13px;">check</span>
+            <span>CURRENT</span>
+          </span>
         </button>
 
-        <button class="status-option-btn" id="opt-status-not-started" onclick="selectTopicStatus('not_started')">
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span class="material-symbols-outlined" style="color:var(--on-surface-variant); font-size:20px;">radio_button_unchecked</span>
-            <div style="text-align:left;">
-              <div style="font-weight:700; font-size:13px;">NOT STARTED</div>
-              <div style="font-size:11px; color:var(--on-surface-variant); font-family:var(--font-mono);">Unseen curriculum topic</div>
+        <button type="button" class="status-option-btn" id="opt-status-not-started" onclick="selectTopicStatus('not_started')">
+          <div style="display:flex; align-items:center; gap:12px; min-width:0;">
+            <span class="material-symbols-outlined" style="color:var(--on-surface-variant); font-size:24px; flex-shrink:0;">radio_button_unchecked</span>
+            <div style="text-align:left; min-width:0;">
+              <div class="status-option-title" style="color:var(--on-surface);">NOT STARTED</div>
+              <div class="status-option-desc">Unseen curriculum topic</div>
             </div>
           </div>
-          <span class="material-symbols-outlined status-check-icon" id="check-not-started" style="display:none; color:var(--primary-container);">done</span>
+          <span class="status-selected-pill not-started" id="check-not-started" style="display:none;">
+            <span class="material-symbols-outlined" style="font-size:13px;">check</span>
+            <span>CURRENT</span>
+          </span>
         </button>
       </div>
 
@@ -3066,7 +3155,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div style="display:flex; align-items:flex-start; gap:8px;">
           <span class="material-symbols-outlined" style="color:#ef4444; font-size:18px;">warning</span>
           <div style="font-size:12px; line-height:1.4;">
-            <strong>Warning: Resetting Verification</strong>
+            <strong style="color:var(--on-surface);">Warning: Resetting Verification</strong>
             <p style="margin:4px 0 8px 0; color:var(--on-surface-variant);">This will remove the verification entry for this topic from your repository manifest. Are you sure you want to proceed?</p>
             <div style="display:flex; gap:8px;">
               <button type="button" class="btn-primary" style="background:#ef4444; color:#fff; border-color:#dc2626;" onclick="executeConfirmedStatusChange()">Yes, Update Status</button>
@@ -3441,7 +3530,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           else if (['TIP', 'INVARIANT', 'MECHANISM'].includes(alertType)) { icon = 'verified'; cls = 'alert-tip'; }
           else if (alertType === 'IDEA') { icon = 'lightbulb'; cls = 'alert-idea'; }
 
-          out.push('<div class="callout-alert ' + cls + '"><div class="callout-header"><span class="material-symbols-outlined" style="font-size:16px;">' + icon + '</span><span>' + alertType + '</span></div><div class="callout-content" style="font-size:13px; line-height:1.65;">' + formatInline(alertContent.join('<br />')) + '</div></div>');
+          out.push('<div class="callout-alert ' + cls + '"><div class="callout-header"><span class="material-symbols-outlined" style="font-size:16px;">' + icon + '</span><span>' + alertType + '</span></div><div class="callout-content" style="font-size:13px; line-height:1.65;">' + alertContent.map(l => formatInline(l)).join('<br />') + '</div></div>');
           continue;
         }
 
@@ -3452,11 +3541,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             quoteLines.push(lines[i].trim().replace(/^>\s?/, ''));
             i++;
           }
-          const quoteText = quoteLines.join('<br />');
-          if (quoteText.includes('Hierarchy') || quoteText.includes('Depth') || quoteText.includes('Format')) {
-            out.push('<div class="lead-meta">' + formatInline(quoteText) + '</div>');
+          const formattedQuote = quoteLines.map(l => formatInline(l)).join('<br />');
+          const rawJoined = quoteLines.join(' ');
+          if (rawJoined.includes('Hierarchy') || rawJoined.includes('Depth') || rawJoined.includes('Format')) {
+            out.push('<div class="lead-meta">' + formattedQuote + '</div>');
           } else {
-            out.push('<blockquote class="notion-quote">' + formatInline(quoteText) + '</blockquote>');
+            out.push('<blockquote class="notion-quote">' + formattedQuote + '</blockquote>');
           }
           continue;
         }
@@ -4281,7 +4371,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const btn = document.getElementById(`opt-status-${s.replace('_', '-')}`);
         const check = document.getElementById(`check-${s.replace('_', '-')}`);
         if (btn) btn.classList.toggle('selected', s === currentStatus);
-        if (check) check.style.display = (s === currentStatus) ? 'inline-block' : 'none';
+        if (check) check.style.display = (s === currentStatus) ? 'inline-flex' : 'none';
       });
 
       openModal('topic-status-modal');
