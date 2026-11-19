@@ -1,7 +1,7 @@
 {
   "name": "system-design-studio",
-  "version": "3.3.1",
-  "description": "Interactive, visual-first system design studio running inside a project as a dedicated learning instance. Teaches HLD, LLD, and distributed systems via connected causal reasoning, living cursor state retention, and interactive HTML lesson artifacts.",
+  "version": "3.4.0",
+  "description": "Interactive, dashboard-first system design studio running inside a project as a dedicated learning instance. Real-time progress tracking, interactive HTML failure simulators, revision mode, living cursor state retention, and ADR trade-off defense.",
   "author": {
     "name": "Jeel Patel",
     "email": "itsjeel01@gmail.com"
@@ -10,5 +10,6 @@
   "repository": "https://github.com/alph-a07/system-design-studio",
   "license": "MIT",
   "category": "Education",
-  "skills": "./skills/system-design-studio"
+  "skills": "./skills/system-design-studio",
+  "agents": "./agents"
 }
