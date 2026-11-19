@@ -174,7 +174,11 @@ def scan_notes(base_dir, inst_dir):
     return sorted(items, key=lambda x: x["relPath"])
 
 def get_highlights_path(inst_dir, artifact_path):
-    safe_name = os.path.basename(artifact_path)
+    clean_p = artifact_path.replace("\\", "/").strip("/")
+    if clean_p.startswith("notes/"):
+        slug = clean_p.replace("/", "--")
+        return os.path.join(inst_dir, "highlights", f"{slug}.json")
+    safe_name = os.path.basename(clean_p)
     return os.path.join(inst_dir, "highlights", f"{safe_name}.json")
 
 def load_highlights_data(inst_dir, artifact_path):
@@ -930,12 +934,26 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     .search-clear-btn {
       position: absolute;
       right: 8px;
-      background: transparent;
-      border: none;
-      font-size: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      background: var(--surface-container-high);
+      border: 1px solid var(--border-color);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       color: var(--on-surface-variant);
-      display: none;
+      transition: all 0.1s ease;
+      padding: 0;
+      z-index: 2;
+    }
+    .search-clear-btn:hover {
+      color: var(--on-surface);
+      background: var(--surface-container-highest);
+      border-color: var(--tertiary);
     }
 
     .tier-chevron-icon {
@@ -992,9 +1010,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-size: 9px;
       font-weight: 800;
       text-transform: uppercase;
-      padding: 2px 6px;
-      border: 1px solid var(--border-color);
-      letter-spacing: 0.05em;
+      padding: 2px 7px;
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      letter-spacing: 0.06em;
+      border-radius: 2px;
+      box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
     }
 
     .tier-badge {
@@ -1056,7 +1076,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
     .tier-jump-btn.active {
       background-color: var(--primary-container);
-      color: #1a1a1a;
+      color: var(--on-primary-container);
       border-color: var(--border-color);
       font-weight: 800;
       box-shadow: 1px 1px 0px var(--shadow-color);
@@ -1604,6 +1624,80 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       background: var(--border-color);
       margin: 0 4px;
     }
+
+    /* UNIVERSAL SDS HIGHLIGHT SYSTEM */
+    .sds-highlight {
+      border-radius: 2px;
+      padding: 1px 3px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.15s ease;
+      font-weight: 500;
+    }
+    .sds-highlight:hover {
+      filter: brightness(0.95);
+      outline: 1px dashed currentColor;
+    }
+    .sds-hl-yellow {
+      background-color: #fef08a !important;
+      color: #1a1a1a !important;
+      border-bottom: 2px solid #eab308;
+    }
+    html.dark .sds-hl-yellow, .dark .sds-hl-yellow {
+      background-color: rgba(250, 204, 21, 0.35) !important;
+      color: #fef08a !important;
+      border-bottom: 2px solid #facc15;
+    }
+    .sds-hl-emerald {
+      background-color: #a7f3d0 !important;
+      color: #064e3b !important;
+      border-bottom: 2px solid #10b981;
+    }
+    html.dark .sds-hl-emerald, .dark .sds-hl-emerald {
+      background-color: rgba(16, 185, 129, 0.3) !important;
+      color: #6ee7b7 !important;
+      border-bottom: 2px solid #10b981;
+    }
+    .sds-hl-cyan {
+      background-color: #bae6fd !important;
+      color: #0369a1 !important;
+      border-bottom: 2px solid #0284c7;
+    }
+    html.dark .sds-hl-cyan, .dark .sds-hl-cyan {
+      background-color: rgba(56, 189, 248, 0.3) !important;
+      color: #7dd3fc !important;
+      border-bottom: 2px solid #38bdf8;
+    }
+
+    .highlighter-controls-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 6px;
+      background: var(--surface-container-high);
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      box-shadow: 1px 1px 0px var(--shadow-color);
+    }
+    .hl-swatch-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-color);
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.1s ease;
+      flex-shrink: 0;
+    }
+    .hl-swatch-btn:hover {
+      transform: scale(1.18);
+    }
+    .hl-swatch-btn:active {
+      transform: scale(0.9);
+    }
+    .hl-swatch-btn.yellow { background: #facc15; }
+    .hl-swatch-btn.emerald { background: #10b981; }
+    .hl-swatch-btn.cyan { background: #00e5ff; }
 
     .note-workbench-layout {
       flex: 1;
@@ -2769,12 +2863,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <div class="toolbar-primary-row">
           <div class="search-input-wrapper">
             <span class="material-symbols-outlined search-leading-icon">search</span>
-            <input type="text" id="curriculum-search" class="search-input" placeholder="Search 354 topics, codes (e.g. 0.1.1), or #tags... (Press /)" oninput="handleSearch(this.value)" />
-            <span id="search-count-badge" class="search-count-badge" style="display:none;"></span>
+            <input type="text" id="curriculum-search" class="search-input" placeholder="Search 354 topics, codes (e.g. 0.1.1), or #tags... (Press /)" oninput="handleSearch(this.value)" onkeydown="if(event.key==='Escape'){clearSearch();}" />
             <button id="search-clear-btn" class="search-clear-btn" onclick="clearSearch()" title="Clear search (Esc)">
-              <span class="material-symbols-outlined" style="font-size:14px;">close</span>
+              <span class="material-symbols-outlined" style="font-size:13px;">close</span>
             </button>
           </div>
+          <span id="search-count-badge" class="search-count-badge" style="display:none;"></span>
 
           <div class="toolbar-actions">
             <!-- Learning Track Filter -->
@@ -2853,7 +2947,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <span class="tier-jump-count" id="tier-jump-count-3">...</span>
         </button>
         <button class="tier-jump-btn" data-tier="tier.4" onclick="setTierFilter('tier.4', this)" title="Tier 4: Practice &amp; ADR Defenses">
-          <span class="tier-level-dot" style="background:#1a1a1a;"></span>
+          <span class="tier-level-dot" style="background:#8b5cf6;"></span>
           <span>T4: Synthesis</span>
           <span class="tier-jump-count" id="tier-jump-count-4">...</span>
         </button>
@@ -2917,11 +3011,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </div>
 
           <!-- Highlighter controls for reader -->
-          <div id="lesson-highlighter-controls" style="display:none; align-items:center; gap:6px;">
-            <button class="icon-action-btn" style="width:24px; height:24px; background:#ffea79;" onclick="applyHighlight('yellow')" title="Yellow highlight"></button>
-            <button class="icon-action-btn" style="width:24px; height:24px; background:#a7f3d0;" onclick="applyHighlight('emerald')" title="Emerald highlight"></button>
-            <button class="icon-action-btn" style="width:24px; height:24px; background:#a5f3fc;" onclick="applyHighlight('cyan')" title="Cyan highlight"></button>
-            <button class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights()">Clear</button>
+          <div id="lesson-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'lesson')" title="Yellow highlight"></button>
+            <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'lesson')" title="Emerald highlight"></button>
+            <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'lesson')" title="Cyan highlight"></button>
+            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('lesson')">Clear</button>
           </div>
 
           <!-- Fullscreen Toggle Button -->
@@ -2989,6 +3083,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <span class="material-symbols-outlined" style="font-size:14px;">content_copy</span>
             <span>Copy</span>
           </button>
+          <!-- Highlighter controls for Notes -->
+          <div id="note-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'note')" title="Yellow highlight"></button>
+            <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'note')" title="Emerald highlight"></button>
+            <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'note')" title="Cyan highlight"></button>
+            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('note')">Clear</button>
+          </div>
           <button type="button" id="note-save-btn" class="btn-primary" onclick="saveNoteFromEditor()" style="display:none;" title="Save Note to Disk (⌘S / Ctrl+S)">
             <span class="material-symbols-outlined" style="font-size:14px;">save</span>
             <span>Save</span>
@@ -3037,9 +3138,18 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <h3 id="adr-modal-title" style="font-family:var(--font-headline); font-size:16px; font-weight:700; text-transform:uppercase;">
           Architecture Decision Records (DECISIONS.md)
         </h3>
-        <button class="modal-close-btn" onclick="closeModal('adr-modal')">
-          <span class="material-symbols-outlined">close</span>
-        </button>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <!-- ADR Highlighter controls -->
+          <div id="adr-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px;">
+            <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'adr')" title="Yellow highlight"></button>
+            <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'adr')" title="Emerald highlight"></button>
+            <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'adr')" title="Cyan highlight"></button>
+            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('adr')">Clear</button>
+          </div>
+          <button class="modal-close-btn" onclick="closeModal('adr-modal')">
+            <span class="material-symbols-outlined">close</span>
+          </button>
+        </div>
       </div>
       <div id="adr-modal-content" class="md-rendered" style="font-size:13px;">
         Loading decisions...
@@ -3308,35 +3418,40 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         name: 'Tier 0 — High-Level Design (HLD) Building Blocks',
         subtitle: 'Network transport, database transactions, caching, storage & async worker foundations',
         level: 'PREREQUISITES',
-        color: 'var(--primary-container)'
+        color: 'var(--primary-container)',
+        textColor: 'var(--on-primary-container)'
       },
       'tier.1': {
         code: 'T1',
         name: 'Tier 1 — Low-Level Design (LLD) & In-Process Architecture',
         subtitle: 'Domain entities, ownership, SOLID patterns, concurrency & in-process isolation',
         level: 'SINGLE-NODE LLD',
-        color: '#dc2626'
+        color: '#dc2626',
+        textColor: '#ffffff'
       },
       'tier.2': {
         code: 'T2',
         name: 'Tier 2 — High-Level Design (HLD) & Distributed Systems',
         subtitle: 'Scalability, partitioning, replication, consensus (Raft/Paxos) & fault tolerance',
         level: 'DISTRIBUTED SCALE',
-        color: '#0055ff'
+        color: '#0055ff',
+        textColor: '#ffffff'
       },
       'tier.3': {
         code: 'T3',
         name: 'Tier 3 — Mobile & Offline-First Systems',
         subtitle: 'Local-first persistence, delta sync engines, CRDTs, battery & bandwidth invariants',
         level: 'EDGE & OFFLINE',
-        color: '#059669'
+        color: '#059669',
+        textColor: '#ffffff'
       },
       'tier.4': {
         code: 'T4',
         name: 'Tier 4 — Production Architecture Reviews & ADR Defenses',
         subtitle: 'Failure injection, board-level trade-off defense, ADR portfolios & synthesis',
         level: 'SYNTHESIS & DEFENSE',
-        color: '#1a1a1a'
+        color: '#7c3aed',
+        textColor: '#ffffff'
       }
     };
 
@@ -3357,7 +3472,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         name: (tierId || 'Tier').replace('tier.', 'Tier ').toUpperCase() + ' — Infrastructure Mechanics',
         subtitle: 'Curriculum learning track tier',
         level: 'CUSTOM TIER',
-        color: 'var(--primary-container)'
+        color: 'var(--primary-container)',
+        textColor: 'var(--on-primary-container)'
       };
     }
 
@@ -4249,7 +4365,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               <div style="min-width:0;">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                   <span class="tier-title">${meta.name}</span>
-                  <span class="tier-level-badge" style="background-color:${meta.color}; color:#1a1a1a;">${meta.level}</span>
+                  <span class="tier-level-badge" style="background-color:${meta.color}; color:${meta.textColor || '#ffffff'};">${meta.level}</span>
                 </div>
                 <div class="tier-subtitle">${meta.subtitle}</div>
               </div>
@@ -4357,7 +4473,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     function handleSearch(val) {
       currentSearchTerm = val.trim().replace(/^#/, '');
       const clearBtn = document.getElementById('search-clear-btn');
-      if (clearBtn) clearBtn.style.display = val.trim() ? 'block' : 'none';
+      if (clearBtn) clearBtn.style.display = val.length > 0 ? 'inline-flex' : 'none';
       if (globalStatus?.manifest) {
         renderCurriculum(globalStatus.manifest);
       }
@@ -4365,7 +4481,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     function clearSearch() {
       const inp = document.getElementById('curriculum-search');
-      if (inp) inp.value = '';
+      if (inp) {
+        inp.value = '';
+        inp.focus();
+      }
       handleSearch('');
     }
 
@@ -4486,7 +4605,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (format === 'html' && currentLessonContext.htmlPath) {
         if (btnHtml) btnHtml.classList.add('active');
         if (btnMd) btnMd.classList.remove('active');
-        if (highlighters) highlighters.style.display = 'none';
+        if (highlighters) highlighters.style.display = 'inline-flex';
         mdView.style.display = 'none';
         iframe.style.display = 'block';
         currentActiveArtifact = currentLessonContext.htmlPath;
@@ -4498,6 +4617,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
               else iframe.contentDocument.documentElement.classList.remove('dark');
               iframe.contentDocument.documentElement.setAttribute('data-theme-preset', activePreset);
+              injectHighlightStylesIntoDoc(iframe.contentDocument);
+              loadAndApplyHighlights(currentLessonContext.htmlPath, iframe.contentDocument.body);
             }
           } catch (e) {}
         };
@@ -4515,7 +4636,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (res.ok) {
             const raw = await res.text();
             mdView.innerHTML = renderMarkdown(raw);
-            loadHighlightsForCurrentArtifact();
+            loadAndApplyHighlights(currentLessonContext.mdPath, mdView);
           } else {
             mdView.innerHTML = '<div style="font-family:var(--font-mono); color:var(--secondary); padding:20px;">Failed to load markdown lesson artifact.</div>';
           }
@@ -4595,52 +4716,295 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       openLessonModal(lessonRelPath, title, lessonRelPath);
     };
 
-    // Highlighting Engine
-    async function loadHighlightsForCurrentArtifact() {
-      if (!currentActiveArtifact) return;
-      try {
-        const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(currentActiveArtifact)}`);
-        if (res.ok) {
-          const highlights = await res.json();
-          const container = document.getElementById('lesson-modal-markdown') || document.getElementById('workbench-markdown-viewer');
-          if (container && Array.isArray(highlights)) {
-            highlights.forEach(hl => {
-              if (!hl.text) return;
-              container.innerHTML = container.innerHTML.replace(hl.text, `<mark style="background-color:${hl.color === 'emerald' ? '#a7f3d0' : (hl.color === 'cyan' ? '#a5f3fc' : '#ffea79')};">${hl.text}</mark>`);
-            });
-          }
+    // Universal Highlighting Engine (DOM TreeWalker & Multi-Surface Persistence)
+    function injectHighlightStylesIntoDoc(doc) {
+      if (!doc || doc.getElementById('sds-highlight-styles')) return;
+      const st = doc.createElement('style');
+      st.id = 'sds-highlight-styles';
+      st.textContent = `
+        .sds-highlight {
+          border-radius: 2px;
+          padding: 1px 3px;
+          cursor: pointer;
+          position: relative;
+          transition: all 0.15s ease;
+          font-weight: 500;
         }
-      } catch (e) {}
+        .sds-highlight:hover {
+          filter: brightness(0.95);
+          outline: 1px dashed currentColor;
+        }
+        .sds-hl-yellow {
+          background-color: #fef08a !important;
+          color: #1a1a1a !important;
+          border-bottom: 2px solid #eab308;
+        }
+        html.dark .sds-hl-yellow, .dark .sds-hl-yellow {
+          background-color: rgba(250, 204, 21, 0.35) !important;
+          color: #fef08a !important;
+          border-bottom: 2px solid #facc15;
+        }
+        .sds-hl-emerald {
+          background-color: #a7f3d0 !important;
+          color: #064e3b !important;
+          border-bottom: 2px solid #10b981;
+        }
+        html.dark .sds-hl-emerald, .dark .sds-hl-emerald {
+          background-color: rgba(16, 185, 129, 0.3) !important;
+          color: #6ee7b7 !important;
+          border-bottom: 2px solid #10b981;
+        }
+        .sds-hl-cyan {
+          background-color: #bae6fd !important;
+          color: #0369a1 !important;
+          border-bottom: 2px solid #0284c7;
+        }
+        html.dark .sds-hl-cyan, .dark .sds-hl-cyan {
+          background-color: rgba(56, 189, 248, 0.3) !important;
+          color: #7dd3fc !important;
+          border-bottom: 2px solid #38bdf8;
+        }
+      `;
+      (doc.head || doc.body).appendChild(st);
     }
 
-    async function applyHighlight(color) {
-      const sel = window.getSelection();
-      const text = sel ? sel.toString().trim() : '';
-      if (!text || !currentActiveArtifact) return;
+    function renderHighlightsInContainer(container, highlights, artifactPath) {
+      if (!container || !highlights || !Array.isArray(highlights)) return;
+      const doc = container.ownerDocument || document;
+
+      highlights.forEach(hl => {
+        const searchText = (hl.text || '').trim();
+        if (!searchText) return;
+
+        const walker = doc.createTreeWalker(
+          container,
+          NodeFilter.SHOW_TEXT,
+          {
+            acceptNode: function(node) {
+              if (!node.nodeValue || !node.nodeValue.includes(searchText)) return NodeFilter.FILTER_REJECT;
+              let p = node.parentElement;
+              while (p && p !== container) {
+                if (p.classList && p.classList.contains('sds-highlight')) return NodeFilter.FILTER_REJECT;
+                if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
+                p = p.parentElement;
+              }
+              return NodeFilter.FILTER_ACCEPT;
+            }
+          }
+        );
+
+        const matchingNodes = [];
+        let cur;
+        while (cur = walker.nextNode()) {
+          matchingNodes.push(cur);
+        }
+
+        matchingNodes.forEach(textNode => {
+          const val = textNode.nodeValue;
+          const idx = val.indexOf(searchText);
+          if (idx === -1) return;
+
+          const matchNode = textNode.splitText(idx);
+          matchNode.splitText(searchText.length);
+
+          const mark = doc.createElement('mark');
+          mark.className = `sds-highlight sds-hl-${hl.color || 'yellow'}`;
+          mark.dataset.hlId = hl.id || '';
+          mark.title = `Click to delete highlight (${hl.color || 'yellow'})`;
+          mark.onclick = (e) => {
+            e.stopPropagation();
+            deleteSingleHighlight(artifactPath, hl.id, mark);
+          };
+
+          if (matchNode.parentNode) {
+            matchNode.parentNode.replaceChild(mark, matchNode);
+            mark.appendChild(matchNode);
+          }
+        });
+      });
+    }
+
+    async function loadAndApplyHighlights(artifactPath, container) {
+      if (!artifactPath || !container) return;
+      try {
+        const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}`);
+        if (res.ok) {
+          const data = await res.json();
+          const highlights = Array.isArray(data) ? data : (data.highlights || []);
+          renderHighlightsInContainer(container, highlights, artifactPath);
+        }
+      } catch (e) {
+        console.warn('Failed to load highlights for', artifactPath, e);
+      }
+    }
+
+    // Alias for backwards compatibility
+    async function loadHighlightsForCurrentArtifact() {
+      if (!currentActiveArtifact) return;
+      const container = document.getElementById('lesson-modal-markdown');
+      if (container) loadAndApplyHighlights(currentActiveArtifact, container);
+    }
+
+    async function applyHighlight(color, surfaceHint = null) {
+      let artifactPath = '';
+      let targetContainer = null;
+      let targetDoc = document;
+      let selectedText = '';
+      let selObj = null;
+
+      const adrModal = document.getElementById('adr-modal');
+      const noteModal = document.getElementById('note-modal');
+      const lessonModal = document.getElementById('lesson-modal');
+
+      if (surfaceHint === 'adr' || (adrModal && adrModal.classList.contains('active'))) {
+        artifactPath = 'DECISIONS.md';
+        targetContainer = document.getElementById('adr-modal-content');
+        selObj = window.getSelection();
+        selectedText = selObj ? selObj.toString().trim() : '';
+      } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
+        artifactPath = activeNoteRelPath;
+        targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
+        selObj = window.getSelection();
+        selectedText = selObj ? selObj.toString().trim() : '';
+      } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
+        if (currentLessonContext.activeFormat === 'html') {
+          artifactPath = currentLessonContext.htmlPath;
+          const iframe = document.getElementById('lesson-modal-iframe');
+          if (iframe && iframe.contentDocument) {
+            targetDoc = iframe.contentDocument;
+            targetContainer = iframe.contentDocument.body;
+            selObj = iframe.contentWindow ? iframe.contentWindow.getSelection() : null;
+            selectedText = selObj ? selObj.toString().trim() : '';
+          }
+        } else {
+          artifactPath = currentLessonContext.mdPath;
+          targetContainer = document.getElementById('lesson-modal-markdown');
+          selObj = window.getSelection();
+          selectedText = selObj ? selObj.toString().trim() : '';
+        }
+      }
+
+      // Fallback: If no text was captured from primary focus, check iframe selection
+      if (!selectedText && lessonModal && lessonModal.classList.contains('active')) {
+        const iframe = document.getElementById('lesson-modal-iframe');
+        if (iframe && iframe.contentWindow) {
+          const ifSel = iframe.contentWindow.getSelection();
+          if (ifSel && ifSel.toString().trim()) {
+            selectedText = ifSel.toString().trim();
+            targetDoc = iframe.contentDocument;
+            targetContainer = iframe.contentDocument.body;
+            artifactPath = currentLessonContext.htmlPath;
+            selObj = ifSel;
+          }
+        }
+      }
+
+      if (!selectedText) {
+        showToast('Please select text with your cursor first to highlight');
+        return;
+      }
+      if (!artifactPath) {
+        showToast('No active document to highlight');
+        return;
+      }
+
+      const hlObj = {
+        id: `hl_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        color: color,
+        text: selectedText
+      };
 
       try {
-        const hlObj = { id: `hl_${Date.now()}`, color: color, text: text };
-        const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(currentActiveArtifact)}`, {
+        const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify([hlObj])
         });
         if (res.ok) {
-          showToast(`Highlighted (${color})`);
-          loadHighlightsForCurrentArtifact();
+          if (targetContainer) {
+            renderHighlightsInContainer(targetContainer, [hlObj], artifactPath);
+          }
+          if (selObj) {
+            selObj.removeAllRanges();
+          }
+          showToast(`Highlighted in ${color.toUpperCase()}`);
+        } else {
+          showToast('Failed to save highlight');
         }
-      } catch (e) {}
+      } catch (e) {
+        showToast('Network error saving highlight');
+      }
     }
 
-    async function clearActiveHighlights() {
-      if (!currentActiveArtifact) return;
+    async function deleteSingleHighlight(artifactPath, hlId, markElement) {
+      if (!artifactPath || !hlId) return;
       try {
-        await fetch(`/api/highlights?artifact=${encodeURIComponent(currentActiveArtifact)}`, {
+        const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}&id=${encodeURIComponent(hlId)}`, {
           method: 'DELETE'
         });
-        showToast('Highlights cleared');
-        loadHighlightsForCurrentArtifact();
-      } catch (e) {}
+        if (res.ok) {
+          if (markElement && markElement.parentNode) {
+            const parent = markElement.parentNode;
+            while (markElement.firstChild) {
+              parent.insertBefore(markElement.firstChild, markElement);
+            }
+            parent.removeChild(markElement);
+            parent.normalize();
+          }
+          showToast('Highlight removed');
+        }
+      } catch (e) {
+        showToast('Error removing highlight');
+      }
+    }
+
+    async function clearActiveHighlights(surfaceHint = null) {
+      let artifactPath = '';
+      let targetContainer = null;
+
+      const adrModal = document.getElementById('adr-modal');
+      const noteModal = document.getElementById('note-modal');
+      const lessonModal = document.getElementById('lesson-modal');
+
+      if (surfaceHint === 'adr' || (adrModal && adrModal.classList.contains('active'))) {
+        artifactPath = 'DECISIONS.md';
+        targetContainer = document.getElementById('adr-modal-content');
+      } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
+        artifactPath = activeNoteRelPath;
+        targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
+      } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
+        if (currentLessonContext.activeFormat === 'html') {
+          artifactPath = currentLessonContext.htmlPath;
+          const iframe = document.getElementById('lesson-modal-iframe');
+          targetContainer = iframe?.contentDocument?.body;
+        } else {
+          artifactPath = currentLessonContext.mdPath;
+          targetContainer = document.getElementById('lesson-modal-markdown');
+        }
+      }
+
+      if (!artifactPath) return;
+
+      try {
+        const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}`, {
+          method: 'DELETE'
+        });
+        if (res.ok) {
+          if (targetContainer) {
+            targetContainer.querySelectorAll('.sds-highlight').forEach(mark => {
+              const parent = mark.parentNode;
+              if (parent) {
+                while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+                parent.removeChild(mark);
+                parent.normalize();
+              }
+            });
+          }
+          showToast('All highlights cleared');
+        }
+      } catch (e) {
+        showToast('Error clearing highlights');
+      }
     }
 
     // Dynamic Notes Resolution (Fixes 404 Bug)
@@ -4686,6 +5050,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (statsText) statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
           viewBody.innerHTML = renderMarkdown(content);
           editBody.value = content;
+          loadAndApplyHighlights(activeNoteRelPath, viewBody);
           if (new URLSearchParams(window.location.search).get('notescroll') === 'bottom') {
             viewBody.scrollTop = viewBody.scrollHeight;
           }
@@ -4722,10 +5087,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const btnView = document.getElementById('btn-note-view');
       const btnSplit = document.getElementById('btn-note-split');
       const btnEdit = document.getElementById('btn-note-edit');
+      const noteHls = document.getElementById('note-highlighter-controls');
 
       if (btnView) btnView.classList.toggle('active', mode === 'view');
       if (btnSplit) btnSplit.classList.toggle('active', mode === 'split');
       if (btnEdit) btnEdit.classList.toggle('active', mode === 'edit');
+      if (noteHls) noteHls.style.display = (mode === 'edit') ? 'none' : 'inline-flex';
 
       if (mode === 'view') {
         if (toolbar) toolbar.style.display = 'none';
@@ -4733,6 +5100,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         if (viewBody) {
           viewBody.style.display = 'block';
           viewBody.innerHTML = renderMarkdown(editBody.value);
+          loadAndApplyHighlights(activeNoteRelPath, viewBody);
         }
         if (editBody) editBody.style.display = 'none';
         if (splitPreview) splitPreview.style.display = 'none';
@@ -4748,6 +5116,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           splitPreview.style.display = 'block';
           splitPreview.style.flex = '1';
           splitPreview.innerHTML = renderMarkdown(editBody.value);
+          loadAndApplyHighlights(activeNoteRelPath, splitPreview);
         }
         editBody.focus();
       } else if (mode === 'edit') {
@@ -4885,11 +5254,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               </div>
               <div>${renderMarkdown(matched)}</div>
             `;
+            loadAndApplyHighlights('DECISIONS.md', box);
             return;
           }
         }
         titleEl.innerText = 'Architecture Decision Records (DECISIONS.md)';
         box.innerHTML = renderMarkdown(text);
+        loadAndApplyHighlights('DECISIONS.md', box);
       } catch (e) {
         box.innerText = 'Failed to load decisions.';
       }
@@ -5228,6 +5599,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
       if (params.get('shortcuts') === 'true') {
         setTimeout(() => openShortcutsModal(), 350);
+      }
+      if (params.get('adr')) {
+        openADRModal(params.get('adr') === 'true' ? null : params.get('adr'));
       }
       if (params.get('search')) {
         setTimeout(() => applySearchTag(params.get('search')), 350);
@@ -6151,6 +6525,17 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
                 self.send_cors()
                 self.end_headers()
                 self.wfile.write(b"Access denied")
+                return
+            hl_id = query.get("id", [None])[0]
+            if hl_id:
+                existing = load_highlights_data(self.inst_dir, raw_target)
+                filtered = [h for h in existing if (h.get("id") if isinstance(h, dict) else None) != hl_id]
+                save_highlights_data(self.inst_dir, raw_target, filtered)
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json; charset=utf-8")
+                self.send_cors()
+                self.end_headers()
+                self.wfile.write(json.dumps({"status": "deleted", "id": hl_id}).encode("utf-8"))
                 return
             save_highlights_data(self.inst_dir, raw_target, [])
             self.send_response(200)
