@@ -89,12 +89,40 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
             self.assertTrue(os.path.isfile(claude_cmd), f"Missing Claude command: {claude_cmd}")
             self.assertTrue(os.path.isfile(codex_prompt), f"Missing Codex prompt: {codex_prompt}")
 
-        # 3. Verify CLI wrapper & global config
+        # 3. Verify Subagents Distribution
+        expected_subagents = ["sds-lesson-crafter", "sds-pedagogy-auditor", "sds-dialectic-challenger"]
+        for agent_dir in [
+            os.path.join(self.fake_home, ".gemini/antigravity/agents"),
+            os.path.join(self.fake_home, ".gemini/config/agents"),
+            os.path.join(self.fake_home, ".agents/agents"),
+            os.path.join(self.fake_home, ".claude/agents"),
+            os.path.join(self.fake_home, ".cursor/agents"),
+            os.path.join(self.fake_home, ".codex/agents"),
+            os.path.join(self.fake_home, ".system-design-studio/agents")
+        ]:
+            self.assertTrue(os.path.isdir(agent_dir), f"Missing agent target: {agent_dir}")
+            for subagent in expected_subagents:
+                has_md = os.path.isfile(os.path.join(agent_dir, f"{subagent}.md"))
+                has_dir = os.path.isfile(os.path.join(agent_dir, subagent, "AGENT.md"))
+                self.assertTrue(has_md or has_dir, f"Missing subagent {subagent} in {agent_dir}")
+
+        # 4. Verify CLI wrapper & global config
         cli_bin = os.path.join(self.fake_home, ".system-design-studio/bin/sds")
         global_config = os.path.join(self.fake_home, ".system-design-studio/config.json")
         self.assertTrue(os.path.isfile(cli_bin))
         self.assertTrue(os.access(cli_bin, os.X_OK))
+        with open(cli_bin, "r", encoding="utf-8") as f:
+            cli_content = f.read()
+        self.assertIn("revisions|revision|rev)", cli_content)
+        self.assertIn("update-revisions.py", cli_content)
         self.assertTrue(os.path.isfile(global_config))
+
+        # 5. Verify plugin.json manifest
+        plugin_file = os.path.join(REPO_ROOT, "plugin.json")
+        with open(plugin_file, "r", encoding="utf-8") as f:
+            plugin_data = json.load(f)
+        self.assertIn("agents", plugin_data)
+        self.assertEqual(plugin_data["agents"], "./agents")
 
     # =========================================================================
     # SUITE 2: Multi-Track Scaffolding & Verification
@@ -269,6 +297,57 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertIn("Payment Gateway", sync_res.stdout)
         self.assertIn("QUIC 0-RTT replay attack mitigations", sync_res.stdout)
 
+        # 7. Test Auto-Advancement within cluster when --next-topic-id is omitted
+        auto_adv_res = self.run_cmd([
+            sys.executable, advance_script,
+            "--instance-dir", proj1_inst,
+            "--complete-topic", "topic.0.1.http-1-1-vs-http-2-vs-http-3",
+            "--evidence", "Learner proved stream multiplexing benefits cold."
+        ])
+        self.assertIn("Cursor advanced!", auto_adv_res.stdout)
+
+        with open(os.path.join(proj1_inst, "manifest.json"), "r", encoding="utf-8") as mf:
+            m_data = json.load(mf)
+        # Next uncompleted topic in cluster 0.1 is topic.0.1.tls-handshake-cost-and-session-resumptio
+        self.assertEqual(m_data["curriculum"]["activeTopicId"], "topic.0.1.tls-handshake-cost-and-session-resumptio")
+        self.assertEqual(m_data["curriculum"]["activeClusterId"], "cluster.0.1")
+        self.assertEqual(m_data["cursor"]["topicFoundationId"], "foundation.0.1.tls-handshake-cost-and-session-resumptio")
+        self.assertEqual(m_data["cursor"]["activeMechanismGroupId"], "group.0.1.tls-handshake-cost-and-session-resumptio")
+
+        # Verify CURSOR.md was re-rendered with new active topic
+        with open(cursor_file, "r", encoding="utf-8") as f:
+            cur_text2 = f.read()
+        self.assertIn("**Active Topic**: **TLS handshake cost and session resumption**", cur_text2)
+        self.assertIn("`topic.0.1.tls-handshake-cost-and-session-resumptio`", cur_text2)
+        self.assertIn("- [x] **TCP vs UDP**", cur_text2)
+        self.assertIn("- [x] **HTTP/1.1 vs HTTP/2 vs HTTP/3**", cur_text2)
+        self.assertIn("- [ ] **CURRENT** ➔ **TLS handshake cost and session resumption**", cur_text2)
+
+        # 8. Test Auto-Advancement across cluster boundaries when all topics in current cluster complete
+        # Complete all remaining topics in cluster 0.1 except the last one
+        last_t_id = m_data["curriculum"]["clusters"][0]["topics"][-1]["id"]
+        for t in m_data["curriculum"]["clusters"][0]["topics"]:
+            if t["id"] != last_t_id:
+                t["status"] = "completed"
+        with open(os.path.join(proj1_inst, "manifest.json"), "w", encoding="utf-8") as mf:
+            json.dump(m_data, mf, indent=2)
+
+        # Complete the final topic of cluster 0.1 without --next-topic-id
+        last_t_res = self.run_cmd([
+            sys.executable, advance_script,
+            "--instance-dir", proj1_inst,
+            "--complete-topic", last_t_id
+        ])
+        self.assertIn("Cursor advanced!", last_t_res.stdout)
+
+        with open(os.path.join(proj1_inst, "manifest.json"), "r", encoding="utf-8") as mf:
+            m_data_c02 = json.load(mf)
+        # Cluster 0.1 is 100% completed; must advance to cluster 0.2's first topic (b-tree-index)
+        self.assertEqual(m_data_c02["curriculum"]["activeClusterId"], "cluster.0.2")
+        self.assertEqual(m_data_c02["curriculum"]["activeTopicId"], "topic.0.2.b-tree-index")
+        self.assertEqual(m_data_c02["cursor"]["topicFoundationId"], "foundation.0.2.b-tree-index")
+        self.assertEqual(m_data_c02["cursor"]["activeMechanismGroupId"], "group.0.2.b-tree-index")
+
     # =========================================================================
     # SUITE 5: Study Notes Compilation Modes (per-cluster, per-tier, single-file)
     # =========================================================================
@@ -333,12 +412,27 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertIn("full-mastery-core", list_res.stdout)
         self.assertIn("trading-byo", list_res.stdout)
 
-        # 2. Switch active project
+        # 2a. Switch active project via exact match
         switch_res = self.run_cmd([sys.executable, manage_script, "switch", "interview-lab"])
         self.assertIn("Switched active project to 'interview-lab'", switch_res.stdout)
 
         active_res = self.run_cmd([sys.executable, manage_script, "active"])
         self.assertIn("interview-lab", active_res.stdout)
+
+        # 2b. Switch active project via case-insensitive ID match
+        switch_res2 = self.run_cmd([sys.executable, manage_script, "switch", "FULL-MASTERY-CORE"])
+        self.assertIn("Switched active project to 'full-mastery-core'", switch_res2.stdout)
+
+        # 2c. Switch active project via project name
+        switch_res3 = self.run_cmd([sys.executable, manage_script, "switch", "Interview Sprint Lab"])
+        self.assertIn("Switched active project to 'interview-lab'", switch_res3.stdout)
+
+        # 2d. Switch active project via directory basename
+        switch_res4 = self.run_cmd([sys.executable, manage_script, "switch", "proj2-mastery"])
+        self.assertIn("Switched active project to 'full-mastery-core'", switch_res4.stdout)
+
+        # Switch back to interview-lab for notes test
+        self.run_cmd([sys.executable, manage_script, "switch", "interview-lab"])
 
         # 3. List notes for active project
         notes_res = self.run_cmd([sys.executable, manage_script, "notes"])
@@ -416,15 +510,259 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertIn("notesStructure", merged)
 
     # =========================================================================
+    # SUITE 8B: Revision Mode Engine & Auto-Sync
+    # =========================================================================
+    def test_08b_revision_mode_engine(self):
+        rev_script = os.path.join(SCRIPTS_DIR, "update-revisions.py")
+        proj2_inst = os.path.join(self.sandbox_dir, "proj2-mastery/.system-design")
+
+        # 1. Test compilation and sync of revisions
+        res = self.run_cmd([sys.executable, rev_script, "--instance-dir", proj2_inst, "--sync"])
+        self.assertIn("SYSTEM DESIGN STUDIO — REVISION MODE SYNC", res.stdout)
+        self.assertIn("Total Flashcards:", res.stdout)
+
+        revisions_file = os.path.join(proj2_inst, "revisions.json")
+        self.assertTrue(os.path.isfile(revisions_file))
+        with open(revisions_file, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        self.assertGreater(data.get("totalRevisions", 0), 0)
+        revisions = data.get("revisions", [])
+        first_rev = revisions[0]
+        self.assertIn("invariant", first_rev)
+        self.assertIn("failureBoundary", first_rev)
+        self.assertIn("defenseAnswer", first_rev)
+
+        # 2. Test updating mastery status via CLI
+        target_id = first_rev["id"]
+        res_mastery = self.run_cmd([sys.executable, rev_script, "--instance-dir", proj2_inst, "--update-mastery", target_id, "mastered"])
+        self.assertIn(f"Updated {target_id} status to 'mastered'", res_mastery.stdout)
+
+        with open(revisions_file, "r", encoding="utf-8") as f:
+            data_updated = json.load(f)
+        matching = next((r for r in data_updated.get("revisions", []) if r["id"] == target_id), None)
+        self.assertIsNotNone(matching)
+        self.assertEqual(matching["masteryStatus"], "mastered")
+
+    # =========================================================================
+    # SUITE 8C: Dashboard-First Read-Write Workbench & Local Sync
+    # =========================================================================
+    def test_08c_dashboard_first_read_write_workbench(self):
+        import urllib.request
+        import urllib.error
+        import time
+
+        dashboard_script = os.path.join(SCRIPTS_DIR, "serve-dashboard.py")
+        proj2_dir = os.path.join(self.sandbox_dir, "proj2-mastery")
+        proj2_inst = os.path.join(proj2_dir, ".system-design")
+
+        # Find free port
+        import socket
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('127.0.0.1', 0))
+            test_port = s.getsockname()[1]
+
+        # Launch dashboard in background subprocess
+        proc = subprocess.Popen(
+            [sys.executable, dashboard_script, "--instance-dir", proj2_inst, "--port", str(test_port), "--no-browser"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        base_url = f"http://127.0.0.1:{test_port}"
+        # Wait for server to listen
+        ready = False
+        for _ in range(30):
+            try:
+                with urllib.request.urlopen(f"{base_url}/api/status", timeout=1.0) as resp:
+                    if resp.status == 200:
+                        ready = True
+                        break
+            except Exception:
+                time.sleep(0.15)
+
+        self.assertTrue(ready, "Dashboard server failed to start within timeout")
+
+        try:
+            # 1. Test GET / (HTML App)
+            with urllib.request.urlopen(f"{base_url}/", timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+                html = resp.read().decode("utf-8")
+                self.assertIn("System Design Studio", html)
+                self.assertIn("Revision Mode", html)
+                self.assertIn("Curriculum Syllabus", html)
+
+            # 2. Test GET /api/status
+            with urllib.request.urlopen(f"{base_url}/api/status", timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+                status_data = json.loads(resp.read().decode("utf-8"))
+                self.assertIn("manifest", status_data)
+                self.assertIn("git", status_data)
+
+            # 3. Test GET /api/projects
+            with urllib.request.urlopen(f"{base_url}/api/projects", timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+                proj_data = json.loads(resp.read().decode("utf-8"))
+                self.assertIn("projects", proj_data)
+
+            # 4. Test POST /api/topic/status (Read-Write: set topic to in_progress)
+            req_data = json.dumps({"topicId": "topic.0.1.tcp-vs-udp", "status": "in_progress"}).encode("utf-8")
+            req = urllib.request.Request(f"{base_url}/api/topic/status", data=req_data, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+                res_json = json.loads(resp.read().decode("utf-8"))
+                self.assertEqual(res_json["state"], "in_progress")
+
+            # Verify manifest updated on disk
+            manifest_file = os.path.join(proj2_inst, "manifest.json")
+            with open(manifest_file, "r", encoding="utf-8") as mf:
+                m_disk = json.load(mf)
+            self.assertEqual(m_disk["curriculum"]["activeTopicId"], "topic.0.1.tcp-vs-udp")
+
+            # 5. Test POST /api/topic/status (Read-Write: complete topic with ADR defense)
+            req_complete = json.dumps({
+                "topicId": "topic.0.1.tcp-vs-udp",
+                "status": "completed",
+                "evidence": "TCP monotonic in-order byte stream verified against HoL blocking cold in chat",
+                "hypothesis": "Assumed HTTP/2 multiplexing avoids packet loss delays",
+                "discussion_summary": "Evaluated kernel TCP receive buffer stall under 1% loss"
+            }).encode("utf-8")
+            req = urllib.request.Request(f"{base_url}/api/topic/status", data=req_complete, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=3.0) as resp:
+                self.assertEqual(resp.status, 200)
+
+            # Verify DECISIONS.md updated on disk
+            decisions_file = os.path.join(proj2_inst, "DECISIONS.md")
+            with open(decisions_file, "r", encoding="utf-8") as df:
+                dec_content = df.read()
+            self.assertIn("ADR-001: TCP vs UDP Architectural Defense", dec_content)
+            self.assertIn("TCP monotonic in-order byte stream verified against HoL blocking cold in chat", dec_content)
+
+            # 6. Test Notes API (Read & Write)
+            new_note = json.dumps({
+                "path": "test-cluster/dashboard-note.md",
+                "content": "# Live Dashboard Note\n\n- Invariant: Verified without dedicated server\n"
+            }).encode("utf-8")
+            req = urllib.request.Request(f"{base_url}/api/note", data=new_note, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+
+            note_file = os.path.join(proj2_dir, "notes/test-cluster/dashboard-note.md")
+            self.assertTrue(os.path.isfile(note_file))
+            with open(note_file, "r", encoding="utf-8") as nf:
+                self.assertIn("Live Dashboard Note", nf.read())
+
+            # 7. Test Settings API (Read & Write)
+            new_settings = json.dumps({
+                "artifactStyle": "cyber-obsidian",
+                "notesStructure": "per-cluster",
+                "notesDir": "study-notes"
+            }).encode("utf-8")
+            req = urllib.request.Request(f"{base_url}/api/settings", data=new_settings, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+
+            settings_file = os.path.join(proj2_inst, "settings.json")
+            with open(settings_file, "r", encoding="utf-8") as sf:
+                s_disk = json.load(sf)
+            self.assertEqual(s_disk["artifactStyle"], "cyber-obsidian")
+            self.assertEqual(s_disk["notesStructure"], "per-cluster")
+
+            # 8. Test Unified Highlights API (No external server required)
+            hl_data = json.dumps([{"id": "hl_1", "color": "yellow", "text": "TCP in-order stream"}]).encode("utf-8")
+            req = urllib.request.Request(f"{base_url}/api/highlights?artifact=test-lesson.html", data=hl_data, headers={"Content-Type": "application/json"})
+            with urllib.request.urlopen(req, timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+
+            with urllib.request.urlopen(f"{base_url}/api/highlights?artifact=test-lesson.html", timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+                hl_read = json.loads(resp.read().decode("utf-8"))
+                self.assertEqual(len(hl_read), 1)
+                self.assertEqual(hl_read[0]["text"], "TCP in-order stream")
+
+            # 9. Test Revisions API (GET & POST)
+            with urllib.request.urlopen(f"{base_url}/api/revisions", timeout=2.0) as resp:
+                self.assertEqual(resp.status, 200)
+                revs = json.loads(resp.read().decode("utf-8"))
+                self.assertIn("revisions", revs)
+
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=3.0)
+            except Exception:
+                proc.kill()
+            if proc.stdout: proc.stdout.close()
+            if proc.stderr: proc.stderr.close()
+
+    # =========================================================================
+    # SUITE 8D: Revamped Docs Landing Page & Contrast Validation
+    # =========================================================================
+    def test_08d_docs_landing_page_revamp_and_contrast(self):
+        index_path = os.path.join(REPO_ROOT, "docs/index.html")
+        self.assertTrue(os.path.isfile(index_path))
+
+        with open(index_path, "r", encoding="utf-8") as f:
+            html = f.read()
+
+        # 1. Invariant: Internal script leaks are removed from product page
+        self.assertNotIn("➔ render-lesson.py", html)
+        self.assertNotIn("➔ advance-cursor.py", html)
+        self.assertNotIn("➔ sync-status.py", html)
+        self.assertNotIn("➔ git-checkpoint.py", html)
+        self.assertNotIn("➔ manage-projects.py", html)
+
+        # 2. Invariant: Unintimidating single-command quickstart is prominent
+        self.assertIn("curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash", html)
+
+        # 3. Invariant: High-value features are proudly displayed
+        self.assertIn("Live Studio Dashboard", html)
+        self.assertIn("Interactive Failure Simulators", html)
+        self.assertIn("Revision Mode &amp; Invariants", html)
+        self.assertIn("Socratic Trade-Off Defense", html)
+        self.assertIn("Study Notes &amp; Live Editor", html)
+        self.assertIn("Reader Mode &amp; Highlighting", html)
+
+        # 4. Invariant: Dark & Light mode toggle and flawless contrast principles
+        self.assertIn("toggleDarkMode()", html)
+        self.assertIn("contrast", html)
+        # Ensure yellow containers don't have white text (contrast failure check)
+        self.assertNotIn("bg-primary-container text-white", html)
+        # Ensure text-surface-dim is not used inside dark cards (WCAG AA contrast fix)
+        self.assertNotIn("text-surface-dim", html)
+
+        # 5. Invariant: CSS Secondary token passes >= 4.5:1 WCAG AA contrast for regular text
+        styles_path = os.path.join(REPO_ROOT, "docs/styles.css")
+        with open(styles_path, "r", encoding="utf-8") as sf:
+            styles = sf.read()
+        self.assertIn("--secondary: #dc2626;", styles)
+        self.assertIn("background-color: #dc2626 !important;", styles)
+
+        # 6. Invariant: Navigation links in curriculum.html are not broken
+        curr_html_path = os.path.join(REPO_ROOT, "docs/curriculum.html")
+        with open(curr_html_path, "r", encoding="utf-8") as cf:
+            curr_html = cf.read()
+        self.assertNotIn("#commands", curr_html)
+        self.assertNotIn("#themes", curr_html)
+        self.assertIn("href=\"index.html#dashboard\"", curr_html)
+        self.assertIn("href=\"index.html#features\"", curr_html)
+
+    # =========================================================================
     # SUITE 9: On-Demand Skill Updater
     # =========================================================================
     def test_09_ondemand_updater(self):
         update_script = os.path.join(REPO_ROOT, "update.sh")
+        nested_update_script = os.path.join(SCRIPTS_DIR, "update.sh")
         proj2_inst = os.path.join(self.sandbox_dir, "proj2-mastery/.system-design")
 
-        res = self.run_cmd(["sh", update_script, f"--instance-dir={proj2_inst}"])
+        # Test root update.sh with space-separated argument
+        res = self.run_cmd(["sh", update_script, "--instance-dir", proj2_inst])
         self.assertIn("System Design Studio updated across", res.stdout)
         self.assertIn("All learning progress and custom user settings were preserved", res.stdout)
+
+        # Test nested update.sh with equals-separated argument
+        res2 = self.run_cmd(["sh", nested_update_script, f"--instance-dir={proj2_inst}"])
+        self.assertIn("System Design Studio updated across", res2.stdout)
 
     # =========================================================================
     # SUITE 10: Checkpoint, Rollback & Project-Scoped Curriculum
@@ -510,6 +848,67 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         # Invariant: User learning instance state and study notes are strictly kept
         self.assertTrue(os.path.isdir(os.path.join(proj2_dir, ".system-design")))
         self.assertTrue(os.path.isdir(os.path.join(proj2_dir, "notes")))
+
+    # =========================================================================
+    # SUITE 12: Dummy Project & Dashboard Launchers
+    # =========================================================================
+    def test_12_dummy_project_and_launcher(self):
+        dummy_dir = os.path.join(REPO_ROOT, "dummy-project")
+        dummy_inst = os.path.join(dummy_dir, ".system-design")
+        verify_script = os.path.join(SCRIPTS_DIR, "verify-instance.py")
+        launch_script = os.path.join(REPO_ROOT, "launch-dummy-dashboard.sh")
+        sds_bin = os.path.join(REPO_ROOT, "bin/sds")
+
+        # 1. Health & Verification of mock project
+        self.assertTrue(os.path.isdir(dummy_inst), "Missing dummy-project/.system-design")
+        v_res = self.run_cmd([sys.executable, verify_script, dummy_inst])
+        self.assertIn("PASSED with 0 errors", v_res.stdout)
+
+        # 2. Verify mock data components
+        self.assertTrue(os.path.isfile(os.path.join(dummy_inst, "revisions.json")))
+        self.assertTrue(os.path.isfile(os.path.join(dummy_inst, "DECISIONS.md")))
+        self.assertTrue(os.path.isfile(os.path.join(dummy_inst, "lessons/0-1-tcp-vs-udp.html.highlights.json")))
+        self.assertTrue(os.path.isfile(os.path.join(dummy_inst, "lessons/0-1-http-1-1-vs-http-2-vs-http-3.html.highlights.json")))
+
+        # 3. Test launch-dummy-dashboard.sh script
+        self.assertTrue(os.path.isfile(launch_script))
+        self.assertTrue(os.access(launch_script, os.X_OK))
+
+        import socket
+        import time
+        import urllib.request
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('127.0.0.1', 0))
+            dummy_port = s.getsockname()[1]
+
+        proc = subprocess.Popen(
+            [launch_script, "--port", str(dummy_port), "--no-browser"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        try:
+            ready = False
+            for _ in range(25):
+                try:
+                    with urllib.request.urlopen(f"http://127.0.0.1:{dummy_port}/api/status", timeout=1.0) as resp:
+                        if resp.status == 200:
+                            data = json.loads(resp.read().decode("utf-8"))
+                            self.assertEqual(data.get("manifest", {}).get("instanceName"), "System Design Dummy Lab")
+                            ready = True
+                            break
+                except Exception:
+                    time.sleep(0.15)
+            self.assertTrue(ready, "launch-dummy-dashboard.sh failed to start within timeout")
+        finally:
+            proc.terminate()
+            try:
+                proc.wait(timeout=2.0)
+            except Exception:
+                proc.kill()
+            if proc.stdout: proc.stdout.close()
+            if proc.stderr: proc.stderr.close()
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
