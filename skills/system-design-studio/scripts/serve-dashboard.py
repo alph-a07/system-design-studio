@@ -1485,6 +1485,94 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       white-space: nowrap;
     }
 
+    /* NOTION-STYLE NOTE EDITOR WORKBENCH */
+    .note-editor-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      background: var(--surface-container-high);
+      border: 1.5px solid var(--border-color);
+      border-bottom: none;
+      flex-wrap: wrap;
+    }
+
+    .notion-tool-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      min-width: 28px;
+      padding: 0 6px;
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: var(--font-headline);
+      font-size: 11px;
+      font-weight: 700;
+      transition: all 0.12s ease;
+    }
+
+    .notion-tool-btn:hover {
+      background: var(--surface-container-highest);
+      color: var(--on-surface);
+      border-color: var(--border-color);
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--border-color);
+      margin: 0 4px;
+    }
+
+    .note-workbench-layout {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      border: 1.5px solid var(--border-color);
+      background: var(--surface);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .note-editor-pane {
+      flex: 1;
+      height: 100%;
+      border: none;
+      background: var(--surface-container);
+      color: var(--on-surface);
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.65;
+      resize: none;
+      outline: none;
+      overflow-y: auto;
+      box-sizing: border-box;
+    }
+
+    .note-preview-pane {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding: 20px 24px;
+      background: var(--surface);
+      box-sizing: border-box;
+      border-left: 1.5px solid var(--border-color);
+    }
+
+    .note-view-pane {
+      flex: 1;
+      height: 100%;
+      overflow-y: auto;
+      padding: 20px 24px;
+      background: var(--surface);
+      box-sizing: border-box;
+    }
+
     /* NOTION TABLE & UNIVERSAL MARKDOWN RENDERING */
     .table-responsive-wrapper {
       width: 100%;
@@ -2804,30 +2892,63 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <button id="note-copy-btn" class="btn-ghost" onclick="copyNoteMarkdown()" title="Copy Markdown to Clipboard">
+          <!-- Mode Switcher Pill Group -->
+          <div class="format-pill-group">
+            <button type="button" id="btn-note-view" class="format-pill-btn active" onclick="setNoteMode('view')" title="Rendered Markdown Preview">
+              <span class="material-symbols-outlined" style="font-size:14px;">visibility</span>
+              <span>Preview</span>
+            </button>
+            <button type="button" id="btn-note-split" class="format-pill-btn" onclick="setNoteMode('split')" title="Side-by-side Editor &amp; Live Preview">
+              <span class="material-symbols-outlined" style="font-size:14px;">vertical_split</span>
+              <span>Split</span>
+            </button>
+            <button type="button" id="btn-note-edit" class="format-pill-btn" onclick="setNoteMode('edit')" title="Full-screen Markdown Editor">
+              <span class="material-symbols-outlined" style="font-size:14px;">edit_note</span>
+              <span>Edit</span>
+            </button>
+          </div>
+
+          <button type="button" id="note-copy-btn" class="btn-ghost" onclick="copyNoteMarkdown()" title="Copy Markdown to Clipboard">
             <span class="material-symbols-outlined" style="font-size:14px;">content_copy</span>
             <span>Copy</span>
           </button>
-          <button id="note-edit-toggle-btn" class="btn-ghost" onclick="toggleNoteEditMode()">
-            <span class="material-symbols-outlined" style="font-size:14px;">edit</span>
-            <span>Edit Markdown</span>
+          <button type="button" id="note-save-btn" class="btn-primary" onclick="saveNoteFromEditor()" style="display:none;" title="Save Note to Disk (⌘S / Ctrl+S)">
+            <span class="material-symbols-outlined" style="font-size:14px;">save</span>
+            <span>Save</span>
           </button>
-          <button class="modal-close-btn" onclick="closeModal('note-modal')">
+          <button type="button" class="modal-close-btn" onclick="closeModal('note-modal')" title="Close (Esc)">
             <span class="material-symbols-outlined">close</span>
           </button>
         </div>
       </div>
-      <div id="note-view-body" class="md-rendered" style="flex:1; overflow-y:auto; padding:12px 4px; font-size:13px;"></div>
-      <textarea id="note-edit-body" class="form-input" style="flex:1; min-height:360px; font-family:var(--font-mono); font-size:12px; display:none;"></textarea>
-      <div id="note-edit-actions" style="display:none; justify-content:flex-end; gap:8px; margin-top:14px;">
-        <button class="btn-ghost" onclick="toggleNoteEditMode()">
-          <span class="material-symbols-outlined" style="font-size:14px;">close</span>
-          <span>Cancel</span>
-        </button>
-        <button class="btn-primary" onclick="saveNoteFromEditor()">
-          <span class="material-symbols-outlined" style="font-size:14px;">save</span>
-          <span>Save Note to Disk</span>
-        </button>
+
+      <!-- Notion Toolbar (Active in edit / split mode) -->
+      <div id="note-editor-toolbar" class="note-editor-toolbar" style="display:none;">
+        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('**', '**')" title="Bold (⌘B)"><span class="material-symbols-outlined" style="font-size:15px;">format_bold</span></button>
+        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('*', '*')" title="Italic (⌘I)"><span class="material-symbols-outlined" style="font-size:15px;">format_italic</span></button>
+        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('~~', '~~')" title="Strikethrough"><span class="material-symbols-outlined" style="font-size:15px;">strikethrough_s</span></button>
+        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('`', '`')" title="Inline Code"><span class="material-symbols-outlined" style="font-size:15px;">code</span></button>
+        <div class="toolbar-divider"></div>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('# ')" title="Heading 1">H1</button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('## ')" title="Heading 2">H2</button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('### ')" title="Heading 3">H3</button>
+        <div class="toolbar-divider"></div>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('- ')" title="Bullet List"><span class="material-symbols-outlined" style="font-size:15px;">format_list_bulleted</span></button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('1. ')" title="Numbered List"><span class="material-symbols-outlined" style="font-size:15px;">format_list_numbered</span></button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('- [ ] ')" title="Task Checklist"><span class="material-symbols-outlined" style="font-size:15px;">check_box</span></button>
+        <div class="toolbar-divider"></div>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('> ')" title="Quote"><span class="material-symbols-outlined" style="font-size:15px;">format_quote</span></button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteSnippet('> [!NOTE]\n> ')" title="Callout Alert"><span class="material-symbols-outlined" style="font-size:15px;">crisis_alert</span></button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteTableTemplate()" title="Insert Table"><span class="material-symbols-outlined" style="font-size:15px;">table_chart</span></button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteCodeBlockTemplate()" title="Insert Code Block"><span class="material-symbols-outlined" style="font-size:15px;">terminal</span></button>
+        <button type="button" class="notion-tool-btn" onclick="insertNoteSynthesisTemplate()" title="Insert SDS Invariant Template"><span class="material-symbols-outlined" style="font-size:15px;">auto_stories</span></button>
+      </div>
+
+      <!-- Workbench Body: View Pane, Editor Pane, and Split Preview Pane -->
+      <div class="note-workbench-layout" style="margin-top:12px;">
+        <div id="note-view-body" class="md-rendered note-view-pane" style="display:block;"></div>
+        <textarea id="note-edit-body" class="note-editor-pane" style="display:none;" placeholder="Write architecture study notes in Notion-grade Markdown..." oninput="handleNoteLiveInput()"></textarea>
+        <div id="note-split-preview" class="md-rendered note-preview-pane" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -4430,15 +4551,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (pathText) pathText.innerText = `notes/${resolvedPath}`;
       if (pathBadge) pathBadge.title = `notes/${resolvedPath}`;
       if (statsText) statsText.innerHTML = `Loading...`;
+      setNoteMode('view');
       openModal('note-modal');
 
       const viewBody = document.getElementById('note-view-body');
       const editBody = document.getElementById('note-edit-body');
-      viewBody.style.display = 'block';
-      editBody.style.display = 'none';
-      document.getElementById('note-edit-actions').style.display = 'none';
-      document.getElementById('note-edit-toggle-btn').innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">edit</span><span>Edit Markdown</span>';
-      noteInEditMode = false;
 
       viewBody.innerHTML = '<div style="font-family:var(--font-mono);">Loading note...</div>';
       try {
@@ -4452,7 +4569,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           editBody.value = content;
         } else {
           if (statsText) statsText.innerHTML = `New Note`;
-          viewBody.innerHTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant);">No note recorded yet for this topic. Click "Edit Markdown" to create one.</div>';
+          viewBody.innerHTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant);">No note recorded yet for this topic. Switch to Edit or Split mode to create one.</div>';
           editBody.value = `# System Architecture Notes: ${topicTitle || topicId}
 
 ## Invariant Defended
@@ -4469,29 +4586,143 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       openTopicNote('general', `quick-note-${Date.now()}`, 'Quick Note');
     }
 
-    function toggleNoteEditMode() {
-      noteInEditMode = !noteInEditMode;
+    // Notion-Grade Markdown Note Workbench Engine
+    let currentNoteMode = 'view'; // 'view' | 'split' | 'edit'
+
+    function setNoteMode(mode) {
+      currentNoteMode = mode;
       const viewBody = document.getElementById('note-view-body');
       const editBody = document.getElementById('note-edit-body');
-      const actions = document.getElementById('note-edit-actions');
-      const toggleBtn = document.getElementById('note-edit-toggle-btn');
+      const splitPreview = document.getElementById('note-split-preview');
+      const toolbar = document.getElementById('note-editor-toolbar');
+      const saveBtn = document.getElementById('note-save-btn');
 
-      if (noteInEditMode) {
-        viewBody.style.display = 'none';
-        editBody.style.display = 'block';
-        actions.style.display = 'flex';
-        toggleBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">visibility</span><span>Preview Mode</span>';
+      const btnView = document.getElementById('btn-note-view');
+      const btnSplit = document.getElementById('btn-note-split');
+      const btnEdit = document.getElementById('btn-note-edit');
+
+      if (btnView) btnView.classList.toggle('active', mode === 'view');
+      if (btnSplit) btnSplit.classList.toggle('active', mode === 'split');
+      if (btnEdit) btnEdit.classList.toggle('active', mode === 'edit');
+
+      if (mode === 'view') {
+        if (toolbar) toolbar.style.display = 'none';
+        if (saveBtn) saveBtn.style.display = 'none';
+        if (viewBody) {
+          viewBody.style.display = 'block';
+          viewBody.innerHTML = renderMarkdown(editBody.value);
+        }
+        if (editBody) editBody.style.display = 'none';
+        if (splitPreview) splitPreview.style.display = 'none';
+      } else if (mode === 'split') {
+        if (toolbar) toolbar.style.display = 'flex';
+        if (saveBtn) saveBtn.style.display = 'inline-flex';
+        if (viewBody) viewBody.style.display = 'none';
+        if (editBody) {
+          editBody.style.display = 'block';
+          editBody.style.flex = '1';
+        }
+        if (splitPreview) {
+          splitPreview.style.display = 'block';
+          splitPreview.style.flex = '1';
+          splitPreview.innerHTML = renderMarkdown(editBody.value);
+        }
+        editBody.focus();
+      } else if (mode === 'edit') {
+        if (toolbar) toolbar.style.display = 'flex';
+        if (saveBtn) saveBtn.style.display = 'inline-flex';
+        if (viewBody) viewBody.style.display = 'none';
+        if (splitPreview) splitPreview.style.display = 'none';
+        if (editBody) {
+          editBody.style.display = 'block';
+          editBody.style.flex = '1';
+          editBody.focus();
+        }
+      }
+      handleNoteLiveInput();
+    }
+
+    function toggleNoteEditMode() {
+      if (currentNoteMode === 'view') {
+        setNoteMode('split');
       } else {
-        viewBody.innerHTML = renderMarkdown(editBody.value);
-        viewBody.style.display = 'block';
-        editBody.style.display = 'none';
-        actions.style.display = 'none';
-        toggleBtn.innerHTML = '<span class="material-symbols-outlined" style="font-size:14px;">edit</span><span>Edit Markdown</span>';
+        setNoteMode('view');
       }
     }
 
+    function handleNoteLiveInput() {
+      const editBody = document.getElementById('note-edit-body');
+      const splitPreview = document.getElementById('note-split-preview');
+      const statsText = document.getElementById('note-stats-text');
+      const content = editBody ? editBody.value : '';
+
+      if (currentNoteMode === 'split' && splitPreview) {
+        splitPreview.innerHTML = renderMarkdown(content);
+      }
+
+      if (statsText) {
+        const words = content.trim().split(/\s+/).filter(Boolean).length;
+        const readTime = Math.max(1, Math.ceil(words / 200));
+        statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
+      }
+    }
+
+    function wrapNoteSelection(before, after) {
+      const ta = document.getElementById('note-edit-body');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const text = ta.value;
+      const selected = text.slice(start, end) || 'text';
+      ta.value = text.slice(0, start) + before + selected + after + text.slice(end);
+      ta.selectionStart = start + before.length;
+      ta.selectionEnd = start + before.length + selected.length;
+      ta.focus();
+      handleNoteLiveInput();
+    }
+
+    function insertNoteLinePrefix(prefix) {
+      const ta = document.getElementById('note-edit-body');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const text = ta.value;
+      const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+      ta.value = text.slice(0, lineStart) + prefix + text.slice(lineStart);
+      ta.selectionStart = ta.selectionEnd = start + prefix.length;
+      ta.focus();
+      handleNoteLiveInput();
+    }
+
+    function insertNoteSnippet(snippet) {
+      const ta = document.getElementById('note-edit-body');
+      if (!ta) return;
+      const start = ta.selectionStart;
+      const end = ta.selectionEnd;
+      const text = ta.value;
+      ta.value = text.slice(0, start) + snippet + text.slice(end);
+      ta.selectionStart = ta.selectionEnd = start + snippet.length;
+      ta.focus();
+      handleNoteLiveInput();
+    }
+
+    function insertNoteTableTemplate() {
+      const tpl = `\n| Architectural Trade-Off | Operational Decision Rule | Production Bound / Sizing |\n|:---|:---|:---|\n| Ordering vs. HOL Blocking | QUIC multiplexing when independent | Buffer sizing = BDP (RTT × BW) |\n| Connection Lifecycle | Pre-warm TLS connection pool | Ephemeral port floor (65,535) |\n\n`;
+      insertNoteSnippet(tpl);
+    }
+
+    function insertNoteCodeBlockTemplate() {
+      const tpl = `\n\`\`\`text\n+--------------------+     1 RTT Handshake     +--------------------+\n| Client Application | ----------------------> | Upstream Load Bal. |\n+--------------------+ <---------------------- +--------------------+\n\`\`\`\n\n`;
+      insertNoteSnippet(tpl);
+    }
+
+    function insertNoteSynthesisTemplate() {
+      const tpl = `\n## 1. Ground Truth & First Principles\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Active Defense & Invariant Derived\n> [!INVARIANT]\n> Non-negotiable physical or mathematical invariant deduced under dialetical pressure.\n\n## 3. Production Trade-Off & Sizing Matrix\n| Architectural Trade-Off | Decision Rule | Production Sizing Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads with bounded staleness | Tail SLA < 15ms @ p99 |\n\n`;
+      insertNoteSnippet(tpl);
+    }
+
     async function saveNoteFromEditor() {
-      const content = document.getElementById('note-edit-body').value;
+      const editBody = document.getElementById('note-edit-body');
+      const content = editBody ? editBody.value : '';
       try {
         const res = await fetch('/api/note', {
           method: 'POST',
@@ -4499,12 +4730,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({ path: activeNoteRelPath, content: content })
         });
         if (res.ok) {
-          toggleNoteEditMode();
-          showToast('Note saved to disk');
+          const viewBody = document.getElementById('note-view-body');
+          if (viewBody) viewBody.innerHTML = renderMarkdown(content);
+          showToast('Note saved to git repository');
           refreshData();
+        } else {
+          showToast('Failed to save note');
         }
       } catch (e) {
-        alert('Failed to save note');
+        showToast('Network error saving note');
       }
     }
 
@@ -4790,6 +5024,39 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       initTheme();
       refreshData();
       setupSSE();
+
+      // Notion Markdown Editor Keyboard Shortcuts (Tab indent, Shift+Tab, Cmd+B, Cmd+I, Cmd+S)
+      const noteTa = document.getElementById('note-edit-body');
+      if (noteTa) {
+        noteTa.addEventListener('keydown', (e) => {
+          if (e.key === 'Tab') {
+            e.preventDefault();
+            const start = noteTa.selectionStart;
+            const end = noteTa.selectionEnd;
+            if (e.shiftKey) {
+              const text = noteTa.value;
+              const lineStart = text.lastIndexOf('\n', start - 1) + 1;
+              if (text.substr(lineStart, 2) === '  ') {
+                noteTa.value = text.slice(0, lineStart) + text.slice(lineStart + 2);
+                noteTa.selectionStart = noteTa.selectionEnd = Math.max(lineStart, start - 2);
+              }
+            } else {
+              noteTa.value = noteTa.value.substring(0, start) + '  ' + noteTa.value.substring(end);
+              noteTa.selectionStart = noteTa.selectionEnd = start + 2;
+            }
+            handleNoteLiveInput();
+          } else if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            saveNoteFromEditor();
+          } else if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+            e.preventDefault();
+            wrapNoteSelection('**', '**');
+          } else if ((e.ctrlKey || e.metaKey) && (e.key === 'i' || e.key === 'I')) {
+            e.preventDefault();
+            wrapNoteSelection('*', '*');
+          }
+        });
+      }
 
       // Backdrop dismissal on outside click for all dialog modals
       document.querySelectorAll('.modal-overlay').forEach(overlay => {
