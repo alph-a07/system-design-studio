@@ -42,6 +42,18 @@ def find_available_port(start_port=DEFAULT_PORT, max_tries=20):
                 return port
     return start_port
 
+def get_local_network_ip():
+    """Detects primary LAN IPv4 address for auto-hosting on network."""
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("8.8.8.8", 80))
+            return s.getsockname()[0]
+    except Exception:
+        try:
+            return socket.gethostbyname(socket.gethostname())
+        except Exception:
+            return "127.0.0.1"
+
 def get_home_dir():
     return os.environ.get("HOME") or os.environ.get("USERPROFILE") or os.path.expanduser("~")
 
@@ -1794,21 +1806,27 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       display: flex;
       align-items: center;
       gap: 8px;
+      background: transparent !important;
     }
-    .status-option-title.status-verified {
+    .status-option-title.opt-title-verified {
       color: #059669 !important;
+      background: transparent !important;
     }
-    html.dark .status-option-title.status-verified {
+    html.dark .status-option-title.opt-title-verified {
       color: #34d399 !important;
+      background: transparent !important;
     }
-    .status-option-title.status-active {
+    .status-option-title.opt-title-active {
       color: var(--primary-container) !important;
+      background: transparent !important;
     }
-    .status-option-title.status-not-started {
+    .status-option-title.opt-title-not-started {
       color: var(--on-surface) !important;
+      background: transparent !important;
     }
-    html.dark .status-option-title.status-not-started {
+    html.dark .status-option-title.opt-title-not-started {
       color: #f0f6fc !important;
+      background: transparent !important;
     }
 
     .status-option-desc {
@@ -3257,7 +3275,41 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       .sync-micro-badge span:last-child { display: none; }
     }
 
+    /* TACTILE CONTENT-HUGGING SELECTION (PREVENTS FULL-VIEWPORT HIGHLIGHT SPAN) */
+    ::selection {
+      background-color: rgba(0, 229, 255, 0.28) !important;
+      color: inherit !important;
+    }
+    html.dark ::selection {
+      background-color: rgba(0, 229, 255, 0.32) !important;
+      color: inherit !important;
+    }
+
     /* MARKDOWN STYLES FOR NOTES & LESSONS */
+    .md-rendered p,
+    .md-rendered h1,
+    .md-rendered h2,
+    .md-rendered h3,
+    .md-rendered h4,
+    .md-rendered h5,
+    .md-rendered h6,
+    .md-rendered li,
+    .lesson-artifact-view p,
+    .lesson-artifact-view h1,
+    .lesson-artifact-view h2,
+    .lesson-artifact-view h3,
+    .lesson-artifact-view h4,
+    .lesson-artifact-view li,
+    .note-view-pane p,
+    .note-view-pane h1,
+    .note-view-pane h2,
+    .note-view-pane h3,
+    .note-view-pane h4,
+    .note-view-pane li {
+      width: fit-content;
+      max-width: 100%;
+    }
+
     .md-rendered h1 { font-family: var(--font-headline); font-size: 26px; font-weight: 800; margin: 24px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid var(--border-color); }
     .md-rendered h2 { font-family: var(--font-headline); font-size: 20px; font-weight: 700; margin: 20px 0 10px 0; padding-bottom: 6px; border-bottom: 1px solid var(--border-color); }
     .md-rendered h3 { font-family: var(--font-headline); font-size: 16px; font-weight: 700; margin: 16px 0 8px 0; }
@@ -3923,7 +3975,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <span class="material-symbols-outlined" style="color:#10b981; font-size:24px; flex-shrink:0;">check_circle</span>
             <div style="text-align:left; min-width:0;">
-              <div class="status-option-title status-verified" style="color:#10b981;">VERIFIED</div>
+              <div class="status-option-title opt-title-verified" style="color:#10b981;">VERIFIED</div>
               <div class="status-option-desc">Invariant defended &amp; recorded in manifest</div>
             </div>
           </div>
@@ -3937,7 +3989,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <span class="material-symbols-outlined" style="color:var(--primary-container); font-size:24px; flex-shrink:0;">pending</span>
             <div style="text-align:left; min-width:0;">
-              <div class="status-option-title status-active" style="color:var(--primary-container);">ACTIVE FOCUS</div>
+              <div class="status-option-title opt-title-active" style="color:var(--primary-container);">ACTIVE FOCUS</div>
               <div class="status-option-desc">Currently learning or in active dialectic</div>
             </div>
           </div>
@@ -3951,7 +4003,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <span class="material-symbols-outlined" style="color:var(--on-surface-variant); font-size:24px; flex-shrink:0;">radio_button_unchecked</span>
             <div style="text-align:left; min-width:0;">
-              <div class="status-option-title status-not-started" style="color:var(--on-surface);">NOT STARTED</div>
+              <div class="status-option-title opt-title-not-started" style="color:var(--on-surface);">NOT STARTED</div>
               <div class="status-option-desc">Unseen curriculum topic</div>
             </div>
           </div>
@@ -5543,6 +5595,14 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const st = doc.createElement('style');
       st.id = 'sds-highlight-styles';
       st.textContent = `
+        ::selection {
+          background-color: rgba(0, 229, 255, 0.28) !important;
+          color: inherit !important;
+        }
+        p, h1, h2, h3, h4, h5, h6, li {
+          width: fit-content !important;
+          max-width: 100% !important;
+        }
         .sds-highlight {
           border-radius: 2px;
           padding: 1px 3px;
@@ -7519,6 +7579,20 @@ html:not(.dark) ::-webkit-scrollbar-track {{
 html:not(.dark) ::-webkit-scrollbar-thumb {{
   background: #cbd5e1 !important;
 }}
+
+/* Clean, content-hugging text selection inside lessons */
+::selection {{
+  background-color: rgba(0, 229, 255, 0.28) !important;
+  color: inherit !important;
+}}
+html.dark ::selection {{
+  background-color: rgba(0, 229, 255, 0.32) !important;
+  color: inherit !important;
+}}
+p, h1, h2, h3, h4, h5, h6, li {{
+  width: fit-content !important;
+  max-width: 100% !important;
+}}
 </style>
 <script id="sds-theme-listener">
 (function() {{
@@ -8076,6 +8150,7 @@ def main():
     parser.add_argument("--project-id", default=None, help="Target registered project ID")
     parser.add_argument("--port", type=int, default=None, help="Port to serve dashboard on")
     parser.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
+    parser.add_argument("--network", action="store_true", help="Expose dashboard on local network (binds to 0.0.0.0)")
     args = parser.parse_args()
 
     inst_dir = resolve_instance_dir(raw_dir=args.instance_dir, project_id=args.project_id)
@@ -8091,11 +8166,16 @@ def main():
     StudioDashboardHandler.base_dir = base_dir
     StudioDashboardHandler.pinned_instance = bool(args.instance_dir or args.project_id)
 
-    server = StudioHTTPServer(("127.0.0.1", port), StudioDashboardHandler)
+    host = "0.0.0.0" if args.network else "127.0.0.1"
+    server = StudioHTTPServer((host, port), StudioDashboardHandler)
     server.daemon_threads = True
     url = f"http://127.0.0.1:{port}"
 
     print(f"[*] System Design Studio Dashboard active at: {url}")
+    if args.network:
+        lan_ip = get_local_network_ip()
+        network_url = f"http://{lan_ip}:{port}"
+        print(f"[+] Network access:                           {network_url}")
     print(f"[-] Instance Directory: {inst_dir}")
     print(f"[-] Workspace Directory: {base_dir}")
     print("Press Ctrl+C to stop.")

@@ -359,9 +359,18 @@
     #hl-status-pill.show { opacity: 1; transform: translateY(0); }
     #hl-status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     #hl-status-pill.ok { color: #22c55e; }
+    /* Content-hugging selection that never spans the entire viewport */
+    ::selection {
+      background-color: rgba(0, 229, 255, 0.28) !important;
+      color: inherit !important;
+    }
+    p, h1, h2, h3, h4, h5, h6, li {
+      width: fit-content;
+      max-width: 100%;
+    }
   </style>
 </head>
-<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased selection:bg-[var(--primary)] selection:text-white p-4 md:p-8 min-h-screen">
+<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased p-4 md:p-8 min-h-screen">
 
   <!-- ══ BUILT-IN ACTIVE LEARNING HIGHLIGHTER ══════════════════════════ -->
   <div id="hl-toolbar" role="toolbar" aria-label="Highlighter">
