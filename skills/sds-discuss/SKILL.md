@@ -4,7 +4,7 @@ description: Engage in active learning Socratic dialectic and stress-test trade-
 argument-hint: "[defense]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.4.0
+  version: 3.5.0
 ---
 
 # /sds-discuss — Socratic Dialectic & Trade-Off Defense
