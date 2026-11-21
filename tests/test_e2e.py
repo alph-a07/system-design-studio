@@ -190,6 +190,8 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
     def test_03_lesson_rendering_themes_and_formats(self):
         render_script = os.path.join(SCRIPTS_DIR, "render-lesson.py")
         proj1_inst = os.path.join(self.sandbox_dir, "proj1-interview/.system-design")
+        # Fixture used explicitly as reference payload — render-lesson no longer auto-serves fixtures
+        tcp_fixture = os.path.join(SCRIPTS_DIR, "..", "resources", "examples", "lessons", "0-1-tcp-vs-udp.json")
 
         # 1. Test all 5 themes in HTML mode
         themes = ["slate-clean", "editorial-paper", "midnight-neon", "nordic-frost", "warm-amber"]
@@ -199,7 +201,8 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
                 "--topic-id", "topic.0.1.tcp-vs-udp",
                 "--instance-dir", proj1_inst,
                 "--style", theme,
-                "--format", "html"
+                "--format", "html",
+                "--data-file", tcp_fixture,
             ])
             self.assertIn("Lesson rendered to", res.stdout)
             html_file = os.path.join(proj1_inst, "lessons/0-1-tcp-vs-udp.html")
@@ -216,7 +219,8 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
             sys.executable, render_script,
             "--topic-id", "topic.0.1.tcp-vs-udp",
             "--instance-dir", proj1_inst,
-            "--format", "markdown"
+            "--format", "markdown",
+            "--data-file", tcp_fixture,
         ])
         self.assertIn("Format: Markdown Clean", res_md.stdout)
         md_file = os.path.join(proj1_inst, "lessons/0-1-tcp-vs-udp.md")

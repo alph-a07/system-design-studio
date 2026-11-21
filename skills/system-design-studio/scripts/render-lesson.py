@@ -876,76 +876,6 @@ def format_topic_title(raw_id, raw_title=None):
 
 
 
-def locate_resource_fixture(topic_id, slug):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    candidates = [
-        os.path.join(script_dir, "..", "resources", "examples", "lessons", f"{slug}.json"),
-        os.path.join(script_dir, "..", "resources", "examples", "lessons", f"{topic_id}.json"),
-        os.path.join(os.getcwd(), "skills", "system-design-studio", "resources", "examples", "lessons", f"{slug}.json"),
-    ]
-    slug_no_prefix = re.sub(r"^\d+-\d+-", "", slug)
-    if slug_no_prefix != slug:
-        candidates.append(os.path.join(script_dir, "..", "resources", "examples", "lessons", f"{slug_no_prefix}.json"))
-
-    for c in candidates:
-        norm = os.path.normpath(c)
-        if os.path.exists(norm):
-            try:
-                with open(norm, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            except Exception:
-                pass
-    return None
-
-def generate_scaffold_data(topic_id, title=None, cluster=None, tier=None):
-    clean_title = format_topic_title(topic_id, title)
-    return {
-        "PAGE_TITLE": f"Topic — {clean_title}",
-        "TIER_BADGE": tier or "Tier 0 · System Design Core",
-        "CLUSTER_BADGE": cluster or "Foundation Mechanism",
-        "LESSON_TITLE": clean_title,
-        "LESSON_SUBTITLE": "A first-principles, causal breakdown of physical constraints, failure modes, and architectural trade-offs.",
-        "SECTION_1_TITLE": f"1. Background Context & Core Dilemma: What Breaks Without {clean_title}",
-        "SECTION_1_BODY": f"""
-        <div class="editorial-lead">
-          Every distributed system begins with the laws of physical hardware: finite network bandwidth, non-zero speed of light, and uncoordinated machines.
-        </div>
-        <p>
-          Before analyzing the software machinery of <strong>{clean_title}</strong>, we must isolate the concrete dilemma that exists when this abstraction is missing.
-        </p>
-        """,
-        "SECTION_2_TITLE": f"2. The Core Abstraction & Boundary Placement",
-        "SECTION_2_BODY": f"""
-        <p>
-          Positioned directly between transport/storage primitives and domain application logic, governing queue allocations and invariant enforcement.
-        </p>
-        """,
-        "SECTION_3_TITLE": f"3. Internal Mechanics, Invariants & Causality",
-        "SECTION_3_BODY": f"""
-        <p>
-          How <strong>{clean_title}</strong> operates under the hood, why alternatives fail, and what invariants it guarantees.
-        </p>
-        """,
-        "SECTION_4_TITLE": f"4. Production Grounding & Trade-Offs",
-        "SECTION_4_BODY": f"""
-        <p>
-          Real-world production trade-offs and domain applications for <strong>{clean_title}</strong>.
-        </p>
-        """,
-        "SECTION_5_TITLE": f"5. Active Defense Gate: Real-World Incident Scenario",
-        "SECTION_5_BODY": f"""
-        <div class="callout-box callout-trap">
-          <h4 class="font-bold text-[var(--foreground)] text-base m-0">Production Incident Scenario</h4>
-          <p class="text-sm text-[var(--muted-foreground)] leading-relaxed">
-            A production incident occurs exposing the core trade-off of {clean_title}. Discuss and defend your architectural breakdown in chat using <code>/sds-discuss</code>.
-          </p>
-        </div>
-        """,
-        "BACKWARD_ANCHOR": "Prerequisite foundational mechanisms",
-        "FORWARD_HOOK": "Downstream distributed systems invariants",
-        "EMBEDDED_JAVASCRIPT": "// Bespoke simulator code or interactive logic"
-    }
-
 def html_table_to_markdown(match):
     table_html = match.group(0)
     rows = re.findall(r'<tr[^>]*>([\s\S]*?)</tr>', table_html, flags=re.IGNORECASE)
@@ -1350,9 +1280,13 @@ def main():
         else:
             data = json.loads(args.data)
     else:
-        data = locate_resource_fixture(args.topic_id, slug)
-        if not data:
-            data = generate_scaffold_data(args.topic_id, args.title, args.cluster, args.tier)
+        print(
+            "[!] render-lesson: No lesson payload provided.\n"
+            "    Pass --data-file <path> or --data <json> with the LLM-generated lesson content.\n"
+            "    Fixture examples in resources/examples/lessons/ are reference material for the LLM — not served directly.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
 
     # Normalize keys to uppercase for template substitution
     normalized_data = {}
