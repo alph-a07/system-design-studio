@@ -1242,6 +1242,7 @@ def main():
     parser.add_argument("--instance-dir", "--settings", dest="settings", help="Path to settings.json or .system-design directory")
     parser.add_argument("--data-file", "--spec", dest="data_file", help="Path to JSON file containing lesson content")
     parser.add_argument("--data", help="Inline JSON string or '-' to read lesson payload from stdin")
+    parser.add_argument("--allow-reference-fixture", action="store_true", help="Internal/Test only: Allow direct rendering of static reference fixtures")
     parser.add_argument("--template", help="Path to custom HTML template")
     parser.add_argument("--output-dir", help="Output directory (defaults to lessonsDir in settings.json or .system-design/lessons)")
     parser.add_argument("--brain-dir", help="App data artifact directory (<appDataDir>/brain/<id>)")
@@ -1271,7 +1272,23 @@ def main():
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
     data = None
 
-    if args.data_file and os.path.exists(args.data_file):
+    if args.data_file:
+        if not os.path.exists(args.data_file):
+            print(f"[!] render-lesson ERROR: Specified payload file '{args.data_file}' does not exist.", file=sys.stderr)
+            sys.exit(1)
+
+        abs_data_path = os.path.abspath(args.data_file)
+        if ("resources" in abs_data_path and "examples" in abs_data_path) and not args.allow_reference_fixture:
+            print(
+                "[!] render-lesson FATAL: Direct serving of reference fixtures is strictly forbidden!\n"
+                f"    Target path: {args.data_file}\n"
+                "    Fixtures in resources/examples/ are reference blueprints for the LLM crafter only.\n"
+                "    The agent must invoke 'sds-lesson-crafter' to author a personalized lesson,\n"
+                "    save the LLM-authored JSON payload, and pass the generated file to render-lesson.py.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+
         with open(args.data_file, "r", encoding="utf-8") as f:
             data = json.load(f)
     elif args.data:

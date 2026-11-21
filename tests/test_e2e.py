@@ -203,6 +203,7 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
                 "--style", theme,
                 "--format", "html",
                 "--data-file", tcp_fixture,
+                "--allow-reference-fixture"
             ])
             self.assertIn("Lesson rendered to", res.stdout)
             html_file = os.path.join(proj1_inst, "lessons/0-1-tcp-vs-udp.html")
@@ -221,6 +222,7 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
             "--instance-dir", proj1_inst,
             "--format", "markdown",
             "--data-file", tcp_fixture,
+            "--allow-reference-fixture"
         ])
         self.assertIn("Format: Markdown Clean", res_md.stdout)
         md_file = os.path.join(proj1_inst, "lessons/0-1-tcp-vs-udp.md")
@@ -230,6 +232,16 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertIn("# TCP vs UDP", md_content)
         self.assertIn("```mermaid", md_content)
         self.assertNotIn("<!DOCTYPE html>", md_content)
+
+        # 3. Verify that passing reference fixtures directly WITHOUT --allow-reference-fixture is hard-rejected
+        res_reject = self.run_cmd([
+            sys.executable, render_script,
+            "--topic-id", "topic.0.1.tcp-vs-udp",
+            "--instance-dir", proj1_inst,
+            "--data-file", tcp_fixture
+        ], check=False)
+        self.assertNotEqual(res_reject.returncode, 0)
+        self.assertIn("Direct serving of reference fixtures is strictly forbidden", res_reject.stderr)
 
     # =========================================================================
     # SUITE 4: Learning Lifecycle (Advance Cursor, Sync Status, Notes & ADRs)

@@ -143,44 +143,82 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
      2. **Audit Protocol Notation Leakage**: Ensure notation or identifier conventions introduced for one protocol/version (e.g. odd-numbered stream IDs in HTTP/2) do not bleed backward or forward into adjacent discussions of different protocols (e.g. HTTP/1.1 pipelined requests, which lack stream IDs and must be numbered sequentially as #1, #2, #3).
      3. **Verify Tipping-Point & Arithmetic Thresholds**: Recompute any performance tipping points (e.g. query planner scan thresholds, bandwidth-delay products, or receive window limits) against physical hardware and network formulas, rather than asserting arbitrary cutoffs.
 
+## 🚨 MANDATORY EXECUTION PROTOCOL: SUBAGENT DELEGATION & ZERO STATIC SERVING
+
+When executing `/sds-teach`:
+
+1. **SUBAGENT INVOCATION IS REQUIRED**:
+   - In Antigravity (and any environment where `invoke_subagent` is available in your tool set), you MUST invoke `sds-lesson-crafter` via `invoke_subagent`.
+   - You are STRICTLY FORBIDDEN from generating or compiling a lesson in the coordinator turn without delegating to `sds-lesson-crafter`.
+   - Never skip subagents to take a shortcut. The user expects full autonomous subagent collaboration.
+
+2. **STATIC FIXTURES ARE FOR CALIBRATION ONLY — NEVER SERVED DIRECTLY**:
+   - The files in `resources/examples/lessons/*.json` are REFERENCE BLUEPRINTS ONLY. They demonstrate structural depth, simulator design, and tone.
+   - You are STRICTLY FORBIDDEN from passing files in `resources/examples/` directly to `render-lesson.py`. `render-lesson.py` will actively abort with an error if you attempt to do so.
+   - The lesson payload passed to `render-lesson.py` MUST be a freshly authored JSON payload created by `sds-lesson-crafter` that is personalized to:
+     a) The user's active curriculum track (e.g. `full-mastery` vs `interview-sprint`).
+     b) Topics already completed by this learner (building on them without re-explaining).
+     c) Topics deferred with anchor notes (addressing known gaps).
+     d) The learner's initial hypothesis on the central dilemma.
+     e) Backward anchors and forward hooks in the curriculum chain.
+
 ## Execution Sequence
 
-### Mode A: Subagent Orchestration (When Subagent Invocation is Supported)
-1. **Context Resolution (Coordinator - Inlined)**:
-   - Target Topic: If `$ARGUMENTS` is provided (e.g. `0.1` or `topic.0.1.tcp-vs-udp`), resolve from `CURRICULUM.md`. Otherwise, read `activeFocus.topicId` from `.system-design/CURSOR.md`.
-   - Settings: Inspect `.system-design/settings.json` for `outputType` (`html` or `markdown`), `artifactStyle`, and `paths.lessonsDir`.
-   - Active Dialogue: Prompt the learner for their initial hypothesis on the central dilemma.
+### Step 1: Inlined Context Resolution & Hypothesis Gate (Coordinator)
+- **Target Topic**: Resolve from `$ARGUMENTS` or read `activeFocus.topicId` from `.system-design/CURSOR.md`.
+- **Curriculum Context**: Read `CURRICULUM.md` to extract:
+  - Active Track name
+  - Tier & Cluster name
+  - Specific `— *Tick off when:*` sign-off condition
+  - Backward anchor topic & forward hook topic
+- **Learner Progress & History**: Read `.system-design/CURSOR.md`:
+  - `completedTopics` (established mental models to build upon)
+  - `deferredQueue` (known gaps or parked questions)
+  - `examplesTaken` (established real-world metaphors to maintain continuity)
+- **Reference Fixture Inspection**:
+  - Check if a reference fixture exists at `~/.system-design-studio/skills/system-design-studio/resources/examples/lessons/<slug>.json`.
+  - If present, read its contents. Pass it into the subagent prompt as `Reference Structural Blueprint (For depth/simulator calibration ONLY)`.
+- **Learner Hypothesis Prompt**:
+  - In your chat turn, prompt the learner for their initial working hypothesis on the topic's core dilemma before handing over the solution:
+    *"Before we inspect the internal mechanics of [Topic], what is your initial intuition on [Concrete Dilemma]?"*
 
-2. **Delegated Content Generation (`sds-lesson-crafter`)**:
-   - Invoke `sds-lesson-crafter` with the resolved topic context and curriculum requirements.
-   - Crafter produces the full 2,500+ word structured lesson payload JSON (dilemma, mental model, mechanical trace, failure modes, inline jargon cards, and tactile simulator config).
+### Step 2: Mandatory Subagent Delegation (`sds-lesson-crafter`)
+- Call `invoke_subagent`:
+  ```json
+  {
+    "TypeName": "sds-lesson-crafter",
+    "Role": "Deep Causal Lesson Author",
+    "Prompt": "<Comprehensive prompt containing topic details, curriculum track, completed topics to reference, learner hypothesis, and reference fixture for calibration>"
+  }
+  ```
+- The subagent crafts a completely fresh, 2,500+ word structured lesson JSON payload following all 15 pedagogical invariants.
 
-3. **Adversarial Pedagogical Audit (`sds-pedagogy-auditor`)**:
-   - Invoke `sds-pedagogy-auditor` to audit the draft payload against derived math, term ordering, unhedged absolutes, and 1:1 sign-off gate alignment.
-   - If revisions required, crafter amends the payload until `APPROVED`.
+### Step 3: Adversarial Pedagogical Audit (`sds-pedagogy-auditor`)
+- Invoke `sds-pedagogy-auditor` to verify derived math, term ordering, and 1:1 sign-off gate alignment.
+- Crafter amends payload if any flaws are flagged until `APPROVED`.
 
-4. **Deterministic Script Compilation (`render-lesson.py`)**:
-   - Compile the approved JSON payload via the studio lesson rendering engine:
-     ```bash
-     python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
-       --topic-id <topic-id> \
-       --format <html|markdown> \
-       --style <theme> \
-       --data-file <payload.json>
-     ```
-   - Target path: `<project-root>/.system-design/lessons/<slug>.<ext>`
-   - In **Antigravity**: Stage the artifact to `<appDataDir>/brain/<conversation-id>/<slug>.html` (or `.md`) and surface it in chat.
+### Step 4: Deterministic Compilation (`render-lesson.py`)
+- Save the approved JSON payload from the subagent into a generated temporary file:
+  `.system-design/lessons/.generated-<slug>.json`
+- Compile via `render-lesson.py`:
+  ```bash
+  python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
+    --topic-id <topic-id> \
+    --format <html|markdown> \
+    --style <theme> \
+    --data-file <project-dir>/.system-design/lessons/.generated-<slug>.json
+  ```
+- `render-lesson.py` compiles the HTML/Markdown lesson and automatically syncs cursor status to `delivered`.
 
-5. **Presentation & Dialogue**:
-   - Provide direct clickable link: `[Open Interactive Lesson: <Topic>](file:///<path-to-lesson>)`.
-   - Initiate the dialectic inquiry around the core dilemma.
+### Step 5: Presentation & Interactive Dialectic
+- Present clickable link: `[Open Interactive Lesson: <Topic>](file:///<path-to-lesson>)`.
+- Initiate dialectic inquiry around the core dilemma.
 
 ---
 
-### Mode B: Universal Single-Agent Fallback (Claude Code, Cursor, Codex)
-If running in an environment without subagent invocation tools:
+### Universal Fallback (Only in runtimes without `invoke_subagent`)
+If and ONLY IF running in a non-subagent CLI (e.g. vanilla terminal script runner):
 1. The coordinator acts as both author and auditor sequentially.
-2. In Turn 1, craft the structured payload in-context adhering strictly to the 15 pedagogical invariants.
-3. Perform an internal self-audit against the 7 Pre-Flight Checks (derived math, term ordering, gate alignment).
-4. Pipe the payload directly into `render-lesson.py` via `--data-file` or stdin.
-5. Present the rendered lesson link and prompt dialogue.
+2. Author the full custom JSON payload in-context following all 15 invariants.
+3. Save the payload to `.system-design/lessons/.generated-<slug>.json`.
+4. Compile with `render-lesson.py --data-file <path>`. NEVER point to `resources/examples/`.

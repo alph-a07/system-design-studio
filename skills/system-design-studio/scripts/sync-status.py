@@ -174,6 +174,43 @@ def main():
                         cf.write(c_text)
             except Exception:
                 pass
+    elif not artifact_found and active_topic and active_topic.get("status") != "completed":
+        manifest_changed = False
+        if cursor.get("topicFoundationStatus") == "delivered":
+            cursor["topicFoundationStatus"] = "queued"
+            manifest_changed = True
+        if active_topic.get("lessonArtifact"):
+            active_topic["lessonArtifact"] = None
+            manifest_changed = True
+        default_action = f"Deliver interactive lesson artifact via /sds-teach"
+        if "Review delivered lesson artifact" in (cursor.get("nextTeachingAction") or ""):
+            cursor["nextTeachingAction"] = default_action
+            manifest_changed = True
+        if manifest_changed:
+            try:
+                with open(manifest_path, "w", encoding="utf-8") as mf:
+                    json.dump(m, mf, indent=2)
+            except Exception:
+                pass
+        if os.path.isfile(cursor_path):
+            try:
+                with open(cursor_path, "r", encoding="utf-8") as cf:
+                    c_text = cf.read()
+                if "*Topic Foundation Status*: `delivered`" in c_text or "*Topic Foundation Status*: delivered" in c_text:
+                    c_text = re.sub(
+                        r"(\*Topic Foundation Status\*:\s*`?)[^`\n]+(`?)",
+                        r"\g<1>queued\g<2>",
+                        c_text
+                    )
+                    c_text = re.sub(
+                        r"(\*Immediate Next Teaching Action\*:)[\s\S]*?(?=\n\n|\n---|\Z)",
+                        f"*Immediate Next Teaching Action*: {default_action}",
+                        c_text
+                    )
+                    with open(cursor_path, "w", encoding="utf-8") as cf:
+                        cf.write(c_text)
+            except Exception:
+                pass
 
     print(f"Artifact Style:  {style_val}")
     print(f"Cursor Path:     {cursor_path}")
