@@ -4,7 +4,7 @@ description: Deliver the next or specified interactive system design lesson arti
 argument-hint: "[topic]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.5.0
+  version: 3.5.1
 ---
 
 # /sds-teach — Interactive System Design Lesson Engine

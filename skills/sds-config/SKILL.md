@@ -4,7 +4,7 @@ description: View or dynamically update studio settings (theme, HTML vs Markdown
 argument-hint: "[key] [value]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.5.0
+  version: 3.5.1
 ---
 
 # /sds-config

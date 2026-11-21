@@ -3276,6 +3276,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* TACTILE CONTENT-HUGGING SELECTION (PREVENTS FULL-VIEWPORT HIGHLIGHT SPAN) */
+    html::selection,
+    body::selection,
+    main::selection,
+    section::selection,
+    article::selection,
+    header::selection,
+    footer::selection {
+      background-color: transparent !important;
+    }
     ::selection {
       background-color: rgba(0, 229, 255, 0.28) !important;
       color: inherit !important;
@@ -3285,7 +3294,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       color: inherit !important;
     }
 
-    /* MARKDOWN STYLES FOR NOTES & LESSONS */
+    /* MARKDOWN & ADR STYLES FOR NOTES, LESSONS & DECISIONS */
     .md-rendered p,
     .md-rendered h1,
     .md-rendered h2,
@@ -3294,18 +3303,28 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     .md-rendered h5,
     .md-rendered h6,
     .md-rendered li,
+    .md-rendered blockquote,
     .lesson-artifact-view p,
+    .lesson-artifact-view .editorial-lead,
     .lesson-artifact-view h1,
     .lesson-artifact-view h2,
     .lesson-artifact-view h3,
     .lesson-artifact-view h4,
     .lesson-artifact-view li,
+    .lesson-artifact-view blockquote,
     .note-view-pane p,
     .note-view-pane h1,
     .note-view-pane h2,
     .note-view-pane h3,
     .note-view-pane h4,
-    .note-view-pane li {
+    .note-view-pane li,
+    .note-view-pane blockquote,
+    .notion-p,
+    .notion-h1,
+    .notion-h2,
+    .notion-h3,
+    .notion-quote,
+    .notion-callout {
       width: fit-content;
       max-width: 100%;
     }
@@ -3460,7 +3479,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <!-- Studio Version Badge (Click to check updates) -->
       <button type="button" class="version-tag-pill" id="nav-version-pill" onclick="openSettingsModal('updates')" title="System Design Studio Version (Click to check for updates)">
         <span class="status-dot green" style="width:6px; height:6px;"></span>
-        <span id="nav-version-label">v3.3.1</span>
+        <span id="nav-version-label">v3.5.1</span>
       </button>
 
       <button aria-label="Refresh data" class="icon-action-btn" onclick="refreshData(true)" type="button" title="Refresh local data">
@@ -5595,11 +5614,21 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const st = doc.createElement('style');
       st.id = 'sds-highlight-styles';
       st.textContent = `
+        html::selection,
+        body::selection,
+        main::selection,
+        section::selection,
+        article::selection,
+        header::selection,
+        footer::selection {
+          background-color: transparent !important;
+        }
         ::selection {
           background-color: rgba(0, 229, 255, 0.28) !important;
           color: inherit !important;
         }
-        p, h1, h2, h3, h4, h5, h6, li {
+        p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
+        .notion-p, .notion-h1, .notion-h2, .notion-h3 {
           width: fit-content !important;
           max-width: 100% !important;
         }
@@ -6920,7 +6949,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const res = await fetch(`/api/update?force=${force}`);
         if (res.ok) {
           const data = await res.json();
-          const curr = data.currentVersion || 'v3.3.1';
+          const curr = data.currentVersion || 'v3.5.1';
           const remote = data.remoteVersion || curr;
           const isAvail = (data.updateAvailable === true);
 
@@ -7559,20 +7588,6 @@ html:not(.dark) .text-rose-400 {{
   color: #e11d48 !important;
 }}
 
-html:not(.dark) #hl-toolbar,
-html:not(.dark) #hl-popover {{
-  background: #ffffff !important;
-  border-color: #e4e4e7 !important;
-  color: #18181b !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
-}}
-
-html:not(.dark) #hl-popover textarea {{
-  background: #fbfbfa !important;
-  border-color: #e4e4e7 !important;
-  color: #18181b !important;
-}}
-
 html:not(.dark) ::-webkit-scrollbar-track {{
   background: var(--background) !important;
 }}
@@ -7581,6 +7596,15 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
 }}
 
 /* Clean, content-hugging text selection inside lessons */
+html::selection,
+body::selection,
+main::selection,
+section::selection,
+article::selection,
+header::selection,
+footer::selection {{
+  background-color: transparent !important;
+}}
 ::selection {{
   background-color: rgba(0, 229, 255, 0.28) !important;
   color: inherit !important;
@@ -7589,7 +7613,8 @@ html.dark ::selection {{
   background-color: rgba(0, 229, 255, 0.32) !important;
   color: inherit !important;
 }}
-p, h1, h2, h3, h4, h5, h6, li {{
+p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
+.notion-p, .notion-h1, .notion-h2, .notion-h3 {{
   width: fit-content !important;
   max-width: 100% !important;
 }}

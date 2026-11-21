@@ -14,6 +14,16 @@ import json
 import argparse
 import datetime
 
+def get_home_dir():
+    return os.environ.get("HOME") or os.environ.get("USERPROFILE") or os.path.expanduser("~")
+
+def get_global_studio_dir():
+    home = get_home_dir()
+    return os.environ.get("SDS_GLOBAL_DIR") or os.path.join(home, ".system-design-studio")
+
+def get_projects_registry_path():
+    return os.path.join(get_global_studio_dir(), "projects.json")
+
 TRACK_DEFINITIONS = {
     "interview-sprint": {
         "id": "interview-sprint",
@@ -168,7 +178,7 @@ def build_filtered_curriculum(tiers, track_key=None, include_tiers=None, exclude
 
 def resolve_project_output_dir(raw_dir=None, project_id=None):
     if project_id:
-        reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+        reg_path = get_projects_registry_path()
         if os.path.isfile(reg_path):
             try:
                 with open(reg_path, "r", encoding="utf-8") as f:
@@ -200,7 +210,7 @@ def resolve_project_output_dir(raw_dir=None, project_id=None):
             break
         curr = parent
 
-    reg_path = os.path.expanduser("~/.system-design-studio/projects.json")
+    reg_path = get_projects_registry_path()
     if os.path.isfile(reg_path):
         try:
             with open(reg_path, "r", encoding="utf-8") as f:

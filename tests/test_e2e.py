@@ -32,15 +32,24 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
     def setUpClass(cls):
         cls.sandbox_dir = tempfile.mkdtemp(prefix="sds-e2e-sandbox-")
         cls.fake_home = os.path.join(cls.sandbox_dir, "fake_home")
-        os.makedirs(cls.fake_home, exist_ok=True)
+        cls.fake_global = os.path.join(cls.fake_home, ".system-design-studio")
+        os.makedirs(cls.fake_global, exist_ok=True)
+        
+        cls._orig_sds_global = os.environ.get("SDS_GLOBAL_DIR")
+        os.environ["SDS_GLOBAL_DIR"] = cls.fake_global
         
         cls.env = os.environ.copy()
         cls.env["HOME"] = cls.fake_home
+        cls.env["SDS_GLOBAL_DIR"] = cls.fake_global
         cls.env["CI"] = "true"
         cls.env["TERM"] = "dumb"
 
     @classmethod
     def tearDownClass(cls):
+        if cls._orig_sds_global is not None:
+            os.environ["SDS_GLOBAL_DIR"] = cls._orig_sds_global
+        else:
+            os.environ.pop("SDS_GLOBAL_DIR", None)
         shutil.rmtree(cls.sandbox_dir, ignore_errors=True)
 
     def run_cmd(self, cmd_args, cwd=None, check=True):
@@ -582,7 +591,8 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
             [sys.executable, dashboard_script, "--instance-dir", proj2_inst, "--port", str(test_port), "--no-browser"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            env=self.env
         )
 
         base_url = f"http://127.0.0.1:{test_port}"
@@ -901,7 +911,8 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
             [launch_script, "--port", str(dummy_port), "--no-browser"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            text=True
+            text=True,
+            env=self.env
         )
 
         try:

@@ -278,138 +278,28 @@
       border-bottom: none;
     }
 
-    /* ══ BUILT-IN ACTIVE LEARNING HIGHLIGHTER ══════════════════════════ */
-    mark[data-hl-id] {
-      color: inherit;
-      border-radius: 3px;
-      cursor: pointer;
-      padding: 1px 0;
-      transition: filter 0.12s ease, box-shadow 0.12s ease;
-      box-decoration-break: clone;
-      -webkit-box-decoration-break: clone;
+    /* Clean, content-hugging text selection inside lessons */
+    html::selection,
+    body::selection,
+    main::selection,
+    section::selection,
+    article::selection,
+    header::selection,
+    footer::selection {
+      background-color: transparent !important;
     }
-    mark[data-hl-id].hl-hovered {
-      filter: brightness(0.82) saturate(1.35);
-      box-shadow: 0 1.5px 0 0 currentColor;
-    }
-    .hl-yellow { background-color: rgba(250, 204, 21, 0.40); }
-    .hl-green  { background-color: rgba( 34, 197, 94, 0.35); }
-    .hl-blue   { background-color: rgba( 59, 130, 246, 0.35); }
-    .hl-pink   { background-color: rgba(236,  72, 153, 0.35); }
-    .hl-orange { background-color: rgba(249, 115,  22, 0.40); }
-
-    #hl-toolbar {
-      position: fixed; z-index: 99999; display: none; align-items: center; gap: 5px;
-      padding: 5px 8px; background: var(--card, #1e293b); border: 1px solid var(--card-border, #334155);
-      border-radius: 10px; box-shadow: 0 4px 18px -2px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.06);
-      white-space: nowrap; user-select: none; pointer-events: auto;
-    }
-    #hl-toolbar.active { display: flex; }
-    .hl-swatch {
-      width: 18px; height: 18px; border-radius: 50%; border: 2px solid transparent;
-      cursor: pointer; flex-shrink: 0; transition: transform 0.12s, box-shadow 0.12s;
-    }
-    .hl-swatch:hover { transform: scale(1.22); box-shadow: 0 0 0 2px var(--foreground, #fff); }
-    .hl-swatch.selected { box-shadow: 0 0 0 2px var(--foreground, #fff); transform: scale(1.1); }
-    .hl-divider { width: 1px; height: 16px; background: var(--card-border, #334155); margin: 0 2px; flex-shrink: 0; }
-    .hl-btn {
-      display: flex; align-items: center; justify-content: center; width: 24px; height: 24px;
-      border-radius: 6px; border: none; background: transparent; color: var(--muted-foreground, #94a3b8);
-      cursor: pointer; transition: background 0.1s, color 0.1s; flex-shrink: 0;
-    }
-    .hl-btn:hover { background: var(--card-border, #334155); color: var(--foreground, #fff); }
-
-    #hl-popover {
-      position: fixed; z-index: 99998; display: none; flex-direction: column; gap: 8px;
-      padding: 10px 12px; background: var(--card, #1e293b); border: 1px solid var(--card-border, #334155);
-      border-radius: 10px; box-shadow: 0 6px 24px -2px rgba(0,0,0,0.3); width: 240px;
-    }
-    #hl-popover.active { display: flex; }
-    #hl-popover-header {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: 11px; font-weight: 600; color: var(--muted-foreground, #94a3b8);
-      text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    #hl-popover-text {
-      border: 1px solid var(--card-border, #334155); border-radius: 6px;
-      background: var(--background, #0f172a); color: var(--foreground, #fff);
-      padding: 6px 8px; font-size: 12px; font-family: inherit; resize: none;
-      outline: none; height: 56px; line-height: 1.4; transition: border-color 0.12s;
-    }
-    #hl-popover-text:focus { border-color: var(--primary, #3b82f6); }
-    #hl-popover-actions { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-    .hl-action-del {
-      font-size: 11px; color: #ef4444; background: transparent; border: none;
-      cursor: pointer; padding: 2px 4px; border-radius: 4px; transition: background 0.1s;
-    }
-    .hl-action-del:hover { background: rgba(239, 68, 68, 0.15); }
-    .hl-action-save {
-      font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 5px;
-      border: none; background: var(--primary, #3b82f6); color: #fff; cursor: pointer;
-    }
-    .hl-action-save:hover { opacity: 0.88; }
-
-    #hl-status-pill {
-      position: fixed; bottom: 14px; right: 14px; display: flex; align-items: center; gap: 5px;
-      font-size: 11px; padding: 3px 9px; border-radius: 20px; background: var(--card, #1e293b);
-      border: 1px solid var(--card-border, #334155); color: var(--muted-foreground, #94a3b8);
-      pointer-events: none; opacity: 0; transform: translateY(4px); transition: opacity 0.25s, transform 0.25s;
-      z-index: 99990;
-    }
-    #hl-status-pill.show { opacity: 1; transform: translateY(0); }
-    #hl-status-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
-    #hl-status-pill.ok { color: #22c55e; }
-    /* Content-hugging selection that never spans the entire viewport */
     ::selection {
       background-color: rgba(0, 229, 255, 0.28) !important;
       color: inherit !important;
     }
-    p, h1, h2, h3, h4, h5, h6, li {
+    p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
+    .notion-p, .notion-h1, .notion-h2, .notion-h3 {
       width: fit-content;
       max-width: 100%;
     }
   </style>
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased p-4 md:p-8 min-h-screen">
-
-  <!-- ══ BUILT-IN ACTIVE LEARNING HIGHLIGHTER ══════════════════════════ -->
-  <div id="hl-toolbar" role="toolbar" aria-label="Highlighter">
-    <div class="hl-swatch selected" data-color="yellow" style="background:#facc15" title="Yellow (1)"></div>
-    <div class="hl-swatch"          data-color="green"  style="background:#22c55e" title="Green (2)"></div>
-    <div class="hl-swatch"          data-color="blue"   style="background:#3b82f6" title="Blue (3)"></div>
-    <div class="hl-swatch"          data-color="pink"   style="background:#ec4899" title="Pink (4)"></div>
-    <div class="hl-swatch"          data-color="orange" style="background:#f97316" title="Orange (5)"></div>
-    <div class="hl-divider"></div>
-    <button class="hl-btn" id="hl-btn-note" title="Add Note (N)">
-      <svg width="13" height="13" viewBox="0 0 16 16" fill="none">
-        <path d="M11 2l3 3-8 8H3v-3l8-8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-        <path d="M9 4l3 3" stroke="currentColor" stroke-width="1.4"/>
-      </svg>
-    </button>
-    <button class="hl-btn" id="hl-btn-close" title="Dismiss (Esc)">
-      <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
-        <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </div>
-
-  <div id="hl-popover">
-    <div id="hl-popover-header">
-      <span id="hl-popover-title">Annotation</span>
-      <button class="hl-btn" id="hl-popover-close" style="width:18px;height:18px;">
-        <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-          <path d="M2 2l8 8M10 2L2 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-        </svg>
-      </button>
-    </div>
-    <textarea id="hl-popover-text" placeholder="Add an annotation…"></textarea>
-    <div id="hl-popover-actions">
-      <button class="hl-action-del" id="hl-popover-del">Delete</button>
-      <button class="hl-action-save" id="hl-popover-save">Save</button>
-    </div>
-  </div>
-
-  <div id="hl-status-pill"><span class="dot"></span><span id="hl-status-text"></span></div>
 
   <div class="max-w-4xl mx-auto space-y-12">
 
@@ -445,9 +335,9 @@
         </h2>
         <div class="narrative-prose">
           
-        <div class="editorial-lead">
+        <p class="editorial-lead">
           Every distributed system begins with an inescapable physical reality: two machines cannot communicate without paying tribute to the speed of light in glass. Before software protocols exist, the physical universe dictates how data travels.
-        </div>
+        </p>
 
         <p>
           Imagine transferring a <strong>10 Megabyte (10 MB)</strong> file between a server in New York and a client in London. The physical distance through transatlantic optical fiber cables is roughly 6,000 kilometers.
@@ -848,9 +738,9 @@
         </h2>
         <div class="narrative-prose">
           
-        <div class="editorial-lead">
+        <p class="editorial-lead">
           A common beginner misconception is that real-time systems pick UDP simply because they do not care about quality and just discard dropped packets. In production systems, real-time media engineering is vastly more nuanced and sophisticated.
-        </div>
+        </p>
 
         <h3 class="text-base font-bold text-[var(--foreground)] mt-6 mb-2">The Human Biology Constraint: The 150 ms Rule</h3>
         <p>
@@ -928,9 +818,9 @@
         </h2>
         <div class="narrative-prose">
           
-        <div class="editorial-lead">
+        <p class="editorial-lead">
           To master this topic, you must defend the transport layer design of a real-world system against concrete physical constraints and explain out loud why each protocol exists and what it costs.
-        </div>
+        </p>
 
         <div class="p-5 rounded-2xl bg-[var(--card)] border border-amber-500/40 my-6 space-y-4">
           <div class="flex items-center gap-2">
@@ -1166,423 +1056,5 @@
     
   </script>
 
-  <!-- BUILT-IN ACTIVE LEARNING HIGHLIGHT ENGINE -->
-  <script>
-  (function() {
-    "use strict";
-    const SERVER = "http://127.0.0.1:7723";
-    const CONTENT = document.querySelector("main") || document.body;
-
-    const ARTIFACT_PATH = window.location.href.startsWith("file://")
-      ? decodeURIComponent(window.location.href.slice(7).split("?")[0].split("#")[0])
-      : window.location.pathname;
-
-    const STORAGE_KEY = "sds_hl_" + ARTIFACT_PATH.replace(/[^a-zA-Z0-9_-]/g, "_");
-
-    let highlights = [];
-    let activeColor = "yellow";
-    let pendingSlices = null;
-    let activeHighlightId = null;
-    let pillTimer = null;
-    let currentHoveredId = null;
-
-    const INLINE_TAGS = new Set([
-      "span", "strong", "b", "em", "i", "code", "mark", "a",
-      "small", "sub", "sup", "abbr", "br"
-    ]);
-
-    function getBlocks() {
-      const walker = document.createTreeWalker(CONTENT, NodeFilter.SHOW_TEXT);
-      const blockSet = new Set();
-      while (walker.nextNode()) {
-        const textNode = walker.currentNode;
-        if (!textNode.textContent.trim()) continue;
-        let el = textNode.parentElement;
-        if (!el || el.closest("#hl-toolbar, #hl-popover, script, style")) continue;
-        while (el && el !== CONTENT && INLINE_TAGS.has(el.tagName.toLowerCase())) {
-          el = el.parentElement;
-        }
-        if (el && el !== CONTENT) blockSet.add(el);
-      }
-      return Array.from(blockSet);
-    }
-
-    function showStatus(msg, type = "ok") {
-      const pill = document.getElementById("hl-status-pill");
-      const text = document.getElementById("hl-status-text");
-      if (!pill || !text) return;
-      text.textContent = msg;
-      pill.className = `show ${type}`;
-      clearTimeout(pillTimer);
-      pillTimer = setTimeout(() => pill.classList.remove("show"), 2200);
-    }
-
-    function saveLocal() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(highlights)); } catch (e) {}
-    }
-
-    function loadLocal() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (Array.isArray(parsed)) return parsed;
-        }
-      } catch (e) {}
-      return [];
-    }
-
-    async function syncServer() {
-      try {
-        await fetch(`${SERVER}/highlights?artifact=${encodeURIComponent(ARTIFACT_PATH)}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(highlights),
-          signal: AbortSignal.timeout(1200)
-        });
-        showStatus("synced");
-      } catch (e) {}
-    }
-
-    async function fetchServer() {
-      try {
-        const res = await fetch(`${SERVER}/highlights?artifact=${encodeURIComponent(ARTIFACT_PATH)}`, {
-          signal: AbortSignal.timeout(800)
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            highlights = data;
-            saveLocal();
-            renderAllHighlights();
-          }
-        }
-      } catch (e) {}
-    }
-
-    function unwrapBlockMarks(block) {
-      const marks = block.querySelectorAll("mark[data-hl-id]");
-      for (const mark of marks) {
-        const parent = mark.parentNode;
-        if (!parent) continue;
-        while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
-        parent.removeChild(mark);
-      }
-      block.normalize();
-    }
-
-    function applyHighlightToBlock(block, startOff, endOff, color, id, note) {
-      const textNodes = [];
-      const walker = document.createTreeWalker(block, NodeFilter.SHOW_TEXT);
-      let offset = 0;
-      while (walker.nextNode()) {
-        const node = walker.currentNode;
-        textNodes.push({ node, start: offset, end: offset + node.length });
-        offset += node.length;
-      }
-
-      for (const { node, start, end } of textNodes) {
-        if (end <= startOff || start >= endOff) continue;
-
-        const localStart = Math.max(0, startOff - start);
-        const localEnd   = Math.min(node.length, endOff - start);
-        if (localStart >= localEnd) continue;
-
-        if (localEnd < node.length) node.splitText(localEnd);
-        let target = node;
-        if (localStart > 0) target = node.splitText(localStart);
-
-        const mark = document.createElement("mark");
-        mark.className = `hl-${color}`;
-        mark.dataset.hlId = id;
-        if (note) mark.title = note;
-
-        target.parentNode.insertBefore(mark, target);
-        mark.appendChild(target);
-      }
-    }
-
-    function renderAllHighlights() {
-      const blocks = getBlocks();
-      blocks.forEach(b => unwrapBlockMarks(b));
-
-      const slicesByBlock = new Map();
-      for (const h of highlights) {
-        for (const s of h.slices) {
-          if (!slicesByBlock.has(s.blockIndex)) slicesByBlock.set(s.blockIndex, []);
-          slicesByBlock.get(s.blockIndex).push({
-            start: s.start, end: s.end, color: h.color, id: h.id, note: h.note
-          });
-        }
-      }
-
-      for (const [blockIdx, slices] of slicesByBlock.entries()) {
-        const block = blocks[blockIdx];
-        if (!block) continue;
-        slices.sort((a, b) => a.start - b.start);
-        for (const s of slices) {
-          applyHighlightToBlock(block, s.start, s.end, s.color, s.id, s.note);
-        }
-      }
-    }
-
-    function measureBlockIntersection(block, range) {
-      if (!range.intersectsNode(block)) return null;
-      const preRange = document.createRange();
-      preRange.selectNodeContents(block);
-
-      let startOffset = 0;
-      try {
-        preRange.setEnd(range.startContainer, range.startOffset);
-        startOffset = preRange.toString().length;
-      } catch (e) { startOffset = 0; }
-
-      let endOffset = block.textContent.length;
-      try {
-        preRange.setEnd(range.endContainer, range.endOffset);
-        endOffset = preRange.toString().length;
-      } catch (e) { endOffset = block.textContent.length; }
-
-      if (startOffset >= endOffset) return null;
-      const text = block.textContent.slice(startOffset, endOffset);
-      if (!text.trim()) return null;
-      return { start: startOffset, end: endOffset, text };
-    }
-
-    function captureSelectionSlices(range) {
-      if (!range) {
-        const sel = window.getSelection();
-        if (!sel || sel.isCollapsed || !sel.toString().trim()) return null;
-        range = sel.getRangeAt(0);
-      }
-      const blocks = getBlocks();
-      const slices = [];
-
-      blocks.forEach((block, idx) => {
-        const match = measureBlockIntersection(block, range);
-        if (match) slices.push({ blockIndex: idx, ...match });
-      });
-
-      return slices.length > 0 ? slices : null;
-    }
-
-    function commitHighlight(note = "") {
-      if (!pendingSlices || pendingSlices.length === 0) return;
-      const id = crypto.randomUUID();
-      const h = { id, color: activeColor, note: note.trim(), slices: pendingSlices };
-      highlights.push(h);
-      saveLocal();
-      renderAllHighlights();
-      syncServer();
-      pendingSlices = null;
-      hideToolbar();
-      hidePopover();
-      window.getSelection()?.removeAllRanges();
-    }
-
-    function updateHighlightNote(id, note) {
-      const h = highlights.find(x => x.id === id);
-      if (!h) return;
-      h.note = note.trim();
-      saveLocal();
-      renderAllHighlights();
-      syncServer();
-    }
-
-    function deleteHighlight(id) {
-      highlights = highlights.filter(x => x.id !== id);
-      saveLocal();
-      renderAllHighlights();
-      syncServer();
-      hidePopover();
-      showStatus("deleted");
-    }
-
-    const toolbar = document.getElementById("hl-toolbar");
-    const popover = document.getElementById("hl-popover");
-    const popoverText = document.getElementById("hl-popover-text");
-    const popoverTitle = document.getElementById("hl-popover-title");
-    const popoverDel = document.getElementById("hl-popover-del");
-
-    function showToolbar(x, y) {
-      const tw = 210;
-      const left = Math.min(Math.max(12, x - tw / 2), window.innerWidth - tw - 12);
-      const top = Math.max(12, y - 52);
-      toolbar.style.left = `${left}px`;
-      toolbar.style.top = `${top}px`;
-      toolbar.classList.add("active");
-    }
-
-    function hideToolbar() {
-      toolbar.classList.remove("active");
-      pendingSlices = null;
-    }
-
-    function updateSelectionUI(cursorX, cursorY) {
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed || !sel.toString().trim()) {
-        hideToolbar();
-        return;
-      }
-      const range = sel.getRangeAt(0);
-      const slices = captureSelectionSlices(range);
-      if (!slices || slices.length === 0) {
-        hideToolbar();
-        return;
-      }
-      pendingSlices = slices;
-      hidePopover();
-      const rect = range.getBoundingClientRect();
-      const tw = 210;
-      const x = (typeof cursorX === "number" && cursorX > 0) ? cursorX : (rect.left + rect.width / 2);
-      const y = (typeof cursorY === "number" && cursorY > 0) ? cursorY : rect.top;
-      const left = Math.min(Math.max(12, x - tw / 2), window.innerWidth - tw - 12);
-      const top = (y - 52 < 12) ? Math.min(window.innerHeight - 50, rect.bottom + 8) : (y - 52);
-      toolbar.style.left = `${left}px`;
-      toolbar.style.top = `${top}px`;
-      toolbar.classList.add("active");
-    }
-
-    function openPopoverForNew(anchorEl) {
-      activeHighlightId = null;
-      popoverTitle.textContent = "Annotation";
-      popoverText.value = "";
-      popoverDel.style.display = "none";
-      const rect = anchorEl.getBoundingClientRect();
-      const left = Math.min(Math.max(12, rect.left), window.innerWidth - 250);
-      popover.style.left = `${left}px`;
-      popover.style.top = `${rect.bottom + 8}px`;
-      popover.classList.add("active");
-      popoverText.focus();
-    }
-
-    function openPopoverForExisting(id, x, y) {
-      const h = highlights.find(item => item.id === id);
-      if (!h) return;
-      activeHighlightId = id;
-      popoverTitle.textContent = "Edit Note";
-      popoverText.value = h.note || "";
-      popoverDel.style.display = "block";
-      const left = Math.min(Math.max(12, x - 120), window.innerWidth - 250);
-      const top = Math.min(y + 12, window.innerHeight - 150);
-      popover.style.left = `${left}px`;
-      popover.style.top = `${top}px`;
-      popover.classList.add("active");
-      hideToolbar();
-      popoverText.focus();
-    }
-
-    function hidePopover() {
-      popover.classList.remove("active");
-      activeHighlightId = null;
-    }
-
-    document.querySelectorAll(".hl-swatch").forEach(sw => {
-      sw.addEventListener("mousedown", e => e.preventDefault());
-      sw.addEventListener("click", () => {
-        document.querySelectorAll(".hl-swatch").forEach(s => s.classList.remove("selected"));
-        sw.classList.add("selected");
-        activeColor = sw.dataset.color;
-        if (pendingSlices) commitHighlight();
-      });
-    });
-
-    document.getElementById("hl-btn-note")?.addEventListener("mousedown", e => e.preventDefault());
-    document.getElementById("hl-btn-note")?.addEventListener("click", () => {
-      if (popover.classList.contains("active")) hidePopover();
-      else openPopoverForNew(toolbar);
-    });
-
-    document.getElementById("hl-btn-close")?.addEventListener("click", hideToolbar);
-    document.getElementById("hl-popover-close")?.addEventListener("click", hidePopover);
-    popoverDel?.addEventListener("click", () => {
-      if (activeHighlightId) deleteHighlight(activeHighlightId);
-    });
-    document.getElementById("hl-popover-save")?.addEventListener("click", () => {
-      if (activeHighlightId) {
-        updateHighlightNote(activeHighlightId, popoverText.value);
-        hidePopover();
-      } else {
-        commitHighlight(popoverText.value);
-      }
-    });
-
-    CONTENT.addEventListener("mouseover", e => {
-      const targetEl = e.target instanceof Element ? e.target : e.target?.parentElement;
-      const mark = targetEl?.closest("mark[data-hl-id]");
-      const id = mark?.dataset.hlId;
-      if (id === currentHoveredId) return;
-
-      if (currentHoveredId) {
-        document.querySelectorAll("mark[data-hl-id=\"" + currentHoveredId + "\"]").forEach(m => {
-          m.classList.remove("hl-hovered");
-        });
-        currentHoveredId = null;
-      }
-
-      if (id) {
-        currentHoveredId = id;
-        document.querySelectorAll("mark[data-hl-id=\"" + id + "\"]").forEach(m => {
-          m.classList.add("hl-hovered");
-        });
-      }
-    });
-
-    CONTENT.addEventListener("mouseout", e => {
-      if (!currentHoveredId) return;
-      const related = e.relatedTarget instanceof Element ? e.relatedTarget : e.relatedTarget?.parentElement;
-      const stillInSame = related?.closest("mark[data-hl-id=\"" + currentHoveredId + "\"]");
-      if (!stillInSame) {
-        document.querySelectorAll("mark[data-hl-id=\"" + currentHoveredId + "\"]").forEach(m => {
-          m.classList.remove("hl-hovered");
-        });
-        currentHoveredId = null;
-      }
-    });
-
-    document.addEventListener("mouseup", e => {
-      if (toolbar.contains(e.target) || popover.contains(e.target)) return;
-      const targetEl = e.target instanceof Element ? e.target : e.target?.parentElement;
-      const mark = targetEl?.closest("mark[data-hl-id]");
-      if (mark) {
-        openPopoverForExisting(mark.dataset.hlId, e.clientX, e.clientY);
-        return;
-      }
-      setTimeout(() => {
-        updateSelectionUI(e.clientX, e.clientY);
-      }, 15);
-    });
-
-    document.addEventListener("keyup", e => {
-      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
-      if (e.shiftKey) {
-        setTimeout(() => updateSelectionUI(), 20);
-      }
-    });
-
-    document.addEventListener("mousedown", e => {
-      if (!toolbar.contains(e.target) && !popover.contains(e.target)) {
-        toolbar.classList.remove("active");
-        popover.classList.remove("active");
-      }
-    });
-
-    document.addEventListener("keydown", e => {
-      if (["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName)) return;
-      if (e.key === "Escape") { hideToolbar(); hidePopover(); return; }
-      if ((e.key === "h" || e.key === "H") && pendingSlices) { commitHighlight(); return; }
-      if ((e.key === "n" || e.key === "N") && pendingSlices) { openPopoverForNew(toolbar); return; }
-      const colMap = { "1": "yellow", "2": "green", "3": "blue", "4": "pink", "5": "orange" };
-      if (colMap[e.key]) document.querySelector(".hl-swatch[data-color=\"" + colMap[e.key] + "\"]")?.click();
-    });
-
-    const localData = loadLocal();
-    if (localData.length > 0) {
-      highlights = localData;
-      renderAllHighlights();
-    }
-    fetchServer();
-  })();
-  </script>
-</body>
+  </body>
 </html>
