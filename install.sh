@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Universal Agent Skill Installer (v3.4)
+# System Design Studio — Universal Agent Skill Installer (v3.5)
 # Configures global studio preferences (~/.system-design-studio/config.json)
 # and installs skill packages across AI coding agents (Antigravity, Claude, Cursor, Codex).
 # Compatible with macOS, Linux, BSD, and Windows (Git Bash/WSL).
@@ -559,7 +559,7 @@ done
 if [ "$INSTALLED_CLI" = false ]; then
   cat <<'EOF' > "${GLOBAL_BIN}/sds"
 #!/bin/sh
-# System Design Studio CLI (sds) - v3.4.0
+# System Design Studio CLI (sds) - v3.5.0
 set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 HOME_DIR="${HOME:-$USERPROFILE}"
@@ -646,11 +646,11 @@ case "$1" in
     fi
     ;;
   version|-v|--version)
-    echo "System Design Studio CLI v3.4.0"
+    echo "System Design Studio CLI v3.5.0"
     ;;
   help|-h|--help|*)
     echo "============================================================================"
-    echo "  SYSTEM DESIGN STUDIO CLI (sds) - v3.4.0"
+    echo "  SYSTEM DESIGN STUDIO CLI (sds) - v3.5.0"
     echo "============================================================================"
     echo "Usage: sds <command> [options]"
     echo ""
