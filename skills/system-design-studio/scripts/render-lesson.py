@@ -226,33 +226,93 @@ def strip_section_index(title):
     cleaned = re.sub(r"^(?:Section\s*\d+\s*[:\.\-]\s*|Phase\s*\d+\s*[:\.\-]\s*|\d+[\.\:\-]\s*)", "", str(title).strip(), flags=re.IGNORECASE)
     return cleaned.strip()
 
-def transform_jargons_to_tooltips(html):
+def clean_tier_badge(raw):
+    """Formats clean tier badge without excessive noise (e.g. 'Tier 0 · System Design Core' -> 'Tier 0')."""
+    if not raw:
+        return "Tier 0"
+    m = re.match(r"(Tier\s*\d+)", str(raw), flags=re.IGNORECASE)
+    if m:
+        return m.group(1).title()
+    return str(raw).strip()
+
+def clean_cluster_badge(raw):
+    """Strips leading numerical indexing like '1. [0.1]' from cluster badge for editorial elegance."""
+    if not raw:
+        return "System Design"
+    s = re.sub(r"^\d+\.\s*(?:\[\d+(?:\.\d+)*\]\s*)?", "", str(raw)).strip()
+    s = re.sub(r"\s+for Design\b", "", s, flags=re.IGNORECASE)
+    return s
+
+def extract_balanced_div(html, start_idx):
     """
-    Transforms verbose inline jargon cards into non-disruptive inline tooltip cues with popovers.
-    Preserves 100% of the plain-English definitions while keeping reading flow unbroken.
+    Extracts a balanced <div>...</div> block starting at start_idx, correctly handling nested divs.
+    Prevents truncation caused by non-greedy regexes matching the first inner </div>.
     """
-    if not html:
+    depth = 0
+    i = start_idx
+    n = len(html)
+    while i < n:
+        if html[i:i+4].lower() == "<div" and (i+4 == n or html[i+4] in " >\t\r\n/"):
+            depth += 1
+            i += 4
+        elif html[i:i+6].lower() == "</div>":
+            depth -= 1
+            i += 6
+            if depth == 0:
+                return html[start_idx:i], i
+        else:
+            i += 1
+    return html[start_idx:], n
+
+def clean_inner_text(html_snippet):
+    """
+    Converts inner HTML tags to clean GitHub Flavored Markdown inline formatting.
+    Converts lists, code blocks, bold/italics, and normalizes line indents.
+    """
+    if not html_snippet:
         return ""
-    pattern = r'<div class=[\"\']jargon-card[\"\']>[\s\S]*?<span class=[\"\']jargon-title[\"\']>([\s\S]*?)</span>[\s\S]*?<span class=[\"\']jargon-pill[\"\']>([\s\S]*?)</span>[\s\S]*?<div class=[\"\']jargon-body[\"\']>([\s\S]*?)</div>\s*</div>'
-    def repl(m):
-        t = re.sub(r'<[^>]+>', '', m.group(1)).replace('💡', '').replace('Jargon Unpacked:', '').strip()
-        p = re.sub(r'<[^>]+>', '', m.group(2)).strip()
-        b = m.group(3).strip()
-        return f'''<span class="jargon-tooltip-wrapper" tabindex="0">
-  <span class="jargon-pill-cue" onclick="toggleJargonTooltip(this, event)">
-    <span class="jargon-icon">💡</span>
-    <span class="jargon-term-name">{t}</span>
-    <span class="jargon-type-pill">{p}</span>
-  </span>
-  <span class="jargon-popover-card">
-    <span class="jargon-popover-header">
-      <span class="jargon-popover-title">💡 {t}</span>
-      <span class="jargon-popover-badge">{p}</span>
-    </span>
-    <span class="jargon-popover-body">{b}</span>
-  </span>
-</span>'''
-    return re.sub(pattern, repl, html)
+    text = html_snippet
+    # Inline code
+    text = re.sub(r"<code\b[^>]*>(.*?)</code>", r"`\1`", text, flags=re.DOTALL)
+    # Bold / Strong (use \b so <br/> is not matched as <b...>)
+    text = re.sub(r"<(?:strong|b)\b[^>]*>(.*?)</(?:strong|b)>", r"**\1**", text, flags=re.DOTALL)
+    # Italics / Em
+    text = re.sub(r"<(?:em|i)\b[^>]*>(.*?)</(?:em|i)>", r"*\1*", text, flags=re.DOTALL)
+    # Headings h1-h6
+    for h in range(1, 7):
+        hashes = "#" * h
+        text = re.sub(rf"<h{h}\b[^>]*>(.*?)</h{h}>", rf"\n\n{hashes} \1\n\n", text, flags=re.DOTALL)
+    # List items
+    text = re.sub(r"<li\b[^>]*>\s*", r"\n- ", text, flags=re.IGNORECASE)
+    text = re.sub(r"</li>", r"", text, flags=re.IGNORECASE)
+    # Line breaks and paragraphs
+    text = re.sub(r"<br\s*/?>", r"\n", text, flags=re.IGNORECASE)
+    text = re.sub(r"</?p\b[^>]*>", r"\n\n", text, flags=re.IGNORECASE)
+    # Strip remaining HTML tags
+    text = re.sub(r"<[^>]+>", r"", text)
+    # Unescape HTML entities
+    text = text.replace("&nbsp;", " ").replace("&lt;", "<").replace("&gt;", ">").replace("&amp;", "&")
+    
+    # Normalize lines: strip extraneous spaces, preserve list formatting
+    lines = []
+    for line in text.split("\n"):
+        stripped = line.strip()
+        if stripped:
+            lines.append(stripped)
+        elif lines and lines[-1] != "":
+            lines.append("")
+    return "\n".join(lines).strip()
+
+def blockquote_lines(text, prefix="> "):
+    """Prepends prefix to every non-empty line of text for robust markdown callout rendering."""
+    lines = text.split("\n")
+    out = []
+    for line in lines:
+        if line.strip():
+            out.append(f"{prefix}{line.strip()}")
+        else:
+            out.append(prefix.rstrip())
+    return "\n".join(out)
 
 def html_table_to_markdown(match):
     table_html = match.group(0)
@@ -275,85 +335,127 @@ def html_table_to_markdown(match):
 def clean_html_to_markdown(html):
     """
     Renders rich, faithful GitHub Flavored Markdown from the authored HTML lesson body.
-    Converts callouts to GitHub alerts, jargon cards to structured blockquotes, and tables to markdown syntax.
+    Extracts balanced container divs without truncation, converts callouts to GitHub alerts,
+    jargon cards to structured blockquotes, and tables to markdown syntax.
     """
     if not html:
         return ""
     text = html
 
-    # Simulator handling: provide a structured walkthrough rather than leaving an empty gap
-    if 'sim-container' in text:
-        sim_summary = (
-            "\n> [!NOTE] Interactive Simulation Walkthrough\n"
-            "> *The interactive HTML edition provides a live tactile simulator for this mechanism. Key invariants modeled:*\n"
-            "> - Packet flight across physical network link bound by speed-of-light propagation latency.\n"
-            "> - Under packet drops, observing kernel buffer hold vs. immediate uncoordinated pass-through.\n"
-            "> - Reassembly, Head-of-Line blocking stalls, and retransmission recovery dynamics.\n"
-        )
-        text = re.sub(r'<div class=[\"\']sim-container[\"\']>[\s\S]*?</div>\s*(?=<div class="callout-box"|</div>|\Z)', sim_summary, text)
+    # Convert HTML tables to Markdown pipe syntax first
+    text = re.sub(r'<table[^>]*>[\s\S]*?</table>', html_table_to_markdown, text, flags=re.IGNORECASE)
 
-    # Convert Jargon Cards to structured markdown callouts
-    def jargon_sub(m):
-        t = re.sub(r'<[^>]+>', '', m.group(1)).replace('💡', '').replace('Jargon Unpacked:', '').strip()
-        p = re.sub(r'<[^>]+>', '', m.group(2)).strip()
-        b = re.sub(r'</?p[^>]*>', '\n', m.group(3))
-        b = re.sub(r'<[^>]+>', '', b).strip()
-        b_lines = '\n> '.join([line.strip() for line in b.split('\n') if line.strip()])
-        return f"\n> 💡 **Jargon Unpacked: {t}** *({p})*\n> {b_lines}\n"
-    text = re.sub(r'<div class=[\"\']jargon-card[\"\']>[\s\S]*?<span class=[\"\']jargon-title[\"\']>([\s\S]*?)</span>[\s\S]*?<span class=[\"\']jargon-pill[\"\']>([\s\S]*?)</span>[\s\S]*?<div class=[\"\']jargon-body[\"\']>([\s\S]*?)</div>\s*</div>', jargon_sub, text)
+    # Simulator container handling: provide a structured walkthrough rather than leaving an empty gap
+    sim_idx = text.find("Interactive Mechanics Simulator")
+    if sim_idx != -1:
+        comment_idx = text.rfind("<!-- INTERACTIVE SIMULATOR", 0, sim_idx)
+        if comment_idx != -1:
+            sim_start = text.find("<div", comment_idx)
+        else:
+            m = list(re.finditer(r"<div\s+class=[\"'][^\"']*(?:sim-container|rounded-2xl)[^\"']*[\"']", text[:sim_idx]))
+            sim_start = m[-1].start() if m else -1
 
-    # Convert Callout Boxes to GitHub alerts
-    for kind, alert in [('callout-dilemma', 'WARNING'), ('callout-mechanism', 'NOTE'), ('callout-invariant', 'IMPORTANT'), ('callout-trap', 'CAUTION')]:
-        def callout_sub(m, a=alert, k=kind):
-            c = re.sub(r'</?p[^>]*>', '\n', m.group(1))
-            c = re.sub(r'<[^>]+>', '', c).strip()
-            lines = '\n> '.join([line.strip() for line in c.split('\n') if line.strip()])
-            title = k.replace('callout-', '').capitalize()
-            return f"\n> [!{a}] {title}\n> {lines}\n"
-        text = re.sub(rf'<div class=[\"\']callout-box\s+{kind}[\"\']>([\s\S]*?)</div>', callout_sub, text)
+        if sim_start != -1:
+            sim_block, sim_end = extract_balanced_div(text, sim_start)
+            sim_summary = (
+                "\n> [!NOTE] Interactive Simulation Walkthrough\n"
+                "> *The interactive HTML edition provides a live tactile simulator for this mechanism. Key invariants modeled:*\n"
+                "> - Packet flight across physical network link bound by speed-of-light propagation latency.\n"
+                "> - Under packet drops, observing kernel buffer hold vs. immediate uncoordinated pass-through.\n"
+                "> - Reassembly, Head-of-Line blocking stalls, and retransmission recovery dynamics.\n"
+            )
+            text = text[:sim_start] + sim_summary + text[sim_end:]
 
-    # Convert Analogy & Breakthrough Cards
-    def analogy_sub(m):
-        c = re.sub(r'</?p[^>]*>', '\n', m.group(1))
-        c = re.sub(r'<[^>]+>', '', c).strip()
-        lines = '\n> '.join([line.strip() for line in c.split('\n') if line.strip()])
-        return f"\n> [!TIP] Intuitive Analogy\n> {lines}\n"
-    text = re.sub(r'<div class=[\"\']analogy-card[\"\']>[\s\S]*?<div class=[\"\']analogy-body[\"\']>([\s\S]*?)</div>\s*</div>', analogy_sub, text)
+    # Convert Jargon Cards to structured markdown callouts using balanced div extraction
+    while True:
+        m = re.search(r"<div\s+class=[\"']jargon-card[\"']", text)
+        if not m:
+            break
+        start_idx = m.start()
+        div_str, end_idx = extract_balanced_div(text, start_idx)
+        title_m = re.search(r"<span\s+class=[\"']jargon-title[\"']>([\s\S]*?)</span>", div_str)
+        pill_m = re.search(r"<span\s+class=[\"']jargon-pill[\"']>([\s\S]*?)</span>", div_str)
+        body_m = re.search(r"<div\s+class=[\"']jargon-body[\"']>([\s\S]*?)</div>", div_str)
+        
+        t = re.sub(r"<[^>]+>", "", title_m.group(1)).replace("💡", "").replace("Jargon Unpacked:", "").strip() if title_m else "Term"
+        p = re.sub(r"<[^>]+>", "", pill_m.group(1)).strip() if pill_m else ""
+        b_html = body_m.group(1) if body_m else div_str
+        b_text = clean_inner_text(b_html)
+        
+        badge_str = f" *({p})*" if p else ""
+        header = f"💡 **Jargon Unpacked: {t}**{badge_str}"
+        body_bq = blockquote_lines(b_text, "> ")
+        md_block = f"\n> {header}\n>\n{body_bq}\n"
+        text = text[:start_idx] + md_block + text[end_idx:]
 
-    def aha_sub(m):
-        c = re.sub(r'</?p[^>]*>', '\n', m.group(1))
-        c = re.sub(r'<[^>]+>', '', c).strip()
-        lines = '\n> '.join([line.strip() for line in c.split('\n') if line.strip()])
-        return f"\n> [!NOTE] Breakthrough Realization\n> {lines}\n"
-    text = re.sub(r'<div class=[\"\']aha-card[\"\']>[\s\S]*?<div class=[\"\']aha-body[\"\']>([\s\S]*?)</div>\s*</div>', aha_sub, text)
+    # Convert Callout Boxes (dilemma, mechanism, invariant, trap) using balanced div extraction
+    while True:
+        m = re.search(r"<div\s+class=[\"']callout-box\s+([^\"']+)[\"']", text)
+        if not m:
+            break
+        start_idx = m.start()
+        div_str, end_idx = extract_balanced_div(text, start_idx)
+        classes = m.group(1).split()
+        kind = "mechanism"
+        for c in classes:
+            if c.startswith("callout-"):
+                kind = c.replace("callout-", "")
+                break
+        alert_map = {
+            "dilemma": "WARNING",
+            "mechanism": "NOTE",
+            "invariant": "IMPORTANT",
+            "trap": "CAUTION"
+        }
+        alert_type = alert_map.get(kind, "NOTE")
+        # Extract title if present
+        title_m = re.search(r"<div\s+class=[\"'][^\"']*font-mono\s+font-bold[^\"']*[\"']>([\s\S]*?)</div>", div_str)
+        if title_m:
+            raw_title = clean_inner_text(title_m.group(1)).strip()
+            div_content = div_str[:title_m.start()] + div_str[title_m.end():]
+        else:
+            raw_title = kind.capitalize()
+            div_content = div_str
+            
+        c_text = clean_inner_text(div_content)
+        body_bq = blockquote_lines(c_text, "> ")
+        md_block = f"\n> [!{alert_type}] {raw_title}\n>\n{body_bq}\n"
+        text = text[:start_idx] + md_block + text[end_idx:]
+
+    # Convert Analogy Cards
+    while True:
+        m = re.search(r"<div\s+class=[\"']analogy-card[\"']", text)
+        if not m:
+            break
+        start_idx = m.start()
+        div_str, end_idx = extract_balanced_div(text, start_idx)
+        body_m = re.search(r"<div\s+class=[\"']analogy-body[\"']>([\s\S]*?)</div>", div_str)
+        b_text = clean_inner_text(body_m.group(1) if body_m else div_str)
+        md_block = f"\n> [!TIP] Intuitive Analogy\n>\n{blockquote_lines(b_text, '> ')}\n"
+        text = text[:start_idx] + md_block + text[end_idx:]
+
+    # Convert Breakthrough Realization Cards
+    while True:
+        m = re.search(r"<div\s+class=[\"']aha-card[\"']", text)
+        if not m:
+            break
+        start_idx = m.start()
+        div_str, end_idx = extract_balanced_div(text, start_idx)
+        body_m = re.search(r"<div\s+class=[\"']aha-body[\"']>([\s\S]*?)</div>", div_str)
+        b_text = clean_inner_text(body_m.group(1) if body_m else div_str)
+        md_block = f"\n> [!NOTE] Breakthrough Realization\n>\n{blockquote_lines(b_text, '> ')}\n"
+        text = text[:start_idx] + md_block + text[end_idx:]
 
     # Convert Editorial Lead
     def lead_sub(m):
-        c = re.sub(r'<[^>]+>', '', m.group(1)).strip()
+        c = clean_inner_text(m.group(1)).strip()
         return f"\n> *{c}*\n"
-    text = re.sub(r'<div class=[\"\']editorial-lead[\"\']>([\s\S]*?)</div>', lead_sub, text)
+    text = re.sub(r"<div\s+class=[\"']editorial-lead[\"']>([\s\S]*?)</div>", lead_sub, text, flags=re.IGNORECASE)
 
-    # Strip scripts, styles, comments
-    text = re.sub(r'<(script|style)[^>]*>[\s\S]*?</\1>', '', text, flags=re.IGNORECASE)
-    text = re.sub(r'<!--[\s\S]*?-->', '', text)
-
-    # Convert HTML tables to Markdown pipe syntax
-    text = re.sub(r'<table[^>]*>[\s\S]*?</table>', html_table_to_markdown, text, flags=re.IGNORECASE)
-
-    # Inline formatting
-    text = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', text)
-    text = re.sub(r'<(?:strong|b)[^>]*>(.*?)</(?:strong|b)>', r'**\1**', text)
-    text = re.sub(r'<(?:em|i)[^>]*>(.*?)</(?:em|i)>', r'*\1*', text)
-
-    # Block conversions
-    text = re.sub(r'</?(?:p|div|h\d|section|article)[^>]*>', '\n', text)
-    text = re.sub(r'<br\s*/?>', '\n', text)
-
-    # Strip any remaining tags
-    text = re.sub(r'<[^>]+>', '', text)
-
+    # General cleanup
+    text = clean_inner_text(text)
     # Collapse multiple blank lines
-    text = re.sub(r'\n{3,}', '\n\n', text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
 def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown"):
@@ -433,8 +535,9 @@ def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown"):
     md.append(f"## {sec5_title}\n")
     md.append("> [!IMPORTANT]")
     md.append("> **ARCHITECTURAL DEFENSE GATE (DEFEND IN CHAT)**")
-    md.append(f">\n{sec5_body}\n")
-    md.append(">\n> *Analyze the scenario above and defend your architectural recommendations cold in chat discussion to achieve topic sign-off.*\n")
+    sec5_bq = blockquote_lines(sec5_body, "> ")
+    md.append(">\n" + sec5_bq + "\n>")
+    md.append("> *Analyze the scenario above and defend your architectural recommendations cold in chat discussion to achieve topic sign-off.*\n")
 
     return "\n".join(md)
 
@@ -776,6 +879,10 @@ def main():
     if args.cluster:
         data["CLUSTER_BADGE"] = args.cluster
 
+    # Compute clean badges for modern, unindexed sidebar chips
+    data["CLEAN_TIER_BADGE"] = clean_tier_badge(data.get("TIER_BADGE"))
+    data["CLEAN_CLUSTER_BADGE"] = clean_cluster_badge(data.get("CLUSTER_BADGE"))
+
     # Legacy token fallback mappings
     if "REALITY_CHECK_SCENARIO" in data and "SECTION_5_BODY" not in data:
         data["SECTION_5_BODY"] = f"<p>{data['REALITY_CHECK_SCENARIO']}</p>"
@@ -803,12 +910,8 @@ def main():
         f.write(rendered_md)
     print(f"✅ Lesson rendered to {md_out_path} [Format: Markdown Clean]")
 
-    # 3. Transform HTML bodies: jargons into non-disruptive inline tooltip cues with popovers
+    # 3. HTML Payload (preserves rich inline jargon cards and interactive components in reading flow)
     html_data = dict(data)
-    for i in range(1, 6):
-        bk = f"SECTION_{i}_BODY"
-        if bk in html_data:
-            html_data[bk] = transform_jargons_to_tooltips(html_data[bk])
 
     # 4. Render Interactive HTML edition (vertically tabbed sidebar with live simulators)
     html_filename = f"{slug}.html"

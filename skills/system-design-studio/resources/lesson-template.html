@@ -30,21 +30,21 @@
     }
 
     /* Scrollbar styling */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--background, transparent); }
-    ::-webkit-scrollbar-thumb { background: var(--card-border, #cbd5e1); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground, #94a3b8); }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--card-border, rgba(128, 128, 128, 0.25)); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground, rgba(128, 128, 128, 0.45)); }
 
-    /* Universal Responsive Layout */
-    body {
+    /* Universal Responsive App Layout (Independent Scrolling) */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden; /* App view: viewport does not scroll as window; columns scroll independently */
       background-color: var(--background, transparent);
       color: var(--foreground, inherit);
       font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       line-height: 1.6;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      overflow-x: hidden;
     }
 
     /* Clean, content-hugging text selection inside lessons */
@@ -118,49 +118,108 @@
       margin: 1.25rem 0 1.75rem 0;
     }
 
-    /* Jargon Tooltips (Non-disruptive inline cue with rich popover) */
+    /* Jargon Cards (Visible Inline Callout in Reading Flow) */
+    .jargon-card {
+      position: relative;
+      background: rgba(245, 158, 11, 0.04);
+      border: 1px solid rgba(245, 158, 11, 0.24);
+      border-left: 3px solid #f59e0b;
+      border-radius: 0.75rem;
+      padding: 1.15rem 1.4rem;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .jargon-card:hover {
+      border-color: rgba(245, 158, 11, 0.42);
+      box-shadow: 0 4px 18px -2px rgba(245, 158, 11, 0.12);
+    }
+    .jargon-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.6rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.15);
+    }
+    .jargon-title {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #fbbf24;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .jargon-pill {
+      font-size: 0.68rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 9999px;
+      background: rgba(245, 158, 11, 0.15);
+      color: #fde68a;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      font-family: ui-monospace, monospace;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .jargon-body {
+      font-size: 0.94rem;
+      line-height: 1.7;
+      color: var(--foreground);
+    }
+    .jargon-body p { margin-bottom: 0.65rem; }
+    .jargon-body p:last-child { margin-bottom: 0; }
+
+    /* Inline Jargon Tooltips (For words used inside sentences, width 80%) */
     .jargon-tooltip-wrapper {
       display: inline-block;
       position: relative;
-      margin: 0.15rem 0.15rem;
+      margin: 0 0.15rem;
       vertical-align: baseline;
     }
-    .jargon-pill-cue {
+    .jargon-inline-cue, .jargon-pill-cue {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.15rem 0.55rem;
+      padding: 0.1rem 0.45rem;
       border-radius: 9999px;
       background: rgba(245, 158, 11, 0.12);
       border: 1px dashed rgba(245, 158, 11, 0.5);
       color: #fbbf24;
       font-family: ui-monospace, SFMono-Regular, monospace;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       font-weight: 600;
       cursor: pointer;
       user-select: none;
       transition: all 0.18s ease;
     }
+    .jargon-inline-cue:hover,
     .jargon-pill-cue:hover,
+    .jargon-tooltip-wrapper.is-open .jargon-inline-cue,
     .jargon-tooltip-wrapper.is-open .jargon-pill-cue {
       background: rgba(245, 158, 11, 0.25);
       border-color: #f59e0b;
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
     }
+    /* Widen tooltip popover to 80% of content width */
     .jargon-popover-card {
       display: none;
       position: absolute;
-      bottom: calc(100% + 8px);
+      bottom: calc(100% + 10px);
       left: 50%;
       transform: translateX(-50%);
-      width: 330px;
-      max-width: 90vw;
-      background: var(--card, #1e293b);
+      width: min(80vw, 700px);
+      max-width: 80vw;
+      min-width: 320px;
+      background: var(--card, #18181b);
       border: 1.5px solid #f59e0b;
-      border-radius: 0.75rem;
-      padding: 0.9rem 1.1rem;
-      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(245, 158, 11, 0.2);
+      border-radius: 0.875rem;
+      padding: 1.15rem 1.4rem;
+      box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.2);
       z-index: 100;
       text-align: left;
     }
@@ -170,7 +229,7 @@
       animation: popoverFadeIn 0.15s ease-out;
     }
     @keyframes popoverFadeIn {
-      from { opacity: 0; transform: translate(-50%, 6px); }
+      from { opacity: 0; transform: translate(-50%, 8px); }
       to { opacity: 1; transform: translate(-50%, 0); }
     }
     .jargon-popover-header {
@@ -178,13 +237,13 @@
       align-items: center;
       justify-content: space-between;
       gap: 0.5rem;
-      margin-bottom: 0.4rem;
-      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
-      padding-bottom: 0.3rem;
+      margin-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.25);
+      padding-bottom: 0.4rem;
     }
     .jargon-popover-title {
       font-family: ui-monospace, monospace;
-      font-size: 0.78rem;
+      font-size: 0.82rem;
       font-weight: 700;
       color: #fbbf24;
       text-transform: uppercase;
@@ -192,25 +251,56 @@
     }
     .jargon-popover-badge {
       font-size: 0.68rem;
-      padding: 0.1rem 0.45rem;
+      padding: 0.15rem 0.5rem;
       border-radius: 9999px;
       background: rgba(245, 158, 11, 0.2);
       color: #fde68a;
       font-family: ui-monospace, monospace;
     }
     .jargon-popover-body {
-      font-size: 0.88rem;
-      line-height: 1.55;
+      font-size: 0.92rem;
+      line-height: 1.65;
       color: var(--foreground);
     }
-    .jargon-popover-body p { margin: 0; }
-    .jargon-popover-body p + p { margin-top: 0.4rem; }
+    .jargon-popover-body p { margin-bottom: 0.5rem; }
+    .jargon-popover-body p:last-child { margin-bottom: 0; }
+
+    /* Callout Boxes (Dilemmas, Mechanisms, Invariants) */
+    .callout-box {
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+      background: var(--card, rgba(255, 255, 255, 0.02));
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .callout-box.callout-dilemma {
+      border-left: 3px solid #ef4444;
+      background: rgba(239, 68, 68, 0.04);
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+    .callout-box.callout-mechanism {
+      border-left: 3px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.04);
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+    .callout-box.callout-invariant {
+      border-left: 3px solid #10b981;
+      background: rgba(16, 185, 129, 0.04);
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    .callout-box.callout-trap {
+      border-left: 3px solid #f97316;
+      background: rgba(249, 115, 22, 0.04);
+      border-color: rgba(249, 115, 22, 0.25);
+    }
 
     /* Intuitive Analogy / Real-World Picture Cards */
     .analogy-card {
-      background: rgba(59, 130, 246, 0.06);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: 0.875rem;
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-left: 3px solid #3b82f6;
+      border-radius: 0.75rem;
       padding: 1.25rem 1.5rem;
       margin: 1.5rem 0;
     }
@@ -235,9 +325,10 @@
 
     /* The "Aha!" Moment Breakthrough Card */
     .aha-card {
-      background: rgba(16, 185, 129, 0.07);
-      border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 0.875rem;
+      background: rgba(16, 185, 129, 0.05);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-left: 3px solid #10b981;
+      border-radius: 0.75rem;
       padding: 1.25rem 1.5rem;
       margin: 1.5rem 0;
     }
@@ -387,24 +478,50 @@
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
 
-  <!-- APP CONTAINER: VERTICALLY TABBED SIDEBAR + MAIN VIEWPORT -->
-  <div class="flex flex-col md:flex-row min-h-screen">
+  <!-- APP CONTAINER: FIXED FULL-HEIGHT SHELL (INDEPENDENT COLUMN SCROLLING) -->
+  <div class="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-[var(--background)]">
 
-    <!-- VERTICAL TABBED SIDEBAR -->
-    <aside class="w-full md:w-80 lg:w-84 border-r border-[var(--border)] p-5 md:p-6 space-y-6 flex flex-col justify-between flex-shrink-0 bg-[var(--background)]">
+    <!-- VERTICAL TABBED SIDEBAR (INDEPENDENT SCROLL) -->
+    <aside class="w-full md:w-80 lg:w-88 h-full border-r border-[var(--border)] p-5 md:p-6 space-y-6 flex flex-col justify-between flex-shrink-0 bg-[var(--background)] overflow-y-auto">
       <div class="space-y-6">
-        <!-- Topic Badges & Title -->
-        <div class="space-y-2 border-b border-[var(--border)] pb-4">
-          <div class="flex flex-wrap items-center gap-1.5">
-            <span class="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded bg-[var(--primary)] text-white tracking-wider">{{TIER_BADGE}}</span>
-            <span class="px-2 py-0.5 text-[10px] font-mono uppercase rounded bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
+        <!-- Sophisticated Sidebar Header -->
+        <div class="sidebar-header space-y-3 pb-5 border-b border-[var(--border)]">
+          <!-- Hierarchy & Glossary Quick Button -->
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25">
+                {{CLEAN_TIER_BADGE}}
+              </span>
+              <span class="text-[11px] font-mono text-[var(--muted-foreground)] truncate" title="{{CLUSTER_BADGE}}">
+                {{CLEAN_CLUSTER_BADGE}}
+              </span>
+            </div>
+            <button type="button" onclick="toggleGlossaryDrawer()" class="glossary-toggle-btn text-[10px] font-mono px-2 py-0.5 rounded-full border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center gap-1 flex-shrink-0 cursor-pointer" title="Open Key Terms Glossary">
+              <span>📖</span>
+              <span id="glossary-pill-count">Terms</span>
+            </button>
           </div>
-          <h1 class="text-base md:text-lg font-black tracking-tight text-[var(--foreground)] leading-snug">
-            {{LESSON_TITLE}}
-          </h1>
-          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
-            {{LESSON_SUBTITLE}}
-          </p>
+
+          <!-- Lesson Title & Subtitle -->
+          <div>
+            <h1 class="text-base md:text-lg font-black tracking-tight text-[var(--foreground)] leading-snug">
+              {{LESSON_TITLE}}
+            </h1>
+            <p class="text-xs text-[var(--muted-foreground)] leading-relaxed mt-1 line-clamp-2">
+              {{LESSON_SUBTITLE}}
+            </p>
+          </div>
+
+          <!-- Architecture Stage Tracker -->
+          <div class="pt-1">
+            <div class="flex items-center justify-between text-[10px] font-mono text-[var(--muted-foreground)] mb-1">
+              <span>Architecture Stage</span>
+              <span id="sidebar-progress-label">Stage 1 of 5</span>
+            </div>
+            <div class="w-full h-1 bg-[var(--card)] rounded-full overflow-hidden border border-[var(--card-border)]">
+              <div id="sidebar-progress-bar" class="h-full bg-[var(--primary)] rounded-full transition-all duration-300" style="width: 20%;"></div>
+            </div>
+          </div>
         </div>
 
         <!-- Vertical Tab Navigation Items (Unindexed) -->
@@ -454,7 +571,7 @@
 
       <!-- Sidebar Footer: Glossary Drawer & Lineage -->
       <div class="border-t border-[var(--border)] pt-4 space-y-3">
-        <button type="button" class="w-full py-2 px-3 rounded-lg bg-[var(--card)] hover:bg-[var(--card-border)] border border-[var(--card-border)] text-xs font-medium text-[var(--foreground)] flex items-center justify-between transition-colors" onclick="toggleGlossaryDrawer()">
+        <button type="button" class="w-full py-2 px-3 rounded-lg bg-[var(--card)] hover:bg-[var(--card-border)] border border-[var(--card-border)] text-xs font-medium text-[var(--foreground)] flex items-center justify-between transition-colors cursor-pointer" onclick="toggleGlossaryDrawer()">
           <span class="flex items-center gap-2">
             <span>💡</span>
             <span>Key Terms Glossary</span>
@@ -468,8 +585,8 @@
       </div>
     </aside>
 
-    <!-- MAIN VIEWPORT (ACTIVE SECTION PANE) -->
-    <main class="lesson-main-viewport flex-1 p-6 md:p-10 max-w-4xl mx-auto w-full overflow-y-auto">
+    <!-- MAIN VIEWPORT (INDEPENDENT SCROLL) -->
+    <main class="lesson-main-viewport flex-1 h-full p-6 md:p-10 lg:p-12 max-w-5xl mx-auto w-full overflow-y-auto">
 
       <!-- PANE 1: PHYSICAL DILEMMA -->
       <article id="pane-section-1" class="section-pane active space-y-6">
@@ -597,7 +714,7 @@
 
   <!-- EMBEDDED JAVASCRIPT: TAB NAVIGATION & SIMULATOR LOGIC -->
   <script>
-    // Tab Navigation
+    // Tab Navigation & Stage Progress
     function switchSectionTab(targetId) {
       document.querySelectorAll('.section-tab-btn').forEach(btn => {
         btn.classList.remove('active');
@@ -614,6 +731,17 @@
       if (targetPane) {
         targetPane.classList.add('active');
         targetPane.style.display = 'block';
+      }
+
+      // Update Sidebar Stage Tracker
+      const tabIds = ['section-1', 'section-2', 'section-3', 'section-4', 'section-5'];
+      const currentIdx = tabIds.indexOf(targetId);
+      if (currentIdx !== -1) {
+        const stageNum = currentIdx + 1;
+        const pLabel = document.getElementById('sidebar-progress-label');
+        const pBar = document.getElementById('sidebar-progress-bar');
+        if (pLabel) pLabel.innerText = `Stage ${stageNum} of 5`;
+        if (pBar) pBar.style.width = `${(stageNum / 5) * 100}%`;
       }
 
       const mainView = document.querySelector('.lesson-main-viewport') || window;
@@ -666,27 +794,64 @@
       if (drawer) drawer.classList.remove('is-open');
     }
 
-    // Populate Glossary Drawer on load
+    // Filter Glossary Terms
+    function filterGlossaryTerms(query) {
+      const q = (query || '').toLowerCase().trim();
+      document.querySelectorAll('#glossary-terms-list > div').forEach(card => {
+        const text = (card.innerText || '').toLowerCase();
+        card.style.display = text.includes(q) ? 'block' : 'none';
+      });
+    }
+
+    // Populate Glossary Drawer on load from both .jargon-card and .jargon-tooltip-wrapper
     window.addEventListener('DOMContentLoaded', () => {
-      const terms = document.querySelectorAll('.jargon-tooltip-wrapper');
-      const countEl = document.getElementById('glossary-term-count');
-      if (countEl) countEl.innerText = `${terms.length} terms`;
+      const seenTitles = new Set();
+      const termsList = [];
+
+      // 1. Collect from inline cards
+      document.querySelectorAll('.jargon-card').forEach(card => {
+        const title = (card.querySelector('.jargon-title')?.innerText || '').replace('💡', '').replace('Jargon Unpacked:', '').trim();
+        const badge = (card.querySelector('.jargon-pill')?.innerText || '').trim();
+        const body = (card.querySelector('.jargon-body')?.innerHTML || '').trim();
+        if (title && !seenTitles.has(title.toLowerCase())) {
+          seenTitles.add(title.toLowerCase());
+          termsList.push({ title, badge, body });
+        }
+      });
+
+      // 2. Collect from inline tooltips
+      document.querySelectorAll('.jargon-tooltip-wrapper').forEach(tip => {
+        const title = (tip.querySelector('.jargon-popover-title')?.innerText || '').replace('💡', '').trim();
+        const badge = (tip.querySelector('.jargon-popover-badge')?.innerText || '').trim();
+        const body = (tip.querySelector('.jargon-popover-body')?.innerHTML || '').trim();
+        if (title && !seenTitles.has(title.toLowerCase())) {
+          seenTitles.add(title.toLowerCase());
+          termsList.push({ title, badge, body });
+        }
+      });
+
+      const countText = `${termsList.length} Terms`;
+      const termCountEl = document.getElementById('glossary-term-count');
+      const pillCountEl = document.getElementById('glossary-pill-count');
+      if (termCountEl) termCountEl.innerText = countText;
+      if (pillCountEl) pillCountEl.innerText = countText;
 
       const listContainer = document.getElementById('glossary-terms-list');
-      if (listContainer && terms.length > 0) {
-        listContainer.innerHTML = '';
-        terms.forEach((t) => {
-          const title = t.querySelector('.jargon-popover-title')?.innerText || 'Term';
-          const badge = t.querySelector('.jargon-popover-badge')?.innerText || '';
-          const body = t.querySelector('.jargon-popover-body')?.innerHTML || '';
+      if (listContainer) {
+        listContainer.innerHTML = `
+          <div class="mb-3">
+            <input type="text" placeholder="Filter terms..." oninput="filterGlossaryTerms(this.value)" class="w-full text-xs font-mono px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:border-[var(--primary)]" />
+          </div>
+        `;
+        termsList.sort((a, b) => a.title.localeCompare(b.title)).forEach(t => {
           const card = document.createElement('div');
-          card.className = 'p-3 rounded-lg border border-[var(--border)] bg-[var(--background)] space-y-1.5';
+          card.className = 'p-3 rounded-lg border border-[var(--border)] bg-[var(--background)] space-y-1.5 transition-colors hover:border-[var(--primary)]';
           card.innerHTML = `
             <div class="flex items-center justify-between gap-2">
-              <span class="font-mono text-xs font-bold text-amber-400">${title}</span>
-              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">${badge}</span>
+              <span class="font-mono text-xs font-bold text-amber-400">${t.title}</span>
+              ${t.badge ? `<span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">${t.badge}</span>` : ''}
             </div>
-            <div class="text-xs text-[var(--foreground)] leading-relaxed">${body}</div>
+            <div class="text-xs text-[var(--foreground)] leading-relaxed">${t.body}</div>
           `;
           listContainer.appendChild(card);
         });
