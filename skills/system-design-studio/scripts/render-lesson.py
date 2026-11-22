@@ -159,186 +159,38 @@ STYLE_THEMES = {
     },
 }
 
-# Invariant cohesive fallback template matching resources/lesson-template.html
-DEFAULT_TEMPLATE = r"""<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{PAGE_TITLE}}</title>
-  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
-  <style>
-    @keyframes pulse-subtle {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.85; transform: scale(0.98); }
-    }
-    .animate-pulse-subtle { animation: pulse-subtle 2.5s infinite ease-in-out; }
-    .interactive-element { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
-    /* Dynamic Theme Variables (Delegated to SDS Dashboard) */
-    :root {
-      --background: transparent;
-      --foreground: inherit;
-      --card: transparent;
-      --card-border: rgba(128, 128, 128, 0.2);
-      --border: rgba(128, 128, 128, 0.2);
-      --muted-foreground: inherit;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --accent-badge: rgba(37, 99, 235, 0.1);
-      --accent-badge-text: #2563eb;
-    }
-    /* Scrollbar styling */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--background, transparent); }
-    ::-webkit-scrollbar-thumb { background: var(--card-border, #cbd5e1); border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground, #94a3b8); }
-    /* Universal Responsive Layout */
-    body { background-color: var(--background, transparent); color: var(--foreground, inherit); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 1.5rem; }
-    .max-w-4xl { max-width: 56rem; margin-left: auto; margin-right: auto; }
-    .space-y-12 > * + * { margin-top: 3rem; }
-    .space-y-8 > * + * { margin-top: 2rem; }
-    .space-y-6 > * + * { margin-top: 1.5rem; }
-    .space-y-4 > * + * { margin-top: 1rem; }
-    .space-y-2 > * + * { margin-top: 0.5rem; }
-    .flex { display: flex; }
-    .flex-wrap { flex-wrap: wrap; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .gap-2 { gap: 0.5rem; }
-    .gap-4 { gap: 1rem; }
-    .gap-6 { gap: 1.5rem; }
-    .grid { display: grid; gap: 1rem; }
-    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-    @media (min-width: 768px) {
-      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .md\:p-8 { padding: 2rem; }
-      .md\:text-5xl { font-size: 3rem; line-height: 1; }
-      .md\:text-2xl { font-size: 1.5rem; }
-    }
-    .rounded-xl { border-radius: 0.75rem; }
-    .rounded-lg { border-radius: 0.5rem; }
-    .rounded-full { border-radius: 9999px; }
-    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    button { cursor: pointer; border: none; font-family: inherit; }
-    .narrative-prose { color: var(--foreground); line-height: 1.85; font-size: 1.025rem; }
-    .narrative-prose p { margin-bottom: 1.35rem; }
-    .narrative-prose strong { color: var(--foreground); font-weight: 700; }
-    .narrative-prose code { background: var(--card); border: 1px solid var(--card-border); padding: 0.2rem 0.4rem; border-radius: 0.375rem; font-family: ui-monospace, monospace; font-size: 0.85em; }
-    .editorial-lead { font-size: 1.15rem; line-height: 1.8; color: var(--foreground); font-weight: 400; border-left: 3px solid var(--primary); padding-left: 1.25rem; margin: 1.5rem 0 2rem 0; }
-    .jargon-card { background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 0.875rem; padding: 1rem 1.25rem; margin: 1.5rem 0; }
-    .jargon-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
-    .jargon-title { font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #fbbf24; }
-    .jargon-pill { font-size: 0.7rem; padding: 0.1rem 0.45rem; border-radius: 9999px; background: rgba(245, 158, 11, 0.2); color: #fde68a; font-family: ui-monospace, monospace; }
-    .jargon-body { font-size: 0.925rem; line-height: 1.6; color: var(--foreground); margin: 0; }
-    .analogy-card { background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
-    .analogy-header { display: flex; align-items: center; gap: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #60a5fa; margin-bottom: 0.5rem; }
-    .analogy-body { font-size: 0.95rem; line-height: 1.7; color: var(--foreground); margin: 0; }
-    .aha-card { background: rgba(16, 185, 129, 0.07); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 0.875rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
-    .aha-header { display: flex; align-items: center; gap: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; margin-bottom: 0.5rem; }
-    .aha-body { font-size: 0.95rem; line-height: 1.7; color: var(--foreground); margin: 0; }
-    .callout-box { background: var(--card); border: 1px solid var(--card-border); border-radius: 1rem; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
-    .callout-dilemma { border-left: 4px solid #ef4444; }
-    .callout-mechanism { border-left: 4px solid var(--primary); }
-    .callout-invariant { border-left: 4px solid #10b981; }
-    .callout-trap { border-left: 4px solid #f59e0b; }
-    .sim-container { background: var(--card); border: 1px solid var(--card-border); border-radius: 1rem; padding: 1.25rem; margin: 1.75rem 0; box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.2); }
-    .sim-canvas { background: var(--background); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; }
-    .sim-log { background: var(--background); border: 1px solid var(--border); border-radius: 0.5rem; font-family: ui-monospace, monospace; font-size: 0.75rem; padding: 0.75rem; max-height: 8rem; overflow-y: auto; }
-    .tradeoff-table { width: 100%; text-align: left; border-collapse: separate; border-spacing: 0; border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--card-border); margin: 1.5rem 0; font-size: 0.85rem; }
-    .tradeoff-table th { background: var(--card); padding: 0.75rem 1rem; font-family: ui-monospace, monospace; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); color: var(--muted-foreground); }
-    .tradeoff-table td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--foreground); }
-    .tradeoff-table tr:last-child td { border-bottom: none; }
+def locate_resource_template():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    candidates = [
+        os.path.join(script_dir, "..", "resources", "lesson-template.html"),
+        os.path.join(os.getcwd(), "skills", "system-design-studio", "resources", "lesson-template.html"),
+        os.path.expanduser("~/.system-design-studio/skills/system-design-studio/resources/lesson-template.html")
+    ]
+    for c in candidates:
+        norm = os.path.normpath(c)
+        if os.path.exists(norm):
+            return norm
+    return None
 
-    /* Clean, content-hugging text selection inside lessons */
-    html::selection,
-    body::selection,
-    main::selection,
-    section::selection,
-    article::selection,
-    header::selection,
-    footer::selection {
-      background-color: transparent !important;
-    }
-    ::selection {
-      background-color: rgba(0, 229, 255, 0.28) !important;
-      color: inherit !important;
-    }
-    p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
-    .notion-p, .notion-h1, .notion-h2, .notion-h3 {
-      width: fit-content;
-      max-width: 100%;
-    }
-  </style>
-</head>
-<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased p-4 md:p-8 min-h-screen">
+def get_default_template(custom_template_path=None):
+    if custom_template_path and os.path.exists(custom_template_path):
+        try:
+            with open(custom_template_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            print(f"⚠️ Warning: Could not read custom template at {custom_template_path}: {e}")
 
-  <div class="max-w-4xl mx-auto space-y-12">
-    <!-- HERO HEADER: CONTEXTUAL ORIENTATION -->
-    <header class="border-b border-[var(--border)] pb-8 space-y-4">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">⚡ First-Principles Systems</span>
-        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-950/40 border border-emerald-800 text-emerald-400 flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          Live Interactive Simulator
-        </span>
-      </div>
-      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--foreground)]">{{LESSON_TITLE}}</h1>
-      <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">{{LESSON_SUBTITLE}}</p>
-    </header>
+    res_path = locate_resource_template()
+    if res_path and os.path.exists(res_path):
+        try:
+            with open(res_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except Exception as e:
+            print(f"⚠️ Warning: Could not read resource template at {res_path}: {e}")
 
-    <main class="space-y-12">
-      <!-- PHASE 1: BACKGROUND CONTEXT & FORCING DILEMMA (WHYs & optional WHENs) -->
-      <section class="space-y-4">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_1_TITLE}}</h2>
-        <div class="narrative-prose">{{SECTION_1_BODY}}</div>
-      </section>
+    return """<!DOCTYPE html><html><head><meta charset="utf-8"><title>{{PAGE_TITLE}}</title></head><body><h1>{{LESSON_TITLE}}</h1><div>{{SECTION_1_BODY}}{{SECTION_2_BODY}}{{SECTION_3_BODY}}{{SECTION_4_BODY}}{{SECTION_5_BODY}}</div></body></html>"""
 
-      <!-- PHASE 2: THE ACTIVE TOPIC & SURROUNDING LANDSCAPE (WHATs & optional WHEREs) -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_2_TITLE}}</h2>
-        <div class="narrative-prose">{{SECTION_2_BODY}}</div>
-      </section>
-
-      <!-- PHASE 3: INTERNAL MECHANICS, INVARIANTS & CAUSALITY (HOWs & WHYs OF HOWs) -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_3_TITLE}}</h2>
-        <div class="narrative-prose">{{SECTION_3_BODY}}</div>
-      </section>
-
-      <!-- PHASE 4: MENTAL MODEL SYNTHESIS & PRODUCTION CORRELATION -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_4_TITLE}}</h2>
-        <div class="narrative-prose">{{SECTION_4_BODY}}</div>
-      </section>
-
-      <!-- PHASE 5: CONTEXTUAL SIGN-OFF VERIFICATION GATE -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">{{SECTION_5_TITLE}}</h2>
-        <div class="narrative-prose">{{SECTION_5_BODY}}</div>
-      </section>
-    </main>
-
-    <!-- FOOTER NAV: RUNNING CONTEXT & COGNITIVE LINEAGE -->
-    <footer class="border-t border-[var(--border)] pt-8 pb-12 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted-foreground)] gap-4">
-      <div>Part of <span class="font-semibold text-[var(--foreground)]">System Design Studio</span> · Project Learning Instance</div>
-      <div class="flex items-center gap-4 font-mono text-[11px]">
-        <span>Backward Anchor: <strong class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</strong></span>
-        <span>•</span>
-        <span>Next Hook: <strong class="text-[var(--foreground)]">{{FORWARD_HOOK}}</strong></span>
-      </div>
-    </footer>
-  </div>
-
-  <script>
-    {{EMBEDDED_JAVASCRIPT}}
-  </script>
-
-</body>
-</html>
-"""
+DEFAULT_TEMPLATE = get_default_template()
 
 ACRONYMS = {
     'tcp': 'TCP', 'udp': 'UDP', 'http': 'HTTP', 'tls': 'TLS', 'rest': 'REST',
@@ -367,6 +219,41 @@ def format_topic_title(raw_id, raw_title=None):
 
 
 
+def strip_section_index(title):
+    """Strips leading numerical indexing (e.g. '1.', 'Section 1:', 'Phase 1:') from titles."""
+    if not title:
+        return ""
+    cleaned = re.sub(r"^(?:Section\s*\d+\s*[:\.\-]\s*|Phase\s*\d+\s*[:\.\-]\s*|\d+[\.\:\-]\s*)", "", str(title).strip(), flags=re.IGNORECASE)
+    return cleaned.strip()
+
+def transform_jargons_to_tooltips(html):
+    """
+    Transforms verbose inline jargon cards into non-disruptive inline tooltip cues with popovers.
+    Preserves 100% of the plain-English definitions while keeping reading flow unbroken.
+    """
+    if not html:
+        return ""
+    pattern = r'<div class=[\"\']jargon-card[\"\']>[\s\S]*?<span class=[\"\']jargon-title[\"\']>([\s\S]*?)</span>[\s\S]*?<span class=[\"\']jargon-pill[\"\']>([\s\S]*?)</span>[\s\S]*?<div class=[\"\']jargon-body[\"\']>([\s\S]*?)</div>\s*</div>'
+    def repl(m):
+        t = re.sub(r'<[^>]+>', '', m.group(1)).replace('💡', '').replace('Jargon Unpacked:', '').strip()
+        p = re.sub(r'<[^>]+>', '', m.group(2)).strip()
+        b = m.group(3).strip()
+        return f'''<span class="jargon-tooltip-wrapper" tabindex="0">
+  <span class="jargon-pill-cue" onclick="toggleJargonTooltip(this, event)">
+    <span class="jargon-icon">💡</span>
+    <span class="jargon-term-name">{t}</span>
+    <span class="jargon-type-pill">{p}</span>
+  </span>
+  <span class="jargon-popover-card">
+    <span class="jargon-popover-header">
+      <span class="jargon-popover-title">💡 {t}</span>
+      <span class="jargon-popover-badge">{p}</span>
+    </span>
+    <span class="jargon-popover-body">{b}</span>
+  </span>
+</span>'''
+    return re.sub(pattern, repl, html)
+
 def html_table_to_markdown(match):
     table_html = match.group(0)
     rows = re.findall(r'<tr[^>]*>([\s\S]*?)</tr>', table_html, flags=re.IGNORECASE)
@@ -386,120 +273,167 @@ def html_table_to_markdown(match):
     return "\n" + "\n".join(md_rows) + "\n"
 
 def clean_html_to_markdown(html):
+    """
+    Renders rich, faithful GitHub Flavored Markdown from the authored HTML lesson body.
+    Converts callouts to GitHub alerts, jargon cards to structured blockquotes, and tables to markdown syntax.
+    """
     if not html:
         return ""
-    # Strip scripts and styles
-    cleaned = re.sub(r'<(script|style)[^>]*>[\s\S]*?</\1>', '', html, flags=re.IGNORECASE)
-    # Strip simulator UI containers completely
-    cleaned = re.sub(r'<!-- Inline Embedded Execution Simulator -->[\s\S]*?(?=<div class="callout-box|\Z)', '', cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r'<div class="sim-container"[\s\S]*?(?=<div class="callout-box|\Z)', '', cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r'Click [\'"]Step Forward[\'"][^\n\.]*\.?', '', cleaned, flags=re.IGNORECASE)
-    cleaned = re.sub(r'<!--[\s\S]*?-->', '', cleaned)
-    # Convert HTML tables to Markdown pipe syntax before tag stripping
-    cleaned = re.sub(r'<table[^>]*>[\s\S]*?</table>', html_table_to_markdown, cleaned, flags=re.IGNORECASE)
-    # Block conversions
-    cleaned = re.sub(r'</?(?:p|div|h\d|section|article)[^>]*>', '\n', cleaned)
-    cleaned = re.sub(r'<br\s*/?>', '\n', cleaned)
-    # Inline code
-    cleaned = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', cleaned)
-    # Bold / Strong
-    cleaned = re.sub(r'<(?:strong|b)[^>]*>(.*?)</(?:strong|b)>', r'**\1**', cleaned)
-    # Strip any remaining tags
-    cleaned = re.sub(r'<[^>]+>', '', cleaned)
-    # Strip residual simulator buttons or status text if any slipped through
-    cleaned = re.sub(r'^\s*(?:Step Forward\s*→?|Reset|STATE:\s*[A-Z\s\(\)]+|UNRELIABLE TRANSIT LINK|Sender\s*/\s*Host\s*[A-Z]|Receiver\s*/\s*Host\s*[A-Z])\s*$', '', cleaned, flags=re.MULTILINE)
-    # Collapse multiple blank lines
-    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned)
-    return cleaned.strip()
+    text = html
 
-def render_markdown_lesson(data, topic_id, theme_name):
+    # Simulator handling: provide a structured walkthrough rather than leaving an empty gap
+    if 'sim-container' in text:
+        sim_summary = (
+            "\n> [!NOTE] Interactive Simulation Walkthrough\n"
+            "> *The interactive HTML edition provides a live tactile simulator for this mechanism. Key invariants modeled:*\n"
+            "> - Packet flight across physical network link bound by speed-of-light propagation latency.\n"
+            "> - Under packet drops, observing kernel buffer hold vs. immediate uncoordinated pass-through.\n"
+            "> - Reassembly, Head-of-Line blocking stalls, and retransmission recovery dynamics.\n"
+        )
+        text = re.sub(r'<div class=[\"\']sim-container[\"\']>[\s\S]*?</div>\s*(?=<div class="callout-box"|</div>|\Z)', sim_summary, text)
+
+    # Convert Jargon Cards to structured markdown callouts
+    def jargon_sub(m):
+        t = re.sub(r'<[^>]+>', '', m.group(1)).replace('💡', '').replace('Jargon Unpacked:', '').strip()
+        p = re.sub(r'<[^>]+>', '', m.group(2)).strip()
+        b = re.sub(r'</?p[^>]*>', '\n', m.group(3))
+        b = re.sub(r'<[^>]+>', '', b).strip()
+        b_lines = '\n> '.join([line.strip() for line in b.split('\n') if line.strip()])
+        return f"\n> 💡 **Jargon Unpacked: {t}** *({p})*\n> {b_lines}\n"
+    text = re.sub(r'<div class=[\"\']jargon-card[\"\']>[\s\S]*?<span class=[\"\']jargon-title[\"\']>([\s\S]*?)</span>[\s\S]*?<span class=[\"\']jargon-pill[\"\']>([\s\S]*?)</span>[\s\S]*?<div class=[\"\']jargon-body[\"\']>([\s\S]*?)</div>\s*</div>', jargon_sub, text)
+
+    # Convert Callout Boxes to GitHub alerts
+    for kind, alert in [('callout-dilemma', 'WARNING'), ('callout-mechanism', 'NOTE'), ('callout-invariant', 'IMPORTANT'), ('callout-trap', 'CAUTION')]:
+        def callout_sub(m, a=alert, k=kind):
+            c = re.sub(r'</?p[^>]*>', '\n', m.group(1))
+            c = re.sub(r'<[^>]+>', '', c).strip()
+            lines = '\n> '.join([line.strip() for line in c.split('\n') if line.strip()])
+            title = k.replace('callout-', '').capitalize()
+            return f"\n> [!{a}] {title}\n> {lines}\n"
+        text = re.sub(rf'<div class=[\"\']callout-box\s+{kind}[\"\']>([\s\S]*?)</div>', callout_sub, text)
+
+    # Convert Analogy & Breakthrough Cards
+    def analogy_sub(m):
+        c = re.sub(r'</?p[^>]*>', '\n', m.group(1))
+        c = re.sub(r'<[^>]+>', '', c).strip()
+        lines = '\n> '.join([line.strip() for line in c.split('\n') if line.strip()])
+        return f"\n> [!TIP] Intuitive Analogy\n> {lines}\n"
+    text = re.sub(r'<div class=[\"\']analogy-card[\"\']>[\s\S]*?<div class=[\"\']analogy-body[\"\']>([\s\S]*?)</div>\s*</div>', analogy_sub, text)
+
+    def aha_sub(m):
+        c = re.sub(r'</?p[^>]*>', '\n', m.group(1))
+        c = re.sub(r'<[^>]+>', '', c).strip()
+        lines = '\n> '.join([line.strip() for line in c.split('\n') if line.strip()])
+        return f"\n> [!NOTE] Breakthrough Realization\n> {lines}\n"
+    text = re.sub(r'<div class=[\"\']aha-card[\"\']>[\s\S]*?<div class=[\"\']aha-body[\"\']>([\s\S]*?)</div>\s*</div>', aha_sub, text)
+
+    # Convert Editorial Lead
+    def lead_sub(m):
+        c = re.sub(r'<[^>]+>', '', m.group(1)).strip()
+        return f"\n> *{c}*\n"
+    text = re.sub(r'<div class=[\"\']editorial-lead[\"\']>([\s\S]*?)</div>', lead_sub, text)
+
+    # Strip scripts, styles, comments
+    text = re.sub(r'<(script|style)[^>]*>[\s\S]*?</\1>', '', text, flags=re.IGNORECASE)
+    text = re.sub(r'<!--[\s\S]*?-->', '', text)
+
+    # Convert HTML tables to Markdown pipe syntax
+    text = re.sub(r'<table[^>]*>[\s\S]*?</table>', html_table_to_markdown, text, flags=re.IGNORECASE)
+
+    # Inline formatting
+    text = re.sub(r'<code[^>]*>(.*?)</code>', r'`\1`', text)
+    text = re.sub(r'<(?:strong|b)[^>]*>(.*?)</(?:strong|b)>', r'**\1**', text)
+    text = re.sub(r'<(?:em|i)[^>]*>(.*?)</(?:em|i)>', r'*\1*', text)
+
+    # Block conversions
+    text = re.sub(r'</?(?:p|div|h\d|section|article)[^>]*>', '\n', text)
+    text = re.sub(r'<br\s*/?>', '\n', text)
+
+    # Strip any remaining tags
+    text = re.sub(r'<[^>]+>', '', text)
+
+    # Collapse multiple blank lines
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    return text.strip()
+
+def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown"):
     """
-    Renders pure GitHub Flavored Markdown lesson artifact without raw HTML or JavaScript.
-    Embeds Mermaid diagrams, ASCII state trace tables, and unassisted sign-off scenarios.
+    Renders pure GitHub Flavored Markdown lesson artifact from JSON payload.
+    Preserves 100% of first-principles depth, mathematical derivations, and sign-off defense gates.
     """
     title = data.get("LESSON_TITLE", "System Design Lesson")
     subtitle = data.get("LESSON_SUBTITLE", "")
-    tier = data.get("TIER_BADGE", "Tier")
+    tier = data.get("TIER_BADGE", "Tier 0 · System Design Core")
     cluster = data.get("CLUSTER_BADGE", "Cluster")
-    depth = data.get("DEPTH_MARKERS", "[mechanics]")
+    backward = data.get("BACKWARD_ANCHOR", "")
+    forward = data.get("FORWARD_HOOK", "")
 
-    dilemma_title = data.get("SECTION_1_TITLE", "1. The Inception & Forcing Problem")
-    dilemma_body = clean_html_to_markdown(data.get("SECTION_1_BODY", ""))
+    sec1_title = strip_section_index(data.get("SECTION_1_TITLE", "Physical Dilemma & Inception"))
+    sec1_body = clean_html_to_markdown(data.get("SECTION_1_BODY", ""))
 
-    placement_title = data.get("SECTION_2_TITLE", "2. Core Architectural Abstraction")
-    placement_body = clean_html_to_markdown(data.get("SECTION_2_BODY", ""))
+    sec2_title = strip_section_index(data.get("SECTION_2_TITLE", "System Architecture & Placement"))
+    sec2_body = clean_html_to_markdown(data.get("SECTION_2_BODY", ""))
 
-    mechanics_title = data.get("SECTION_3_TITLE", "3. Internal Mechanics & Causality")
-    mechanics_body = clean_html_to_markdown(data.get("SECTION_3_BODY", ""))
+    sec3_title = strip_section_index(data.get("SECTION_3_TITLE", "Internal Mechanics & Causality"))
+    sec3_body = clean_html_to_markdown(data.get("SECTION_3_BODY", ""))
 
-    mental_title = data.get("SECTION_4_TITLE", "4. Mental Model Synthesis & Production Grounding")
-    mental_body = clean_html_to_markdown(data.get("SECTION_4_BODY", ""))
+    sec4_title = strip_section_index(data.get("SECTION_4_TITLE", "Production Grounding & Mental Model"))
+    sec4_body = clean_html_to_markdown(data.get("SECTION_4_BODY", ""))
 
-    signoff_title = data.get("SECTION_5_TITLE", "5. Contextual Sign-Off Verification Gate")
-    signoff_body = clean_html_to_markdown(data.get("SECTION_5_BODY", ""))
+    sec5_title = strip_section_index(data.get("SECTION_5_TITLE", "Architectural Defense Challenge"))
+    sec5_body = clean_html_to_markdown(data.get("SECTION_5_BODY", ""))
 
     md = []
     md.append(f"# {title}\n")
-    md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Depth**: `{depth}` | **Format**: Clean Markdown (Zero-JS)\n")
+    md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Topic ID**: `{topic_id}` | **Format**: Complete Markdown Edition\n")
     if subtitle:
         md.append(f"*{subtitle}*\n")
     md.append("---\n")
 
-    md.append(f"## {dilemma_title}\n")
-    md.append(f"{dilemma_body}\n")
+    if backward or forward:
+        md.append(f"> **Backward Anchor**: {backward}  \n> **Forward Hook**: {forward}\n")
+        md.append("---\n")
 
-    md.append(f"## {placement_title}\n")
-    md.append(f"{placement_body}\n")
+    md.append(f"## {sec1_title}\n")
+    md.append(f"{sec1_body}\n")
+    md.append("\n---\n")
 
-    md.append(f"## {mechanics_title}\n")
-    md.append(f"{mechanics_body}\n")
+    md.append(f"## {sec2_title}\n")
+    md.append(f"{sec2_body}\n")
+    md.append("\n---\n")
+
+    md.append(f"## {sec3_title}\n")
+    md.append(f"{sec3_body}\n")
 
     # Embedded Mermaid Protocol Sequence Diagram
+    mermaid_block = data.get("MERMAID_DIAGRAM")
+    if not mermaid_block:
+        mermaid_block = """sequenceDiagram
+    autonumber
+    actor Client as Sender / Client Node
+    participant Network as Physical Network (RTT ~ 50ms)
+    actor Server as Receiver / Server Replica
+
+    Client->>Network: Packet / Handshake SYN (SEQ = 100)
+    Network->>Server: In-flight transit (RTT/2)
+    Note over Server: Allocate Socket Buffer & Parse Headers
+    Server->>Network: ACK / Response (ACK = 101, WIN = 65535)
+    Network->>Client: In-flight transit (RTT/2)
+    Note over Client: Sliding Window Advanced"""
     md.append("### Protocol & State Machine Transition")
     md.append("```mermaid")
-    md.append("sequenceDiagram")
-    md.append("    autonumber")
-    md.append("    actor Client as Sender / Client Node")
-    md.append("    participant Network as Physical Network (RTT ~ 50ms)")
-    md.append("    actor Server as Receiver / Server Replica")
-    md.append("")
-    md.append("    Client->>Network: Packet / Handshake SYN (SEQ = 100)")
-    md.append("    Network->>Server: In-flight transit (RTT/2)")
-    md.append("    Note over Server: Allocate Socket Buffer & Parse Headers")
-    md.append("    Server->>Network: ACK / Response (ACK = 101, WIN = 65535)")
-    md.append("    Network->>Client: In-flight transit (RTT/2)")
-    md.append("    Note over Client: Sliding Window Advanced")
+    md.append(mermaid_block.strip())
     md.append("```\n")
+    md.append("\n---\n")
 
-    # ASCII Hardware State Trace
-    md.append("### Hardware & Buffer State Trace")
-    md.append("```text")
-    md.append("+-----------------------------------------------------------------+")
-    md.append("| INVARIANT: Speed of Light in Silica ~ 5 μs/km                  |")
-    md.append("| TRANSIT:   Trans-Atlantic RTT ~ 70 ms | Local DC RTT ~ 0.5 ms   |")
-    md.append("+-----------------------------------------------------------------+")
-    md.append("| [Sender Socket Buffer] --------> [Kernel NIC Ring Buffer]       |")
-    md.append("|          |                                  |                   |")
-    md.append("|    (Write to FD)                    (Packet Serialization)      |")
-    md.append("|          v                                  v                   |")
-    md.append("| [TCP TX Queue: 64KB]             [Wire: IP/TCP Frame Header]   |")
-    md.append("+-----------------------------------------------------------------+")
-    md.append("```\n")
+    md.append(f"## {sec4_title}\n")
+    md.append(f"{sec4_body}\n")
+    md.append("\n---\n")
 
-    md.append(f"## {mental_title}\n")
-    md.append(f"{mental_body}\n")
-
-    md.append("### Architectural Trade-Off Invariant Matrix")
-    md.append("| Dimension | Primary Architectural Mechanism | Uncoordinated / Naive Alternative |")
-    md.append("| :--- | :--- | :--- |")
-    md.append("| **Latency Floor** | Predictable bound under normal conditions | Low initial RTT, catastrophic jitter on drop |")
-    md.append("| **Coordination Cost** | Strict ordering & write amplification | Split-brain risk, out-of-order anomalies |")
-    md.append("| **Failure Domain** | Bounded blast radius via timeouts & WAL | Cascading failure under thundering herd |\n")
-
-    md.append(f"## {signoff_title}\n")
+    md.append(f"## {sec5_title}\n")
     md.append("> [!IMPORTANT]")
-    md.append("> **UNASSISTED SIGN-OFF CHALLENGE (DEFEND IN CHAT)**")
-    md.append(f"> {signoff_body}")
+    md.append("> **ARCHITECTURAL DEFENSE GATE (DEFEND IN CHAT)**")
+    md.append(f">\n{sec5_body}\n")
     md.append(">\n> *Analyze the scenario above and defend your architectural recommendations cold in chat discussion to achieve topic sign-off.*\n")
 
     return "\n".join(md)
@@ -586,7 +520,7 @@ def audit_lesson_payload(data, topic_id=None, inst_dir=None):
         audit_passes.append(f"Depth & Anti-Compression: Robust narrative ({word_count} words)")
 
     # 2. Jargon Unpacking Check
-    jargon_cards = re.findall(r'class=["\'][^"\']*(?:jargon-card|jargon-pill|jargon-box)[^"\']*["\']', narrative_text)
+    jargon_cards = re.findall(r'class=["\'][^"\']*(?:jargon-card|jargon-pill|jargon-box|jargon-tooltip-wrapper|jargon-pill-cue)[^"\']*["\']', narrative_text)
     if len(jargon_cards) < 3:
         audit_warnings.append(
             f"Low Jargon Unpacking Density: Only {len(jargon_cards)} jargon callout elements (<div class=\"jargon-card|jargon-pill|jargon-box\">) found. "
@@ -800,6 +734,38 @@ def main():
     normalized_data = {}
     for k, v in data.items():
         normalized_data[k.upper()] = v
+
+    # Normalize nested schema structures if present
+    if "sections" in data and isinstance(data["sections"], list):
+        for idx, sec in enumerate(data["sections"][:5], start=1):
+            if isinstance(sec, dict):
+                if f"SECTION_{idx}_TITLE" not in normalized_data:
+                    normalized_data[f"SECTION_{idx}_TITLE"] = sec.get("heading") or sec.get("title") or f"Section {idx}"
+                if f"SECTION_{idx}_BODY" not in normalized_data:
+                    normalized_data[f"SECTION_{idx}_BODY"] = sec.get("bodyHtml") or sec.get("body") or sec.get("content") or ""
+
+    if "title" in data and "LESSON_TITLE" not in normalized_data:
+        normalized_data["LESSON_TITLE"] = data["title"]
+    if "subtitle" in data and "LESSON_SUBTITLE" not in normalized_data:
+        normalized_data["LESSON_SUBTITLE"] = data["subtitle"]
+    if "meta" in data and isinstance(data["meta"], dict):
+        if "tier" in data["meta"] and "TIER_BADGE" not in normalized_data:
+            normalized_data["TIER_BADGE"] = data["meta"]["tier"]
+        if "cluster" in data["meta"] and "CLUSTER_BADGE" not in normalized_data:
+            normalized_data["CLUSTER_BADGE"] = data["meta"]["cluster"]
+    if "backwardAnchor" in data:
+        ba = data["backwardAnchor"]
+        if isinstance(ba, dict):
+            normalized_data["BACKWARD_ANCHOR"] = f"{ba.get('topic', '')}: {ba.get('takeaway', '')}".strip(" :")
+        elif isinstance(ba, str):
+            normalized_data["BACKWARD_ANCHOR"] = ba
+    if "forwardHook" in data:
+        fh = data["forwardHook"]
+        if isinstance(fh, dict):
+            normalized_data["FORWARD_HOOK"] = f"{fh.get('topic', '')}: {fh.get('takeaway', '')}".strip(" :")
+        elif isinstance(fh, str):
+            normalized_data["FORWARD_HOOK"] = fh
+
     data = normalized_data
 
     # Allow CLI overrides
@@ -823,43 +789,60 @@ def main():
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
     os.makedirs(target_output_dir, exist_ok=True)
 
-    if output_format == "markdown":
-        filename = f"{slug}.md"
-        rendered = render_markdown_lesson(data, args.topic_id, theme["name"])
-        out_path = os.path.join(target_output_dir, filename)
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(rendered)
-        print(f"✅ Lesson rendered to {out_path} [Format: Markdown Clean]")
-    else:
-        filename = f"{slug}.html"
-        # Theming is delegated dynamically to dashboard based on live theme preset
-        data["THEME_CSS_VARS"] = ""
-        data["THEME_NAME"] = "Dynamic Dashboard Theme"
-        data["THEME_ID"] = "dynamic"
+    # 1. Strip numerical indexing from section titles for unindexed clean headings
+    for i in range(1, 6):
+        tk = f"SECTION_{i}_TITLE"
+        if tk in data:
+            data[tk] = strip_section_index(data[tk])
 
-        template_str = DEFAULT_TEMPLATE
-        custom_template = args.template or locate_resource_template()
-        if custom_template and os.path.exists(custom_template):
-            try:
-                with open(custom_template, "r", encoding="utf-8") as f:
-                    template_str = f.read()
-            except Exception as e:
-                print(f"⚠️ Warning: Could not read template at {custom_template}: {e}. Using built-in default.")
+    # 2. Render Markdown edition (clean, comprehensive GFM with alert boxes and unpacked definitions)
+    md_filename = f"{slug}.md"
+    rendered_md = render_markdown_lesson(data, args.topic_id, theme["name"])
+    md_out_path = os.path.join(target_output_dir, md_filename)
+    with open(md_out_path, "w", encoding="utf-8") as f:
+        f.write(rendered_md)
+    print(f"✅ Lesson rendered to {md_out_path} [Format: Markdown Clean]")
 
-        rendered = template_str
-        for k, v in data.items():
-            rendered = rendered.replace(f"{{{{{k}}}}}", str(v))
+    # 3. Transform HTML bodies: jargons into non-disruptive inline tooltip cues with popovers
+    html_data = dict(data)
+    for i in range(1, 6):
+        bk = f"SECTION_{i}_BODY"
+        if bk in html_data:
+            html_data[bk] = transform_jargons_to_tooltips(html_data[bk])
 
-        out_path = os.path.join(target_output_dir, filename)
-        with open(out_path, "w", encoding="utf-8") as f:
-            f.write(rendered)
-        print(f"✅ Lesson rendered to {out_path} [Format: HTML | Style: {theme['name']}]")
+    # 4. Render Interactive HTML edition (vertically tabbed sidebar with live simulators)
+    html_filename = f"{slug}.html"
+    html_data["THEME_CSS_VARS"] = ""
+    html_data["THEME_NAME"] = "Dynamic Dashboard Theme"
+    html_data["THEME_ID"] = "dynamic"
 
+    template_str = DEFAULT_TEMPLATE
+    custom_template = args.template or locate_resource_template()
+    if custom_template and os.path.exists(custom_template):
+        try:
+            with open(custom_template, "r", encoding="utf-8") as f:
+                template_str = f.read()
+        except Exception as e:
+            print(f"⚠️ Warning: Could not read template at {custom_template}: {e}. Using built-in default.")
+
+    rendered_html = template_str
+    for k, v in html_data.items():
+        rendered_html = rendered_html.replace(f"{{{{{k}}}}}", str(v))
+
+    html_out_path = os.path.join(target_output_dir, html_filename)
+    with open(html_out_path, "w", encoding="utf-8") as f:
+        f.write(rendered_html)
+    print(f"✅ Lesson rendered to {html_out_path} [Format: HTML | Style: {theme['name']}]")
+
+    # 5. Stage both formats to conversation artifact dir if provided
     if args.brain_dir and os.path.exists(args.brain_dir):
-        brain_path = os.path.join(args.brain_dir, filename)
-        with open(brain_path, "w", encoding="utf-8") as f:
-            f.write(rendered)
-        print(f"✅ Staged to conversation artifact dir: {brain_path}")
+        brain_html_path = os.path.join(args.brain_dir, html_filename)
+        brain_md_path = os.path.join(args.brain_dir, md_filename)
+        with open(brain_html_path, "w", encoding="utf-8") as f:
+            f.write(rendered_html)
+        with open(brain_md_path, "w", encoding="utf-8") as f:
+            f.write(rendered_md)
+        print(f"✅ Staged HTML & Markdown artifacts to conversation artifact dir: {args.brain_dir}")
 
     # Synchronize instance state so status recognizes delivered artifact immediately
     inst_dir = None
@@ -879,11 +862,12 @@ def main():
                 m_data = json.load(mf)
             if "cursor" in m_data:
                 m_data["cursor"]["topicFoundationStatus"] = "delivered"
-                m_data["cursor"]["nextTeachingAction"] = f"Review delivered lesson artifact ({filename}) and engage in Socratic dialectic defense via /sds-discuss"
+                m_data["cursor"]["nextTeachingAction"] = f"Review delivered lesson artifact ({html_filename}) and engage in Socratic dialectic defense via /sds-discuss"
             for cl in m_data.get("curriculum", {}).get("clusters", []):
                 for tp in cl.get("topics", []):
                     if tp.get("id") == args.topic_id:
-                        tp["lessonArtifact"] = f"lessons/{filename}"
+                        tp["lessonArtifact"] = f"lessons/{html_filename}"
+                        tp["markdownArtifact"] = f"lessons/{md_filename}"
             with open(m_path, "w", encoding="utf-8") as mf:
                 json.dump(m_data, mf, indent=2)
 
@@ -894,7 +878,7 @@ def main():
                 c_txt = re.sub(r"(\*Topic Foundation Status\*:\s*`?)[^`\n]+(`?)", r"\g<1>delivered\g<2>", c_txt)
                 c_txt = re.sub(
                     r"(\*Immediate Next Teaching Action\*:)[\s\S]*?(?=\n\n|\n---|\Z)",
-                    f"*Immediate Next Teaching Action*: Review delivered lesson artifact ({filename}) and engage in Socratic dialectic defense via /sds-discuss",
+                    f"*Immediate Next Teaching Action*: Review delivered lesson artifact ({html_filename}) and engage in Socratic dialectic defense via /sds-discuss",
                     c_txt
                 )
                 with open(c_md_path, "w", encoding="utf-8") as cf:
