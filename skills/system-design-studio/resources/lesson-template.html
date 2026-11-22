@@ -1,26 +1,3 @@
-<!--
-  System Design Studio — Cohesive Interactive Lesson Template
-  Architecture: Single-topic progressive disclosure artifact.
-  
-  PEDAGOGICAL CONTRACT (Strictly Non-Coverage-Based):
-  The lesson is ONE continuous, cohesive discussion with unique information and progressive disclosure.
-  No repetitive coverage silos (no brief overview -> foundation cards -> deep explanations -> summary tables).
-  
-  The 5 Narrative Stages (for the agent to structure the cohesive story; DO NOT index sections with these names):
-    1. Background context & foundation of the problem in the absence of the active topic (WHYs & optional WHENs).
-       Exhaustive closure of WHY here. A central concrete dilemma/problem introduced here continues throughout.
-    2. The active topic & its landscape/surroundings (WHATs & optional WHEREs).
-       Assume brand new unless cursor.md states otherwise. Exhaustive closure of WHAT and WHERE in the stack.
-    3. Internal mechanics, causality & trade-offs (HOWs & WHYs of HOWs).
-       How it works, why it works that way, and why any alternative design collapses. Digestible mechanical grasp.
-       Interactive components / live simulators are embedded right here inline where the mechanism is explained.
-    4. Mental model synthesis & production grounding.
-       Bundles prior insights into a unified, sticky mental model. Direct correlation to real production use cases.
-    5. Contextual sign-off verification.
-       Leaves the reader with one or more contextual engineering scenarios/questions without pre-baked answers.
-       
-  NOTE: Interactive components/simulators have NO dedicated section; embed them as and when needed throughout.
--->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,6 +23,8 @@
       --muted-foreground: inherit;
       --primary: #2563eb;
       --primary-hover: #1d4ed8;
+      --primary-container: #ffcc00;
+      --on-primary-container: #1a1a1a;
       --accent-badge: rgba(37, 99, 235, 0.1);
       --accent-badge-text: #2563eb;
     }
@@ -57,36 +36,56 @@
     ::-webkit-scrollbar-thumb:hover { background: var(--muted-foreground, #94a3b8); }
 
     /* Universal Responsive Layout */
-    body { background-color: var(--background, transparent); color: var(--foreground, inherit); font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; margin: 0; padding: 1.5rem; }
-    .max-w-4xl { max-width: 56rem; margin-left: auto; margin-right: auto; }
-    .space-y-12 > * + * { margin-top: 3rem; }
-    .space-y-8 > * + * { margin-top: 2rem; }
-    .space-y-6 > * + * { margin-top: 1.5rem; }
-    .space-y-4 > * + * { margin-top: 1rem; }
-    .space-y-2 > * + * { margin-top: 0.5rem; }
-    .flex { display: flex; }
-    .flex-wrap { flex-wrap: wrap; }
-    .items-center { align-items: center; }
-    .justify-between { justify-content: space-between; }
-    .gap-2 { gap: 0.5rem; }
-    .gap-4 { gap: 1rem; }
-    .gap-6 { gap: 1.5rem; }
-    .grid { display: grid; gap: 1rem; }
-    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-    @media (min-width: 768px) {
-      .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .md\:p-8 { padding: 2rem; }
-      .md\:text-5xl { font-size: 3rem; line-height: 1; }
-      .md\:text-2xl { font-size: 1.5rem; }
+    body {
+      background-color: var(--background, transparent);
+      color: var(--foreground, inherit);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
     }
-    .rounded-xl { border-radius: 0.75rem; }
-    .rounded-lg { border-radius: 0.5rem; }
-    .rounded-full { border-radius: 9999px; }
-    .font-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    button { cursor: pointer; border: none; font-family: inherit; }
 
-    /* Universal component utilities for fluid narrative lessons (Medium / Substack essay vibe) */
+    /* Clean, content-hugging text selection inside lessons */
+    ::selection {
+      background-color: rgba(0, 229, 255, 0.28) !important;
+      color: inherit !important;
+    }
+    html.dark ::selection {
+      background-color: rgba(0, 229, 255, 0.32) !important;
+      color: inherit !important;
+    }
+    html::selection,
+    html.dark::selection,
+    html:not(.dark)::selection,
+    body::selection,
+    html.dark body::selection,
+    html:not(.dark) body::selection,
+    main::selection,
+    html.dark main::selection,
+    html:not(.dark) main::selection,
+    section::selection,
+    html.dark section::selection,
+    html:not(.dark) section::selection,
+    article::selection,
+    html.dark article::selection,
+    html:not(.dark) article::selection,
+    header::selection,
+    html.dark header::selection,
+    html:not(.dark) header::selection,
+    footer::selection,
+    html.dark footer::selection,
+    html:not(.dark) footer::selection {
+      background-color: transparent !important;
+    }
+    p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
+    .notion-p, .notion-h1, .notion-h2, .notion-h3 {
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    /* Narrative Typography & Section Prose */
     .narrative-prose {
       color: var(--foreground);
       line-height: 1.85;
@@ -116,49 +115,96 @@
       font-weight: 400;
       border-left: 3px solid var(--primary);
       padding-left: 1.25rem;
-      margin: 1.5rem 0 2rem 0;
+      margin: 1.25rem 0 1.75rem 0;
     }
 
-    /* Friendly Jargon Unpacker Callouts */
-    .jargon-card {
-      background: rgba(245, 158, 11, 0.06);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      border-radius: 0.875rem;
-      padding: 1rem 1.25rem;
-      margin: 1.5rem 0;
-      transition: border-color 0.2s ease;
+    /* Jargon Tooltips (Non-disruptive inline cue with rich popover) */
+    .jargon-tooltip-wrapper {
+      display: inline-block;
+      position: relative;
+      margin: 0.15rem 0.15rem;
+      vertical-align: baseline;
     }
-    .jargon-card:hover {
-      border-color: rgba(245, 158, 11, 0.6);
+    .jargon-pill-cue {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 9999px;
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px dashed rgba(245, 158, 11, 0.5);
+      color: #fbbf24;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.18s ease;
     }
-    .jargon-header {
+    .jargon-pill-cue:hover,
+    .jargon-tooltip-wrapper.is-open .jargon-pill-cue {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: #f59e0b;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+    }
+    .jargon-popover-card {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 330px;
+      max-width: 90vw;
+      background: var(--card, #1e293b);
+      border: 1.5px solid #f59e0b;
+      border-radius: 0.75rem;
+      padding: 0.9rem 1.1rem;
+      box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.6), 0 0 15px rgba(245, 158, 11, 0.2);
+      z-index: 100;
+      text-align: left;
+    }
+    .jargon-tooltip-wrapper:hover .jargon-popover-card,
+    .jargon-tooltip-wrapper.is-open .jargon-popover-card {
+      display: block;
+      animation: popoverFadeIn 0.15s ease-out;
+    }
+    @keyframes popoverFadeIn {
+      from { opacity: 0; transform: translate(-50%, 6px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .jargon-popover-header {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 0.5rem;
       margin-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+      padding-bottom: 0.3rem;
     }
-    .jargon-title {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-      font-size: 0.8rem;
+    .jargon-popover-title {
+      font-family: ui-monospace, monospace;
+      font-size: 0.78rem;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
       color: #fbbf24;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .jargon-pill {
-      font-size: 0.7rem;
+    .jargon-popover-badge {
+      font-size: 0.68rem;
       padding: 0.1rem 0.45rem;
       border-radius: 9999px;
       background: rgba(245, 158, 11, 0.2);
       color: #fde68a;
       font-family: ui-monospace, monospace;
     }
-    .jargon-body {
-      font-size: 0.925rem;
-      line-height: 1.6;
+    .jargon-popover-body {
+      font-size: 0.88rem;
+      line-height: 1.55;
       color: var(--foreground);
-      margin: 0;
     }
+    .jargon-popover-body p { margin: 0; }
+    .jargon-popover-body p + p { margin-top: 0.4rem; }
 
     /* Intuitive Analogy / Real-World Picture Cards */
     .analogy-card {
@@ -222,18 +268,10 @@
       padding: 1.25rem 1.5rem;
       margin: 1.5rem 0;
     }
-    .callout-dilemma {
-      border-left: 4px solid #ef4444;
-    }
-    .callout-mechanism {
-      border-left: 4px solid var(--primary);
-    }
-    .callout-invariant {
-      border-left: 4px solid #10b981;
-    }
-    .callout-trap {
-      border-left: 4px solid #f59e0b;
-    }
+    .callout-dilemma { border-left: 4px solid #ef4444; }
+    .callout-mechanism { border-left: 4px solid var(--primary); }
+    .callout-invariant { border-left: 4px solid #10b981; }
+    .callout-trap { border-left: 4px solid #f59e0b; }
 
     /* Embedded Simulator & Interactive Canvas */
     .sim-container {
@@ -288,133 +326,373 @@
       border-bottom: 1px solid var(--border);
       color: var(--foreground);
     }
-    .tradeoff-table tr:last-child td {
-      border-bottom: none;
+    .tradeoff-table tr:last-child td { border-bottom: none; }
+
+    /* Vertical Tabbed Sidebar Styles */
+    .section-tab-btn {
+      cursor: pointer;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
+    }
+    .section-tab-btn:hover {
+      background: var(--card);
+      border-color: var(--card-border);
+    }
+    .section-tab-btn.active {
+      background: var(--card);
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+    .section-tab-btn.active .tab-indicator {
+      background: var(--primary);
+      color: #ffffff;
+    }
+    .section-tab-btn:not(.active) .tab-indicator {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--muted-foreground);
+    }
+    .section-tab-btn.active .tab-stage-tag {
+      color: var(--primary);
+      font-weight: 700;
+    }
+    .section-tab-btn.active .tab-title {
+      color: var(--foreground);
+      font-weight: 700;
     }
 
-    /* Clean, content-hugging text selection inside lessons */
-    html::selection,
-    body::selection,
-    main::selection,
-    section::selection,
-    article::selection,
-    header::selection,
-    footer::selection {
-      background-color: transparent !important;
+    /* Section Panes (Single Active View) */
+    .section-pane {
+      display: none;
     }
-    ::selection {
-      background-color: rgba(0, 229, 255, 0.28) !important;
-      color: inherit !important;
+    .section-pane.active {
+      display: block;
+      animation: paneFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
-    .notion-p, .notion-h1, .notion-h2, .notion-h3 {
-      width: fit-content;
-      max-width: 100%;
+    @keyframes paneFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide-over Glossary Drawer */
+    #glossary-drawer {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      transform: translateX(100%);
+    }
+    #glossary-drawer.is-open {
+      transform: translateX(0);
     }
   </style>
 </head>
-<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased p-4 md:p-8 min-h-screen">
+<body class="bg-[var(--background)] text-[var(--foreground)] font-sans antialiased">
 
-  <div class="max-w-4xl mx-auto space-y-12">
+  <!-- APP CONTAINER: VERTICALLY TABBED SIDEBAR + MAIN VIEWPORT -->
+  <div class="flex flex-col md:flex-row min-h-screen">
 
-    <!-- HERO HEADER: CONTEXTUAL ORIENTATION -->
-    <header class="border-b border-[var(--border)] pb-8 space-y-4">
-      <div class="flex flex-wrap items-center gap-2">
-        <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[var(--primary)] text-white tracking-wide uppercase">{{TIER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
-        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">⚡ First-Principles Systems</span>
-        <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-emerald-950/40 border border-emerald-800 text-emerald-400 flex items-center gap-1.5">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          Live Interactive Simulator
-        </span>
+    <!-- VERTICAL TABBED SIDEBAR -->
+    <aside class="w-full md:w-80 lg:w-84 border-r border-[var(--border)] p-5 md:p-6 space-y-6 flex flex-col justify-between flex-shrink-0 bg-[var(--background)]">
+      <div class="space-y-6">
+        <!-- Topic Badges & Title -->
+        <div class="space-y-2 border-b border-[var(--border)] pb-4">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded bg-[var(--primary)] text-white tracking-wider">{{TIER_BADGE}}</span>
+            <span class="px-2 py-0.5 text-[10px] font-mono uppercase rounded bg-[var(--card)] border border-[var(--card-border)] text-[var(--muted-foreground)]">{{CLUSTER_BADGE}}</span>
+          </div>
+          <h1 class="text-base md:text-lg font-black tracking-tight text-[var(--foreground)] leading-snug">
+            {{LESSON_TITLE}}
+          </h1>
+          <p class="text-xs text-[var(--muted-foreground)] leading-relaxed">
+            {{LESSON_SUBTITLE}}
+          </p>
+        </div>
+
+        <!-- Vertical Tab Navigation Items (Unindexed) -->
+        <nav class="space-y-1.5" aria-label="Lesson Sections">
+          <!-- Tab 1 -->
+          <button type="button" class="section-tab-btn active w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-1" onclick="switchSectionTab('section-1')">
+            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">1</span>
+            <div class="min-w-0">
+              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--primary)] font-bold">Physical Dilemma</div>
+              <div class="tab-title text-xs font-semibold text-[var(--foreground)] truncate">{{SECTION_1_TITLE}}</div>
+            </div>
+          </button>
+          <!-- Tab 2 -->
+          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-2" onclick="switchSectionTab('section-2')">
+            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">2</span>
+            <div class="min-w-0">
+              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">System Architecture</div>
+              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_2_TITLE}}</div>
+            </div>
+          </button>
+          <!-- Tab 3 -->
+          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-3" onclick="switchSectionTab('section-3')">
+            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">3</span>
+            <div class="min-w-0">
+              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">Mechanics &amp; Simulator</div>
+              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_3_TITLE}}</div>
+            </div>
+          </button>
+          <!-- Tab 4 -->
+          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-4" onclick="switchSectionTab('section-4')">
+            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">4</span>
+            <div class="min-w-0">
+              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">Production Reality</div>
+              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_4_TITLE}}</div>
+            </div>
+          </button>
+          <!-- Tab 5 -->
+          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-5" onclick="switchSectionTab('section-5')">
+            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">5</span>
+            <div class="min-w-0">
+              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">Architectural Defense</div>
+              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_5_TITLE}}</div>
+            </div>
+          </button>
+        </nav>
       </div>
 
-      <h1 class="text-3xl md:text-5xl font-black tracking-tight text-[var(--foreground)]">
-        {{LESSON_TITLE}}
-      </h1>
+      <!-- Sidebar Footer: Glossary Drawer & Lineage -->
+      <div class="border-t border-[var(--border)] pt-4 space-y-3">
+        <button type="button" class="w-full py-2 px-3 rounded-lg bg-[var(--card)] hover:bg-[var(--card-border)] border border-[var(--card-border)] text-xs font-medium text-[var(--foreground)] flex items-center justify-between transition-colors" onclick="toggleGlossaryDrawer()">
+          <span class="flex items-center gap-2">
+            <span>💡</span>
+            <span>Key Terms Glossary</span>
+          </span>
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--background)] text-[var(--muted-foreground)]" id="glossary-term-count">Terms</span>
+        </button>
+        <div class="text-[10px] font-mono text-[var(--muted-foreground)] space-y-1">
+          <div class="truncate" title="{{BACKWARD_ANCHOR}}">Anchor: <span class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</span></div>
+          <div class="truncate" title="{{FORWARD_HOOK}}">Hook: <span class="text-[var(--foreground)]">{{FORWARD_HOOK}}</span></div>
+        </div>
+      </div>
+    </aside>
 
-      <p class="text-base md:text-lg text-[var(--muted-foreground)] leading-relaxed max-w-3xl">
-        {{LESSON_SUBTITLE}}
-      </p>
-    </header>
+    <!-- MAIN VIEWPORT (ACTIVE SECTION PANE) -->
+    <main class="lesson-main-viewport flex-1 p-6 md:p-10 max-w-4xl mx-auto w-full overflow-y-auto">
 
-    <!-- NARRATIVE FLOW (5 PROGRESSIVE DISCLOSURE PHASES) -->
-    <main class="space-y-12">
-
-      <!-- PHASE 1: BACKGROUND CONTEXT & THE FORCING PROBLEM (WHYs & optional WHENs) -->
-      <!-- Grounds the foundational dilemma that existed prior to this topic. Exhaustive closure on WHY. -->
-      <section class="space-y-4">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-          {{SECTION_1_TITLE}}
-        </h2>
+      <!-- PANE 1: PHYSICAL DILEMMA -->
+      <article id="pane-section-1" class="section-pane active space-y-6">
+        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 1 · Inception &amp; Physical Dilemma</div>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_1_TITLE}}</h2>
+        </header>
         <div class="narrative-prose">
           {{SECTION_1_BODY}}
         </div>
-      </section>
+        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
+          <span></span>
+          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-2')">
+            <span>Next: System Architecture</span>
+            <span>→</span>
+          </button>
+        </div>
+      </article>
 
-      <!-- PHASE 2: THE ACTIVE TOPIC & SURROUNDING LANDSCAPE (WHATs & optional WHEREs) -->
-      <!-- Defines the core entity, boundaries, and where it sits in the stack. Exhaustive closure on WHAT and WHERE. -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-          {{SECTION_2_TITLE}}
-        </h2>
+      <!-- PANE 2: SYSTEM ARCHITECTURE -->
+      <article id="pane-section-2" class="section-pane space-y-6">
+        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 2 · System Architecture &amp; Placement</div>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_2_TITLE}}</h2>
+        </header>
         <div class="narrative-prose">
           {{SECTION_2_BODY}}
         </div>
-      </section>
+        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
+          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-1')">
+            <span>←</span>
+            <span>Previous: Dilemma</span>
+          </button>
+          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-3')">
+            <span>Next: Mechanics &amp; Simulator</span>
+            <span>→</span>
+          </button>
+        </div>
+      </article>
 
-      <!-- PHASE 3: INTERNAL MECHANICS, INVARIANTS & CAUSALITY (HOWs & WHYs OF HOWs) -->
-      <!-- Exhaustive breakdown of how it works under the hood and why alternative designs fail. -->
-      <!-- Interactive simulators / visual traces are embedded directly inline here if applicable. -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-          {{SECTION_3_TITLE}}
-        </h2>
+      <!-- PANE 3: INTERNAL MECHANICS & SIMULATOR -->
+      <article id="pane-section-3" class="section-pane space-y-6">
+        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 3 · Internal Mechanics &amp; Simulator</div>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_3_TITLE}}</h2>
+        </header>
         <div class="narrative-prose">
           {{SECTION_3_BODY}}
         </div>
-      </section>
+        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
+          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-2')">
+            <span>←</span>
+            <span>Previous: Architecture</span>
+          </button>
+          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-4')">
+            <span>Next: Production Reality</span>
+            <span>→</span>
+          </button>
+        </div>
+      </article>
 
-      <!-- PHASE 4: MENTAL MODEL SYNTHESIS & PRODUCTION CORRELATION -->
-      <!-- Unifies all preceding mechanics into a sticky, lasting mental model tied to real production use cases. -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-          {{SECTION_4_TITLE}}
-        </h2>
+      <!-- PANE 4: PRODUCTION REALITY -->
+      <article id="pane-section-4" class="section-pane space-y-6">
+        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 4 · Production Reality &amp; Mental Model</div>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_4_TITLE}}</h2>
+        </header>
         <div class="narrative-prose">
           {{SECTION_4_BODY}}
         </div>
-      </section>
+        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
+          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-3')">
+            <span>←</span>
+            <span>Previous: Simulator</span>
+          </button>
+          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-5')">
+            <span>Next: Architectural Defense</span>
+            <span>→</span>
+          </button>
+        </div>
+      </article>
 
-      <!-- PHASE 5: CONTEXTUAL SIGN-OFF VERIFICATION GATE -->
-      <!-- Leaves the reader with bounded scenario questions to analyze and defend in chat. No pre-baked answers. -->
-      <section class="space-y-4 border-t border-[var(--border)] pt-8">
-        <h2 class="text-xl md:text-2xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-          {{SECTION_5_TITLE}}
-        </h2>
+      <!-- PANE 5: ARCHITECTURAL DEFENSE GATE -->
+      <article id="pane-section-5" class="section-pane space-y-6">
+        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
+          <div class="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">Stage 5 · Contextual Sign-Off Verification</div>
+          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_5_TITLE}}</h2>
+        </header>
         <div class="narrative-prose">
           {{SECTION_5_BODY}}
         </div>
-      </section>
+        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
+          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-4')">
+            <span>←</span>
+            <span>Previous: Production</span>
+          </button>
+          <div class="text-xs font-mono text-[var(--muted-foreground)]">
+            Ready to defend? Reply in chat to begin Socratic evaluation.
+          </div>
+        </div>
+      </article>
 
     </main>
 
-    <!-- FOOTER NAV: RUNNING CONTEXT & COGNITIVE LINEAGE -->
-    <footer class="border-t border-[var(--border)] pt-8 pb-12 flex flex-col md:flex-row items-center justify-between text-xs text-[var(--muted-foreground)] gap-4">
-      <div>
-        System Design Studio · <span class="font-semibold text-[var(--foreground)]">{{LESSON_TITLE}}</span>
-      </div>
-      <div class="flex items-center gap-4 font-mono text-[11px]">
-        <span>Backward Anchor: <strong class="text-[var(--foreground)]">{{BACKWARD_ANCHOR}}</strong></span>
-        <span>•</span>
-        <span>Next Hook: <strong class="text-[var(--foreground)]">{{FORWARD_HOOK}}</strong></span>
-      </div>
-    </footer>
-
   </div>
 
-  <!-- EMBEDDED INTERACTION SCRIPT (IF APPLICABLE) -->
+  <!-- SLIDE-OVER GLOSSARY DRAWER -->
+  <div id="glossary-drawer" class="fixed inset-y-0 right-0 w-80 md:w-96 bg-[var(--card)] border-l border-[var(--border)] p-5 shadow-2xl z-50 flex flex-col justify-between overflow-y-auto">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+        <div class="flex items-center gap-2">
+          <span class="text-base">💡</span>
+          <h3 class="font-bold text-sm text-[var(--foreground)] uppercase tracking-wider font-mono">Key Terms Glossary</h3>
+        </div>
+        <button type="button" class="p-1 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)]" onclick="closeGlossaryDrawer()">✕</button>
+      </div>
+      <div id="glossary-terms-list" class="space-y-3">
+        <!-- Dynamically populated from unpacked jargons -->
+      </div>
+    </div>
+    <div class="pt-4 border-t border-[var(--border)] text-[10px] font-mono text-[var(--muted-foreground)] text-center">
+      Unpacked inline for frictionless systems reading.
+    </div>
+  </div>
+
+  <!-- EMBEDDED JAVASCRIPT: TAB NAVIGATION & SIMULATOR LOGIC -->
   <script>
+    // Tab Navigation
+    function switchSectionTab(targetId) {
+      document.querySelectorAll('.section-tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelectorAll('.section-pane').forEach(pane => {
+        pane.classList.remove('active');
+        pane.style.display = 'none';
+      });
+
+      const targetBtn = document.querySelector(`.section-tab-btn[data-target="${targetId}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+
+      const targetPane = document.getElementById(`pane-${targetId}`);
+      if (targetPane) {
+        targetPane.classList.add('active');
+        targetPane.style.display = 'block';
+      }
+
+      const mainView = document.querySelector('.lesson-main-viewport') || window;
+      if (mainView.scrollTo) {
+        mainView.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+
+    // Keyboard Shortcuts: [ and ] or ArrowLeft/ArrowRight
+    window.addEventListener('keydown', (e) => {
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
+      const tabIds = ['section-1', 'section-2', 'section-3', 'section-4', 'section-5'];
+      const activeBtn = document.querySelector('.section-tab-btn.active');
+      const currId = activeBtn?.getAttribute('data-target') || 'section-1';
+      const currIdx = tabIds.indexOf(currId);
+
+      if (e.key === '[' || (e.altKey && e.key === 'ArrowLeft')) {
+        if (currIdx > 0) switchSectionTab(tabIds[currIdx - 1]);
+      } else if (e.key === ']' || (e.altKey && e.key === 'ArrowRight')) {
+        if (currIdx < tabIds.length - 1) switchSectionTab(tabIds[currIdx + 1]);
+      } else if (e.key === 'Escape') {
+        closeGlossaryDrawer();
+        document.querySelectorAll('.jargon-tooltip-wrapper.is-open').forEach(el => el.classList.remove('is-open'));
+      }
+    });
+
+    // Jargon Tooltip Toggle (for click / touch interactions)
+    function toggleJargonTooltip(el, event) {
+      if (event) event.stopPropagation();
+      const wrapper = el.closest('.jargon-tooltip-wrapper');
+      if (!wrapper) return;
+      const wasOpen = wrapper.classList.contains('is-open');
+      document.querySelectorAll('.jargon-tooltip-wrapper.is-open').forEach(w => w.classList.remove('is-open'));
+      if (!wasOpen) wrapper.classList.add('is-open');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.jargon-tooltip-wrapper')) {
+        document.querySelectorAll('.jargon-tooltip-wrapper.is-open').forEach(w => w.classList.remove('is-open'));
+      }
+    });
+
+    // Glossary Drawer
+    function toggleGlossaryDrawer() {
+      const drawer = document.getElementById('glossary-drawer');
+      if (drawer) drawer.classList.toggle('is-open');
+    }
+    function closeGlossaryDrawer() {
+      const drawer = document.getElementById('glossary-drawer');
+      if (drawer) drawer.classList.remove('is-open');
+    }
+
+    // Populate Glossary Drawer on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const terms = document.querySelectorAll('.jargon-tooltip-wrapper');
+      const countEl = document.getElementById('glossary-term-count');
+      if (countEl) countEl.innerText = `${terms.length} terms`;
+
+      const listContainer = document.getElementById('glossary-terms-list');
+      if (listContainer && terms.length > 0) {
+        listContainer.innerHTML = '';
+        terms.forEach((t) => {
+          const title = t.querySelector('.jargon-popover-title')?.innerText || 'Term';
+          const badge = t.querySelector('.jargon-popover-badge')?.innerText || '';
+          const body = t.querySelector('.jargon-popover-body')?.innerHTML || '';
+          const card = document.createElement('div');
+          card.className = 'p-3 rounded-lg border border-[var(--border)] bg-[var(--background)] space-y-1.5';
+          card.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-xs font-bold text-amber-400">${title}</span>
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300">${badge}</span>
+            </div>
+            <div class="text-xs text-[var(--foreground)] leading-relaxed">${body}</div>
+          `;
+          listContainer.appendChild(card);
+        });
+      }
+    });
+
     {{EMBEDDED_JAVASCRIPT}}
   </script>
 </body>

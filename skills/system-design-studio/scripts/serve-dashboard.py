@@ -1405,11 +1405,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       font-weight: 800;
       text-transform: uppercase;
       padding: 2px 7px;
-      border: 1px solid rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--border-color, rgba(0, 0, 0, 0.25));
       letter-spacing: 0.06em;
       border-radius: 2px;
       box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.2);
-      color: #ffffff !important;
     }
 
     .tier-badge {
@@ -3276,15 +3275,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     /* TACTILE CONTENT-HUGGING SELECTION (PREVENTS FULL-VIEWPORT HIGHLIGHT SPAN) */
-    html::selection,
-    body::selection,
-    main::selection,
-    section::selection,
-    article::selection,
-    header::selection,
-    footer::selection {
-      background-color: transparent !important;
-    }
     ::selection {
       background-color: rgba(0, 229, 255, 0.28) !important;
       color: inherit !important;
@@ -3292,6 +3282,29 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     html.dark ::selection {
       background-color: rgba(0, 229, 255, 0.32) !important;
       color: inherit !important;
+    }
+    html::selection,
+    html.dark::selection,
+    html:not(.dark)::selection,
+    body::selection,
+    html.dark body::selection,
+    html:not(.dark) body::selection,
+    main::selection,
+    html.dark main::selection,
+    html:not(.dark) main::selection,
+    section::selection,
+    html.dark section::selection,
+    html:not(.dark) section::selection,
+    article::selection,
+    html.dark article::selection,
+    html:not(.dark) article::selection,
+    header::selection,
+    html.dark header::selection,
+    html:not(.dark) header::selection,
+    footer::selection,
+    html.dark footer::selection,
+    html:not(.dark) footer::selection {
+      background-color: transparent !important;
     }
 
     /* MARKDOWN & ADR STYLES FOR NOTES, LESSONS & DECISIONS */
@@ -3479,7 +3492,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <!-- Studio Version Badge (Click to check updates) -->
       <button type="button" class="version-tag-pill" id="nav-version-pill" onclick="openSettingsModal('updates')" title="System Design Studio Version (Click to check for updates)">
         <span class="status-dot green" style="width:6px; height:6px;"></span>
-        <span id="nav-version-label">v3.5.1</span>
+        <span id="nav-version-label">v3.6.0</span>
       </button>
 
       <button aria-label="Refresh data" class="icon-action-btn" onclick="refreshData(true)" type="button" title="Refresh local data">
@@ -3499,6 +3512,19 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       </button>
     </div>
   </header>
+
+  <!-- EAGER AUTO-UPDATE BANNER (Displayed on page load when update is available) -->
+  <div id="eager-update-banner" style="display:none; background:var(--primary-container); color:var(--on-primary-container); padding:8px 16px; border-bottom:2px solid var(--border-color); font-family:var(--font-headline); font-size:12px; font-weight:700; align-items:center; justify-content:space-between; z-index:900;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="material-symbols-outlined" style="font-size:18px;">notifications_active</span>
+      <span id="eager-update-text">Update available!</span>
+    </div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <button type="button" class="btn-primary" style="padding:3px 10px; font-size:11px; background:#1a1a1a; color:#ffffff; border-color:#1a1a1a;" onclick="copyUpdateCommand(this)">Copy Update Command</button>
+      <button type="button" class="btn-ghost" style="padding:3px 8px; font-size:11px;" onclick="openSettingsModal('updates')">View Details</button>
+      <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:14px; border:none;" onclick="dismissUpdateBanner()" title="Dismiss">&times;</button>
+    </div>
+  </div>
 
   <!-- MAIN WORKSPACE -->
   <main class="studio-main">
@@ -4072,11 +4098,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Lesson Format Preference</label>
-          <select id="settings-lesson-format" class="form-input">
-            <option value="html">Interactive HTML (Visual Gauges &amp; Systems)</option>
-            <option value="markdown">Markdown Textual Document</option>
-          </select>
+          <label class="form-label">Artifact Delivery Format</label>
+          <div style="font-size:11px; font-family:var(--font-mono); color:var(--on-surface-variant); background:var(--surface-container-high); padding:6px 10px; border:1px solid var(--border-color); border-radius:3px;">
+            Dual Delivery Active: HTML (Interactive Simulator) &amp; Markdown (.md) are automatically compiled in sync.
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Notes Storage Directory</label>
@@ -4097,7 +4122,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 Studio Updates &amp; Version
               </div>
               <div style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px;">
-                Installed Version: <strong id="settings-installed-version" style="color:var(--primary-container); background:var(--primary); padding:1px 5px;">v3.3.1</strong>
+                Installed Version: <strong id="settings-installed-version" style="color:var(--on-primary-container); background:var(--primary-container); border:1px solid var(--border-color); padding:1px 6px; border-radius:3px; font-weight:700;">v3.6.0</strong>
               </div>
             </div>
             <button type="button" class="btn-ghost" id="btn-check-updates" onclick="checkForUpdates(true)" style="padding:4px 8px; font-size:10px; display:inline-flex; align-items:center; gap:4px;">
@@ -5614,18 +5639,36 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const st = doc.createElement('style');
       st.id = 'sds-highlight-styles';
       st.textContent = `
-        html::selection,
-        body::selection,
-        main::selection,
-        section::selection,
-        article::selection,
-        header::selection,
-        footer::selection {
-          background-color: transparent !important;
-        }
         ::selection {
           background-color: rgba(0, 229, 255, 0.28) !important;
           color: inherit !important;
+        }
+        html.dark ::selection {
+          background-color: rgba(0, 229, 255, 0.32) !important;
+          color: inherit !important;
+        }
+        html::selection,
+        html.dark::selection,
+        html:not(.dark)::selection,
+        body::selection,
+        html.dark body::selection,
+        html:not(.dark) body::selection,
+        main::selection,
+        html.dark main::selection,
+        html:not(.dark) main::selection,
+        section::selection,
+        html.dark section::selection,
+        html:not(.dark) section::selection,
+        article::selection,
+        html.dark article::selection,
+        html:not(.dark) article::selection,
+        header::selection,
+        html.dark header::selection,
+        html:not(.dark) header::selection,
+        footer::selection,
+        html.dark footer::selection,
+        html:not(.dark) footer::selection {
+          background-color: transparent !important;
         }
         p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
         .notion-p, .notion-h1, .notion-h2, .notion-h3 {
@@ -6923,7 +6966,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const p = data.project || {};
           document.getElementById('settings-notes-dir').value = p.notesDir || 'notes';
           document.getElementById('settings-auto-notes').checked = (p.autoGenerateNotes !== false);
-          document.getElementById('settings-lesson-format').value = p.outputType || 'html';
+          const fmtEl = document.getElementById('settings-lesson-format');
+          if (fmtEl) fmtEl.value = p.outputType || 'html';
         }
       } catch (e) {}
       checkForUpdates(false);
@@ -6949,7 +6993,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const res = await fetch(`/api/update?force=${force}`);
         if (res.ok) {
           const data = await res.json();
-          const curr = data.currentVersion || 'v3.5.1';
+          const curr = data.currentVersion || 'v3.6.0';
           const remote = data.remoteVersion || curr;
           const isAvail = (data.updateAvailable === true);
 
@@ -6980,6 +7024,44 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
+    async function checkEagerAutoUpdate() {
+      try {
+        const res = await fetch('/api/update?force=false');
+        if (res.ok) {
+          const data = await res.json();
+          const curr = data.currentVersion || 'v3.6.0';
+          const remote = data.remoteVersion || curr;
+          const formattedCurr = curr.startsWith('v') ? curr : `v${curr}`;
+          const formattedRemote = remote.startsWith('v') ? remote : `v${remote}`;
+          const verLabel = document.getElementById('nav-version-label');
+          const installedEl = document.getElementById('settings-installed-version');
+          if (verLabel) verLabel.innerText = formattedCurr;
+          if (installedEl) installedEl.innerText = formattedCurr;
+
+          if (data.updateAvailable === true) {
+            const banner = document.getElementById('eager-update-banner');
+            const text = document.getElementById('eager-update-text');
+            const pill = document.getElementById('nav-version-pill');
+            if (text) text.innerHTML = `<span><strong>System Design Studio ${formattedRemote}</strong> is now available (Installed: ${formattedCurr}).</span>`;
+            if (banner) banner.style.display = 'flex';
+            if (pill) {
+              pill.style.borderColor = 'var(--secondary)';
+              pill.title = `Update available: ${formattedRemote}! Click to update`;
+              const dot = pill.querySelector('.status-dot');
+              if (dot) { dot.className = 'status-dot pulse'; dot.style.backgroundColor = '#ef4444'; }
+            }
+          }
+        }
+      } catch (e) {
+        // Eager background check ignores offline/network error silently
+      }
+    }
+
+    function dismissUpdateBanner() {
+      const banner = document.getElementById('eager-update-banner');
+      if (banner) banner.style.display = 'none';
+    }
+
     function copyUpdateCommand(btn = null) {
       const cmd = document.getElementById('settings-update-cmd')?.innerText || 'curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash';
       if (navigator.clipboard) {
@@ -6998,7 +7080,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       event.preventDefault();
       const notesDir = document.getElementById('settings-notes-dir').value;
       const autoNotes = document.getElementById('settings-auto-notes').checked;
-      const outputType = document.getElementById('settings-lesson-format').value;
+      const outputType = document.getElementById('settings-lesson-format')?.value || 'html';
       const themePreset = document.getElementById('settings-theme-preset').value;
 
       applyThemePreset(themePreset);
@@ -7024,6 +7106,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     // Boot
     window.addEventListener('DOMContentLoaded', () => {
       initTheme();
+      refreshData();
+      setupSSE();
+      checkEagerAutoUpdate();
       refreshData();
       setupSSE();
 
@@ -7596,15 +7681,6 @@ html:not(.dark) ::-webkit-scrollbar-thumb {{
 }}
 
 /* Clean, content-hugging text selection inside lessons */
-html::selection,
-body::selection,
-main::selection,
-section::selection,
-article::selection,
-header::selection,
-footer::selection {{
-  background-color: transparent !important;
-}}
 ::selection {{
   background-color: rgba(0, 229, 255, 0.28) !important;
   color: inherit !important;
@@ -7612,6 +7688,29 @@ footer::selection {{
 html.dark ::selection {{
   background-color: rgba(0, 229, 255, 0.32) !important;
   color: inherit !important;
+}}
+html::selection,
+html.dark::selection,
+html:not(.dark)::selection,
+body::selection,
+html.dark body::selection,
+html:not(.dark) body::selection,
+main::selection,
+html.dark main::selection,
+html:not(.dark) main::selection,
+section::selection,
+html.dark section::selection,
+html:not(.dark) section::selection,
+article::selection,
+html.dark article::selection,
+html:not(.dark) article::selection,
+header::selection,
+html.dark header::selection,
+html:not(.dark) header::selection,
+footer::selection,
+html.dark footer::selection,
+html:not(.dark) footer::selection {{
+  background-color: transparent !important;
 }}
 p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
 .notion-p, .notion-h1, .notion-h2, .notion-h3 {{

@@ -279,18 +279,36 @@
     }
 
     /* Clean, content-hugging text selection inside lessons */
-    html::selection,
-    body::selection,
-    main::selection,
-    section::selection,
-    article::selection,
-    header::selection,
-    footer::selection {
-      background-color: transparent !important;
-    }
     ::selection {
       background-color: rgba(0, 229, 255, 0.28) !important;
       color: inherit !important;
+    }
+    html.dark ::selection {
+      background-color: rgba(0, 229, 255, 0.32) !important;
+      color: inherit !important;
+    }
+    html::selection,
+    html.dark::selection,
+    html:not(.dark)::selection,
+    body::selection,
+    html.dark body::selection,
+    html:not(.dark) body::selection,
+    main::selection,
+    html.dark main::selection,
+    html:not(.dark) main::selection,
+    section::selection,
+    html.dark section::selection,
+    html:not(.dark) section::selection,
+    article::selection,
+    html.dark article::selection,
+    html:not(.dark) article::selection,
+    header::selection,
+    html.dark header::selection,
+    html:not(.dark) header::selection,
+    footer::selection,
+    html.dark footer::selection,
+    html:not(.dark) footer::selection {
+      background-color: transparent !important;
     }
     p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
     .notion-p, .notion-h1, .notion-h2, .notion-h3 {
