@@ -9,7 +9,7 @@ description: >-
   systems, architect backend or mobile infrastructure, advance through the system design curriculum, or inspect learning progress.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex, Gemini CLI)
 metadata:
-  version: 3.5.1
+  version: 3.6.0
   author: Jeel Patel
   license: MIT
 ---
@@ -23,7 +23,8 @@ The System Design Studio develops the learner's independent ability to frame, ar
 The studio treats a **project as a learning instance**. There are no external Notion databases or third-party drawing boards. The entire shared learning context consists exclusively of:
 1. **The Curriculum (`CURRICULUM.md`)**: The master roadmap of clusters, topics, exercises, and reality checks adhering strictly to the `Tier > Cluster > Topic` hierarchy.
 2. **The Living Cursor (`CURSOR.md`)**: The operational cognitive brain tracking active focus, lineage anchors, examples, deferred questions, and next pedagogical steps.
-3. **The Studio Settings (`settings.json`)**: Configurable instance preferences including visual artifact styles, output format (`html` vs `markdown`), and discussion-synthesized study notes.
+3. **The Studio Settings (`settings.json`)**: Configurable instance preferences including visual artifact styles and discussion-synthesized study notes.
+4. **Strict Active Project Context Isolation Invariant**: The active project workspace is the sole source of truth. Agents are strictly forbidden from leaking, reading, or incorporating context, examples, or notes from other projects in `~/.system-design-studio/projects/` or external chat contexts. Fresh projects are strictly treated as clean slates.
 
 ---
 
@@ -113,25 +114,23 @@ Rather than an arbitrary list of internal scripts, the studio commands map to yo
 
 ---
 
-## Dual Output Format Engine: HTML vs. Markdown
+## Deterministic Dual-Format Delivery: HTML & Markdown Simultaneous Emission
 
-The learner chooses how lesson artifacts are authored via `settings.json` (`outputType: "html" | "markdown"`):
+Every lesson authored in System Design Studio is deterministically compiled into **both** interactive HTML and rich Markdown editions simultaneously in under 50ms without requiring format toggling:
 
-### 1. HTML Output Mode (`outputType: "html"`)
+### 1. Interactive HTML Edition (`<topic-slug>.html`)
 - Renders to `.system-design/lessons/<topic-slug>.html`.
-- Standalone HTML artifact styled with one of the 5 CSS themes (`slate-clean`, `editorial-paper`, `midnight-neon`, `nordic-frost`, `warm-amber`).
-- Features inline interactive JavaScript simulators, state machines, and real-time failure injection.
-- Staged to `<appDataDir>/brain/<conversation-id>/<topic>.html` in Antigravity for side-pane viewing.
+- Responsive two-column layout with a sticky vertical sidebar featuring unindexed section navigation and a slide-over Glossary.
+- Interactive JavaScript simulators and state machine failure injectors.
+- Non-disruptive inline jargon cues with interactive floating popovers (definitions on hover/click without breaking reading flow).
+- Auto-staged to `<appDataDir>/brain/<conversation-id>/<topic>.html` in Antigravity for side-pane viewing.
 
-### 2. Markdown Output Mode (`outputType: "markdown"`)
+### 2. Complete Markdown Edition (`<topic-slug>.md`)
 - Renders to `.system-design/lessons/<topic-slug>.md`.
-- Pure GitHub-Flavored Markdown: zero JavaScript, no browser engine dependencies.
-- Ideal for terminal-centric workflows, Neovim, Obsidian, and e-ink/markdown readers.
-- Replaces JavaScript simulators with:
-  1. **Mermaid sequence & state diagrams** detailing protocol and state transitions.
-  2. **ASCII hardware state charts** tracing buffer queues and packet serialization step-by-step.
-  3. **Structured comparison tables & formulas** directly in markdown syntax.
-- Preserves the unanswered contextual sign-off challenge at the end for chat defense.
+- Pure GitHub-Flavored Markdown: zero JavaScript, full offline readability.
+- Preserves 100% of the 2,500–4,000 word first-principles prose, mathematical derivations, GFM callout alerts (`> [!NOTE]`, `> [!WARNING]`), and unpacked jargon callouts.
+- Embedded Mermaid sequence/state diagrams and ASCII hardware state trace charts.
+- Auto-staged to `<appDataDir>/brain/<conversation-id>/<topic>.md` for instant markdown viewing.
 
 ---
 

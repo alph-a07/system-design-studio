@@ -4,12 +4,12 @@ description: Deliver the next or specified interactive system design lesson arti
 argument-hint: "[topic]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.5.1
+  version: 3.6.0
 ---
 
 # /sds-teach — Interactive System Design Lesson Engine
 
-Deliver an immersive, first-principles system design lesson artifact featuring tactile simulators (HTML) or visual diagrams (Markdown) based on instance settings.
+Deliver an immersive, first-principles system design lesson artifact featuring tactile simulators (HTML) and visual diagrams (Markdown) deterministically compiled from structured causal JSON payloads.
 
 ## Subagent Architecture & Agentic Efficiency
 
@@ -18,22 +18,24 @@ To ensure the highest cognitive quality without polluting coordinator dialog his
 ```
 ┌────────────────────────────────────────────────────────┐
 │                   Coordinator Agent                    │
-│   • Inline context resolution (0 token overhead)       │
+│   • Inline context resolution (active project only)    │
+│   • Zero lecture in chat (strict 5-12 line bridge)     │
 │   • Hypothesis-first dialogue prompt                   │
 └───────────────┬────────────────────────▲───────────────┘
                 │                        │
-       1. Invoke (prompt)        3. Audited payload
+       1. Invoke (prompt)        3. Audit result (file path)
                 │                        │
                 ▼                        │
 ┌──────────────────────────────┐         │
 │      sds-lesson-crafter      │         │
 │   • 2,500+ word deep essay   │         │
 │   • Dilemma-resolution trace │         │
-│   • Inline jargon cards      │         │
+│   • Inline jargon tooltips   │         │
 │   • Tactile simulator spec   │         │
+│   • Writes .generated-*.json │         │
 └───────────────┬──────────────┘         │
                 │                        │
-       2. Draft payload                  │
+       2. Audit payload on disk          │
                 ▼                        │
 ┌──────────────────────────────┐         │
 │     sds-pedagogy-auditor     │─────────┘
@@ -46,19 +48,36 @@ To ensure the highest cognitive quality without polluting coordinator dialog his
                 ▼
 ┌──────────────────────────────┐
 │       render-lesson.py       │ ──► .system-design/lessons/<slug>.html
-│   • Template injection (<50ms│
-│   • Regex/AST verification   │
+│   • Dual HTML & Markdown out │ ──► .system-design/lessons/<slug>.md
+│   • Regex/AST verification   │ ──► Auto-stages to conversation brain
 └──────────────────────────────┘
 ```
 
 ### Token-Efficiency & Architectural Pruning Rationale
 
 To prevent token waste and latency degradation, tasks are partitioned strictly by cognitive ROI:
-- **`sds-lesson-crafter` (KEPT - LLM Subagent)**: High-ROI creative & causal authoring. Keeps thousands of words of draft scratch out of the coordinator's dialog context.
-- **`sds-pedagogy-auditor` (KEPT - LLM Subagent)**: High-ROI adversarial critique. Prevents authoring confirmation bias by verifying math, term ordering, and gate alignment.
+- **`sds-lesson-crafter` (KEPT - LLM Subagent)**: High-ROI creative & causal authoring. Writes the 2,500+ word JSON payload directly to `.system-design/lessons/.generated-<slug>.json`, keeping massive raw JSON strings out of the coordinator's dialog context.
+- **`sds-pedagogy-auditor` (KEPT - LLM Subagent)**: High-ROI adversarial critique. Prevents authoring confirmation bias by verifying math, term ordering, and gate alignment directly against the file on disk.
 - **Context Analyzer (DROPPED - Inlined in Coordinator)**: Reading `CURSOR.md` and `settings.json` takes 5ms via `read_file`. Delegating to a subagent would waste ~3,000 tokens and 5s latency.
-- **Content Renderer & Reviewer (DROPPED - Script-Automated)**: `render-lesson.py` compiles HTML/JS templates and performs AST/regex validation deterministically in <50ms with 0 token cost.
+- **Content Renderer & Reviewer (DROPPED - Script-Automated)**: `render-lesson.py` compiles both HTML/JS and Markdown editions deterministically in <50ms with 0 token cost.
 - **Notes & Revision Makers (DROPPED - Script-Automated)**: `compile-notes.py` and `update-revisions.py` handle disk formatting deterministically on sign-off with 0 token waste.
+
+---
+
+## Mandatory Architectural & Pedagogical Invariants
+
+0. **STRICT ACTIVE PROJECT CONTEXT ISOLATION (ZERO CROSS-PROJECT LEAKAGE)**:
+   - Under NO circumstances may any agent (coordinator or subagent) read, search, infer, or incorporate context, examples, history, notes, or code from other chats, workspaces, or projects in `~/.system-design-studio/projects/`.
+   - All context MUST strictly come from the active project workspace: `.system-design/CURSOR.md`, `.system-design/CURRICULUM.md`, `.system-design/DECISIONS.md`, and `.system-design/manifest.json`.
+   - If the active project has zero completed topics, treat it as a pristine clean slate. Do NOT invent prior knowledge or import examples from external projects.
+
+0b. **DETERMINISTIC FLAGSHIP GUARDRAILS & COORDINATOR DELIVERY SEPARATION**:
+   - Flagship models (e.g. Claude 3.7 / 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro) are STRICTLY FORBIDDEN from generating or outputting lesson text, summaries, or lectures in the coordinator chat turn.
+   - The coordinator turn MUST be strictly a 5–12 line delivery bridge containing:
+     1. Topic Title and Hierarchy (`Tier` -> `Cluster`)
+     2. Clickable links to both delivered formats: `[Open Interactive Lesson (HTML)](file:///...)` and `[Open Complete Notes (Markdown)](file:///...)`
+     3. The opening Hypothesis Dilemma / Architectural Defense Challenge question to prompt the learner's thinking and invite dialectic defense via `/sds-discuss`.
+   - NEVER duplicate or summarize the lesson body in chat. The lesson belongs exclusively in the delivered artifacts.
 
 ---
 
@@ -188,31 +207,33 @@ When executing `/sds-teach`:
   {
     "TypeName": "sds-lesson-crafter",
     "Role": "Deep Causal Lesson Author",
-    "Prompt": "<Comprehensive prompt containing topic details, curriculum track, completed topics to reference, learner hypothesis, and reference fixture for calibration>"
+    "Prompt": "<Comprehensive prompt containing topic details, curriculum track, completed topics to reference (from active project ONLY), and reference fixture for calibration. Instruct subagent to write JSON directly to .system-design/lessons/.generated-<slug>.json>"
   }
   ```
-- The subagent crafts a completely fresh, 2,500+ word structured lesson JSON payload following all 15 pedagogical invariants.
+- The subagent crafts a completely fresh, 2,500+ word structured lesson JSON payload following all pedagogical invariants and writes it directly to `.system-design/lessons/.generated-<slug>.json`.
+- The subagent returns a concise status message with word count, file path, and the central dilemma.
 
 ### Step 3: Adversarial Pedagogical Audit (`sds-pedagogy-auditor`)
-- Invoke `sds-pedagogy-auditor` to verify derived math, term ordering, and 1:1 sign-off gate alignment.
-- Crafter amends payload if any flaws are flagged until `APPROVED`.
+- Invoke `sds-pedagogy-auditor` pointing to `.system-design/lessons/.generated-<slug>.json` to verify derived math, term ordering, and 1:1 sign-off gate alignment.
+- Crafter amends payload file on disk if any flaws are flagged until `APPROVED`.
 
 ### Step 4: Deterministic Compilation (`render-lesson.py`)
-- Save the approved JSON payload from the subagent into a generated temporary file:
-  `.system-design/lessons/.generated-<slug>.json`
-- Compile via `render-lesson.py`:
+- Compile via `render-lesson.py` (which simultaneously emits both HTML and Markdown and syncs cursor status to `delivered`):
   ```bash
   python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
     --topic-id <topic-id> \
-    --format <html|markdown> \
     --style <theme> \
     --data-file <project-dir>/.system-design/lessons/.generated-<slug>.json
   ```
-- `render-lesson.py` compiles the HTML/Markdown lesson and automatically syncs cursor status to `delivered`.
 
-### Step 5: Presentation & Interactive Dialectic
-- Present clickable link: `[Open Interactive Lesson: <Topic>](file:///<path-to-lesson>)`.
-- Initiate dialectic inquiry around the core dilemma.
+### Step 5: Clean Delivery Bridge (Coordinator)
+- Deliver a concise 5–12 line response in chat (NEVER dump lecture text):
+  1. Topic Title and Hierarchy (`Tier` ➔ `Cluster`)
+  2. Clickable links to both formats:
+     - `[Open Interactive Lesson (HTML)](file:///<path-to-lesson.html>)`
+     - `[Open Complete Notes (Markdown)](file:///<path-to-lesson.md>)`
+  3. The Opening Hypothesis Dilemma / Defense Challenge prompt:
+     *"Before we dissect the underlying mechanics, consider this core dilemma: [Concrete Dilemma from Lesson]. How would you approach this, or what physical constraint makes naive solutions fail? Review the artifact and defend your thesis in /sds-discuss."*
 
 ---
 

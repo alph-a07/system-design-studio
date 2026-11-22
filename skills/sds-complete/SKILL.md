@@ -4,12 +4,17 @@ description: Verify defense against unannounced gate, sign off topic, record dec
 argument-hint: "[evidence]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.5.1
+  version: 3.6.0
 ---
 
 # /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis
 
 Verify that the learner has defended the unannounced gate scenario, tick off the topic, advance `CURSOR.md`, record an ADR in `DECISIONS.md`, and compile discussion-synthesized study notes.
+
+## Strict Active Project Context Isolation Invariant
+
+- **ZERO EXTERNAL PROJECT CONTEXT**: Record and verify sign-off strictly within the active project workspace (`.system-design/CURSOR.md`, `.system-design/DECISIONS.md`, `.system-design/CURRICULUM.md`, `notes/`).
+- Never pull context or reference external projects in `~/.system-design-studio/projects/`. Treat every project as an independent, self-contained learning environment.
 
 ## Agentic Optimization: Deterministic Local Synthesis
 Rather than burning thousands of LLM tokens on trivial file formatting:

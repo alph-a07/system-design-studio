@@ -4,12 +4,17 @@ description: Engage in active learning Socratic dialectic and stress-test trade-
 argument-hint: "[defense]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.5.1
+  version: 3.6.0
 ---
 
 # /sds-discuss — Socratic Dialectic & Trade-Off Defense
 
 Engage in active learning Socratic dialectic, stress-testing the learner's architectural mental model and trade-off defense against physical hardware constraints, latency bounds, and edge-case failure modes.
+
+## Strict Active Project Context Isolation Invariant
+
+- **ZERO EXTERNAL PROJECT CONTEXT**: Anchor dialectic inquiry ONLY to the active project workspace (`.system-design/CURSOR.md`, `.system-design/DECISIONS.md`, `.system-design/CURRICULUM.md`).
+- Under NO circumstances may you reference, compare, or leak context from `~/.system-design-studio/projects/` or other chat threads. Fresh projects must be treated as clean slates without assumptions.
 
 ## Subagent Architecture: Socratic Staff+ Architect
 
