@@ -3,7 +3,7 @@ name: sds-status
 description: Check current progress, active topic, cognitive focus, and learning statistics in System Design Studio.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.6.0
+  version: 3.7.0
 ---
 
 # /sds-status

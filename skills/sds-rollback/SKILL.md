@@ -3,7 +3,7 @@ name: sds-rollback
 description: Safely roll back or restore learning state, topic completions, or curriculum mutations to a previous atomic checkpoint or Git commit.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.6.0
+  version: 3.7.0
 ---
 
 # /sds-rollback
