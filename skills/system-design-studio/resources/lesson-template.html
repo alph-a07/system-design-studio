@@ -485,25 +485,25 @@
     <aside class="w-full md:w-80 lg:w-88 h-full border-r border-[var(--border)] p-5 md:p-6 space-y-6 flex flex-col justify-between flex-shrink-0 bg-[var(--background)] overflow-y-auto">
       <div class="space-y-6">
         <!-- Sophisticated Sidebar Header -->
-        <div class="sidebar-header space-y-3 pb-5 border-b border-[var(--border)]">
-          <!-- Hierarchy & Glossary Quick Button -->
+        <div class="sidebar-header space-y-2.5 pb-4 border-b border-[var(--border)]">
+          <!-- Top Row: Tier Chip & Glossary Quick Access -->
           <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-1.5 min-w-0">
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[var(--primary)]/10 text-[var(--primary)] border border-[var(--primary)]/25">
-                {{CLEAN_TIER_BADGE}}
-              </span>
-              <span class="text-[11px] font-mono text-[var(--muted-foreground)] truncate" title="{{CLUSTER_BADGE}}">
-                {{CLEAN_CLUSTER_BADGE}}
-              </span>
-            </div>
-            <button type="button" onclick="toggleGlossaryDrawer()" class="glossary-toggle-btn text-[10px] font-mono px-2 py-0.5 rounded-full border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center gap-1 flex-shrink-0 cursor-pointer" title="Open Key Terms Glossary">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider whitespace-nowrap flex-shrink-0 bg-[var(--primary)]/15 text-[var(--primary)] border border-[var(--primary)]/30">
+              {{CLEAN_TIER_BADGE}}
+            </span>
+            <button type="button" onclick="toggleGlossaryDrawer()" class="glossary-toggle-btn text-[10px] font-mono px-2.5 py-0.5 rounded-full border border-[var(--border)] bg-[var(--card)] hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors flex items-center gap-1.5 flex-shrink-0 cursor-pointer shadow-sm" title="Open Key Terms Glossary">
               <span>📖</span>
               <span id="glossary-pill-count">Terms</span>
             </button>
           </div>
 
+          <!-- Cluster Breadcrumb / Context (Full Width) -->
+          <div class="text-[11px] font-mono text-[var(--muted-foreground)] tracking-wide font-medium truncate" title="{{CLUSTER_BADGE}}">
+            {{CLEAN_CLUSTER_BADGE}}
+          </div>
+
           <!-- Lesson Title & Subtitle -->
-          <div>
+          <div class="pt-0.5">
             <h1 class="text-base md:text-lg font-black tracking-tight text-[var(--foreground)] leading-snug">
               {{LESSON_TITLE}}
             </h1>
