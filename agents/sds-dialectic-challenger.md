@@ -5,7 +5,7 @@ tools: [read_file]
 subagent: true
 mainAgent: false
 metadata:
-  version: 4.0.0
+  version: 4.1.0
   author: Jeel Patel
   role: Socratic Staff+ Systems Architect
 ---

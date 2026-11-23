@@ -209,5 +209,30 @@ All generated lesson artifacts are programmatically audited against the followin
      - *Audit Notation Leakage*: Prevent protocol-specific numbering conventions (e.g. odd HTTP/2 stream IDs) from bleeding into older protocol examples (e.g. sequential HTTP/1.1 requests #1, #2, #3).
      - *Tipping-Point Arithmetic Rigor*: Any tipping point (e.g. query planner abandoning an index, bandwidth-delay window sizing) must be derived using the article's own stated latencies, sizes, and throughputs.
 
+---
+
+## 8. Tactile Simulators & Direct Manipulation Architecture (v4.1.0)
+
+Starting in **v4.1.0**, interactive failure simulators are freed from rigid schema constraints and authored as direct interactive HTML nodes (`SimulatorHtmlNode`, `builder.add_simulator_html(html, script=...)`), unlocking 100% agent creativity while enforcing automated pre-flight quality invariants:
+
+### Automated Pre-Flight Simulator Quality Audits:
+1. **Direct Manipulation Controls**: Every simulator must contain at least two physical controls:
+   - An **Action Trigger** (e.g., `Transmit`, `Step`, `Insert Key`, `Query`).
+   - A **Failure Injection Toggle** (e.g., `Drop Packet #2`, `Sever Partition`, `Corrupt Block`, `Expire Key`).
+2. **DOM-to-JavaScript Identifier Coherence**: Every DOM element ID queried in JavaScript (`getElementById`, `querySelector('#...')`) is verified to exist in the rendered HTML markup.
+3. **Headless Script Syntax Verification**: JavaScript logic is validated via headless Node.js syntax checking (`node -e`) before file emission.
+4. **Causal Telemetry Log Wiring**: Simulators with an event log (`#sim-log`) must actively write simulation events to the log in JavaScript.
+5. **Live Telemetry Gauges**: Quantitative metric counters (`id="tel-..."` or `id="metric-..."`) display real-time physical metrics (latency, drop rates, queue depth, throughput).
+
+---
+
+## 9. Responsive Collision-Aware Inline Jargon Popovers
+
+Lessons feature non-disruptive inline jargon unpackers (`<span class="jargon-tooltip-wrapper">`):
+- **Collision-Aware Dynamic Flipping**: Popovers measure their bounding rectangle (`card.offsetHeight`) dynamically. If vertical space above is insufficient (`spaceAbove < cardHeight + safetyMargin`), the card flips below (`popover-below`).
+- **High-Z-Index & Boundary Hugging**: Styled with `z-index: 9999` and `max-height: calc(100vh - 48px); overflow-y: auto;` to eliminate scroll container clipping and prevent text obscuration.
+- **Leaked Markdown Sanitization**: Automated preprocessing (`clean_markdown_leaks_in_html`) ensures markdown bold syntax (`**`) never leaks raw asterisks around inline tooltips or in paragraph text.
+- **Sole Authoritative Lesson Medium**: Lessons are delivered strictly as interactive HTML artifacts (`<slug>.html`), while study notes remain in GitHub Flavored Markdown (`notesDir`).
+
 
 
