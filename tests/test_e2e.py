@@ -224,23 +224,9 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
             self.assertIn("TCP vs UDP", content)
             self.assertIn("--background:", content)
 
-        # 2. Test Markdown mode
-        res_md = self.run_cmd([
-            sys.executable, render_script,
-            "--topic-id", "topic.0.1.tcp-vs-udp",
-            "--instance-dir", proj1_inst,
-            "--format", "markdown",
-            "--data-file", tcp_fixture,
-            "--allow-reference-fixture"
-        ])
-        self.assertIn("Format: Markdown Clean", res_md.stdout)
+        # 2. Verify lesson output format is strictly interactive HTML (no markdown lesson file emitted)
         md_file = os.path.join(proj1_inst, "lessons/0-1-tcp-vs-udp.md")
-        self.assertTrue(os.path.isfile(md_file))
-        with open(md_file, "r", encoding="utf-8") as f:
-            md_content = f.read()
-        self.assertIn("# TCP vs UDP", md_content)
-        self.assertIn("```mermaid", md_content)
-        self.assertNotIn("<!DOCTYPE html>", md_content)
+        self.assertFalse(os.path.isfile(md_file), "Markdown lesson file should not be generated (lessons are strictly interactive HTML)")
 
         # 3. Verify that passing reference fixtures directly WITHOUT --allow-reference-fixture is hard-rejected
         ref_example = os.path.join(REPO_ROOT, "skills/system-design-studio/resources/examples/sections/section-1-dilemma-wal.json")

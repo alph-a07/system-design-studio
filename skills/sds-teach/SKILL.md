@@ -221,7 +221,7 @@ When executing `/sds-teach`:
 - Crafter amends payload file on disk if any flaws are flagged until `APPROVED`.
 
 ### Step 4: Deterministic Compilation (`render-lesson.py`)
-- Compile via `render-lesson.py` (which simultaneously emits both HTML and Markdown, applies full-depth badges if requested, and syncs cursor status to `delivered`):
+- Compile via `render-lesson.py` (which emits the interactive HTML lesson artifact with tactile simulators and HUD, applies full-depth badges if requested, and syncs cursor status to `delivered`):
   ```bash
   python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
     --topic-id <topic-id> \

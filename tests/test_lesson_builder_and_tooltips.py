@@ -9,6 +9,7 @@ import sys
 import json
 import unittest
 import subprocess
+import shutil
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 SCRIPTS_DIR = os.path.join(REPO_ROOT, "skills", "system-design-studio", "scripts")
@@ -194,6 +195,7 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         render_script = os.path.join(SCRIPTS_DIR, "render-lesson.py")
         fixture_path = os.path.join(REPO_ROOT, "tests", "fixtures", "0-1-tcp-vs-udp.json")
         out_dir = "/tmp/test-sds-fulldepth"
+        shutil.rmtree(out_dir, ignore_errors=True)
         os.makedirs(out_dir, exist_ok=True)
 
         res = subprocess.run([
@@ -208,11 +210,44 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertIn("Depth & Anti-Compression (Full-Depth Mechanical Closure)", res.stdout)
         self.assertIn("Lesson rendered to", res.stdout)
 
-        md_file = os.path.join(out_dir, "0-1-tcp-vs-udp.md")
-        with open(md_file, "r", encoding="utf-8") as f:
-            md_content = f.read()
+        html_file = os.path.join(out_dir, "0-1-tcp-vs-udp.html")
+        self.assertTrue(os.path.isfile(html_file))
+        with open(html_file, "r", encoding="utf-8") as f:
+            html_content = f.read()
 
-        self.assertIn("Depth**: Full-Depth Mechanical Closure", md_content)
+        self.assertIn("Full-Depth", html_content)
+        # Verify markdown lesson output format is completely eliminated
+        md_file = os.path.join(out_dir, "0-1-tcp-vs-udp.md")
+        self.assertFalse(os.path.isfile(md_file), "Markdown lesson file should not be emitted")
+
+    def test_05_markdown_leak_sanitization_and_popover_fixes(self):
+        # 1. Test that leaking markdown bold asterisks around tooltips are cleaned
+        raw_leaked_html = (
+            '<p>2. ** <span class="jargon-tooltip-wrapper">'
+            '<span class="jargon-inline-cue" onclick="toggleJargonTooltip(this, event)">Packet Loss Concealment (PLC)</span>'
+            '<span class="jargon-popover-card">'
+            '<span class="jargon-popover-header"><span class="jargon-popover-title">💡 Packet Loss Concealment (PLC)</span><span class="jargon-popover-badge">Acoustic Synthesis</span></span>'
+            '<span class="jargon-popover-body"><span class="jargon-popover-desc">A continuous surrogate waveform synthesis algorithm.</span></span>'
+            '</span></span> **: When an audio packet drops, codecs like **Opus** do not stall.</p>'
+        )
+        sanitized = rl.sanitize_tooltips_to_spans(raw_leaked_html)
+        self.assertNotIn("**", sanitized, "All raw markdown bold asterisks must be cleaned or converted to <strong>")
+        self.assertIn("<strong>", sanitized)
+        self.assertIn("Opus", sanitized)
+
+        # 2. Test build_jargon_tooltip cleans asterisks from terms
+        cue_html = build_jargon_tooltip("**Packet Loss Concealment (PLC)**", "**Packet Loss Concealment (PLC)**", "Acoustic", "Synthesizes waveform")
+        self.assertNotIn("**", cue_html)
+        self.assertIn(">Packet Loss Concealment (PLC)<", cue_html)
+
+        # 3. Verify lesson template popover CSS styles and collision detection logic
+        template_path = os.path.join(REPO_ROOT, "skills", "system-design-studio", "resources", "lesson-template.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            tmpl = f.read()
+        self.assertIn("z-index: 9999;", tmpl)
+        self.assertIn("max-height: calc(100vh - 48px);", tmpl)
+        self.assertIn("spaceAbove < cardHeight + safetyMargin", tmpl)
+        self.assertIn("popover-below", tmpl)
 
 
 if __name__ == "__main__":

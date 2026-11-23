@@ -48,7 +48,7 @@ By default, studio files reside under `.system-design/` and notes in `notes/`. I
 
 - **`paths.notesDir`**: Custom directory where discussion-synthesized markdown study notes are stored.
 - **`notesStructure`**: Compilation mode: `per-topic` (default), `per-cluster`, `per-tier`, or `single-file`.
-- **`outputType`**: `html` (interactive simulators) or `markdown` (clean text with Mermaid/ASCII).
+- **`outputType`**: `html` (interactive HTML lesson artifacts with live simulators).
 - **`paths.cursorDir`**: Directory where `CURSOR.md` is saved and read.
 - **`paths.lessonsDir`**: Directory where generated lesson artifacts are saved.
 - **`paths.instanceDir`**: Root instance state directory for `manifest.json`, `settings.json`, and updates.

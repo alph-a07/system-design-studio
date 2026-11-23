@@ -127,7 +127,6 @@ while [ $# -gt 0 ]; do
       echo "  --notes-dir <dir>        Custom notes directory"
       echo "  --notes-structure <str>  per-topic (default) | per-cluster | per-tier | single-file"
       echo "  --theme <id>             slate-clean, editorial-paper, midnight-neon, nordic-frost, warm-amber"
-      echo "  --output <type>          html (default) | markdown"
       echo "  --notes <bool>           true | false (auto-generate discussion notes)"
       echo "  --defaults, -y           Non-interactive, use defaults"
       exit 0
@@ -152,17 +151,7 @@ case "$THEME_STYLE" in
     ;;
 esac
 
-case "$OUTPUT_FORMAT" in
-  html|markdown)
-    ;;
-  md)
-    OUTPUT_FORMAT="markdown"
-    ;;
-  *)
-    echo "⚠️  Warning: Unknown output format '$OUTPUT_FORMAT'. Falling back to 'html'."
-    OUTPUT_FORMAT="html"
-    ;;
-esac
+OUTPUT_FORMAT="html"
 
 case "$AUTO_NOTES" in
   true|false)

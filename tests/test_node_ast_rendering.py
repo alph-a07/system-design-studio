@@ -355,12 +355,10 @@ class TestNodeASTRendering(unittest.TestCase):
             md_path = os.path.join(tmpdir, "test-ast-e2e.md")
 
             self.assertTrue(os.path.isfile(html_path), "HTML output artifact missing")
-            self.assertTrue(os.path.isfile(md_path), "Markdown output artifact missing")
+            self.assertFalse(os.path.isfile(md_path), "Markdown lesson file should not be emitted")
 
             with open(html_path, "r", encoding="utf-8") as hf:
                 html_content = hf.read()
-            with open(md_path, "r", encoding="utf-8") as mf:
-                md_content = mf.read()
 
             # Verify HTML contains dynamic tabs and panes
             self.assertIn("section-tab-btn active", html_content)
@@ -372,16 +370,17 @@ class TestNodeASTRendering(unittest.TestCase):
             self.assertNotIn("{{SECTION_TABS_HTML}}", html_content)
             self.assertNotIn("{{SECTION_PANES_HTML}}", html_content)
 
-            # Verify Markdown is clean GFM with alert boxes and section glossary
-            self.assertIn("# E2E AST Document Test", md_content)
-            self.assertIn("> [!WARNING] ⚡ Sync vs Async Writes", md_content)
-            self.assertIn("### ⏱️ Causal Execution Trace: Commit Trace", md_content)
-            self.assertIn("## 🛡️ Architectural Defense Challenge: Torn Page Defense", md_content)
-            self.assertIn("> 💡 **Jargon & Concepts Unpacked in this Section:**", md_content)
-            self.assertIn("> - **fsync()** *(POSIX Syscall)*: Forces dirty pages to storage.", md_content)
+            # Verify AST to_markdown compiles clean GFM with alert boxes and section glossary
+            doc_md = doc.to_markdown()
+            self.assertIn("# E2E AST Document Test", doc_md)
+            self.assertIn("> [!WARNING] ⚡ Sync vs Async Writes", doc_md)
+            self.assertIn("### ⏱️ Causal Execution Trace: Commit Trace", doc_md)
+            self.assertIn("## 🛡️ Architectural Defense Challenge: Torn Page Defense", doc_md)
+            self.assertIn("> 💡 **Jargon & Concepts Unpacked in this Section:**", doc_md)
+            self.assertIn("> - **fsync()** *(POSIX Syscall)*: Forces dirty pages to storage.", doc_md)
             # Ensure no leaked raw HTML wrappers in Markdown
-            self.assertNotIn("jargon-popover-card", md_content)
-            self.assertNotIn("onclick=\"toggleJargonTooltip", md_content)
+            self.assertNotIn("jargon-popover-card", doc_md)
+            self.assertNotIn("onclick=\"toggleJargonTooltip", doc_md)
 
 
 if __name__ == "__main__":

@@ -1521,13 +1521,15 @@ class LessonBuilder(LessonDocument):
 # ==============================================================================
 
 def build_jargon_tooltip(term: str, title: str, category: str, explanation: str, cue_type: str = "inline") -> str:
+    term_clean = re.sub(r"^\*+|\*+$", "", term.strip()).strip()
+    title_clean = re.sub(r"^\*+|\*+$", "", title.strip()).strip()
     cue_class = "jargon-pill-cue" if cue_type == "pill" else "jargon-inline-cue"
     return (
         f'<span class="jargon-tooltip-wrapper">'
-        f'<span class="{cue_class}" onclick="toggleJargonTooltip(this, event)">{html.escape(term)}</span>'
+        f'<span class="{cue_class}" onclick="toggleJargonTooltip(this, event)">{html.escape(term_clean)}</span>'
         f'<span class="jargon-popover-card">'
         f'<span class="jargon-popover-header">'
-        f'<span class="jargon-popover-title">💡 {html.escape(title)}</span>'
+        f'<span class="jargon-popover-title">💡 {html.escape(title_clean)}</span>'
         f'<span class="jargon-popover-badge">{html.escape(category)}</span>'
         f'</span>'
         f'<span class="jargon-popover-body"><span class="jargon-popover-desc">{html.escape(explanation)}</span></span>'

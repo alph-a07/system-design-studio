@@ -70,7 +70,7 @@ Rather than an arbitrary list of internal scripts, the studio commands map to yo
 
 ### Phase 1: Deep Dive & Visual Discovery
 - **`/sds-teach [topic]`**
-  - *User Value*: Explains complex systems with friendly editorial storytelling, deep causal mechanics, and mandatory inline jargon unpacking. Generates a standalone interactive HTML simulation (or rich Markdown diagrams) so you can visually inspect failure modes instead of skimming dry documentation.
+  - *User Value*: Explains complex systems with friendly editorial storytelling, deep causal mechanics, and mandatory inline jargon unpacking. Generates a standalone interactive HTML simulation so you can visually inspect failure modes instead of skimming dry documentation.
   - *Natural Language*: "Teach topic 0.1", "Next topic", "Show me the mechanics of TCP socket buffers"
 
 ### Phase 2: Stress-Testing & Dialectic Defense
@@ -100,8 +100,8 @@ Rather than an arbitrary list of internal scripts, the studio commands map to yo
   - *User Value*: Reorder clusters, prune topics, or import a custom Markdown syllabus scoped strictly to your project without losing completed progress.
   - *Natural Language*: "Customize syllabus", "Reorder clusters", "Import custom curriculum"
 - **`/sds-config [k] [v]`**
-  - *User Value*: Switch visual themes, toggle between HTML and Markdown output, or change notes structuring mode.
-  - *Natural Language*: "Switch theme to obsidian", "Disable auto-notes", "Change output to markdown"
+  - *User Value*: Switch visual themes, toggle auto-notes, or change notes structuring mode.
+  - *Natural Language*: "Switch theme to obsidian", "Disable auto-notes", "Change notes structure to single-file"
 - **`/sds-projects` & `/sds-open <name>`**
   - *User Value*: Manage multiple isolated learning workspaces across your workstation (e.g., an interview prep project in one repo and a distributed consensus project in another).
   - *Natural Language*: "List projects", "Switch to project interview-prep"
@@ -114,23 +114,17 @@ Rather than an arbitrary list of internal scripts, the studio commands map to yo
 
 ---
 
-## Deterministic Dual-Format Delivery: HTML & Markdown Simultaneous Emission
+## Interactive HTML Delivery: Rich Visual Lessons & Tactile Simulators
 
-Every lesson authored in System Design Studio is deterministically compiled into **both** interactive HTML and rich Markdown editions simultaneously in under 50ms without requiring format toggling:
+Every lesson authored in System Design Studio is delivered as an authoritative interactive HTML artifact with bespoke live simulators, tabbed navigation, and non-disruptive inline jargon unpacking:
 
-### 1. Interactive HTML Edition (`<topic-slug>.html`)
+### Interactive HTML Edition (`<topic-slug>.html`)
 - Renders to `.system-design/lessons/<topic-slug>.html`.
-- Responsive two-column layout with a sticky vertical sidebar featuring unindexed section navigation and a slide-over Glossary.
-- Interactive JavaScript simulators and state machine failure injectors.
+- Responsive two-column layout with an independent vertical sidebar featuring section navigation and a slide-over Key Terms Glossary.
+- Tactile direct-manipulation simulators and state machine failure injectors.
 - Non-disruptive inline jargon cues with interactive floating popovers (definitions on hover/click without breaking reading flow).
 - Auto-staged to `<appDataDir>/brain/<conversation-id>/<topic>.html` in Antigravity for side-pane viewing.
-
-### 2. Complete Markdown Edition (`<topic-slug>.md`)
-- Renders to `.system-design/lessons/<topic-slug>.md`.
-- Pure GitHub-Flavored Markdown: zero JavaScript, full offline readability.
-- Preserves 100% of the 2,500–4,000 word first-principles prose, mathematical derivations, GFM callout alerts (`> [!NOTE]`, `> [!WARNING]`), and unpacked jargon callouts.
-- Embedded Mermaid sequence/state diagrams and ASCII hardware state trace charts.
-- Auto-staged to `<appDataDir>/brain/<conversation-id>/<topic>.md` for instant markdown viewing.
+- Study notes are synthesized and preserved as clean GitHub Flavored Markdown in `notesDir`.
 
 ---
 

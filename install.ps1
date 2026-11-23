@@ -13,7 +13,7 @@ param(
     [string]$Theme = 'slate-clean',
 
     [Parameter()]
-    [ValidateSet('html', 'markdown')]
+    [ValidateSet('html')]
     [string]$Output = 'html',
 
     [Parameter()]

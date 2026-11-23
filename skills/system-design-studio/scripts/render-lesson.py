@@ -297,14 +297,60 @@ def extract_balanced_tag(html, start_idx, tag_name="div"):
             i += 1
     return html[start_idx:], n
 
+def clean_markdown_leaks_in_html(html):
+    """
+    Cleans up leaked markdown formatting syntax in HTML content (e.g. asterisks around tooltips,
+    unparsed bold/italic asterisks in sentences or list items).
+    Prevents visual artifacts like: '2. ** Packet Loss Concealment (PLC) **: When...'.
+    """
+    if not html or "**" not in html:
+        return html
+
+    # 1. Clean asterisks inside or adjacent to <strong> tags
+    html = re.sub(r"<strong>\s*\*\*\s*", "<strong>", html)
+    html = re.sub(r"\s*\*\*\s*</strong>", "</strong>", html)
+
+    # 2. Convert ** <span class="jargon-tooltip-wrapper">...</span> ** or **<span class="jargon-tooltip-wrapper">...</span>**:
+    # to <strong><span class="jargon-tooltip-wrapper">...</span></strong>
+    html = re.sub(
+        r"\*\*\s*(<span\s+class=[\"'][^\"']*jargon-tooltip-wrapper[\"'][\s\S]*?</span>)\s*\*\*",
+        r"<strong>\1</strong>",
+        html,
+        flags=re.IGNORECASE
+    )
+
+    # 3. Strip any lingering markdown bold syntax immediately wrapping tooltip cues or wrappers
+    html = re.sub(r"\*\*\s*(<span\s+class=[\"'][^\"']*(?:jargon-tooltip-wrapper|jargon-inline-cue|jargon-pill-cue))", r"\1", html, flags=re.IGNORECASE)
+    html = re.sub(r"(</span>)\s*\*\*", r"\1", html, flags=re.IGNORECASE)
+
+    # 4. Clean orphan ** around list numbers or prefixes: e.g. "2. ** " -> "2. <strong>" and " **:" -> "</strong>:"
+    html = re.sub(r"(?<=\b\d\.)\s*\*\*\s*", " <strong>", html)
+    html = re.sub(r"\s*\*\*(?=\s*[:\-])", "</strong>", html)
+
+    # 5. Clean any unparsed inline markdown bold like **Word** that is not inside an HTML attribute or tag
+    def _replace_bold(m):
+        content = m.group(1).strip()
+        if not content:
+            return ""
+        return f"<strong>{content}</strong>"
+    html = re.sub(r"(?<![=\w/\"'])\*\*([^\*\r\n<>]+?)\*\*(?![=\w\"'])", _replace_bold, html)
+
+    return html
+
 def sanitize_tooltips_to_spans(html):
     """
     Scans html for any <span/div class="jargon-tooltip-wrapper"> and transforms
     all internal tags (popover card, header, body, desc) to strictly phrasing <span> tags.
     Placing <div> or <p> inside <p> causes browsers to auto-close paragraphs prematurely,
     splitting sentences and stranding words or punctuation on separate lines.
+    Also cleans up any leaking markdown asterisks surrounding tooltips.
     """
-    if not html or "jargon-tooltip-wrapper" not in html:
+    if not html:
+        return html
+
+    html = clean_markdown_leaks_in_html(html)
+
+    if "jargon-tooltip-wrapper" not in html:
         return html
 
     res = []
@@ -347,7 +393,8 @@ def sanitize_tooltips_to_spans(html):
             f'</span>'
         )
         res.append(transformed)
-    return "".join(res)
+    cleaned = "".join(res)
+    return clean_markdown_leaks_in_html(cleaned)
 
 def extract_balanced_div(html, start_idx):
     """
@@ -594,92 +641,6 @@ def clean_html_to_markdown(html):
     # Collapse multiple blank lines
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
-
-def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown", full_depth=False):
-    """
-    Renders pure GitHub Flavored Markdown lesson artifact from JSON payload.
-    Preserves 100% of first-principles depth, mathematical derivations, and sign-off defense gates.
-    """
-    title = data.get("LESSON_TITLE", "System Design Lesson")
-    subtitle = data.get("LESSON_SUBTITLE", "")
-    tier = data.get("TIER_BADGE", "Tier 0 · System Design Core")
-    cluster = data.get("CLUSTER_BADGE", "Cluster")
-    backward = data.get("BACKWARD_ANCHOR", "")
-    forward = data.get("FORWARD_HOOK", "")
-
-    sec1_title = strip_section_index(data.get("SECTION_1_TITLE", "Physical Dilemma & Inception"))
-    sec1_body = clean_html_to_markdown(data.get("SECTION_1_BODY", ""))
-
-    sec2_title = strip_section_index(data.get("SECTION_2_TITLE", "System Architecture & Placement"))
-    sec2_body = clean_html_to_markdown(data.get("SECTION_2_BODY", ""))
-
-    sec3_title = strip_section_index(data.get("SECTION_3_TITLE", "Internal Mechanics & Causality"))
-    sec3_body = clean_html_to_markdown(data.get("SECTION_3_BODY", ""))
-
-    sec4_title = strip_section_index(data.get("SECTION_4_TITLE", "Production Grounding & Mental Model"))
-    sec4_body = clean_html_to_markdown(data.get("SECTION_4_BODY", ""))
-
-    sec5_title = strip_section_index(data.get("SECTION_5_TITLE", "Architectural Defense Challenge"))
-    sec5_body = clean_html_to_markdown(data.get("SECTION_5_BODY", ""))
-
-    md = []
-    md.append(f"# {title}\n")
-    if full_depth:
-        md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Topic ID**: `{topic_id}` | **Depth**: Full-Depth Mechanical Closure\n")
-    else:
-        md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Topic ID**: `{topic_id}` | **Format**: Complete Markdown Edition\n")
-    if subtitle:
-        md.append(f"*{subtitle}*\n")
-    md.append("---\n")
-
-    if backward or forward:
-        md.append(f"> **Backward Anchor**: {backward}  \n> **Forward Hook**: {forward}\n")
-        md.append("---\n")
-
-    md.append(f"## {sec1_title}\n")
-    md.append(f"{sec1_body}\n")
-    md.append("\n---\n")
-
-    md.append(f"## {sec2_title}\n")
-    md.append(f"{sec2_body}\n")
-    md.append("\n---\n")
-
-    md.append(f"## {sec3_title}\n")
-    md.append(f"{sec3_body}\n")
-
-    # Embedded Mermaid Protocol Sequence Diagram
-    mermaid_block = data.get("MERMAID_DIAGRAM")
-    if not mermaid_block:
-        mermaid_block = """sequenceDiagram
-    autonumber
-    actor Client as Sender / Client Node
-    participant Network as Physical Network (RTT ~ 50ms)
-    actor Server as Receiver / Server Replica
-
-    Client->>Network: Packet / Handshake SYN (SEQ = 100)
-    Network->>Server: In-flight transit (RTT/2)
-    Note over Server: Allocate Socket Buffer & Parse Headers
-    Server->>Network: ACK / Response (ACK = 101, WIN = 65535)
-    Network->>Client: In-flight transit (RTT/2)
-    Note over Client: Sliding Window Advanced"""
-    md.append("### Protocol & State Machine Transition")
-    md.append("```mermaid")
-    md.append(mermaid_block.strip())
-    md.append("```\n")
-    md.append("\n---\n")
-
-    md.append(f"## {sec4_title}\n")
-    md.append(f"{sec4_body}\n")
-    md.append("\n---\n")
-
-    md.append(f"## {sec5_title}\n")
-    md.append("> [!IMPORTANT]")
-    md.append("> **ARCHITECTURAL DEFENSE GATE (DEFEND IN CHAT)**")
-    sec5_bq = blockquote_lines(sec5_body, "> ")
-    md.append(">\n" + sec5_bq + "\n>")
-    md.append("> *Analyze the scenario above and defend your architectural recommendations cold in chat discussion to achieve topic sign-off.*\n")
-
-    return "\n".join(md)
 
 def load_settings(settings_path=None):
     candidates = []
@@ -1030,13 +991,13 @@ def locate_resource_template():
     return None
 
 def main():
-    parser = argparse.ArgumentParser(description="Render interactive HTML or pure Markdown lesson artifact")
+    parser = argparse.ArgumentParser(description="Render interactive HTML lesson artifact with live simulators and inline tooltips")
     parser.add_argument("--topic-id", required=True, help="Topic ID (e.g. topic.0.1.tcp-vs-udp)")
     parser.add_argument("--title", help="Lesson Title")
     parser.add_argument("--cluster", help="Cluster Title")
     parser.add_argument("--tier", help="Tier Title")
     parser.add_argument("--style", choices=list(STYLE_THEMES.keys()), help="Artifact visual style theme")
-    parser.add_argument("--format", choices=["html", "markdown"], help="Output artifact format (html or markdown)")
+    parser.add_argument("--format", default="html", choices=["html"], help="Output artifact format (strictly interactive HTML)")
     parser.add_argument("--instance-dir", "--settings", dest="settings", help="Path to settings.json or .system-design directory")
     parser.add_argument("--data-file", "--spec", dest="data_file", help="Path to JSON file containing lesson content")
     parser.add_argument("--data", help="Inline JSON string or '-' to read lesson payload from stdin")
@@ -1234,18 +1195,7 @@ def main():
         if re.match(r"^SECTION_\d+_TITLE$", k):
             data[k] = strip_section_index(data[k])
 
-    # 2. Render Markdown edition (clean, comprehensive GFM with alert boxes and unpacked definitions)
-    md_filename = f"{slug}.md"
-    if is_ast_payload and doc:
-        rendered_md = doc.to_markdown()
-    else:
-        rendered_md = render_markdown_lesson(data, args.topic_id, theme["name"], full_depth=is_full_depth)
-    md_out_path = os.path.join(target_output_dir, md_filename)
-    with open(md_out_path, "w", encoding="utf-8") as f:
-        f.write(rendered_md)
-    print(f"✅ Lesson rendered to {md_out_path} [Format: Markdown Clean]")
-
-    # 3. HTML Payload (preserves rich inline jargon cards and interactive components in reading flow)
+    # 2. HTML Payload (preserves rich inline jargon cards and interactive components in reading flow)
     html_data = dict(data)
     if is_full_depth:
         html_data["FULL_DEPTH"] = True
@@ -1259,7 +1209,7 @@ def main():
     elif "EMBEDDED_JAVASCRIPT" not in html_data:
         html_data["EMBEDDED_JAVASCRIPT"] = ""
 
-    # 4. Render Interactive HTML edition (vertically tabbed sidebar with live simulators)
+    # 3. Render Interactive HTML edition (vertically tabbed sidebar with live simulators)
     html_filename = f"{slug}.html"
     html_data["THEME_CSS_VARS"] = ""
     html_data["THEME_NAME"] = "Dynamic Dashboard Theme"
@@ -1286,15 +1236,12 @@ def main():
         f.write(rendered_html)
     print(f"✅ Lesson rendered to {html_out_path} [Format: HTML | Style: {theme['name']}]")
 
-    # 5. Stage both formats to conversation artifact dir if provided
+    # 4. Stage HTML artifact to conversation artifact dir if provided
     if args.brain_dir and os.path.exists(args.brain_dir):
         brain_html_path = os.path.join(args.brain_dir, html_filename)
-        brain_md_path = os.path.join(args.brain_dir, md_filename)
         with open(brain_html_path, "w", encoding="utf-8") as f:
             f.write(rendered_html)
-        with open(brain_md_path, "w", encoding="utf-8") as f:
-            f.write(rendered_md)
-        print(f"✅ Staged HTML & Markdown artifacts to conversation artifact dir: {args.brain_dir}")
+        print(f"✅ Staged HTML artifact to conversation artifact dir: {args.brain_dir}")
 
     # Synchronize instance state so status recognizes delivered artifact immediately
     inst_dir = None
@@ -1319,7 +1266,8 @@ def main():
                 for tp in cl.get("topics", []):
                     if tp.get("id") == args.topic_id:
                         tp["lessonArtifact"] = f"lessons/{html_filename}"
-                        tp["markdownArtifact"] = f"lessons/{md_filename}"
+                        if "markdownArtifact" in tp:
+                            del tp["markdownArtifact"]
             with open(m_path, "w", encoding="utf-8") as mf:
                 json.dump(m_data, mf, indent=2)
 

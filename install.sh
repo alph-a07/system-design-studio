@@ -130,7 +130,6 @@ while [ $# -gt 0 ]; do
       echo ""
       echo "Options:"
       echo "  --theme <id>             slate-clean, editorial-paper, midnight-neon, nordic-frost, warm-amber"
-      echo "  --output <type>          html (interactive simulators) | markdown (clean text with Mermaid/ASCII)"
       echo "  --notes <bool>           true | false (auto-generate discussion notes on completion)"
       echo "  --notes-structure <str>  per-topic | per-cluster | per-tier | single-file"
       echo "  --all, -a                Install for all supported AI agents"
@@ -157,17 +156,7 @@ case "$THEME_STYLE" in
     ;;
 esac
 
-case "$OUTPUT_FORMAT" in
-  html|markdown)
-    ;;
-  md)
-    OUTPUT_FORMAT="markdown"
-    ;;
-  *)
-    echo "⚠️  Warning: Unknown output format '$OUTPUT_FORMAT'. Falling back to 'html'."
-    OUTPUT_FORMAT="html"
-    ;;
-esac
+OUTPUT_FORMAT="html"
 
 case "$AUTO_NOTES" in
   true|false)
@@ -233,16 +222,7 @@ if [ "$INTERACTIVE" = true ]; then
     *) THEME_STYLE="slate-clean" ;;
   esac
 
-  echo ""
-  echo "📄 Select Default Lesson Output Format:"
-  echo "   [1] Interactive HTML (Tactile JS Simulators & Visual HUD) [Recommended]"
-  echo "   [2] Clean Markdown (Zero-JS pure Markdown with Mermaid diagrams & ASCII charts)"
-  printf "   Choose format [1]: "
-  read_input input_fmt
-  case "$input_fmt" in
-    2) OUTPUT_FORMAT="markdown" ;;
-    *) OUTPUT_FORMAT="html" ;;
-  esac
+  OUTPUT_FORMAT="html"
 
   echo ""
   echo "📝 Auto-Generate Discussion-Synthesized Study Notes on Sign-off?"

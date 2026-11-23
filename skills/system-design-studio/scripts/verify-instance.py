@@ -38,10 +38,10 @@ def verify_instance(instance_dir=".system-design"):
                 warnings.append(f"settings.json artifactStyle '{style}' not in standard roster ({valid_styles})")
 
             out_fmt = settings.get("outputType", "html")
-            if out_fmt in ["html", "markdown"]:
-                passes.append(f"settings.json defines valid outputType '{out_fmt}'")
+            if out_fmt == "html":
+                passes.append("settings.json defines valid outputType 'html'")
             else:
-                warnings.append(f"settings.json defines unknown outputType '{out_fmt}' (expected 'html' or 'markdown')")
+                warnings.append(f"settings.json defines outputType '{out_fmt}' (lessons are strictly rendered as interactive 'html')")
 
             struct = settings.get("notesStructure", "per-topic")
             valid_structs = ["per-topic", "per-cluster", "per-tier", "single-file"]
