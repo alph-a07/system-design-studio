@@ -7,47 +7,146 @@
 <h1 align="center">System Design Studio</h1>
 
 <p align="center">
+  <strong>Master real-world distributed systems and architecture with the AI coding agent you already use.</strong>
+</p>
+
+<p align="center">
   <a href="https://agentskills.io"><img src="https://img.shields.io/badge/Agent%20Skills-Standard-059669?style=flat-square" alt="Agent Skills Standard" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-0ea5e9?style=flat-square" alt="License: MIT" /></a>
   <a href="README.md"><img src="https://img.shields.io/badge/Agents-Antigravity%20%7C%20Claude%20%7C%20Cursor%20%7C%20Codex-6366f1?style=flat-square" alt="Universal Agents" /></a>
-  <a href="https://alph-a07.github.io/system-design-studio"><img src="https://img.shields.io/badge/Docs-GitHub%20Pages-10b981?style=flat-square" alt="Documentation" /></a>
+  <a href="https://alph-a07.github.io/system-design-studio"><img src="https://img.shields.io/badge/Docs-Live%20Site-10b981?style=flat-square" alt="Documentation" /></a>
   <a href="https://github.com/alph-a07/system-design-studio"><img src="https://img.shields.io/github/stars/alph-a07/system-design-studio?style=flat-square&logo=github&color=ffcc00&label=Star%20Repo" alt="GitHub Stars" /></a>
   <a href="https://github.com/sponsors/alph-a07"><img src="https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat-square&logo=github-sponsors&logoColor=white" alt="GitHub Sponsors" /></a>
   <a href="https://buymeacoffee.com/itsjeel01"><img src="https://img.shields.io/badge/Support-Buy%20Me%20A%20Coffee-FFDD00?style=flat-square&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" /></a>
 </p>
 
-An open, portable, agent-agnostic systems architecture learning studio that runs directly inside your project repository under `.system-design/`. It teaches low-level component design, high-level distributed systems, infrastructure mechanisms, and mobile architecture across a canonical **50-cluster, 354-topic syllabus** through first-principles causal reasoning, Git-backed living state, and interactive visual simulators.
-
 ---
 
-## The Problem with Conventional System Design Prep
+## Why System Design Studio?
 
-Most systems architecture study fails for three mechanical reasons:
+Most engineers study system design by skimming static diagrams, memorizing high-level cheat sheets, or asking conversational chatbots that nod along to every hand-waving answer. When real production chaos strikes—or a Staff+ interviewer probes: *"What happens to your tail latency when packet loss hits 1%?"*—the illusion of understanding evaporates.
 
-- **The Magic Box Trap**: Treating distributed components (Kafka, Redis, Cassandra) as pre-packaged answers rather than specific trade-off implementations constrained by hardware physics and algorithmic limits.
-- **Context Amnesia**: AI chat sessions discard cognitive lineage on every context reset or model switch, forcing learners to re-explain prerequisites and suffering repeated stock analogies.
-- **Fragile Cloud Dependencies**: Relying on external databases, hosted whiteboards, or proprietary SaaS tools that leak private code, break across air-gapped environments, and lack version control.
+**System Design Studio turns your AI coding agent (Antigravity, Claude Code, Cursor, Codex) into a rigorous, interactive systems engineering studio.** It runs 100% locally in your project repository, pairs deep causal storytelling with tactile visual simulators, tests your trade-offs cold in chat against production failure modes, and commits verified architectural proof directly into your Git history.
 
----
-
-## Architectural Pillars
-
-```mermaid
-flowchart TD
-    P1["1. Universal Agent Portability<br/>(Antigravity, Claude Code, Cursor, Codex)"] --> SYNC["Local Project State Engine"]
-    P2["2. Project as a Learning Instance<br/>(Local .system-design/ Directory)"] --> SYNC
-    P3["3. Living Cursor Running Context<br/>(Lineage, Examples Log, Deferred Queue)"] --> TEACHING["Interactive Teaching Engine"]
-    P4["4. Visual Interactive HTML Artifacts<br/>(Causal Storytelling & Simulators)"] --> TEACHING
-    P5["5. Sign-Off Defense Gate & ADRs<br/>(Won't Advance Until Defended)"] --> TEACHING
-
-    SYNC <--> TEACHING
+```text
+  ┌─────────────────────────────────────────────────────────────────────────────┐
+  │                                                                             │
+  │   1. DELIVER (/sds-teach)         2. DEFEND (Chat Reply)    3. VERIFY       │
+  │   Tactile HTML Simulators    ──►  Socratic Chaos Defense ──► Git Proof &    │
+  │   & Inline Jargon Tooltips       Injected Cold in Chat      Living Notes    │
+  │                                                                             │
+  └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-1. **Universal Agent Portability**: Zero proprietary runtime lock-in. 100% compliant with the open Agent Skills standard. Operates whether hosted in Google Antigravity, Claude Code, Cursor, Codex, or Gemini CLI.
-2. **Project as a Learning Instance**: No external accounts, no cloud database locks, and no SaaS logins. Learning state resides entirely in a local `.system-design/` folder within your project, tracked by standard Git.
-3. **Living Cursor State Engine (`CURSOR.md`)**: Replaces ephemeral LLM memory with deterministic, file-backed state. Tracks active focus, target depth, causal hardware anchors, domain examples (`examplesTaken`), and pending deferred questions (`deferredQueue`).
-4. **Interactive HTML Lesson Artifacts (Strictly Artifact-First)**: New topics are delivered strictly inside standalone interactive HTML artifacts in `.system-design/lessons/`, complete with live interactive JavaScript packet simulators, failure injection controls, SVG sequence traces, invariant matrices, and 5 customizable design themes (`settings.json`). Follow-up discussions happen directly inline in chat.
-5. **The Sign-Off Gate & Built-in ADR Portfolio**: It won't let you move on until you can defend it. The interactive lesson explores mechanics but hides the tick-off scenario; progress in `CURSOR.md` advances only after defending architectural trade-offs in chat. Defended decisions compile into `DECISIONS.md` as an interview-ready Architecture Decision Record portfolio.
+---
+
+## 7 Superpowers You Get
+
+### 1. Hands-On Visual Failure Simulators
+Don't just read abstract descriptions of head-of-line blocking, write amplification, or quorum loss. Turn parameter dials, inject 2% packet loss or kill a replica node, and watch socket buffers stall, SSTables compact, or split-brain partitions unfold in standalone interactive browser simulators.
+
+### 2. Zero-Friction Inline Jargon Tooltips (No Tab Switching)
+Never break your reading flow or tab out to Google systems buzzwords. Protocol keywords and acronyms (*Middlebox, BDP, ALPN, HoL Blocking, Write Amplification, P99, 4-Tuple*) are unpacked as **inline interactive tooltips** right inside the sentence where they appear—plain English first, formal systems label second—with an auto-indexed glossary drawer.
+
+### 3. Socratic Chaos Defense (Implicit in Chat)
+No generic nod-along praise. Every topic poses an opening architectural dilemma. When you reply in chat, the studio stress-tests your mental model against real production failure modes (asymmetric partitions, clock skew, disk fsync ceilings, queue drops) before allowing you to sign off.
+
+### 4. Active-Learning Living Notes (Your Personal Second Brain)
+Traditional courses dump generic textbook bullet points. System Design Studio automatically synthesizes what **you personally proved and understood** across 4 cognitive phases:
+1. **Initial Intuition & Working Hypothesis**: Your naive mental model before constraint analysis.
+2. **Dialectic & Friction Encountered**: The failure modes and edge cases where your initial model broke down.
+3. **Derived Invariant (The 'Aha!' Synthesis)**: The non-negotiable physical or mathematical law you proved cold.
+4. **Personal Rules of Thumb & Sizing Reality**: Actionable quantitative heuristics ready for interviews and production.
+
+Saved directly in your repository in Markdown, compatible with Obsidian, VS Code, and Foam.
+
+### 5. Built-in Quantitative Sizing & Math Engine
+Never guess resource requirements or write ad-hoc calculation scripts. Built-in, battle-tested formulas for rapid systems estimation:
+- **Bandwidth-Delay Product (`calculate_bdp`)**: Computes bytes in flight and throughput caps for unscaled 64KB TCP windows.
+- **Little's Law (`calculate_littles_law`)**: Concurrency $L = \lambda \times W$ and $10\times/50\times$ latency spike surge models.
+- **Quorum Intersection (`calculate_quorum`)**: Majority quorum $Q = \lfloor N/2 \rfloor + 1$, fault tolerance $F$, and even-node waste analysis.
+- **Consistent Hashing Migration (`calculate_consistent_hash_migration`)**: $K/(N+1)$ blast radius vs. modulo rehash cascades.
+- **Cache Sizing (`calculate_cache_sizing`)**: 80/20 Pareto working set RAM, peak QPS, and network egress bandwidth.
+- **Token Bucket Rate Limiting (`calculate_token_bucket`)**: Burst capacity, sustained RPS, and refill dynamics.
+- **Bloom Filters (`calculate_bloom_filter`)**: Required bits $m$, memory footprint in MB, and optimal hash count $k$.
+
+*Usable directly via CLI (`python3 lesson_builder.py --calc bdp`) or in-code imports.*
+
+### 6. Live Localhost Workbench (`sds dashboard`)
+Launch `http://localhost:8420` to access a distraction-free command center:
+- Visual interactive roadmap across 50 clusters and 354 topics
+- Live artifact viewer for compiled HTML simulators
+- Spaced-repetition **Revision Mode** flashcards auto-compiled from your verified ADRs
+- Real-time Git status sync with zero manual page refreshes
+
+### 7. 100% Private, Local & Yours Forever (Zero Cloud Lock-In)
+- **Zero Subscriptions**: 100% free, MIT-licensed open source.
+- **Zero Cloud Accounts**: All state lives in `.system-design/` inside your Git repo.
+- **Survives Context Resets**: The living cursor (`CURSOR.md`) maintains active focus, verified invariants, and deferred questions across chat resets and model switches.
+- **Verifiable Proof of Work**: Every completed topic creates an atomic Git commit (`sds(learn): complete ...`) and logs an interview-ready Architecture Decision Record in `DECISIONS.md`.
+
+---
+
+## Quickstart: Up and Running in 30 Seconds
+
+System Design Studio requires no databases and no complex dependencies—just standard Python 3.10+ and standard Bash.
+
+### Step 1: Install Globally (Run Once)
+
+```bash
+# macOS / Linux:
+curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash
+
+# Windows (PowerShell):
+irm https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.ps1 | iex
+```
+
+*Auto-detects Google Antigravity, Anthropic Claude Code, Cursor IDE, and OpenAI Codex, registering the studio skill and adding `sds` to your PATH.*
+
+---
+
+### Step 2: Initialize Your Learning Workspace
+
+Navigate to any Git repository (or run standalone in a dedicated learning folder):
+
+```bash
+sds init
+```
+
+**Choose your curated goal track:**
+- ⚡ **`interview-sprint`**: 15 high-yield clusters (114 topics) targeting Senior/Staff systems rounds.
+- 🧱 **`distributed-systems`**: 23 clusters (171 topics) on consensus, storage engines, and replication.
+- 🏛️ **`staff-architect`**: 25 clusters (184 topics) on failure domains, cross-region resilience, and ADR defense.
+- 📱 **`mobile-offline`**: 16 clusters (113 topics) on SQLite sync, battery constraints, and optimistic UI.
+- 🎓 **`full-mastery`**: The complete canonical 50-cluster, 354-topic systems syllabus across all 5 tiers.
+- 🎯 **Or Bring Your Own (BYO)**: Import any custom Markdown syllabus (`sds init --byo path/to/syllabus.md`).
+
+---
+
+### Step 3: Pure In-Chat Learning Workflow
+
+Once initialized, **you never need to touch the terminal during study sessions**. Open your AI coding agent and drive everything naturally in chat:
+
+```text
+1. /sds-teach [topic]     ──► Deliver interactive visual lesson & opening dilemma
+2. (Reply in chat)        ──► Defend trade-offs cold against simulated production chaos
+3. /sds-complete          ──► Seal verified mastery into Git with auto-synthesized notes
+```
+
+#### Companion Commands Available Anytime:
+| Command | What It Does |
+| :--- | :--- |
+| **`/sds-teach [topic]`** | Delivers the next or specified topic with tactile simulators, deep mechanics, and inline tooltips. |
+| **Chat Reply** | Defends your architectural reasoning against injected hardware/network constraints. |
+| **`/sds-complete [proof]`** | Verifies defense criteria, advances cursor, logs an ADR, and records an atomic Git commit. |
+| **`/sds-status`** | Instant overview of current focus, completed percentage, and lineage anchors. |
+| **`/sds-notes [topic]`** | Browses synthesized active learning notes (Hypothesis ➔ Friction ➔ Invariant ➔ Rules). |
+| **`/sds-dashboard`** | Launches the live interactive visual workbench on `http://localhost:8420`. |
+| **`/sds-curriculum`** | Reorders clusters, prunes topics, or checks off custom objectives. |
+| **`/sds-config [k] [v]`** | Customizes visual theme (`slate-clean`, `editorial-paper`, `midnight-neon`, `nordic-frost`, `warm-amber`) or note structure. |
+| **`/sds-rollback`** | Safely restores curriculum or learning state to a prior atomic checkpoint. |
+| **`/sds-projects`** | Switches between multiple isolated learning workspaces across your machine. |
+| **`/sds-update`** | Checks for studio improvements on-demand (zero silent telemetry). |
 
 ---
 
@@ -59,273 +158,106 @@ Every learning workspace is a self-contained Git repository:
 my-project/
 ├── .git/
 ├── .system-design/
-│   ├── manifest.json              # Canonical machine-readable state (schema v3.2)
+│   ├── manifest.json              # Canonical machine-readable state
 │   ├── settings.json              # Theme & delivery preferences (5 visual styles)
 │   ├── CURSOR.md                  # Living running context (brain of the instance)
-│   ├── CURRICULUM.md              # Master 50-cluster syllabus with checkboxes
+│   ├── CURRICULUM.md              # Master syllabus checklist
 │   ├── DECISIONS.md               # Accepted Architecture Decision Records (ADRs)
-│   └── lessons/                   # Standalone interactive HTML lesson artifacts
-│       ├── topic-0.1-tcp-vs-udp.html
-│       ├── topic-0.2-http-quic.html
+│   └── lessons/                   # Standalone interactive HTML simulators & lessons
+│       ├── 0-1-tcp-vs-udp.html
+│       ├── 0-1-tcp-vs-udp.md
 │       └── ...
-├── notes/                         # Learner personal markdown study notes
+├── notes/                         # Your synthesized personal active-learning notes
+│   ├── tier-0/
+│   │   └── cluster-0-1-network-transport/
+│   │       └── 0-1-tcp-vs-udp.md
+│   └── ...
 └── README.md
 ```
 
-### Visual Artifact Themes & Settings (`settings.json`)
+### Visual Themes & Styling (`settings.json`)
 
-Choose your preferred visual aesthetic during initial setup or customize anytime in `.system-design/settings.json`:
+Choose the aesthetic that matches your workflow or customize anytime:
 
-| Theme ID | Aesthetic | Canvas | Key Character |
+| Theme ID | Aesthetic | Mode | Character |
 | :--- | :--- | :--- | :--- |
-| `slate-clean` | **Modern Slate** *(Default)* | Dark | Deep slate background (`#0f172a`), vibrant blue accents, modern IDE feel. |
-| `editorial-paper` | **Clean Editorial** | Light | High-readability warm off-white paper (`#fbfbfa`), charcoal text, ink accents. |
-| `midnight-neon` | **Cyber Obsidian** | Dark | Pitch black obsidian (`#05070c`), electric cyan and mint neon highlights. |
-| `nordic-frost` | **Nordic Frost** | Dark | Polar night cool slate (`#2e3440`), frosty teal accents, calm zero-eye-strain. |
-| `warm-amber` | **Warm Amber** | Dark | Deep espresso stone (`#1c1917`), rich warm amber & copper accents for night reading. |
-
-### Custom Directory Paths in `settings.json`
-
-By default, state and lessons are saved under `.system-design/`. You can customize where `CURSOR.md` and lesson artifacts are stored by configuring `paths` in `.system-design/settings.json`:
-
-```json
-{
-  "paths": {
-    "instanceDir": ".system-design",
-    "cursorDir": ".system-design",
-    "lessonsDir": ".system-design/lessons"
-  }
-}
-```
-- **`cursorDir`**: Custom directory to persist and read `CURSOR.md`.
-- **`lessonsDir`**: Custom directory where HTML lesson artifacts are written.
-- **`instanceDir`**: Root instance state directory for `manifest.json`, `settings.json`, and updates.
-
-### Zero-Cloud Privacy Invariant
-- Your code and notes never leave your local environment.
-- Personal notes remain completely your own.
-- The studio only inspects and updates the local `.system-design/` directory.
-
-### Active Learning Notes: Cognitive Abstraction (Not Textbook Boilerplate)
-Unlike traditional platforms that dump generic textbook summaries, System Design Studio synthesizes study notes governed strictly by **what you understood through active learning**:
-1. **Initial Intuition & Working Hypothesis**: The naive model, pattern, or assumption you brought to the topic before constraint analysis.
-2. **Dialectic & Friction Encountered**: The Socratic stress-test, failure modes (e.g., asymmetric partitions, head-of-line blocking), and edge cases where the initial hypothesis broke down in chat.
-3. **Derived Invariant (The 'Aha!' Synthesis)**: The non-negotiable physical or mathematical law you deduced and proved cold unassisted.
-4. **Personal Rule of Thumb & Sizing Reality**: Actionable engineering heuristics and quantitative bounds (Little's Law, Bandwidth-Delay Product, quorum intersection math) you can deploy under pressure in interviews and production.
-
-Supports 4 structuring modes (`per-topic`, `per-cluster`, `per-tier`, and `single-file`) compatible with Obsidian, VS Code, and Markdown note systems.
+| **`slate-clean`** *(Default)* | Modern Slate | Dark | Deep slate background (`#0f172a`), vibrant blue accents, modern IDE feel. |
+| **`editorial-paper`** | Clean Editorial | Light | High-readability warm off-white paper (`#fbfbfa`), charcoal text, ink accents. |
+| **`midnight-neon`** | Cyber Obsidian | Dark | Pitch black obsidian (`#05070c`), electric cyan and mint neon highlights. |
+| **`nordic-frost`** | Nordic Frost | Dark | Polar night cool slate (`#2e3440`), frosty teal accents, calm zero-eye-strain. |
+| **`warm-amber`** | Warm Amber | Dark | Deep espresso stone (`#1c1917`), rich warm amber & copper accents for night reading. |
 
 ---
 
-## Quickstart: The "Two Scripts, Then Pure Chat" Workflow
+## Canonical 5-Tier Syllabus (50 Clusters, 354 Topics)
 
-System Design Studio cleanly separates machine-level skill installation from project workspace initialization. **You only run terminal scripts twice**:
+| Tier | Focus Area | Clusters | Topics | Key Subject Matter |
+| :--- | :--- | :--- | :--- | :--- |
+| **Tier 0** | Foundations & Transport | 5 (0.1–0.5) | 37 | Socket buffers, TLS 1.3 handshake latency, HTTP/2 multiplexing, QUIC packet formats, latency math. |
+| **Tier 1** | LLD & Object Modeling | 14 (1.1–1.14) | 94 | Cache eviction (W-TinyLFU/LRU), connection pool starvation, rate limiters, thread pools, lock-free queues. |
+| **Tier 2** | HLD & Distributed Infra | 18 (2.1–2.18) | 134 | Consistent hashing, LSM-Trees vs. B-Trees, Raft/Paxos quorums, event sourcing, CDC, 2PC vs. Sagas. |
+| **Tier 3** | Mobile Systems & Offline | 11 (3.1–3.11) | 76 | Radio battery limits, delta mutation queues, optimistic UI reconciliation, SQLite caching, push delivery. |
+| **Tier 4** | ADRs & System Defense | 2 (4.1–4.2) | 13 | Architectural Decision Records (ADRs), mock architecture defense, trade-off articulation, spaced review. |
 
-### Step 1: Global Skill Installation (Run Once)
-Install the skill package globally and configure machine preferences (theme, HTML vs. Markdown output, and notes opt-in) through an interactive onboarding wizard:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash
-```
-
-Or run with flags for automated setup:
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- \
-  --theme slate-clean \
-  --output html \
-  --notes true \
-  --notes-structure per-topic \
-  --all
-```
-*This configures `~/.system-design-studio/config.json`, initializes the multi-project registry, and links the studio skill across all detected AI agents (Antigravity, Claude Code, Cursor, Codex).*
+Explore the complete interactive syllabus with search and progress tracking on the **[Documentation Site](https://alph-a07.github.io/system-design-studio/curriculum.html)**.
 
 ---
 
-### Step 2: Initialize a Learning Project (Run Once per Project)
-Scaffold an isolated learning instance in your current repository or in the default central directory (`~/.system-design-studio/projects/<name>`):
+## System Design Studio vs. Traditional Study
 
-```bash
-# Using the bundled 'sds' CLI:
-~/.system-design-studio/bin/sds init
-
-# Or directly via bash:
-bash ~/.system-design-studio/skills/system-design-studio/scripts/init-learning-instance.sh
-```
-
-**The interactive initializer configures**:
-1. **Workspace Location**: Default standalone directory (`~/.system-design-studio/projects/<name>`) or your active Git repo.
-2. **Curriculum Goal Track**:
-   - `interview-sprint`: Short-Term Interview Sprint (15 high-yield clusters, 114 topics)
-   - `distributed-systems`: Distributed Systems & Storage Deep-Dive (23 clusters, 171 topics)
-   - `staff-architect`: Staff+ / Principal Architecture & System Defense (25 clusters, 184 topics)
-   - `mobile-offline`: Mobile & Offline-First Systems (16 clusters, 113 topics)
-   - `full-mastery`: Comprehensive 50-cluster, 354-topic syllabus across all 5 tiers
-   - Or **Bring Your Own (BYO)**: Import any custom markdown syllabus (strictly validated against `Tier > Cluster > Topic`).
-3. **Project-Scoped Notes Location & Structure**: Default `<project>/notes` or custom path (e.g. Obsidian vault) structured as `per-topic` (default), `per-cluster`, `per-tier`, or `single-file`.
-
-#### Terminal Project Management (`sds` CLI)
-You can inspect and manage projects, rollback states, or launch the visual tracker directly from your terminal using `sds` (or `~/.system-design-studio/bin/sds`):
-```bash
-sds init                  # Scaffold a new learning project with curated or BYO tracks
-sds dashboard             # Launch live read-only progress tracker on localhost (http://localhost:8420)
-sds list / projects       # List registered projects, active tracks, and progress metrics
-sds switch <id>           # Switch active project context across agent sessions
-sds notes [id]            # List generated study notes for active or specific project
-sds rollback [--steps N]  # Revert state to previous atomic checkpoint or Git commit
-sds checkpoints           # Inspect audit history of local snapshots and Git commits
-sds delete <id>           # Safely delete a project instance (-f to skip prompt, --dry-run to preview)
-```
+| Capability | Static Books & Videos | Standard AI Chatbots | System Design Studio |
+| :--- | :--- | :--- | :--- |
+| **Progression Verification** | None (passive reading) | Nods along; says "Great job!" to anything | **Unannounced Defense Gate**: Proves you understand failure modes cold in chat |
+| **Visual Mechanics** | Static 2D diagrams | Wall of generic Markdown text | **Tactile Simulators**: Inject packet loss, kill nodes, tweak concurrency dials |
+| **Jargon Friction** | Leaves you to search terms | Uses dense buzzwords unchecked | **Inline Tooltips**: Tap/hover any term for instant plain-English explanations |
+| **Cognitive Continuity** | None (forgotten in days) | Lost on context window rollover | **Git Living State**: Never loses your lineage across sessions or model changes |
+| **Study Notes** | Generic textbook summaries | Disappears when tab closes | **Active-Learning Second Brain**: Auto-extracts *your* understanding into Git notes |
+| **Calculations** | Done manually with errors | Hallucinates equations | **Built-in Systems Math**: Exact BDP, Little's Law, quorum, and cache sizing |
+| **Privacy & Ownership** | Locked behind cloud paywalls | Stored on proprietary AI servers | **100% Local & Yours**: Saved directly in your Git repo forever |
 
 ---
 
-### Step 3: Pure Chat Interaction (The Hybrid Workflow)
-Once initialized, **you never need to switch to a terminal again**. Open your AI agent (Antigravity, Claude Code, Cursor, or Codex) and drive your entire learning journey directly in chat. Commands are structured around your natural learning flow:
+## Multi-Agent Installation
 
-#### Phase 1: Deep Dive & Visual Discovery
-- **`/sds-teach [topic]`**: Explains complex systems with friendly editorial storytelling, deep causal mechanics, and mandatory inline jargon unpacking. Delivers a standalone interactive HTML simulator (or rich Markdown diagrams) so you can visually test failure modes.
+The unified installer sets up System Design Studio across all detected coding agents:
 
-#### Phase 2: Stress-Testing & Dialectic Defense
-- **`/sds-discuss`**: Proves you understand production failure modes before advancing. The agent challenges your working assumptions cold in chat with unannounced failure scenarios, latency limits, and asymmetric network partitions.
+```bash
+# Install for Google Antigravity:
+./install.sh --antigravity
 
-#### Phase 3: Automated Proof, Git Checkpointing & Retention
-- **`/sds-complete [evidence]`**: Validates defense criteria, ticks `CURRICULUM.md`, logs an ADR in `DECISIONS.md`, advances your living cursor, and commits atomic state to Git (`sds(learn): complete ...`).
-- **`/sds-notes [topic]`**: Accesses synthesized study notes (Initial Hypothesis → Dialectic Friction → Derived Invariant → Sizing Rules). Auto-generated when enabled; compile manually on demand when disabled.
+# Install for Anthropic Claude Code:
+./install.sh --claude
 
-#### Phase 4: Visual Tracking, Safety & Multi-Track Isolation
-- **`/sds-dashboard`**: Launches the live read-only progress tracker and artifact workbench on `http://localhost:8420` in sync with Git.
-- **`/sds-rollback`**: Safely undo an accidental topic sign-off or restore curriculum structure with atomic Git rollback and local snapshot recovery.
-- **`/sds-status`**: Instant snapshot of your active focus, backward causal hooks, forward hooks, and deferred questions.
-- **`/sds-curriculum`**: Reorder clusters, prune topics, or import a custom Markdown syllabus scoped strictly to your project without losing completed progress.
-- **`/sds-config [k] [v]`**: Switch visual themes, toggle between HTML and Markdown output, or toggle automatic note generation.
-- **`/sds-projects` & `/sds-open <name>`**: Manage multiple isolated learning workspaces across your workstation (e.g. interview sprint vs. infrastructure track).
-- **`/sds-delete <name>`**: Safely clean up finished instances and keep your multi-project registry tidy without touching workspace source files.
-- **`/sds-update`**: On-demand check for studio updates without background telemetry.
+# Install for Cursor IDE:
+./install.sh --cursor
+
+# Install for OpenAI Codex:
+./install.sh --codex
+
+# Or install everywhere at once:
+./install.sh --all
+```
 
 ---
 
 ## Keeping System Design Studio Updated
 
-Updates are **strictly on-demand** (never checked silently during daily learning sessions) and zero background telemetry is emitted. You can check for and apply updates through any of the three interfaces:
+Updates are strictly **on-demand** with zero background telemetry:
 
-1. **In AI Agent Chat**:
-   Run `/sds-update` in your agent session to check on-demand.
-2. **In Localhost Dashboard (`:8420`)**:
-   Open **Settings** (or click the version tag in the top bar) and click **Check for Updates**.
-3. **From Any Terminal**:
+1. **In Agent Chat**: Run `/sds-update` anytime.
+2. **In Localhost Dashboard (`:8420`)**: Open Settings and click **Check for Updates**.
+3. **Via Terminal**:
    ```bash
    curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/update.sh | bash
    ```
 
-*(Your project progress in `manifest.json`, `CURSOR.md`, active learning notes in `notes/`, and verified `DECISIONS.md` records remain 100% intact via `merge-settings.py`)*.
+*Updating safely refreshes skill binaries while preserving all your notes (`notes/`), progress (`manifest.json`), living cursor (`CURSOR.md`), and ADRs (`DECISIONS.md`).*
 
 ---
 
-## Clean Uninstallation (Removes Skills Only)
+## Support the Project
 
-If you ever wish to remove the studio skill from your AI coding agents, run the uninstaller:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/uninstall.sh | bash
-```
-*(This **strictly eliminates only the agent skill files** across Antigravity, Claude Code, Cursor, and Codex. Your local Git repositories, `.system-design/` progress, personal study notes, and `DECISIONS.md` records are never touched)*.
-
----
-
-## Installation Across AI Agent Platforms
-
-Use the unified installer with platform flags to place the verified skill at each agent's standard path:
-
-### Google Antigravity
-Places skill in `~/.gemini/antigravity/skills/system-design-studio`:
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --antigravity
-```
-
-### Anthropic Claude Code
-Places skill in `~/.claude/skills/system-design-studio`:
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --claude
-```
-
-### Cursor IDE
-Places skill in `~/.cursor/skills/system-design-studio`:
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --cursor
-```
-And add steering rules to your project `.cursorrules`:
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/templates/.cursorrules >> .cursorrules
-```
-
-### OpenAI Codex
-Places skill in `~/.codex/skills/system-design-studio`:
-```bash
-curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash -s -- --codex
-```
-
----
-
-## 5-Tier Canonical Syllabus (50 Clusters, 354 Topics)
-
-| Tier | Focus Area | Clusters | Topics | Key Subject Matter |
-| :--- | :--- | :--- | :--- | :--- |
-| **Tier 0** | Foundations & Transport | 5 (0.1–0.5) | 37 | Socket mechanics, TLS 1.3 handshake latency, HTTP/2 multiplexing, QUIC packet formats, latency math. |
-| **Tier 1** | LLD & Object Modeling | 14 (1.1–1.14) | 94 | Cache eviction (LRU/LFU), connection pool starvation, rate limiters (Token/Leaky Bucket), thread pools. |
-| **Tier 2** | HLD & Distributed Infra | 18 (2.1–2.18) | 134 | Consistent hashing, write amplification (B-Tree vs LSM), Raft/Paxos quorums, event sourcing, CDC. |
-| **Tier 3** | Mobile Systems & Offline | 11 (3.1–3.11) | 76 | Radio battery limits, mutation queues, optimistic UI reconciliation, SQLite caching, push delivery. |
-| **Tier 4** | ADRs & System Defense | 2 (4.1–4.2) | 13 | Architectural Decision Records (ADRs), mock architecture defense, trade-off articulation, spaced review. |
-
-Explore the complete interactive syllabus with browser-persisted progress tracking on the [Documentation Site](https://alph-a07.github.io/system-design-studio/curriculum.html).
-
----
-
-## Bring Your Own Curriculum (BYO)
-
-System Design Studio is completely curriculum-agnostic:
-
-### 1. Import Custom Markdown Syllabi
-Transform any internal team engineering syllabus or specialized roadmap into a fully indexed learning instance:
-
-```bash
-python3 skills/system-design-studio/scripts/import-curriculum.py \
-  --input my-team-curriculum.md \
-  --instance-dir .system-design \
-  --title "Low-Latency Trading Architecture"
-```
-
-### 2. Configure a Custom Flagship Domain
-Set `flagshipDomain` in `.system-design/CURSOR.md` (e.g. `Autonomous Vehicles`, `Fintech`, `Healthcare Imaging`). The tutor automatically anchors all subsequent mechanical traces and reality checks around your chosen vertical.
-
-Read the complete customization guide in [`skills/system-design-studio/references/bring-your-own-curriculum.md`](skills/system-design-studio/references/bring-your-own-curriculum.md).
-
----
-
-## Pedagogy: Kleppmann Meets Xu
-
-System Design Studio bridges the two foundational schools of distributed systems education:
-
-| Dimension | Martin Kleppmann (*Designing Data-Intensive Applications*) | Alex Xu (*System Design Interview* series) |
-| :--- | :--- | :--- |
-| **Primary Focus** | Bottom-up physical mechanics, storage engines, consensus, invariants. | Top-down scoping, quantitative estimation, component trade-off matrices. |
-| **Mental Model** | Hardware latency hierarchy, write-ahead logs, 2PC, quorums, failure modes. | Peak QPS, storage footprint, 80/20 caching, high-level blueprints. |
-| **Studio Integration** | The physical justification: why trivial software approaches break down. | The engineering structure: bounding problems and sizing hardware resources. |
-
----
-
-## Documentation Site
-
-The live GitHub Pages documentation site is available at:  
-**[https://alph-a07.github.io/system-design-studio](https://alph-a07.github.io/system-design-studio)**
-
-- **Interactive Syllabus Explorer**: Search and filter all 354 topics with local storage completion tracking.
-- **Living Cursor Specification**: Technical manual of the project learning instance state machine.
-- **CLI Reference**: Usage instructions for `init`, `advance`, `sync`, and `import-curriculum`.
-
----
-
-## Support the Project & Fuel the Studio
-
-If System Design Studio untangled a tricky concept or made your prep a little easier, consider buying me a coffee ☕ or sponsoring my work.
+System Design Studio is 100% free and open-source. If it helped you master a difficult distributed systems concept, ace a systems design interview, or build better infrastructure, consider sponsoring or starring the repo:
 
 <p align="left">
   <a href="https://github.com/sponsors/alph-a07"><img src="https://img.shields.io/badge/Sponsor%20on%20GitHub-ea4aaa?style=for-the-badge&logo=github-sponsors&logoColor=white" alt="Sponsor on GitHub" /></a>
@@ -333,13 +265,10 @@ If System Design Studio untangled a tricky concept or made your prep a little ea
   <a href="https://buymeacoffee.com/itsjeel01"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-itsjeel01-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee" /></a>
 </p>
 
-> ⭐ **Not in a coffee mood? No worries!** A **[star on GitHub](https://github.com/alph-a07/system-design-studio)** costs absolutely nothing but makes my day.  
-> *Happy designing, and thanks for being here!*
+> ⭐ **Not in a coffee mood?** A **[star on GitHub](https://github.com/alph-a07/system-design-studio)** costs nothing and helps more engineers find first-principles systems learning.
 
 ---
 
-## License & Contributing
+## License
 
-- **License**: MIT License ([LICENSE](LICENSE))
-- **Contributing**: Please read [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
-- **Issues & Discussions**: Use our [Issue Templates](.github/ISSUE_TEMPLATE/) or start a GitHub Discussion.
+Licensed under the [MIT License](LICENSE). Contributions are welcome—please review [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

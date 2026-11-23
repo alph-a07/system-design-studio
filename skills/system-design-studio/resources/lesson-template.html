@@ -173,12 +173,14 @@
     .jargon-body p { margin-bottom: 0.65rem; }
     .jargon-body p:last-child { margin-bottom: 0; }
 
-    /* Inline Jargon Tooltips (For words used inside sentences, width 80%) */
+    /* Inline Jargon Tooltips (Non-disruptive phrasing tags with smart popover) */
     .jargon-tooltip-wrapper {
       display: inline-block;
       position: relative;
-      margin: 0 0.15rem;
+      margin: 0;
+      padding: 0;
       vertical-align: baseline;
+      text-decoration: none;
     }
     .jargon-inline-cue, .jargon-pill-cue {
       display: inline-flex;
@@ -195,6 +197,8 @@
       cursor: pointer;
       user-select: none;
       transition: all 0.18s ease;
+      white-space: nowrap;
+      line-height: normal;
     }
     .jargon-inline-cue:hover,
     .jargon-pill-cue:hover,
@@ -205,16 +209,16 @@
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
     }
-    /* Widen tooltip popover to 80% of content width */
+    /* Tooltip popover card: clean, bounded, responsive popover with zero line breaks */
     .jargon-popover-card {
       display: none;
       position: absolute;
-      bottom: calc(100% + 10px);
+      bottom: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%);
-      width: min(80vw, 700px);
-      max-width: 80vw;
-      min-width: 320px;
+      width: min(90vw, 420px);
+      max-width: 90vw;
+      min-width: 280px;
       background: var(--card, #18181b);
       border: 1.5px solid #f59e0b;
       border-radius: 0.875rem;
@@ -222,6 +226,26 @@
       box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.2);
       z-index: 100;
       text-align: left;
+      white-space: normal;
+      cursor: default;
+    }
+    /* Invisible hover bridge to prevent losing hover when cursor moves from cue to card */
+    .jargon-popover-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -12px;
+      height: 12px;
+      background: transparent;
+    }
+    .jargon-popover-card.popover-below {
+      bottom: auto;
+      top: calc(100% + 8px);
+    }
+    .jargon-popover-card.popover-below::after {
+      bottom: auto;
+      top: -12px;
     }
     .jargon-tooltip-wrapper:hover .jargon-popover-card,
     .jargon-tooltip-wrapper.is-open .jargon-popover-card {
@@ -229,8 +253,8 @@
       animation: popoverFadeIn 0.15s ease-out;
     }
     @keyframes popoverFadeIn {
-      from { opacity: 0; transform: translate(-50%, 8px); }
-      to { opacity: 1; transform: translate(-50%, 0); }
+      from { opacity: 0; transform: translate(var(--popover-tx, -50%), 8px); }
+      to { opacity: 1; transform: translate(var(--popover-tx, -50%), 0); }
     }
     .jargon-popover-header {
       display: flex;
@@ -256,11 +280,21 @@
       background: rgba(245, 158, 11, 0.2);
       color: #fde68a;
       font-family: ui-monospace, monospace;
+      font-weight: 600;
+      flex-shrink: 0;
     }
     .jargon-popover-body {
+      display: block;
       font-size: 0.92rem;
       line-height: 1.65;
       color: var(--foreground);
+    }
+    .jargon-popover-desc {
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .jargon-popover-desc:last-child {
+      margin-bottom: 0;
     }
     .jargon-popover-body p { margin-bottom: 0.5rem; }
     .jargon-popover-body p:last-child { margin-bottom: 0; }
@@ -524,48 +558,9 @@
           </div>
         </div>
 
-        <!-- Vertical Tab Navigation Items (Unindexed) -->
+        <!-- Vertical Tab Navigation Items (Dynamic AST Panes) -->
         <nav class="space-y-1.5" aria-label="Lesson Sections">
-          <!-- Tab 1 -->
-          <button type="button" class="section-tab-btn active w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-1" onclick="switchSectionTab('section-1')">
-            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">1</span>
-            <div class="min-w-0">
-              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--primary)] font-bold">Physical Dilemma</div>
-              <div class="tab-title text-xs font-semibold text-[var(--foreground)] truncate">{{SECTION_1_TITLE}}</div>
-            </div>
-          </button>
-          <!-- Tab 2 -->
-          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-2" onclick="switchSectionTab('section-2')">
-            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">2</span>
-            <div class="min-w-0">
-              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">System Architecture</div>
-              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_2_TITLE}}</div>
-            </div>
-          </button>
-          <!-- Tab 3 -->
-          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-3" onclick="switchSectionTab('section-3')">
-            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">3</span>
-            <div class="min-w-0">
-              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">Mechanics &amp; Simulator</div>
-              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_3_TITLE}}</div>
-            </div>
-          </button>
-          <!-- Tab 4 -->
-          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-4" onclick="switchSectionTab('section-4')">
-            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">4</span>
-            <div class="min-w-0">
-              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">Production Reality</div>
-              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_4_TITLE}}</div>
-            </div>
-          </button>
-          <!-- Tab 5 -->
-          <button type="button" class="section-tab-btn w-full text-left p-2.5 rounded-lg border flex items-start gap-2.5" data-target="section-5" onclick="switchSectionTab('section-5')">
-            <span class="tab-indicator font-mono text-xs font-bold w-5 h-5 rounded flex items-center justify-center flex-shrink-0">5</span>
-            <div class="min-w-0">
-              <div class="tab-stage-tag text-[9px] font-mono uppercase tracking-wider text-[var(--muted-foreground)]">Architectural Defense</div>
-              <div class="tab-title text-xs font-semibold text-[var(--muted-foreground)] truncate">{{SECTION_5_TITLE}}</div>
-            </div>
-          </button>
+{{SECTION_TABS_HTML}}
         </nav>
       </div>
 
@@ -587,108 +582,7 @@
 
     <!-- MAIN VIEWPORT (INDEPENDENT SCROLL) -->
     <main class="lesson-main-viewport flex-1 h-full p-6 md:p-10 lg:p-12 max-w-5xl mx-auto w-full overflow-y-auto">
-
-      <!-- PANE 1: PHYSICAL DILEMMA -->
-      <article id="pane-section-1" class="section-pane active space-y-6">
-        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
-          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 1 · Inception &amp; Physical Dilemma</div>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_1_TITLE}}</h2>
-        </header>
-        <div class="narrative-prose">
-          {{SECTION_1_BODY}}
-        </div>
-        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
-          <span></span>
-          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-2')">
-            <span>Next: System Architecture</span>
-            <span>→</span>
-          </button>
-        </div>
-      </article>
-
-      <!-- PANE 2: SYSTEM ARCHITECTURE -->
-      <article id="pane-section-2" class="section-pane space-y-6">
-        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
-          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 2 · System Architecture &amp; Placement</div>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_2_TITLE}}</h2>
-        </header>
-        <div class="narrative-prose">
-          {{SECTION_2_BODY}}
-        </div>
-        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
-          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-1')">
-            <span>←</span>
-            <span>Previous: Dilemma</span>
-          </button>
-          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-3')">
-            <span>Next: Mechanics &amp; Simulator</span>
-            <span>→</span>
-          </button>
-        </div>
-      </article>
-
-      <!-- PANE 3: INTERNAL MECHANICS & SIMULATOR -->
-      <article id="pane-section-3" class="section-pane space-y-6">
-        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
-          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 3 · Internal Mechanics &amp; Simulator</div>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_3_TITLE}}</h2>
-        </header>
-        <div class="narrative-prose">
-          {{SECTION_3_BODY}}
-        </div>
-        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
-          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-2')">
-            <span>←</span>
-            <span>Previous: Architecture</span>
-          </button>
-          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-4')">
-            <span>Next: Production Reality</span>
-            <span>→</span>
-          </button>
-        </div>
-      </article>
-
-      <!-- PANE 4: PRODUCTION REALITY -->
-      <article id="pane-section-4" class="section-pane space-y-6">
-        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
-          <div class="text-xs font-mono font-bold uppercase tracking-wider text-[var(--primary)]">Stage 4 · Production Reality &amp; Mental Model</div>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_4_TITLE}}</h2>
-        </header>
-        <div class="narrative-prose">
-          {{SECTION_4_BODY}}
-        </div>
-        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
-          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-3')">
-            <span>←</span>
-            <span>Previous: Simulator</span>
-          </button>
-          <button type="button" class="px-4 py-2 rounded-lg bg-[var(--primary)] text-white text-xs font-bold hover:bg-[var(--primary-hover)] flex items-center gap-2" onclick="switchSectionTab('section-5')">
-            <span>Next: Architectural Defense</span>
-            <span>→</span>
-          </button>
-        </div>
-      </article>
-
-      <!-- PANE 5: ARCHITECTURAL DEFENSE GATE -->
-      <article id="pane-section-5" class="section-pane space-y-6">
-        <header class="space-y-1.5 border-b border-[var(--border)] pb-4">
-          <div class="text-xs font-mono font-bold uppercase tracking-wider text-amber-500">Stage 5 · Contextual Sign-Off Verification</div>
-          <h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-[var(--foreground)]">{{SECTION_5_TITLE}}</h2>
-        </header>
-        <div class="narrative-prose">
-          {{SECTION_5_BODY}}
-        </div>
-        <div class="pt-8 border-t border-[var(--border)] flex justify-between items-center">
-          <button type="button" class="px-3 py-1.5 rounded-lg border border-[var(--border)] text-xs font-medium hover:bg-[var(--card)] flex items-center gap-1.5" onclick="switchSectionTab('section-4')">
-            <span>←</span>
-            <span>Previous: Production</span>
-          </button>
-          <div class="text-xs font-mono text-[var(--muted-foreground)]">
-            Ready to defend? Reply in chat to begin Socratic evaluation.
-          </div>
-        </div>
-      </article>
-
+{{SECTION_PANES_HTML}}
     </main>
 
   </div>
@@ -714,10 +608,26 @@
 
   <!-- EMBEDDED JAVASCRIPT: TAB NAVIGATION & SIMULATOR LOGIC -->
   <script>
+    function getTabIds() {
+      return Array.from(document.querySelectorAll('.section-tab-btn'))
+        .map(btn => btn.getAttribute('data-target'))
+        .filter(Boolean);
+    }
+
     // Tab Navigation & Stage Progress
     function switchSectionTab(targetId) {
       document.querySelectorAll('.section-tab-btn').forEach(btn => {
         btn.classList.remove('active');
+        const stageTag = btn.querySelector('.tab-stage-tag');
+        const titleEl = btn.querySelector('.tab-title');
+        if (stageTag) {
+          stageTag.classList.remove('text-[var(--primary)]', 'font-bold');
+          stageTag.classList.add('text-[var(--muted-foreground)]');
+        }
+        if (titleEl) {
+          titleEl.classList.remove('text-[var(--foreground)]', 'font-bold');
+          titleEl.classList.add('text-[var(--muted-foreground)]');
+        }
       });
       document.querySelectorAll('.section-pane').forEach(pane => {
         pane.classList.remove('active');
@@ -725,7 +635,19 @@
       });
 
       const targetBtn = document.querySelector(`.section-tab-btn[data-target="${targetId}"]`);
-      if (targetBtn) targetBtn.classList.add('active');
+      if (targetBtn) {
+        targetBtn.classList.add('active');
+        const stageTag = targetBtn.querySelector('.tab-stage-tag');
+        const titleEl = targetBtn.querySelector('.tab-title');
+        if (stageTag) {
+          stageTag.classList.remove('text-[var(--muted-foreground)]');
+          stageTag.classList.add('text-[var(--primary)]', 'font-bold');
+        }
+        if (titleEl) {
+          titleEl.classList.remove('text-[var(--muted-foreground)]');
+          titleEl.classList.add('text-[var(--foreground)]', 'font-bold');
+        }
+      }
 
       const targetPane = document.getElementById(`pane-${targetId}`);
       if (targetPane) {
@@ -734,14 +656,15 @@
       }
 
       // Update Sidebar Stage Tracker
-      const tabIds = ['section-1', 'section-2', 'section-3', 'section-4', 'section-5'];
+      const tabIds = getTabIds();
       const currentIdx = tabIds.indexOf(targetId);
-      if (currentIdx !== -1) {
+      if (currentIdx !== -1 && tabIds.length > 0) {
         const stageNum = currentIdx + 1;
+        const totalStages = tabIds.length;
         const pLabel = document.getElementById('sidebar-progress-label');
         const pBar = document.getElementById('sidebar-progress-bar');
-        if (pLabel) pLabel.innerText = `Stage ${stageNum} of 5`;
-        if (pBar) pBar.style.width = `${(stageNum / 5) * 100}%`;
+        if (pLabel) pLabel.innerText = `Stage ${stageNum} of ${totalStages}`;
+        if (pBar) pBar.style.width = `${(stageNum / totalStages) * 100}%`;
       }
 
       const mainView = document.querySelector('.lesson-main-viewport') || window;
@@ -753,9 +676,10 @@
     // Keyboard Shortcuts: [ and ] or ArrowLeft/ArrowRight
     window.addEventListener('keydown', (e) => {
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) return;
-      const tabIds = ['section-1', 'section-2', 'section-3', 'section-4', 'section-5'];
+      const tabIds = getTabIds();
+      if (tabIds.length === 0) return;
       const activeBtn = document.querySelector('.section-tab-btn.active');
-      const currId = activeBtn?.getAttribute('data-target') || 'section-1';
+      const currId = activeBtn?.getAttribute('data-target') || tabIds[0];
       const currIdx = tabIds.indexOf(currId);
 
       if (e.key === '[' || (e.altKey && e.key === 'ArrowLeft')) {
@@ -768,6 +692,42 @@
       }
     });
 
+    // Position popover intelligently within viewport boundaries
+    function positionJargonPopover(wrapper) {
+      const card = wrapper.querySelector('.jargon-popover-card');
+      if (!card) return;
+      const rect = wrapper.getBoundingClientRect();
+      const cardWidth = card.offsetWidth || 360;
+      const viewportWidth = window.innerWidth;
+
+      // 1. Vertical: flip below if close to top of viewport
+      if (rect.top < 220) {
+        card.classList.add('popover-below');
+      } else {
+        card.classList.remove('popover-below');
+      }
+
+      // 2. Horizontal: prevent clipping off left or right screen edges
+      const center = rect.left + rect.width / 2;
+      const halfWidth = cardWidth / 2;
+      if (center - halfWidth < 16) {
+        card.style.left = '0';
+        card.style.right = 'auto';
+        card.style.transform = 'none';
+        card.style.setProperty('--popover-tx', '0px');
+      } else if (center + halfWidth > viewportWidth - 16) {
+        card.style.left = 'auto';
+        card.style.right = '0';
+        card.style.transform = 'none';
+        card.style.setProperty('--popover-tx', '0px');
+      } else {
+        card.style.left = '50%';
+        card.style.right = 'auto';
+        card.style.transform = 'translateX(-50%)';
+        card.style.setProperty('--popover-tx', '-50%');
+      }
+    }
+
     // Jargon Tooltip Toggle (for click / touch interactions)
     function toggleJargonTooltip(el, event) {
       if (event) event.stopPropagation();
@@ -775,8 +735,19 @@
       if (!wrapper) return;
       const wasOpen = wrapper.classList.contains('is-open');
       document.querySelectorAll('.jargon-tooltip-wrapper.is-open').forEach(w => w.classList.remove('is-open'));
-      if (!wasOpen) wrapper.classList.add('is-open');
+      if (!wasOpen) {
+        positionJargonPopover(wrapper);
+        wrapper.classList.add('is-open');
+      }
     }
+
+    // Reposition popover dynamically on hover
+    document.addEventListener('mouseover', (e) => {
+      const wrapper = e.target.closest('.jargon-tooltip-wrapper');
+      if (wrapper) {
+        positionJargonPopover(wrapper);
+      }
+    });
 
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.jargon-tooltip-wrapper')) {
@@ -855,6 +826,21 @@
           `;
           listContainer.appendChild(card);
         });
+      }
+
+      // Initialize dynamic stage progress on load
+      const initialTabIds = getTabIds();
+      if (initialTabIds.length > 0) {
+        const activeIdx = initialTabIds.findIndex(id => {
+          const btn = document.querySelector(`.section-tab-btn[data-target="${id}"]`);
+          return btn && btn.classList.contains('active');
+        });
+        const stageNum = activeIdx !== -1 ? activeIdx + 1 : 1;
+        const totalStages = initialTabIds.length;
+        const pLabel = document.getElementById('sidebar-progress-label');
+        const pBar = document.getElementById('sidebar-progress-bar');
+        if (pLabel) pLabel.innerText = `Stage ${stageNum} of ${totalStages}`;
+        if (pBar) pBar.style.width = `${(stageNum / totalStages) * 100}%`;
       }
     });
 

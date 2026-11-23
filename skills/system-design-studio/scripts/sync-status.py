@@ -138,7 +138,7 @@ def main():
             cursor["topicFoundationStatus"] = "delivered"
             manifest_changed = True
 
-        expected_action = f"Review delivered lesson artifact ({os.path.basename(artifact_found)}) and engage in Socratic dialectic defense via /sds-discuss"
+        expected_action = f"Review delivered lesson artifact ({os.path.basename(artifact_found)}) and defend trade-offs in chat"
         if cursor.get("nextTeachingAction") != expected_action:
             cursor["nextTeachingAction"] = expected_action
             manifest_changed = True
@@ -220,7 +220,7 @@ def main():
     print(f"Active Topic:    {active_topic.get('title', active_topic_id) if active_topic else active_topic_id}")
     print(f"Foundation:      {cursor.get('topicFoundationStatus', 'unknown')}")
     if artifact_found:
-        print(f"Lesson Artifact: {os.path.basename(artifact_found)} (Delivered · Ready for /sds-discuss)")
+        print(f"Lesson Artifact: {os.path.basename(artifact_found)} (Delivered · Ready for chat defense)")
     print(f"Mechanism Group: {cursor.get('activeMechanismGroupId', 'none')}")
     print("-" * 60)
     print(f"Examples Logged: {len(rc.get('examplesTaken', []))}")

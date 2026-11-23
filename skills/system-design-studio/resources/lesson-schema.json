@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "SystemDesignLessonPayload",
+  "description": "Canonical schema for System Design Studio structured lesson payloads. Supports both Semantic Component Node ASTs and legacy section payloads.",
+  "anyOf": [
+    {
+      "title": "LessonASTDocument",
+      "description": "Component Node AST representation with dynamic block stream and first-class dual-axis Markdown & HTML compilation.",
+      "type": "object",
+      "required": ["meta", "nodes"],
+      "properties": {
+        "$schema": { "type": "string" },
+        "meta": {
+          "type": "object",
+          "required": ["topicId", "title"],
+          "properties": {
+            "topicId": { "type": "string", "description": "Canonical topic identifier, e.g. topic.0.1.tcp-vs-udp" },
+            "title": { "type": "string", "description": "Main lesson headline" },
+            "subtitle": { "type": "string", "description": "Causal trade-off summary" },
+            "tier": { "type": "string", "description": "Hierarchy tier badge" },
+            "cluster": { "type": "string", "description": "Hierarchy cluster badge" },
+            "backwardAnchor": { "type": "string", "description": "Foundation from prior topic" },
+            "forwardHook": { "type": "string", "description": "Forward link to next causal topic" },
+            "themeId": { "type": "string", "enum": ["slate-clean", "editorial-paper", "midnight-neon", "nordic-frost", "warm-amber"] },
+            "fullDepth": { "type": "boolean", "description": "Exhaustive mechanical closure mode (>= 3,500 words)" }
+          }
+        },
+        "nodes": {
+          "type": "array",
+          "description": "Ordered stream of semantic component nodes",
+          "items": { "$ref": "#/$defs/Node" }
+        },
+        "embeddedJavascript": {
+          "type": "string",
+          "description": "Interactive tactile simulator engine logic"
+        }
+      }
+    },
+    {
+      "title": "LegacyLessonPayload",
+      "description": "Legacy 5-section HTML payload dictionary.",
+      "type": "object",
+      "required": [
+        "LESSON_TITLE",
+        "SECTION_1_TITLE",
+        "SECTION_1_BODY",
+        "SECTION_2_TITLE",
+        "SECTION_2_BODY",
+        "SECTION_3_TITLE",
+        "SECTION_3_BODY",
+        "SECTION_4_TITLE",
+        "SECTION_4_BODY",
+        "SECTION_5_TITLE",
+        "SECTION_5_BODY"
+      ],
+      "properties": {
+        "PAGE_TITLE": { "type": "string" },
+        "THEME_ID": { "type": "string" },
+        "LESSON_TITLE": { "type": "string" },
+        "LESSON_SUBTITLE": { "type": "string" },
+        "TIER_BADGE": { "type": "string" },
+        "CLUSTER_BADGE": { "type": "string" },
+        "BACKWARD_ANCHOR": { "type": "string" },
+        "FORWARD_HOOK": { "type": "string" },
+        "FULL_DEPTH": { "type": "boolean" },
+        "SECTION_1_TITLE": { "type": "string" },
+        "SECTION_1_BODY": { "type": "string" },
+        "SECTION_2_TITLE": { "type": "string" },
+        "SECTION_2_BODY": { "type": "string" },
+        "SECTION_3_TITLE": { "type": "string" },
+        "SECTION_3_BODY": { "type": "string" },
+        "SECTION_4_TITLE": { "type": "string" },
+        "SECTION_4_BODY": { "type": "string" },
+        "SECTION_5_TITLE": { "type": "string" },
+        "SECTION_5_BODY": { "type": "string" },
+        "EMBEDDED_JAVASCRIPT": { "type": "string" }
+      }
+    }
+  ],
+  "$defs": {
+    "Node": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "type": "string" }
+      },
+      "anyOf": [
+        { "$ref": "#/$defs/SectionNode" },
+        { "$ref": "#/$defs/SubsectionNode" },
+        { "$ref": "#/$defs/DividerNode" },
+        { "$ref": "#/$defs/EditorialLeadNode" },
+        { "$ref": "#/$defs/ParagraphNode" },
+        { "$ref": "#/$defs/ListNode" },
+        { "$ref": "#/$defs/QuoteNode" },
+        { "$ref": "#/$defs/DilemmaNode" },
+        { "$ref": "#/$defs/CalloutNode" },
+        { "$ref": "#/$defs/AnalogyNode" },
+        { "$ref": "#/$defs/BreakthroughNode" },
+        { "$ref": "#/$defs/StepTraceNode" },
+        { "$ref": "#/$defs/ComparisonMatrixNode" },
+        { "$ref": "#/$defs/FormulaNode" },
+        { "$ref": "#/$defs/CodeBlockNode" },
+        { "$ref": "#/$defs/SimulatorNode" },
+        { "$ref": "#/$defs/DefenseChallengeNode" },
+        { "$ref": "#/$defs/MentalModelNode" },
+        { "$ref": "#/$defs/RawHtmlNode" }
+      ]
+    },
+    "SectionNode": {
+      "type": "object",
+      "required": ["type", "title"],
+      "properties": {
+        "type": { "const": "section" },
+        "title": { "type": "string", "description": "Section title (unindexed)" },
+        "subtitle": { "type": "string" },
+        "badge": { "type": "string", "description": "Stage badge (e.g. Physical Dilemma, Architecture, Defense)" },
+        "id": { "type": "string", "description": "DOM anchor ID (e.g. section-1, sec-dilemma)" }
+      }
+    },
+    "SubsectionNode": {
+      "type": "object",
+      "required": ["type", "title"],
+      "properties": {
+        "type": { "const": "subsection" },
+        "title": { "type": "string" },
+        "level": { "type": "integer", "minimum": 2, "maximum": 5, "default": 3 }
+      }
+    },
+    "DividerNode": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "divider" },
+        "style": { "type": "string", "default": "subtle" }
+      }
+    },
+    "EditorialLeadNode": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "editorial_lead" },
+        "text": { "type": "string", "description": "High-impact narrative hook" }
+      }
+    },
+    "ParagraphNode": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "paragraph" },
+        "text": { "type": "string", "description": "Paragraph text, may contain {{jargon:key}} interpolation tokens" },
+        "jargons": {
+          "type": "object",
+          "description": "Dictionary of technical acronyms/jargon definitions unpacked inline as tooltips",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["term", "definition"],
+            "properties": {
+              "term": { "type": "string" },
+              "category": { "type": "string" },
+              "definition": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "ListNode": {
+      "type": "object",
+      "required": ["type", "items"],
+      "properties": {
+        "type": { "const": "list" },
+        "items": { "type": "array" },
+        "ordered": { "type": "boolean", "default": false }
+      }
+    },
+    "QuoteNode": {
+      "type": "object",
+      "required": ["type", "text"],
+      "properties": {
+        "type": { "const": "quote" },
+        "text": { "type": "string" },
+        "author": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+    "DilemmaNode": {
+      "type": "object",
+      "required": ["type", "title", "lead", "extremes"],
+      "properties": {
+        "type": { "const": "dilemma" },
+        "title": { "type": "string" },
+        "lead": { "type": "string" },
+        "extremes": {
+          "type": "array",
+          "description": "List of contrasting naive engineering extremes"
+        },
+        "resolution_preview": { "type": "string" }
+      }
+    },
+    "CalloutNode": {
+      "type": "object",
+      "required": ["type", "kind", "title", "text"],
+      "properties": {
+        "type": { "const": "callout" },
+        "kind": { "type": "string", "enum": ["dilemma", "mechanism", "invariant", "trap", "note", "tip"] },
+        "title": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+    "AnalogyNode": {
+      "type": "object",
+      "required": ["type", "title", "category", "mental_model"],
+      "properties": {
+        "type": { "const": "analogy" },
+        "title": { "type": "string" },
+        "category": { "type": "string" },
+        "mental_model": { "type": "string" },
+        "mapping": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "physical": { "type": "string" },
+              "systems": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "BreakthroughNode": {
+      "type": "object",
+      "required": ["type", "title", "text"],
+      "properties": {
+        "type": { "enum": ["breakthrough", "aha"] },
+        "title": { "type": "string" },
+        "text": { "type": "string" }
+      }
+    },
+    "StepTraceNode": {
+      "type": "object",
+      "required": ["type", "title", "steps"],
+      "properties": {
+        "type": { "const": "step_trace" },
+        "title": { "type": "string" },
+        "steps": { "type": "array" }
+      }
+    },
+    "ComparisonMatrixNode": {
+      "type": "object",
+      "required": ["type", "title", "headers", "rows"],
+      "properties": {
+        "type": { "const": "comparison_matrix" },
+        "title": { "type": "string" },
+        "headers": { "type": "array", "items": { "type": "string" } },
+        "rows": {
+          "type": "array",
+          "items": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "FormulaNode": {
+      "type": "object",
+      "required": ["type", "name", "expression"],
+      "properties": {
+        "type": { "const": "formula" },
+        "name": { "type": "string" },
+        "expression": { "type": "string" },
+        "variables": { "type": "object", "additionalProperties": { "type": "string" } },
+        "derivation": { "type": "array", "items": { "type": "string" } },
+        "conclusion": { "type": "string" }
+      }
+    },
+    "CodeBlockNode": {
+      "type": "object",
+      "required": ["type", "language", "code"],
+      "properties": {
+        "type": { "const": "code_block" },
+        "language": { "type": "string" },
+        "code": { "type": "string" },
+        "filename": { "type": "string" },
+        "caption": { "type": "string" }
+      }
+    },
+    "SimulatorNode": {
+      "type": "object",
+      "required": ["type", "model", "title", "subtitle"],
+      "properties": {
+        "type": { "const": "simulator" },
+        "model": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "params": { "type": "object" },
+        "stages": { "type": "array" },
+        "telemetry": { "type": "array" },
+        "script": { "type": "string" }
+      }
+    },
+    "DefenseChallengeNode": {
+      "type": "object",
+      "required": ["type", "title", "scenario", "prompts"],
+      "properties": {
+        "type": { "const": "defense_challenge" },
+        "title": { "type": "string" },
+        "scenario": { "type": "string" },
+        "prompts": { "type": "array" },
+        "constraints": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "MentalModelNode": {
+      "type": "object",
+      "required": ["type", "statement", "explanation"],
+      "properties": {
+        "type": { "const": "mental_model" },
+        "statement": { "type": "string" },
+        "explanation": { "type": "string" }
+      }
+    },
+    "RawHtmlNode": {
+      "type": "object",
+      "required": ["type", "html"],
+      "properties": {
+        "type": { "const": "raw_html" },
+        "html": { "type": "string" }
+      }
+    }
+  }
+}

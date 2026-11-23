@@ -16,9 +16,14 @@ Software engineers, systems architects, and technical learners studying distribu
 Conventional AI chat interfaces suffer from catastrophic context amnesia, lose learning lineage across session or model switches, and default to hand-waving buzzwords rather than first-principles engineering realities. Learners get superficial summaries without working through physical hardware trade-offs or interactive mental models.
 
 ## Mechanism & Solution
-System Design Studio operates on a clean separation of concerns: a global machine setup (`~/.system-design-studio/`) with preference onboarding, and self-contained project learning instances (`.system-design/`) in default or custom locations. It introduces a Git-backed living state engine (`CURSOR.md`) and instance settings (`settings.json`) that maintain active focus, causal hardware anchors, an examples registry, and a deferred question queue across sessions and model switches. 
+System Design Studio transforms an AI coding agent into a rigorous, interactive systems engineering studio directly inside the learner's local Git repository (`.system-design/`). It replaces ephemeral conversational chat with a persistent, file-backed living cursor (`CURSOR.md`) that tracks active focus, verified invariants, and deferred questions across sessions and model switches.
 
-The user runs scripts strictly for installation (`install.sh`), project initialization (`init-learning-instance.sh`), and on-demand updates (`update.sh`). All subsequent learning, scenario defenses, sign-offs, and project navigation happen 100% inside the AI agent's chat interface via custom skill commands (`/sds-*`). The engine supports dual output modes (rich interactive HTML with simulators or zero-JS clean Markdown with Mermaid/ASCII), project-scoped study notes with 4 compilation modes (per-topic, per-cluster, per-tier, single-file), and strictly enforces a `Tier > Cluster > Topic` hierarchy across curated goal tracks and BYO syllabi.
+The learner runs terminal commands strictly twice: once for global machine setup (`install.sh`), and once for workspace initialization (`sds init`). All subsequent study is 100% in-chat:
+1. **Deliver (`/sds-teach`)**: Generates standalone interactive visual lessons with tactile failure simulators and mandatory inline jargon tooltips (tap or hover any buzzword for instant plain-English explanations).
+2. **Defend (Direct Chat Reply)**: Injects unannounced real-world chaos (asymmetric network partitions, clock skew, disk fsync ceilings) cold in chat, requiring the learner to defend their architectural reasoning before advancement.
+3. **Verify (`/sds-complete`)**: Verifies mastery proof, advances the cursor, auto-synthesizes active learning study notes (Hypothesis ➔ Friction ➔ Invariant ➔ Rules of Thumb) in Git Markdown, logs an interview-ready ADR in `DECISIONS.md`, and commits state to Git.
+
+Supported by a live localhost visual workbench (`sds dashboard` on `:8420`), built-in quantitative systems math functions (BDP, Little's Law, quorum size, consistent hashing migration, cache sizing), and 5 customizable designer themes.
 
 ## Core Surfaces
 1. Landing / Product Showcase (`index.html`): High-craft technical product presentation demonstrating the `.system-design/` repository workflow, the living cursor architecture, hardware physics telemetry, and universal agent drop-in setups.

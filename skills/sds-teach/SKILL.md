@@ -1,7 +1,7 @@
 ---
 name: sds-teach
 description: Deliver the next or specified interactive system design lesson artifact in System Design Studio.
-argument-hint: "[topic]"
+argument-hint: "[topic] [--full-depth]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
   version: 3.7.0
@@ -76,7 +76,7 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
    - The coordinator turn MUST be strictly a 5–12 line delivery bridge containing:
      1. Topic Title and Hierarchy (`Tier` -> `Cluster`)
      2. Clickable links to both delivered formats: `[Open Interactive Lesson (HTML)](file:///...)` and `[Open Complete Notes (Markdown)](file:///...)`
-     3. The opening Hypothesis Dilemma / Architectural Defense Challenge question to prompt the learner's thinking and invite dialectic defense via `/sds-discuss`.
+     3. The opening Hypothesis Dilemma / Architectural Defense Challenge question to prompt the learner's thinking and invite dialectic defense directly in chat.
    - NEVER duplicate or summarize the lesson body in chat. The lesson belongs exclusively in the delivered artifacts.
 
 ---
@@ -92,15 +92,17 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
    - It MUST read like an acclaimed, beautifully written engineering deep-dive essay (Dan Luu / Bartosz Ciechanowski / Julia Evans vibe): conversational yet rigorous, narrative-driven, connecting each puzzle piece into one overarching architectural story.
    - Use engaging section narratives, smooth conceptual transitions, and authorial guidance (*"Let's pause here, because this is where everyone gets tripped up...", "Wait, why couldn't we just...?"*).
 
-3. **MANDATORY JARGON UNPACKING (ZERO ORPHANED BUZZWORDS)**:
+3. **MANDATORY JARGON UNPACKING AS INLINE TOOLTIPS (ZERO ORPHANED BUZZWORDS)**:
    - Readers must NEVER have to leave the page or open a search engine to look up an acronym or buzzword while reading.
-   - Every domain acronym, protocol keyword, or systems buzzword introduced (e.g. *Head-of-Line Blocking*, *Middlebox*, *Ossification*, *RTT*, *BDP*, *TCP 3-Way Handshake*, *4-Tuple*, *ALPN*, *Alt-Svc*, *P99*) MUST be accompanied by an immediate plain-English translation callout (`<div class="jargon-card">` or inline micro-pill) right where it appears.
+   - Unpack domain acronyms, protocol keywords, and systems buzzwords (e.g. *Head-of-Line Blocking*, *Middlebox*, *Ossification*, *RTT*, *BDP*, *TCP 3-Way Handshake*, *4-Tuple*, *ALPN*, *Alt-Svc*, *P99*) primarily as **inline tooltips** (`<span class="jargon-tooltip-wrapper"><span class="jargon-inline-cue" onclick="toggleJargonTooltip(this, event)">Term</span><span class="jargon-popover-card">...</span></span>` or generated via `lesson_builder.build_jargon_tooltip(...)`) directly inside the sentence where the term appears.
+   - This keeps the reading narrative fluid and unbroken, while providing a wide 80% popover on hover/click, automatically indexed into the HTML Glossary Drawer and compiled into a clean section glossary in Markdown.
    - Plain English FIRST, systems label second: Describe the concept in intuitive everyday terms before stamping it with its formal technical term. Ban dense noun-stacking (e.g., replace *"monotonic ordering"* with *"strictly in-order sequence"*; replace *"stateless boundary-preserving datagram"* with *"standalone message with clear boundaries"*).
    - Eliminate melodramatic purple prose (*"blistering"*, *"into the void"*, *"worthless garbage"*); maintain a clear, authoritative, lucid tone.
 
 4. **ANTI-COMPRESSION & EXPLAINER DEPTH INVARIANT (BAN THE CHEAT SHEET)**:
    - A lesson must NEVER read like a compressed engineer's cheat sheet, summary table, or bullet-point review.
-   - For any topic introducing architectural primitives or protocols with prerequisites, the lesson MUST provide 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ defense gate.
+   - **Standard Mode**: 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ defense gate.
+   - **Full-Depth Mode (`--full-depth`)**: When requested on-demand, go to the absolute internal bottom depth of the topic: trace every abstraction down to OS kernel buffer queues, POSIX syscalls (`read()`, `write()`, `epoll()`, `fsync()`), memory registers, hardware flash/silicon layers, and physical wire propagation limits. Target 3,500–5,000+ words.
 
 5. **THE DILEMMA-RESOLUTION & COGNITIVE CLOSURE LAW**:
    - Section 1 must introduce a tangible engineering friction/dilemma (e.g., Stop-and-Wait vs Blasting; synchronous disk writes vs durability; polling overhead vs idle connection limits).
@@ -171,8 +173,8 @@ When executing `/sds-teach`:
    - You are STRICTLY FORBIDDEN from generating or compiling a lesson in the coordinator turn without delegating to `sds-lesson-crafter`.
    - Never skip subagents to take a shortcut. The user expects full autonomous subagent collaboration.
 
-2. **STATIC FIXTURES ARE FOR CALIBRATION ONLY — NEVER SERVED DIRECTLY**:
-   - The files in `resources/examples/lessons/*.json` are REFERENCE BLUEPRINTS ONLY. They demonstrate structural depth, simulator design, and tone.
+2. **SECTION EXAMPLES ARE FOR CALIBRATION ONLY — NEVER SERVED DIRECTLY**:
+   - The snippet files in `resources/examples/sections/*.json` and `resources/examples/ui-components.json` are SECTION-WISE REFERENCE BLUEPRINTS ONLY across diverse topics. They demonstrate dilemma formulation, simulator specifications, and inline tooltip mechanics.
    - You are STRICTLY FORBIDDEN from passing files in `resources/examples/` directly to `render-lesson.py`. `render-lesson.py` will actively abort with an error if you attempt to do so.
    - The lesson payload passed to `render-lesson.py` MUST be a freshly authored JSON payload created by `sds-lesson-crafter` that is personalized to:
      a) The user's active curriculum track (e.g. `full-mastery` vs `interview-sprint`).
@@ -184,7 +186,9 @@ When executing `/sds-teach`:
 ## Execution Sequence
 
 ### Step 1: Inlined Context Resolution & Hypothesis Gate (Coordinator)
-- **Target Topic**: Resolve from `$ARGUMENTS` or read `activeFocus.topicId` from `.system-design/CURSOR.md`.
+- **Target Topic & Full-Depth**:
+  - Check `$ARGUMENTS` for `--full-depth` flag or user request for exhaustive internal depth.
+  - Resolve topic ID from `$ARGUMENTS` (stripping flags) or read `activeFocus.topicId` from `.system-design/CURSOR.md`.
 - **Curriculum Context**: Read `CURRICULUM.md` to extract:
   - Active Track name
   - Tier & Cluster name
@@ -194,9 +198,8 @@ When executing `/sds-teach`:
   - `completedTopics` (established mental models to build upon)
   - `deferredQueue` (known gaps or parked questions)
   - `examplesTaken` (established real-world metaphors to maintain continuity)
-- **Reference Fixture Inspection**:
-  - Check if a reference fixture exists at `~/.system-design-studio/skills/system-design-studio/resources/examples/lessons/<slug>.json`.
-  - If present, read its contents. Pass it into the subagent prompt as `Reference Structural Blueprint (For depth/simulator calibration ONLY)`.
+- **Reference Section Snippets**:
+  - The subagent can inspect `~/.system-design-studio/skills/system-design-studio/resources/examples/sections/` and `ui-components.json` for component formatting and section tone calibration.
 - **Learner Hypothesis Prompt**:
   - In your chat turn, prompt the learner for their initial working hypothesis on the topic's core dilemma before handing over the solution:
     *"Before we inspect the internal mechanics of [Topic], what is your initial intuition on [Concrete Dilemma]?"*
@@ -207,22 +210,23 @@ When executing `/sds-teach`:
   {
     "TypeName": "sds-lesson-crafter",
     "Role": "Deep Causal Lesson Author",
-    "Prompt": "<Comprehensive prompt containing topic details, curriculum track, completed topics to reference (from active project ONLY), and reference fixture for calibration. Instruct subagent to write JSON directly to .system-design/lessons/.generated-<slug>.json>"
+    "Prompt": "<Comprehensive prompt containing topic details, curriculum track, full_depth flag (if --full-depth requested), completed topics to reference (from active project ONLY), and instructions to use lesson_builder.py. Instruct subagent to write JSON directly to .system-design/lessons/.generated-<slug>.json>"
   }
   ```
-- The subagent crafts a completely fresh, 2,500+ word structured lesson JSON payload following all pedagogical invariants and writes it directly to `.system-design/lessons/.generated-<slug>.json`.
+- The subagent crafts a completely fresh structured lesson payload (2,500+ words standard, or 3,500–5,000+ words if `--full-depth`) using the shipped builder script (`from lesson_builder import LessonBuilder...`), unpacking jargons primarily as inline tooltips, and saves it directly to `.system-design/lessons/.generated-<slug>.json`.
 - The subagent returns a concise status message with word count, file path, and the central dilemma.
 
 ### Step 3: Adversarial Pedagogical Audit (`sds-pedagogy-auditor`)
-- Invoke `sds-pedagogy-auditor` pointing to `.system-design/lessons/.generated-<slug>.json` to verify derived math, term ordering, and 1:1 sign-off gate alignment.
+- Invoke `sds-pedagogy-auditor` pointing to `.system-design/lessons/.generated-<slug>.json` to verify derived math, term ordering, inline tooltip usage, and 1:1 sign-off gate alignment.
 - Crafter amends payload file on disk if any flaws are flagged until `APPROVED`.
 
 ### Step 4: Deterministic Compilation (`render-lesson.py`)
-- Compile via `render-lesson.py` (which simultaneously emits both HTML and Markdown and syncs cursor status to `delivered`):
+- Compile via `render-lesson.py` (which simultaneously emits both HTML and Markdown, applies full-depth badges if requested, and syncs cursor status to `delivered`):
   ```bash
   python3 ~/.system-design-studio/skills/system-design-studio/scripts/render-lesson.py \
     --topic-id <topic-id> \
     --style <theme> \
+    [--full-depth] \
     --data-file <project-dir>/.system-design/lessons/.generated-<slug>.json
   ```
 
@@ -233,7 +237,7 @@ When executing `/sds-teach`:
      - `[Open Interactive Lesson (HTML)](file:///<path-to-lesson.html>)`
      - `[Open Complete Notes (Markdown)](file:///<path-to-lesson.md>)`
   3. The Opening Hypothesis Dilemma / Defense Challenge prompt:
-     *"Before we dissect the underlying mechanics, consider this core dilemma: [Concrete Dilemma from Lesson]. How would you approach this, or what physical constraint makes naive solutions fail? Review the artifact and defend your thesis in /sds-discuss."*
+     *"Before we dissect the underlying mechanics, consider this core dilemma: [Concrete Dilemma from Lesson]. How would you approach this, or what physical constraint makes naive solutions fail? Review the artifact and defend your thesis directly in chat."*
 
 ---
 

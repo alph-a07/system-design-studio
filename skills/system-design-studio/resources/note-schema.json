@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://system-design-studio.dev/schemas/note-schema.json",
+  "title": "System Design Studio Note AST Document Schema",
+  "description": "Standard schema for active-learning study notes synthesized in System Design Studio following the 4-phase cognitive contract.",
+  "type": "object",
+  "required": [
+    "topic_id",
+    "title",
+    "hypothesis",
+    "derived_invariant"
+  ],
+  "properties": {
+    "topic_id": {
+      "type": "string",
+      "description": "The canonical topic identifier, e.g. topic.0.1.tcp-vs-udp"
+    },
+    "title": {
+      "type": "string",
+      "description": "Clean human-readable title of the topic"
+    },
+    "tier": {
+      "description": "Tier hierarchy descriptor (object or string)",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "code": { "type": "string" },
+            "name": { "type": "string" }
+          }
+        },
+        { "type": "string" }
+      ]
+    },
+    "cluster": {
+      "description": "Cluster hierarchy descriptor (object or string)",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "code": { "type": "string" },
+            "title": { "type": "string" }
+          }
+        },
+        { "type": "string" }
+      ]
+    },
+    "verified_date": {
+      "type": "string",
+      "description": "ISO date string of topic sign-off (YYYY-MM-DD)"
+    },
+    "status": {
+      "type": "string",
+      "default": "Verified Sign-Off (Active Learning Synthesis)"
+    },
+    "hypothesis": {
+      "type": "string",
+      "description": "Phase 1: The learner's initial intuition and naive mental model prior to examining boundary conditions."
+    },
+    "friction": {
+      "description": "Phase 2: The Socratic friction, edge cases, and failure modes where the naive mental model broke.",
+      "oneOf": [
+        { "type": "string" },
+        {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      ]
+    },
+    "derived_invariant": {
+      "type": "string",
+      "description": "Phase 3: The non-negotiable physical or mathematical invariant deduced and proven unassisted."
+    },
+    "rules_of_thumb": {
+      "type": "array",
+      "description": "Phase 4: Personal heuristics, operational decision rules, and production sizing bounds.",
+      "items": {
+        "type": "object",
+        "required": ["tradeoff", "decision_rule", "production_bound"],
+        "properties": {
+          "tradeoff": {
+            "type": "string",
+            "description": "The fundamental tension or constraint (e.g. Ordering vs. Head-of-Line Blocking)"
+          },
+          "decision_rule": {
+            "type": "string",
+            "description": "The actionable heuristic governing when to choose which architecture"
+          },
+          "production_bound": {
+            "type": "string",
+            "description": "Physical sizing bound, formula limit, or operational threshold"
+          }
+        }
+      }
+    },
+    "formulas": {
+      "type": "array",
+      "description": "Optional mathematical invariants, physical equations, or sizing calculations.",
+      "items": {
+        "type": "object",
+        "required": ["name", "formula"],
+        "properties": {
+          "name": { "type": "string" },
+          "formula": { "type": "string" },
+          "variables": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          },
+          "implication": { "type": "string" }
+        }
+      }
+    },
+    "takeaways": {
+      "type": "array",
+      "description": "Optional high-level production takeaways and architecture heuristics.",
+      "items": { "type": "string" }
+    }
+  }
+}

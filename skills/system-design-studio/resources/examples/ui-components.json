@@ -1,0 +1,55 @@
+{
+  "title": "System Design Studio UI Components Reference",
+  "description": "Standardized semantic UI nodes for authoring interactive HTML and Markdown lessons.",
+  "components": {
+    "jargon_tooltip": {
+      "element": "span",
+      "class": "jargon-tooltip-wrapper",
+      "html_snippet": "<span class=\"jargon-tooltip-wrapper\"><span class=\"jargon-inline-cue\" onclick=\"toggleJargonTooltip(this, event)\">Term</span><span class=\"jargon-popover-card\"><span class=\"jargon-popover-header\"><span class=\"jargon-popover-title\">💡 Term Label</span><span class=\"jargon-popover-badge\">Category</span></span><span class=\"jargon-popover-body\"><span class=\"jargon-popover-desc\">Plain-English definition...</span></span></span></span>",
+      "markdown_render": "**Term** *(Category)* with clean sentence flow; definition parsed and included in the Markdown section glossary.",
+      "usage_guideline": "Use inline within sentences where the technical acronym or jargon word is actually referenced. Never orphan terms without inline definitions."
+    },
+    "callout_dilemma": {
+      "element": "div",
+      "class": "callout-box callout-dilemma",
+      "html_snippet": "<div class=\"callout-box callout-dilemma\"><div class=\"text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-1\">⚡ The Core Architectural Dilemma</div><p class=\"text-sm text-[var(--foreground)] m-0 leading-relaxed\">Dilemma description with quantitative extremes...</p></div>",
+      "markdown_render": "> [!WARNING] The Core Architectural Dilemma\n> Dilemma description..."
+    },
+    "callout_mechanism": {
+      "element": "div",
+      "class": "callout-box callout-mechanism",
+      "html_snippet": "<div class=\"callout-box callout-mechanism\"><div class=\"text-xs font-mono font-bold text-blue-400 uppercase tracking-wider mb-1\">⚙️ Mechanism Details</div><p class=\"text-sm text-[var(--foreground)] m-0 leading-relaxed\">Internal mechanics and step-by-step trace...</p></div>",
+      "markdown_render": "> [!NOTE] Mechanism Details\n> Internal mechanics..."
+    },
+    "callout_invariant": {
+      "element": "div",
+      "class": "callout-box callout-invariant",
+      "html_snippet": "<div class=\"callout-box callout-invariant\"><div class=\"text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider mb-1\">🔒 System Invariant</div><p class=\"text-sm text-[var(--foreground)] m-0 leading-relaxed\">Physical guarantee or constraint...</p></div>",
+      "markdown_render": "> [!IMPORTANT] System Invariant\n> Physical guarantee..."
+    },
+    "callout_trap": {
+      "element": "div",
+      "class": "callout-box callout-trap",
+      "html_snippet": "<div class=\"callout-box callout-trap\"><div class=\"text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-1\">⚠️ Common Pitfall / Trap</div><p class=\"text-sm text-[var(--foreground)] m-0 leading-relaxed\">Misconception or dangerous edge case...</p></div>",
+      "markdown_render": "> [!CAUTION] Common Pitfall\n> Dangerous edge case..."
+    },
+    "analogy_card": {
+      "element": "div",
+      "class": "analogy-card",
+      "html_snippet": "<div class=\"analogy-card\"><div class=\"analogy-header\"><span class=\"analogy-title\">💡 Intuitive Analogy: Title</span><span class=\"analogy-pill\">Category</span></div><div class=\"analogy-body\"><p>Physical non-leaky mental model...</p></div></div>",
+      "markdown_render": "> [!TIP] Intuitive Analogy: Title\n> Physical mental model..."
+    },
+    "aha_card": {
+      "element": "div",
+      "class": "aha-card",
+      "html_snippet": "<div class=\"aha-card\"><div class=\"aha-header\"><span class=\"aha-title\">✨ Breakthrough Realization</span><span class=\"aha-pill\">Aha!</span></div><div class=\"aha-body\"><p>Key architectural realization...</p></div></div>",
+      "markdown_render": "> [!NOTE] Breakthrough Realization\n> Key architectural realization..."
+    },
+    "editorial_lead": {
+      "element": "div",
+      "class": "editorial-lead",
+      "html_snippet": "<div class=\"editorial-lead\">Narrative opening hook connecting physical reality to system dilemma...</div>",
+      "markdown_render": "> *Narrative opening hook...*"
+    }
+  }
+}

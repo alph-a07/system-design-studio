@@ -41,7 +41,7 @@ When working with learners, offer curated focus tracks to simplify the 354-topic
    - Output active topic with its clean index code (e.g., `0.1.3: TLS handshake cost and session resumption`).
    - Present progress: verified count, cluster completion, and tier distribution.
 2. **Handle direct topic code lookups**:
-   - When a user supplies an index code (e.g., `/sds-teach 0.1.1` or `/sds-discuss 2.1.3`), resolve it to its corresponding cluster code (`0.1`) and topic ID (`topic.0.1.tcp-vs-udp`).
+   - When a user supplies an index code (e.g., `/sds-teach 0.1.1` or `/sds-complete 2.1.3`), resolve it to its corresponding cluster code (`0.1`) and topic ID (`topic.0.1.tcp-vs-udp`).
 3. **Handle track switching or custom BYO import**:
    - To switch active track or prune clusters:
      ```bash

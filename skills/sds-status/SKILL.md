@@ -26,5 +26,5 @@ Check current progress, active topic, cognitive focus, and learning statistics f
    - Lineage anchors and verified physical invariants
    - **Artifact Status**: Check if a lesson artifact (`.system-design/lessons/<slug>.<ext>`) exists for the active topic. If delivered and pending discussion, explicitly report: `Delivered — pending review & dialectic defense` and provide a clickable link to the lesson.
    - **Next pedagogical action**:
-     - If an artifact is delivered and awaiting defense: Prompt the user to review the lesson and engage in dialectic defense via `/sds-discuss` (or provide their defense directly in chat). **DO NOT** prompt for `/sds-teach` when an artifact is already delivered.
+     - If an artifact is delivered and awaiting defense: Prompt the user to review the lesson and defend trade-offs directly in chat. **DO NOT** prompt for `/sds-teach` when an artifact is already delivered.
      - Only if no artifact exists: Prompt the user to run `/sds-teach` to deliver the foundational lesson.

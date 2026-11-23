@@ -30,7 +30,8 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
 
 2. **Term Ordering & Jargon Unpacking Invariant**:
    - Grep the entire lesson body for every technical acronym, protocol name, or systems term.
-   - Verify that no term is referenced before its defining `<div class="jargon-card">` or inline explanation.
+   - Verify that terms are unpacked via **inline tooltips** (`.jargon-tooltip-wrapper` with popover card) or structured callouts directly where the terms are introduced in sentences.
+   - Verify that no term is referenced before its defining tooltip or card.
    - Verify that plain English precedes the technical label (e.g., "strictly in-order byte stream" before "monotonic TCP stream").
    - Reject any orphaned buzzwords or unexplained acronyms.
 
@@ -53,7 +54,8 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
    - Ensure no untaught, out-of-scope prerequisite knowledge is required to defend the challenge.
 
 7. **Depth & Anti-Compression Gate**:
-   - Verify narrative word count (minimum 2,000 words; target 2,500–3,500 words).
+   - **Standard Mode**: Verify narrative word count (minimum 1,800 words; target 2,500–3,500 words).
+   - **Full-Depth Mode (`FULL_DEPTH=true`)**: Verify narrative word count (minimum 3,500 words; target 4,000–6,000 words). Verify exhaustive mechanical closure: POSIX syscalls (`read()`, `write()`, `fsync()`), kernel queues, hardware registers, and failure modes.
    - Reject lessons that resemble bullet-point cheat sheets or API reference tables.
 
 8. **Simulator Failure-Mode Fidelity**:

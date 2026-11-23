@@ -35,9 +35,9 @@ System Design Studio organizes cognitive labor into a high-ROI agentic topology 
 ### 1. The Division of Cognitive & Mechanical Labor
 | Task Area | Implementation | Rationale & Token/Latency ROI |
 |---|---|---|
-| **Content Generation** | **`sds-lesson-crafter` (LLM Subagent)** | High ROI. Authors 2,500+ word first-principles systems lessons with physical dilemmas, mechanics, and simulator specifications without polluting the coordinator's dialog context. |
+| **Content Generation** | **`sds-lesson-crafter` (LLM Subagent)** | High ROI. Authors 2,500+ word (3,500+ in full-depth mode) first-principles systems lessons using `lesson_builder.py` with physical dilemmas, mechanics, inline tooltips, and simulator specifications without polluting coordinator context. |
 | **Content Review** | **`sds-pedagogy-auditor` (LLM Subagent)** | High ROI. Adversarial gatekeeper enforcing the 7 Hard Pre-Flight Checks (recomputing derived math, verifying jargon ordering, banning unhedged absolutes, and auditing gate alignment). |
-| **Dialectic Challenge** | **`sds-dialectic-challenger` (LLM Subagent)** | High ROI. Socratic Staff+ Architect injecting concrete failure modes (queue drops, network partitions, fsync ceilings) cold in chat during `/sds-discuss`. |
+| **Dialectic Challenge** | **`sds-dialectic-challenger` (LLM Subagent)** | High ROI. Socratic Staff+ Architect injecting concrete failure modes (queue drops, network partitions, fsync ceilings) cold in chat during dialectic defense. |
 | **Context Analysis** | **Inlined in Coordinator (Local Disk Tool)** | Dropped as subagent. Coordinator reads `CURSOR.md` and `settings.json` in 5ms via `read_file`. Delegating would waste ~3,000 tokens and 5s latency with zero upside. |
 | **Content Rendering** | **`render-lesson.py` (Deterministic Script)** | Dropped as subagent. Compiles HTML/Markdown and injects interactive JS simulator engines in <50ms with 0 tokens. Eliminates syntax hallucinations. |
 | **Rendering Review** | **`render-lesson.py` (AST/Regex Assertions)** | Dropped as subagent. Automated Python checks verify word counts, jargon density, and interactive tags in 10ms with 0 tokens. |
@@ -74,8 +74,8 @@ Rather than an arbitrary list of internal scripts, the studio commands map to yo
   - *Natural Language*: "Teach topic 0.1", "Next topic", "Show me the mechanics of TCP socket buffers"
 
 ### Phase 2: Stress-Testing & Dialectic Defense
-- **`/sds-discuss`**
-  - *User Value*: Proves you actually understand production failure modes before you commit. The agent challenges your working assumptions cold in chat with unannounced scenarios, latency limits, and asymmetric network partitions.
+- **Chat Defense (Implicit in Chat)**
+  - *User Value*: Proves you actually understand production failure modes before you commit. Reply directly in chat to defend against the challenge posed in the delivered lesson. The agent (or `sds-dialectic-challenger`) stress-tests your working assumptions cold in chat with unannounced scenarios, latency limits, and asymmetric network partitions.
   - *Natural Language*: "Here is my defense of the scenario...", "How should I think about quorum loss?", "Stress test my design"
 
 ### Phase 3: Automated Proof, Git Checkpointing & Retention

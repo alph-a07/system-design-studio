@@ -23,6 +23,16 @@ import re
 import argparse
 import datetime
 
+# Attempt to load NoteDocument AST model
+script_dir = os.path.dirname(os.path.abspath(__file__))
+if script_dir not in sys.path:
+    sys.path.insert(0, script_dir)
+
+try:
+    from lesson_builder import NoteDocument
+except ImportError:
+    NoteDocument = None
+
 def slugify(text):
     text = text.replace('.', '-')
     text = re.sub(r'[^a-zA-Z0-9\s-]', '', text).strip().lower()
@@ -363,6 +373,8 @@ def main():
     parser.add_argument("--discussion-summary", help="Summary of chat dialectic, edge cases, and friction explored")
     parser.add_argument("--notes-dir", help="Explicit target notes directory")
     parser.add_argument("--notes-structure", choices=["per-topic", "per-cluster", "per-tier", "single-file"], help="Notes structuring mode")
+    parser.add_argument("--data-file", help="Path to NoteDocument or Lesson AST JSON file")
+    parser.add_argument("--data", help="Raw JSON string of NoteDocument or Lesson AST")
 
     args = parser.parse_args()
 
@@ -388,7 +400,77 @@ def main():
     tier, cluster, topic = resolve_topic_metadata(instance_dir, args.topic_id)
     today_str = datetime.date.today().isoformat()
 
-    note_body = build_note_markdown(tier, cluster, topic, args.evidence, args.discussion_summary, args.hypothesis, today_str)
+    # Dynamic NoteDocument AST Construction
+    note_body = None
+    explicit_payload = None
+    if args.data_file and os.path.isfile(args.data_file):
+        try:
+            with open(args.data_file, "r", encoding="utf-8") as f:
+                explicit_payload = json.load(f)
+        except Exception:
+            pass
+    elif args.data:
+        try:
+            explicit_payload = json.loads(args.data)
+        except Exception:
+            pass
+
+    if explicit_payload and NoteDocument:
+        try:
+            if "rules_of_thumb" in explicit_payload or "rulesOfThumb" in explicit_payload or "derived_invariant" in explicit_payload:
+                doc = NoteDocument.from_dict(explicit_payload)
+            else:
+                doc = NoteDocument.from_lesson(
+                    explicit_payload,
+                    hypothesis=args.hypothesis or "",
+                    friction=args.discussion_summary or "",
+                    evidence=args.evidence or ""
+                )
+            if not doc.rules_of_thumb:
+                domain_rules = build_rules_of_thumb(args.topic_id, doc.title or topic.get("title", ""))
+                for r in domain_rules:
+                    doc.add_rule(r[0], r[1], r[2])
+            note_body = doc.to_markdown()
+        except Exception:
+            note_body = None
+
+    # Check for delivered lesson AST on disk if not explicitly passed
+    if not note_body and NoteDocument:
+        raw_topic_slug = slugify(args.topic_id.replace("topic.", ""))
+        cand_paths = [
+            os.path.join(instance_dir, "lessons", f".generated-{raw_topic_slug}.json"),
+            os.path.join(instance_dir, "lessons", f"{raw_topic_slug}.json"),
+            os.path.join(base_dir, "lessons", f".generated-{raw_topic_slug}.json"),
+            os.path.join(base_dir, "lessons", f"{raw_topic_slug}.json"),
+        ]
+        if topic and topic.get("lessonArtifact"):
+            base_art = os.path.splitext(topic["lessonArtifact"])[0]
+            cand_paths.append(os.path.join(instance_dir, f"{base_art}.json"))
+            cand_paths.append(os.path.join(base_dir, f"{base_art}.json"))
+
+        for cp in cand_paths:
+            if os.path.isfile(cp):
+                try:
+                    with open(cp, "r", encoding="utf-8") as f:
+                        l_payload = json.load(f)
+                    doc = NoteDocument.from_lesson(
+                        l_payload,
+                        hypothesis=args.hypothesis or "",
+                        friction=args.discussion_summary or "",
+                        evidence=args.evidence or ""
+                    )
+                    if not doc.rules_of_thumb:
+                        domain_rules = build_rules_of_thumb(args.topic_id, topic.get("title", ""))
+                        for r in domain_rules:
+                            doc.add_rule(r[0], r[1], r[2])
+                    note_body = doc.to_markdown()
+                    break
+                except Exception:
+                    pass
+
+    # Fallback to domain synthesis if no AST available
+    if not note_body:
+        note_body = build_note_markdown(tier, cluster, topic, args.evidence, args.discussion_summary, args.hypothesis, today_str)
 
     if notes_structure == "per-cluster":
         saved_path = write_note_per_cluster(notes_dir, tier, cluster, topic, note_body)

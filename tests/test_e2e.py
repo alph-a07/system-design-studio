@@ -85,13 +85,13 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         ]:
             self.assertTrue(os.path.isdir(agent_path), f"Missing target: {agent_path}")
             self.assertTrue(os.path.isfile(os.path.join(agent_path, "system-design-studio/SKILL.md")))
-            for cmd in ["sds-status", "sds-teach", "sds-discuss", "sds-complete", "sds-notes",
+            for cmd in ["sds-status", "sds-teach", "sds-complete", "sds-notes",
                         "sds-projects", "sds-open", "sds-delete", "sds-curriculum", "sds-config", "sds-update"]:
                 cmd_skill = os.path.join(agent_path, cmd, "SKILL.md")
                 self.assertTrue(os.path.isfile(cmd_skill), f"Missing companion skill: {cmd_skill}")
 
         # 2. Verify Claude Code commands and Codex prompts
-        for cmd in ["sds-status", "sds-teach", "sds-discuss", "sds-complete", "sds-notes",
+        for cmd in ["sds-status", "sds-teach", "sds-complete", "sds-notes",
                     "sds-projects", "sds-open", "sds-delete", "sds-curriculum", "sds-config", "sds-update"]:
             claude_cmd = os.path.join(self.fake_home, f".claude/commands/{cmd}.md")
             codex_prompt = os.path.join(self.fake_home, f".codex/prompts/{cmd}.md")
@@ -200,7 +200,7 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         render_script = os.path.join(SCRIPTS_DIR, "render-lesson.py")
         proj1_inst = os.path.join(self.sandbox_dir, "proj1-interview/.system-design")
         # Fixture used explicitly as reference payload — render-lesson no longer auto-serves fixtures
-        tcp_fixture = os.path.join(SCRIPTS_DIR, "..", "resources", "examples", "lessons", "0-1-tcp-vs-udp.json")
+        tcp_fixture = os.path.join(REPO_ROOT, "tests", "fixtures", "0-1-tcp-vs-udp.json")
 
         # 1. Test all 5 themes in HTML mode
         themes = ["slate-clean", "editorial-paper", "midnight-neon", "nordic-frost", "warm-amber"]
@@ -243,11 +243,12 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertNotIn("<!DOCTYPE html>", md_content)
 
         # 3. Verify that passing reference fixtures directly WITHOUT --allow-reference-fixture is hard-rejected
+        ref_example = os.path.join(REPO_ROOT, "skills/system-design-studio/resources/examples/sections/section-1-dilemma-wal.json")
         res_reject = self.run_cmd([
             sys.executable, render_script,
             "--topic-id", "topic.0.1.tcp-vs-udp",
             "--instance-dir", proj1_inst,
-            "--data-file", tcp_fixture
+            "--data-file", ref_example
         ], check=False)
         self.assertNotEqual(res_reject.returncode, 0)
         self.assertIn("Direct serving of reference fixtures is strictly forbidden", res_reject.stderr)

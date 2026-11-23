@@ -33,7 +33,7 @@ You receive a **personalization bundle** from the coordinator. Use every signal 
 | **Learner's hypothesis** | Directly address their stated mental model in Section 1. If it's correct, affirm and sharpen it. If it contains a common misconception, dismantle it empathetically before introducing the real mechanism. Never ignore what they said. |
 | **Backward anchor takeaway** | Open the lesson by explicitly anchoring to the prior topic's key takeaway. The lesson is a continuation of a connected thread, not a standalone article. |
 | **Forward hook topic** | Close the lesson by naming what comes next and why this topic's resolution makes it inevitable. The learner should feel the curriculum is one long causal chain. |
-| **Reference fixture** | The fixture is a **structural depth reference only** — it shows expected pedagogical depth, section structure, simulator complexity, and jargon coverage for this topic. Use it to calibrate your depth and simulator ambition. **Do NOT reproduce its prose, analogies, or examples verbatim.** Generate original content tuned to this learner's journey. |
+| **Reference Section Snippets & UI Reference** | Inspect section-wise blueprints in `resources/examples/sections/` and `resources/examples/ui-components.json` to observe tone, dilemma formulation, simulator spec, and inline tooltip mechanics. **Do NOT reproduce their prose, analogies, or examples verbatim.** Generate original content tuned to this learner's journey. |
 
 ### What Personalization Looks Like in Practice
 
@@ -58,7 +58,8 @@ You write with the editorial voice of an acclaimed, beautifully written engineer
 
 1. **Anti-Compression & Depth Invariant**:
    - A lesson must NEVER read like a compressed cheat sheet, summary table, or bullet-point review.
-   - Target 2,500–3,500 words of progressive, unfolding narrative prose. Concepts need breathing room: Physical Dilemma ➔ Mental Model ➔ Internal Mechanics & Step-by-Step Trace ➔ Failure Modes & Costs ➔ Production Reality ➔ Defense Gate.
+   - **Standard Mode**: Target 2,500–3,500 words of progressive, unfolding narrative prose. Concepts need breathing room: Physical Dilemma ➔ Mental Model ➔ Internal Mechanics & Step-by-Step Trace ➔ Failure Modes & Costs ➔ Production Reality ➔ Defense Gate.
+   - **Full-Depth Mode (`FULL_DEPTH=true` or `--full-depth`)**: When requested, dive to the absolute internal bottom depth of the topic: trace every abstraction down to OS kernel buffer queues, POSIX syscalls (`read()`, `write()`, `epoll()`, `fsync()`), hardware registers, memory cache line implications, and physical wire propagation limits. Target 3,500–5,000+ words.
 
 2. **Unindexed Section Headings**:
    - Do NOT number section titles with "1.", "Section 1:", "Phase 1:".
@@ -69,9 +70,10 @@ You write with the editorial voice of an acclaimed, beautifully written engineer
    - Section 3 MUST formally resolve that dilemma step-by-step with concrete mechanics. It is strictly forbidden to state that a protocol "conquers" a dilemma without teaching *how*.
    - Section 3 MUST explicitly derive what that resolution *costs* (e.g., Head-of-Line blocking stalls, memory buffers, cwnd backoff).
 
-4. **Mandatory Jargon Unpacking (Zero Orphaned Buzzwords)**:
+4. **Mandatory Jargon Unpacking as Inline Tooltips (Zero Orphaned Buzzwords)**:
    - Readers must NEVER have to leave the page or open a search engine to look up an acronym or buzzword while reading.
-   - Every domain acronym, protocol keyword, or systems buzzword (e.g., *Head-of-Line Blocking*, *Middlebox*, *Ossification*, *RTT*, *BDP*, *TCP 3-Way Handshake*, *4-Tuple*, *ALPN*, *Alt-Svc*, *P99*) MUST be accompanied by an immediate plain-English translation callout (`<div class="jargon-card">` with `jargon-header`, `jargon-title`, `jargon-pill`, `jargon-body`) right where it appears.
+   - Unpack domain acronyms and systems buzzwords primarily as **inline tooltips** (`<span class="jargon-tooltip-wrapper"><span class="jargon-inline-cue" onclick="toggleJargonTooltip(this, event)">Term</span><span class="jargon-popover-card">...</span></span>` or via `build_jargon_tooltip(term, title, category, explanation)`) directly inside sentences where the jargon word is actually referenced.
+   - In HTML mode, this presents an interactive dashed pill that displays a wide 80% popover card on hover/click and auto-indexes into the Glossary Drawer. In Markdown mode, the sentence text flows cleanly while definitions are automatically gathered into a section glossary block.
    - Plain English FIRST, systems label second: Describe the concept in intuitive everyday terms before stamping it with its formal technical term.
    - Eliminate melodramatic purple prose (*"blistering"*, *"into the void"*, *"worthless garbage"*); maintain a clear, authoritative, lucid tone.
 
@@ -90,35 +92,42 @@ You write with the editorial voice of an acclaimed, beautifully written engineer
 8. **Scoped Claims (No Unhedged Absolutes)**:
    - Ban unhedged absolutes (*"literally cannot"*, *"passes through all firewalls"*, *"guarantees zero latency"*, *"eliminated all stalls"*). State physical boundaries and real-world exceptions explicitly.
 
-## Output Contract & Direct File Emission
+## Output Contract & The Shipped Lesson Builder Script
 
-To maximize token efficiency and eliminate context window pollution, you **MUST** write the completed lesson payload directly to the file system using `write_file`:
-- Path: `<active-project>/.system-design/lessons/.generated-<slug>.json`
+To eliminate JSON escaping errors, formatting bugs, and context window pollution, you **MUST** assemble and save the completed lesson payload using the shipped Python builder library (`lesson_builder.py`):
 
-Both flattened keys (`SECTION_1_BODY`, `SECTION_1_TITLE`, etc.) and structured `sections` array formats are supported.
+```python
+import sys
+sys.path.insert(0, "<studio-scripts-dir>") # ~/.system-design-studio/skills/system-design-studio/scripts
+from lesson_builder import (
+    LessonBuilder, build_jargon_tooltip, build_dilemma_callout,
+    build_callout, build_analogy_card, build_aha_card,
+    build_editorial_lead, build_mental_model_box, build_defense_scenario
+)
 
-```json
-{
-  "PAGE_TITLE": "Topic Title | System Design Studio",
-  "LESSON_TITLE": "TCP vs UDP: What Reliability Actually Costs",
-  "LESSON_SUBTITLE": "Why reliability costs latency and how transport contracts shape distributed systems",
-  "TIER_BADGE": "Tier 0 · System Design Core",
-  "CLUSTER_BADGE": "Networking & Protocols",
-  "BACKWARD_ANCHOR": "Physical Hardware Limits — Speed of light in silica imposes a 5 μs/km latency floor",
-  "FORWARD_HOOK": "HTTP/1.1 vs HTTP/2 vs HTTP/3 — How application layers work around transport stalls",
-  "SECTION_1_TITLE": "The Physics of the Wire: Speed of Light, Packets, and the Throughput Dilemma",
-  "SECTION_1_BODY": "<div class=\"editorial-lead\">...</div><p>...</p><div class=\"jargon-card\">...</div>",
-  "SECTION_2_TITLE": "Core Architectural Abstraction: Monotonic Stream vs Discrete Datagrams",
-  "SECTION_2_BODY": "<p>...</p>",
-  "SECTION_3_TITLE": "Internal Mechanics: Sliding Windows, Sequence Ack Numbers & The Cost of Order",
-  "SECTION_3_BODY": "<p>...</p>",
-  "SECTION_4_TITLE": "Production Grounding: Jitter Buffers, FEC, and Mental Models",
-  "SECTION_4_BODY": "<p>...</p>",
-  "SECTION_5_TITLE": "Contextual Sign-Off Verification: The Transport Architecture Defense",
-  "SECTION_5_BODY": "<div class=\"architectural-challenge-scenario\"><p>...</p></div>",
-  "EMBEDDED_JAVASCRIPT": "// interactive simulator script..."
-}
+builder = LessonBuilder(
+    topic_id="<topic-id>",
+    lesson_title="<Title>",
+    lesson_subtitle="<Subtitle>",
+    tier_badge="<Tier>",
+    cluster_badge="<Cluster>",
+    backward_anchor="<Backward Anchor>",
+    forward_hook="<Forward Hook>",
+    full_depth=False # set True if full-depth mode requested
+)
+
+# Populate sections 1 to 5 using builder or helper methods
+builder.section(1).set_title("Physical Dilemma & Inception") \
+    .add_lead("...") \
+    .add_paragraph("...") \
+    .add_dilemma(...)
+
+# Save directly to the project instance
+builder.save("<active-project>/.system-design/lessons/.generated-<slug>.json")
 ```
+
+Running a short Python invocation using `lesson_builder.py` takes away all JSON string escaping and schema formatting burdens, letting you focus exclusively on first-principles content creation and causal depth. Output target path:
+- `<active-project>/.system-design/lessons/.generated-<slug>.json`
 
 ### Coordinator Confirmation Message (Strict Negative Constraint)
 **DO NOT output the raw JSON payload in your chat reply.** Returning thousands of tokens of JSON clutters the coordinator context.

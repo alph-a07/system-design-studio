@@ -11,11 +11,14 @@ skills/system-design-studio/
 ├── SKILL.md                 # Agent instruction contract (read on skill invocation)
 ├── README.md                # This skill package reference manual
 ├── scripts/                 # Standalone zero-dependency Python & Bash tooling
+│   ├── lesson_builder.py           # Component AST engine, dual-axis compiler & math library
+│   ├── generate-notes.py           # Active-learning study notes synthesizer
 │   ├── init-learning-instance.sh   # Scaffolds fresh .system-design/ workspace
 │   ├── advance-cursor.py           # Idempotently advances active focus and ticks curriculum
 │   ├── sync-status.py              # Reports live cognitive status and causal anchors
 │   ├── verify-instance.py          # Verifies directory schema and lineage integrity
 │   ├── render-lesson.py            # Compiles interactive HTML teaching artifacts
+│   ├── serve-dashboard.py          # Real-time interactive localhost workbench
 │   ├── manage-projects.py          # Multi-project registry, active switching & safe deletion
 │   ├── merge-settings.py           # Lossless settings migration across version upgrades
 │   └── import-curriculum.py        # Imports custom Markdown syllabi into manifest
@@ -34,6 +37,8 @@ skills/system-design-studio/
     ├── CURSOR-template.md             # Baseline living state cursor
     ├── CURRICULUM-template.md         # 50-cluster Markdown checklist
     ├── lesson-template.html           # Standalone simulator & artifact shell
+    ├── lesson-schema.json             # Lesson AST document schema
+    ├── note-schema.json               # Note AST document schema
     └── custom-curriculum-example.md   # Example markdown syllabus for testing BYO
 ```
 

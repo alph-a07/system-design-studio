@@ -152,6 +152,8 @@ def main():
     parser.add_argument("--discussion-summary", help="Summary of chat defense and edge cases discussed for note synthesis")
     parser.add_argument("--auto-notes", dest="auto_notes_opt", action="store_true", default=None, help="Force auto-generate notes regardless of settings")
     parser.add_argument("--no-auto-notes", dest="auto_notes_opt", action="store_false", help="Disable auto-generation of notes for this completion")
+    parser.add_argument("--notes-data-file", "--data-file", dest="notes_data_file", help="Path to pre-structured NoteDocument or Lesson AST JSON")
+    parser.add_argument("--notes-data", "--data", dest="notes_data", help="Raw JSON string for note synthesis")
 
     args = parser.parse_args()
     inst_dir = resolve_instance_dir(args.instance_dir)
@@ -534,6 +536,10 @@ def main():
                 cmd.extend(["--hypothesis", args.hypothesis])
             if args.discussion_summary:
                 cmd.extend(["--discussion-summary", args.discussion_summary])
+            if getattr(args, "notes_data_file", None):
+                cmd.extend(["--data-file", args.notes_data_file])
+            if getattr(args, "notes_data", None):
+                cmd.extend(["--data", args.notes_data])
             try:
                 subprocess.run(cmd, check=False)
                 note_generated = True

@@ -24,6 +24,15 @@ import json
 import argparse
 import re
 
+script_dir = os.path.dirname(os.path.abspath(__file__))
+if script_dir not in sys.path:
+    sys.path.insert(0, script_dir)
+
+try:
+    from lesson_builder import LessonDocument
+except ImportError:
+    LessonDocument = None
+
 STYLE_THEMES = {
     "slate-clean": {
         "id": "slate-clean",
@@ -91,6 +100,24 @@ STYLE_THEMES = {
       color: #b45309 !important;
     }
     html:not(.dark) .jargon-pill {
+      background: #fef3c7 !important;
+      color: #92400e !important;
+    }
+    html:not(.dark) .jargon-inline-cue,
+    html:not(.dark) .jargon-pill-cue {
+      background: #fef3c7 !important;
+      border-color: #f59e0b !important;
+      color: #b45309 !important;
+    }
+    html:not(.dark) .jargon-popover-card {
+      background: #ffffff !important;
+      border-color: #f59e0b !important;
+      box-shadow: 0 16px 40px -4px rgba(0, 0, 0, 0.15), 0 0 15px rgba(245, 158, 11, 0.1) !important;
+    }
+    html:not(.dark) .jargon-popover-title {
+      color: #b45309 !important;
+    }
+    html:not(.dark) .jargon-popover-badge {
       background: #fef3c7 !important;
       color: #92400e !important;
     }
@@ -188,7 +215,7 @@ def get_default_template(custom_template_path=None):
         except Exception as e:
             print(f"⚠️ Warning: Could not read resource template at {res_path}: {e}")
 
-    return """<!DOCTYPE html><html><head><meta charset="utf-8"><title>{{PAGE_TITLE}}</title></head><body><h1>{{LESSON_TITLE}}</h1><div>{{SECTION_1_BODY}}{{SECTION_2_BODY}}{{SECTION_3_BODY}}{{SECTION_4_BODY}}{{SECTION_5_BODY}}</div></body></html>"""
+    return """<!DOCTYPE html><html><head><meta charset="utf-8"><title>{{LESSON_TITLE}}</title></head><body><h1>{{LESSON_TITLE}}</h1><nav>{{SECTION_TABS_HTML}}</nav><main>{{SECTION_PANES_HTML}}</main></body></html>"""
 
 DEFAULT_TEMPLATE = get_default_template()
 
@@ -243,26 +270,88 @@ def clean_cluster_badge(raw):
     s = re.sub(r"\s+for Design\b", "", s, flags=re.IGNORECASE)
     return s
 
-def extract_balanced_div(html, start_idx):
+def extract_balanced_tag(html, start_idx, tag_name="div"):
     """
-    Extracts a balanced <div>...</div> block starting at start_idx, correctly handling nested divs.
-    Prevents truncation caused by non-greedy regexes matching the first inner </div>.
+    Extracts a balanced <tag>...</tag> block starting at start_idx, correctly handling nested tags.
+    Prevents truncation caused by non-greedy regexes matching inner closing tags.
     """
+    tag_open = f"<{tag_name}"
+    tag_close = f"</{tag_name}>"
     depth = 0
     i = start_idx
     n = len(html)
+    len_open = len(tag_open)
+    len_close = len(tag_close)
     while i < n:
-        if html[i:i+4].lower() == "<div" and (i+4 == n or html[i+4] in " >\t\r\n/"):
+        if html[i:i+len_open].lower() == tag_open and (i+len_open == n or html[i+len_open] in " >\t\r\n/"):
             depth += 1
-            i += 4
-        elif html[i:i+6].lower() == "</div>":
+            i += len_open
+        elif html[i:i+len_close].lower() == tag_close:
             depth -= 1
-            i += 6
+            i += len_close
             if depth == 0:
                 return html[start_idx:i], i
         else:
             i += 1
     return html[start_idx:], n
+
+def sanitize_tooltips_to_spans(html):
+    """
+    Scans html for any <span/div class="jargon-tooltip-wrapper"> and transforms
+    all internal tags (popover card, header, body, desc) to strictly phrasing <span> tags.
+    Placing <div> or <p> inside <p> causes browsers to auto-close paragraphs prematurely,
+    splitting sentences and stranding words or punctuation on separate lines.
+    """
+    if not html or "jargon-tooltip-wrapper" not in html:
+        return html
+
+    res = []
+    idx = 0
+    pattern = re.compile(r"<(?:span|div)\s+class=[\"'][^\"']*jargon-tooltip-wrapper[^\"']*[\"']", re.IGNORECASE)
+    while True:
+        m = pattern.search(html, idx)
+        if not m:
+            res.append(html[idx:])
+            break
+        start_idx = m.start()
+        res.append(html[idx:start_idx])
+        tag_name = re.match(r"<([a-zA-Z0-9]+)", html[start_idx:]).group(1).lower()
+        wrapper_str, end_idx = extract_balanced_tag(html, start_idx, tag_name)
+        idx = end_idx
+
+        cue_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*(?:jargon-inline-cue|jargon-pill-cue)[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
+        title_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*jargon-popover-title[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
+        badge_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*jargon-popover-badge[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
+        body_m = re.search(r"<(?:div|span)[^>]*class=[\"'][^\"']*jargon-popover-body[^\"']*[\"'][^>]*>([\s\S]*?)</(?:div|span)>", wrapper_str, re.IGNORECASE)
+
+        cue_html = re.sub(r"</?(?:p|div|span)[^>]*>", "", cue_m.group(1)).strip() if cue_m else "Term"
+        title_html = re.sub(r"</?(?:p|div|span)[^>]*>", "", title_m.group(1)).strip() if title_m else cue_html
+        badge_html = re.sub(r"</?(?:p|div|span)[^>]*>", "", badge_m.group(1)).strip() if badge_m else ""
+        body_content = body_m.group(1).strip() if body_m else ""
+
+        desc_clean = re.sub(r"</?(?:p|div|span)[^>]*>", "", body_content).strip()
+
+        badge_span = f'<span class="jargon-popover-badge">{badge_html}</span>' if badge_html else ""
+        transformed = (
+            f'<span class="jargon-tooltip-wrapper">'
+            f'<span class="jargon-inline-cue" onclick="toggleJargonTooltip(this, event)">{cue_html}</span>'
+            f'<span class="jargon-popover-card">'
+            f'<span class="jargon-popover-header">'
+            f'<span class="jargon-popover-title">{title_html}</span>'
+            f'{badge_span}'
+            f'</span>'
+            f'<span class="jargon-popover-body"><span class="jargon-popover-desc">{desc_clean}</span></span>'
+            f'</span>'
+            f'</span>'
+        )
+        res.append(transformed)
+    return "".join(res)
+
+def extract_balanced_div(html, start_idx):
+    """
+    Extracts a balanced <div>...</div> block starting at start_idx, correctly handling nested divs.
+    """
+    return extract_balanced_tag(html, start_idx, "div")
 
 def clean_inner_text(html_snippet):
     """
@@ -366,6 +455,37 @@ def clean_html_to_markdown(html):
             )
             text = text[:sim_start] + sim_summary + text[sim_end:]
 
+    # Convert Inline Jargon Tooltips (<span/div class="jargon-tooltip-wrapper">)
+    # Replaces the inline wrapper with bold term (**Term**) and collects terms into a clean section glossary
+    collected_tooltips = []
+    while True:
+        m = re.search(r"<(?:span|div)\s+class=[\"'][^\"']*jargon-tooltip-wrapper[^\"']*[\"']", text, re.IGNORECASE)
+        if not m:
+            break
+        tag_name = re.match(r"<([a-zA-Z0-9]+)", text[m.start():]).group(1).lower()
+        start_idx = m.start()
+        wrapper_str, end_idx = extract_balanced_tag(text, start_idx, tag_name)
+
+        cue_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*(?:jargon-inline-cue|jargon-pill-cue)[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
+        title_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*jargon-popover-title[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
+        badge_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*jargon-popover-badge[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
+        body_m = re.search(r"<(?:div|span)[^>]*class=[\"'][^\"']*jargon-popover-body[^\"']*[\"'][^>]*>([\s\S]*?)</(?:div|span)>", wrapper_str, re.IGNORECASE)
+
+        cue_text = clean_inner_text(cue_m.group(1)).strip() if cue_m else "Term"
+        title_text = re.sub(r"<[^>]+>", "", title_m.group(1)).replace("💡", "").strip() if title_m else cue_text
+        badge_text = clean_inner_text(badge_m.group(1)).strip() if badge_m else ""
+        body_html = body_m.group(1) if body_m else ""
+        body_text = clean_inner_text(body_html).replace("\n", " ").strip()
+
+        collected_tooltips.append({
+            "term": cue_text,
+            "title": title_text,
+            "badge": badge_text,
+            "body": body_text
+        })
+
+        text = text[:start_idx] + f"**{cue_text}**" + text[end_idx:]
+
     # Convert Jargon Cards to structured markdown callouts using balanced div extraction
     while True:
         m = re.search(r"<div\s+class=[\"']jargon-card[\"']", text)
@@ -454,11 +574,26 @@ def clean_html_to_markdown(html):
 
     # General cleanup
     text = clean_inner_text(text)
+
+    # Append collected inline jargon tooltips as a structured glossary block at section end
+    if collected_tooltips:
+        glossary_lines = ["> 💡 **Jargon & Concepts Unpacked in this Section:**\n>"]
+        seen_terms = set()
+        for item in collected_tooltips:
+            key = item["title"].lower()
+            if key in seen_terms:
+                continue
+            seen_terms.add(key)
+            badge_suffix = f" *({item['badge']})*" if item["badge"] else ""
+            glossary_lines.append(f"> - **{item['title']}**{badge_suffix}: {item['body']}")
+        glossary_block = "\n\n" + "\n".join(glossary_lines)
+        text = text + glossary_block
+
     # Collapse multiple blank lines
     text = re.sub(r"\n{3,}", "\n\n", text)
     return text.strip()
 
-def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown"):
+def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown", full_depth=False):
     """
     Renders pure GitHub Flavored Markdown lesson artifact from JSON payload.
     Preserves 100% of first-principles depth, mathematical derivations, and sign-off defense gates.
@@ -487,7 +622,10 @@ def render_markdown_lesson(data, topic_id, theme_name="Clean Markdown"):
 
     md = []
     md.append(f"# {title}\n")
-    md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Topic ID**: `{topic_id}` | **Format**: Complete Markdown Edition\n")
+    if full_depth:
+        md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Topic ID**: `{topic_id}` | **Depth**: Full-Depth Mechanical Closure\n")
+    else:
+        md.append(f"> **Hierarchy**: {tier} ➔ {cluster}  \n> **Topic ID**: `{topic_id}` | **Format**: Complete Markdown Edition\n")
     if subtitle:
         md.append(f"*{subtitle}*\n")
     md.append("---\n")
@@ -598,7 +736,7 @@ def load_settings(settings_path=None):
 
     return {}, None
 
-def audit_lesson_payload(data, topic_id=None, inst_dir=None):
+def audit_lesson_payload(data, topic_id=None, inst_dir=None, full_depth=False):
     """
     Automated pre-flight pedagogical quality linter.
     Enforces the Explainer's Contract, Anti-Compression Invariant,
@@ -609,24 +747,28 @@ def audit_lesson_payload(data, topic_id=None, inst_dir=None):
 
     # 1. Word count & Anti-Compression check
     narrative_text = " ".join([
-        str(data.get(f"SECTION_{i}_BODY", "")) for i in range(1, 6)
+        str(v) for k, v in sorted(data.items()) if re.match(r"^SECTION_\d+_BODY$", k) and v
     ])
     clean_words = re.findall(r"\b[A-Za-z0-9_-]+\b", re.sub(r"<[^>]+>", " ", narrative_text))
     word_count = len(clean_words)
 
-    if word_count < 1800:
+    min_words = 3500 if full_depth else 1800
+    if word_count < min_words:
+        mode_desc = "Full-Depth Mechanical Closure" if full_depth else "Standard"
         audit_warnings.append(
-            f"Premature Compression / Cheat Sheet Risk: Word count is {word_count} (< 2,000 words). "
+            f"Premature Compression / Cheat Sheet Risk ({mode_desc} Mode): Word count is {word_count} (< {min_words} words). "
             "Expand explanations, step-by-step traces, and analogies with full breathing room."
         )
     else:
-        audit_passes.append(f"Depth & Anti-Compression: Robust narrative ({word_count} words)")
+        mode_desc = "Full-Depth Mechanical Closure" if full_depth else "Standard"
+        audit_passes.append(f"Depth & Anti-Compression ({mode_desc}): Robust narrative ({word_count} words)")
 
     # 2. Jargon Unpacking Check
-    jargon_cards = re.findall(r'class=["\'][^"\']*(?:jargon-card|jargon-pill|jargon-box|jargon-tooltip-wrapper|jargon-pill-cue)[^"\']*["\']', narrative_text)
-    if len(jargon_cards) < 3:
+    min_jargons = 6 if full_depth else 3
+    jargon_cards = re.findall(r'class=["\'][^"\']*(?:jargon-card|jargon-pill|jargon-box|jargon-tooltip-wrapper|jargon-inline-cue|jargon-pill-cue)[^"\']*["\']', narrative_text)
+    if len(jargon_cards) < min_jargons:
         audit_warnings.append(
-            f"Low Jargon Unpacking Density: Only {len(jargon_cards)} jargon callout elements (<div class=\"jargon-card|jargon-pill|jargon-box\">) found. "
+            f"Low Jargon Unpacking Density: Only {len(jargon_cards)} jargon callout/tooltip elements found (< {min_jargons} required). "
             "Ensure every domain acronym (e.g. RTT, BDP, HOL, socket, P99) is unpacked in plain English."
         )
     else:
@@ -771,6 +913,7 @@ def main():
     parser.add_argument("--data-file", "--spec", dest="data_file", help="Path to JSON file containing lesson content")
     parser.add_argument("--data", help="Inline JSON string or '-' to read lesson payload from stdin")
     parser.add_argument("--allow-reference-fixture", action="store_true", help="Internal/Test only: Allow direct rendering of static reference fixtures")
+    parser.add_argument("--full-depth", action="store_true", help="Render/audit in full-depth exhaustive mechanical closure mode (>= 3,500 words, kernel/hardware syscalls)")
     parser.add_argument("--template", help="Path to custom HTML template")
     parser.add_argument("--output-dir", help="Output directory (defaults to lessonsDir in settings.json or .system-design/lessons)")
     parser.add_argument("--brain-dir", help="App data artifact directory (<appDataDir>/brain/<id>)")
@@ -833,6 +976,9 @@ def main():
         )
         sys.exit(1)
 
+    raw_data = dict(data)
+    is_ast_payload = "nodes" in raw_data and isinstance(raw_data["nodes"], list)
+
     # Normalize keys to uppercase for template substitution
     normalized_data = {}
     for k, v in data.items():
@@ -869,6 +1015,41 @@ def main():
         elif isinstance(fh, str):
             normalized_data["FORWARD_HOOK"] = fh
 
+    # Resolve full-depth flag (CLI override or JSON property)
+    is_full_depth = args.full_depth or bool(data.get("FULL_DEPTH", False))
+
+    doc = None
+    tabs_str, panes_str = "", ""
+    if is_ast_payload and LessonDocument:
+        doc = LessonDocument.from_dict(raw_data)
+        if args.title:
+            doc.title = args.title
+        if args.tier:
+            doc.tier = args.tier
+        if args.cluster:
+            doc.cluster = args.cluster
+        if is_full_depth:
+            doc.set_full_depth(True)
+        tabs_str, panes_str = doc.to_html_components()
+        tabs, panes = doc.to_html_panes()
+        for idx, p in enumerate(panes, 1):
+            if f"SECTION_{idx}_TITLE" not in normalized_data:
+                normalized_data[f"SECTION_{idx}_TITLE"] = p["title"]
+            if f"SECTION_{idx}_BODY" not in normalized_data:
+                normalized_data[f"SECTION_{idx}_BODY"] = p["body_html"]
+        if not normalized_data.get("LESSON_TITLE"):
+            normalized_data["LESSON_TITLE"] = doc.title
+        if not normalized_data.get("LESSON_SUBTITLE"):
+            normalized_data["LESSON_SUBTITLE"] = doc.subtitle
+        if not normalized_data.get("TIER_BADGE"):
+            normalized_data["TIER_BADGE"] = doc.tier
+        if not normalized_data.get("CLUSTER_BADGE"):
+            normalized_data["CLUSTER_BADGE"] = doc.cluster
+        if not normalized_data.get("BACKWARD_ANCHOR"):
+            normalized_data["BACKWARD_ANCHOR"] = doc.backward_anchor
+        if not normalized_data.get("FORWARD_HOOK"):
+            normalized_data["FORWARD_HOOK"] = doc.forward_hook
+
     data = normalized_data
 
     # Allow CLI overrides
@@ -889,22 +1070,31 @@ def main():
     if "SIGN_OFF_SCENARIO" in data and "SECTION_5_BODY" not in data:
         data["SECTION_5_BODY"] = f"<p>{data['SIGN_OFF_SCENARIO']}</p>"
 
+    # Compile legacy tabs and panes if not AST
+    if not is_ast_payload and LessonDocument:
+        doc = LessonDocument.from_dict(data)
+        if is_full_depth:
+            doc.set_full_depth(True)
+        tabs_str, panes_str = doc.to_html_components()
+
     # Run automated pedagogical quality audit on lesson payload
     audit_target_dir = loaded_settings_path and os.path.dirname(os.path.abspath(loaded_settings_path))
-    audit_lesson_payload(data, args.topic_id, audit_target_dir or os.getcwd())
+    audit_lesson_payload(data, args.topic_id, audit_target_dir or os.getcwd(), full_depth=is_full_depth)
 
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
     os.makedirs(target_output_dir, exist_ok=True)
 
     # 1. Strip numerical indexing from section titles for unindexed clean headings
-    for i in range(1, 6):
-        tk = f"SECTION_{i}_TITLE"
-        if tk in data:
-            data[tk] = strip_section_index(data[tk])
+    for k in list(data.keys()):
+        if re.match(r"^SECTION_\d+_TITLE$", k):
+            data[k] = strip_section_index(data[k])
 
     # 2. Render Markdown edition (clean, comprehensive GFM with alert boxes and unpacked definitions)
     md_filename = f"{slug}.md"
-    rendered_md = render_markdown_lesson(data, args.topic_id, theme["name"])
+    if is_ast_payload and doc:
+        rendered_md = doc.to_markdown()
+    else:
+        rendered_md = render_markdown_lesson(data, args.topic_id, theme["name"], full_depth=is_full_depth)
     md_out_path = os.path.join(target_output_dir, md_filename)
     with open(md_out_path, "w", encoding="utf-8") as f:
         f.write(rendered_md)
@@ -912,6 +1102,17 @@ def main():
 
     # 3. HTML Payload (preserves rich inline jargon cards and interactive components in reading flow)
     html_data = dict(data)
+    if is_full_depth:
+        html_data["FULL_DEPTH"] = True
+        if "CLEAN_TIER_BADGE" in html_data:
+            html_data["CLEAN_TIER_BADGE"] = f"{html_data['CLEAN_TIER_BADGE']} · Full-Depth"
+
+    html_data["SECTION_TABS_HTML"] = tabs_str
+    html_data["SECTION_PANES_HTML"] = sanitize_tooltips_to_spans(panes_str)
+    if doc and doc.embedded_javascript:
+        html_data["EMBEDDED_JAVASCRIPT"] = doc.embedded_javascript
+    elif "EMBEDDED_JAVASCRIPT" not in html_data:
+        html_data["EMBEDDED_JAVASCRIPT"] = ""
 
     # 4. Render Interactive HTML edition (vertically tabbed sidebar with live simulators)
     html_filename = f"{slug}.html"
@@ -931,6 +1132,9 @@ def main():
     rendered_html = template_str
     for k, v in html_data.items():
         rendered_html = rendered_html.replace(f"{{{{{k}}}}}", str(v))
+
+    # Final pass: sanitize any tooltips across entire HTML document to guarantee zero <div> inside <p>
+    rendered_html = sanitize_tooltips_to_spans(rendered_html)
 
     html_out_path = os.path.join(target_output_dir, html_filename)
     with open(html_out_path, "w", encoding="utf-8") as f:
@@ -965,7 +1169,7 @@ def main():
                 m_data = json.load(mf)
             if "cursor" in m_data:
                 m_data["cursor"]["topicFoundationStatus"] = "delivered"
-                m_data["cursor"]["nextTeachingAction"] = f"Review delivered lesson artifact ({html_filename}) and engage in Socratic dialectic defense via /sds-discuss"
+                m_data["cursor"]["nextTeachingAction"] = f"Review delivered lesson artifact ({html_filename}) and defend trade-offs in chat"
             for cl in m_data.get("curriculum", {}).get("clusters", []):
                 for tp in cl.get("topics", []):
                     if tp.get("id") == args.topic_id:
@@ -981,7 +1185,7 @@ def main():
                 c_txt = re.sub(r"(\*Topic Foundation Status\*:\s*`?)[^`\n]+(`?)", r"\g<1>delivered\g<2>", c_txt)
                 c_txt = re.sub(
                     r"(\*Immediate Next Teaching Action\*:)[\s\S]*?(?=\n\n|\n---|\Z)",
-                    f"*Immediate Next Teaching Action*: Review delivered lesson artifact ({html_filename}) and engage in Socratic dialectic defense via /sds-discuss",
+                    f"*Immediate Next Teaching Action*: Review delivered lesson artifact ({html_filename}) and defend trade-offs in chat",
                     c_txt
                 )
                 with open(c_md_path, "w", encoding="utf-8") as cf:

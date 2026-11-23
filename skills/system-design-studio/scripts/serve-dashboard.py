@@ -3585,8 +3585,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <span class="material-symbols-outlined" style="font-size:14px;">play_arrow</span>
             <span>Open Lesson</span>
           </button>
-          <button class="focus-action-btn ghost" onclick="copyAgentCommand('/sds-discuss')" title="Copy chat command for Socratic defense">
-            <span>/sds-discuss</span>
+          <button class="focus-action-btn ghost" onclick="copyAgentCommand('/sds-teach')" title="Copy chat command to deliver lesson">
+            <span>/sds-teach</span>
             <span class="material-symbols-outlined copy-icon" style="font-size:11px; opacity:0.6;">content_copy</span>
           </button>
           <button class="focus-action-btn ghost" onclick="copyAgentCommand('/sds-complete')" title="Copy chat command for sign-off verification">
