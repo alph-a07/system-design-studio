@@ -248,6 +248,57 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertIn("max-height: calc(100vh - 48px);", tmpl)
         self.assertIn("spaceAbove < cardHeight + safetyMargin", tmpl)
         self.assertIn("popover-below", tmpl)
+        self.assertIn("minAllowedLeft", tmpl)
+        self.assertIn("maxAllowedRight", tmpl)
+        self.assertIn("Math.max(containerRect.left", tmpl)
+        self.assertIn("card.style.transform = 'none'", tmpl)
+
+    def test_popover_clamping_geometry_simulation(self):
+        """Simulate popover positioning math across various viewport & container boundaries."""
+        def calculate_popover_geometry(container_left, container_width, wrapper_left, wrapper_width, card_w=420):
+            container_right = container_left + container_width
+            min_allowed_left = max(container_left + 16, 16)
+            max_allowed_right = min(container_right - 16, 1920 - 16)
+            max_avail_width = max_allowed_right - min_allowed_left
+            card_max_w = max(260, min(card_w, max_avail_width))
+            card_width = min(card_w, card_max_w)
+
+            wrapper_center = wrapper_left + wrapper_width / 2
+            target_left = wrapper_center - card_width / 2
+
+            if target_left < min_allowed_left:
+                target_left = min_allowed_left
+            if target_left + card_width > max_allowed_right:
+                target_left = max_allowed_right - card_width
+            if target_left < min_allowed_left:
+                target_left = min_allowed_left
+
+            offset_left = round(target_left - wrapper_left)
+            rendered_card_left = wrapper_left + offset_left
+            rendered_card_right = rendered_card_left + card_width
+            return rendered_card_left, rendered_card_right, min_allowed_left, max_allowed_right
+
+        # Case 1: Cue at left edge of main viewport (e.g. SO_SNDBUF next to 352px sidebar)
+        c_left, c_right, min_l, max_r = calculate_popover_geometry(
+            container_left=352, container_width=1000, wrapper_left=370, wrapper_width=80
+        )
+        self.assertGreaterEqual(c_left, min_l, "Card left edge must not clip left container boundary")
+        self.assertLessEqual(c_right, max_r, "Card right edge must not clip right container boundary")
+
+        # Case 2: Cue at far right edge of main viewport
+        c_left, c_right, min_l, max_r = calculate_popover_geometry(
+            container_left=352, container_width=1000, wrapper_left=1300, wrapper_width=40
+        )
+        self.assertGreaterEqual(c_left, min_l)
+        self.assertLessEqual(c_right, max_r)
+
+        # Case 3: Mobile narrow viewport (360px screen, 0px sidebar)
+        c_left, c_right, min_l, max_r = calculate_popover_geometry(
+            container_left=0, container_width=360, wrapper_left=20, wrapper_width=50
+        )
+        self.assertGreaterEqual(c_left, min_l)
+        self.assertLessEqual(c_right, max_r)
+        self.assertLessEqual(c_right - c_left, 360)
 
 
 if __name__ == "__main__":

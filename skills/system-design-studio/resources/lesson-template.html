@@ -214,8 +214,7 @@
       display: none;
       position: absolute;
       bottom: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
+      left: 0;
       width: min(90vw, 420px);
       max-width: 90vw;
       min-width: 280px;
@@ -256,8 +255,8 @@
       animation: popoverFadeIn 0.15s ease-out;
     }
     @keyframes popoverFadeIn {
-      from { opacity: 0; transform: translate(var(--popover-tx, -50%), 8px); }
-      to { opacity: 1; transform: translate(var(--popover-tx, -50%), 0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     .jargon-popover-header {
       display: flex;
@@ -661,6 +660,9 @@
       if (targetPane) {
         targetPane.classList.add('active');
         targetPane.style.display = 'block';
+        targetPane.querySelectorAll('.jargon-tooltip-wrapper').forEach(wrapper => {
+          positionJargonPopover(wrapper);
+        });
       }
 
       // Update Sidebar Stage Tracker
@@ -700,63 +702,80 @@
       }
     });
 
-    // Position popover intelligently within viewport boundaries
+    // Position popover intelligently within container and viewport boundaries
     function positionJargonPopover(wrapper) {
       const card = wrapper.querySelector('.jargon-popover-card');
       if (!card) return;
 
-      // Temporarily reveal if hidden to obtain accurate bounding dimensions
+      const rect = wrapper.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return;
+
+      // Locate container viewport (independent scroll column)
+      const container = wrapper.closest('.lesson-main-viewport') || document.querySelector('.lesson-main-viewport') || document.body;
+      const containerRect = container.getBoundingClientRect();
+
+      // Temporarily reveal if hidden to obtain accurate natural bounding dimensions
       const wasHidden = window.getComputedStyle(card).display === 'none';
       if (wasHidden) {
         card.style.visibility = 'hidden';
         card.style.display = 'block';
       }
 
-      const rect = wrapper.getBoundingClientRect();
+      // Safe horizontal boundaries inside container and screen (16px safe margin)
+      const minAllowedLeft = Math.max(containerRect.left + (container.clientLeft || 0) + 16, 16);
+      const containerRight = containerRect.left + (container.clientLeft || 0) + (container.clientWidth || containerRect.width);
+      const maxAllowedRight = Math.min(containerRight - 16, window.innerWidth - 16);
+      const maxAvailableWidth = maxAllowedRight - minAllowedLeft;
+
+      // Constrain card max width to never exceed available space in container
+      const cardMaxW = Math.max(260, Math.min(420, maxAvailableWidth));
+      card.style.maxWidth = cardMaxW + 'px';
+      card.style.width = 'min(90vw, ' + cardMaxW + 'px)';
+
+      const cardWidth = card.offsetWidth || cardMaxW;
       const cardHeight = card.offsetHeight || 220;
-      const cardWidth = card.offsetWidth || 360;
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
 
-      if (wasHidden) {
-        card.style.display = '';
-        card.style.visibility = '';
-      }
-
-      // 1. Vertical: check space above vs space below
-      const spaceAbove = rect.top;
-      const spaceBelow = viewportHeight - rect.bottom;
+      // 1. Vertical: check space above vs space below inside container
+      const containerTop = Math.max(containerRect.top, 0);
+      const containerBottom = Math.min(containerRect.bottom, window.innerHeight);
+      const spaceAbove = rect.top - containerTop;
+      const spaceBelow = containerBottom - rect.bottom;
       const safetyMargin = 20;
 
       if (spaceAbove < cardHeight + safetyMargin && spaceBelow >= cardHeight + safetyMargin) {
         // Fits below comfortably
         card.classList.add('popover-below');
       } else if (spaceAbove < cardHeight + safetyMargin && spaceBelow > spaceAbove) {
-        // Neither fits completely, but more space below than above
+        // More space below than above
         card.classList.add('popover-below');
       } else {
         // More space above or fits above comfortably
         card.classList.remove('popover-below');
       }
 
-      // 2. Horizontal: prevent clipping off left or right screen edges
-      const center = rect.left + rect.width / 2;
-      const halfWidth = cardWidth / 2;
-      if (center - halfWidth < 16) {
-        card.style.left = '0';
-        card.style.right = 'auto';
-        card.style.transform = 'none';
-        card.style.setProperty('--popover-tx', '0px');
-      } else if (center + halfWidth > viewportWidth - 16) {
-        card.style.left = 'auto';
-        card.style.right = '0';
-        card.style.transform = 'none';
-        card.style.setProperty('--popover-tx', '0px');
-      } else {
-        card.style.left = '50%';
-        card.style.right = 'auto';
-        card.style.transform = 'translateX(-50%)';
-        card.style.setProperty('--popover-tx', '-50%');
+      // 2. Horizontal: clamp position strictly inside container bounds
+      const wrapperCenter = rect.left + rect.width / 2;
+      let targetLeft = wrapperCenter - cardWidth / 2;
+
+      if (targetLeft < minAllowedLeft) {
+        targetLeft = minAllowedLeft;
+      }
+      if (targetLeft + cardWidth > maxAllowedRight) {
+        targetLeft = maxAllowedRight - cardWidth;
+      }
+      if (targetLeft < minAllowedLeft) {
+        targetLeft = minAllowedLeft;
+      }
+
+      // Convert targetLeft (viewport coordinate) to offset relative to wrapper (position: relative)
+      const offsetLeft = Math.round(targetLeft - rect.left);
+      card.style.left = offsetLeft + 'px';
+      card.style.right = 'auto';
+      card.style.transform = 'none';
+
+      if (wasHidden) {
+        card.style.display = '';
+        card.style.visibility = '';
       }
     }
 
@@ -786,6 +805,22 @@
         document.querySelectorAll('.jargon-tooltip-wrapper.is-open').forEach(w => w.classList.remove('is-open'));
       }
     });
+
+    // Re-clamp all active popovers on window resize
+    window.addEventListener('resize', () => {
+      document.querySelectorAll('.section-pane.active .jargon-tooltip-wrapper').forEach(w => {
+        positionJargonPopover(w);
+      });
+    });
+
+    // Re-adjust open popover when main viewport scrolls
+    const mainViewport = document.querySelector('.lesson-main-viewport');
+    if (mainViewport) {
+      mainViewport.addEventListener('scroll', () => {
+        const open = document.querySelector('.jargon-tooltip-wrapper.is-open');
+        if (open) positionJargonPopover(open);
+      }, { passive: true });
+    }
 
     // Glossary Drawer
     function toggleGlossaryDrawer() {
@@ -874,6 +909,13 @@
         if (pLabel) pLabel.innerText = `Stage ${stageNum} of ${totalStages}`;
         if (pBar) pBar.style.width = `${(stageNum / totalStages) * 100}%`;
       }
+
+      // Pre-position popovers in the initially active section pane
+      setTimeout(() => {
+        document.querySelectorAll('.section-pane.active .jargon-tooltip-wrapper').forEach(w => {
+          positionJargonPopover(w);
+        });
+      }, 0);
     });
 
     {{EMBEDDED_JAVASCRIPT}}

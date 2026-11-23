@@ -230,6 +230,7 @@ Starting in **v4.1.0**, interactive failure simulators are freed from rigid sche
 
 Lessons feature non-disruptive inline jargon unpackers (`<span class="jargon-tooltip-wrapper">`):
 - **Collision-Aware Dynamic Flipping**: Popovers measure their bounding rectangle (`card.offsetHeight`) dynamically. If vertical space above is insufficient (`spaceAbove < cardHeight + safetyMargin`), the card flips below (`popover-below`).
+- **Container-Aware Boundary Clamping**: Popovers dynamically calculate visible container viewport bounds (`lesson-main-viewport` and window edges). The card's horizontal position is clamped to guarantee it never extends past the container's left edge (preventing cut-offs against the sidebar) or right edge, while automatically clamping `max-width` on mobile screens.
 - **High-Z-Index & Boundary Hugging**: Styled with `z-index: 9999` and `max-height: calc(100vh - 48px); overflow-y: auto;` to eliminate scroll container clipping and prevent text obscuration.
 - **Leaked Markdown Sanitization**: Automated preprocessing (`clean_markdown_leaks_in_html`) ensures markdown bold syntax (`**`) never leaks raw asterisks around inline tooltips or in paragraph text.
 - **Sole Authoritative Lesson Medium**: Lessons are delivered strictly as interactive HTML artifacts (`<slug>.html`), while study notes remain in GitHub Flavored Markdown (`notesDir`).
