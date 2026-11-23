@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Universal Skill & Instance Updater (v3.5)
+# System Design Studio — Universal Skill & Instance Updater (v4.0.0)
 # Updates agent skills to latest release while strictly preserving:
 # 1. User learning progress (manifest.json, CURSOR.md, CURRICULUM.md, DECISIONS.md)
 # 2. Existing interactive lesson artifacts (lessons/*.html, lessons/*.md)

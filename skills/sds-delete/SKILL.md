@@ -4,7 +4,7 @@ description: Safely delete a System Design Studio project learning instance and 
 argument-hint: "<project-name-or-id> [--delete-notes] [--force]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 3.7.0
+  version: 4.0.0
 ---
 
 # /sds-delete

@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Universal Agent Skill Uninstaller (v3.5)
+# System Design Studio — Universal Agent Skill Uninstaller (v4.0.0)
 # Safely eliminates the system-design-studio skill from all AI coding agents
 # (Google Antigravity, Claude Code, Cursor IDE, OpenAI Codex).
 #

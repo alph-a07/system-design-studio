@@ -1,5 +1,5 @@
 #!/bin/sh
-# System Design Studio — Learning Instance Initializer (v3.2)
+# System Design Studio — Learning Instance Initializer (v4.0.0)
 # Scaffolds an isolated learning instance in default (~/.system-design-studio/projects/<name>)
 # or custom workspace locations, with curated curriculum tracks, project-scoped notes,
 # and automatic registration in the central multi-project registry.

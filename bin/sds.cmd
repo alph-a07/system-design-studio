@@ -63,7 +63,7 @@ if /i "%~1"=="--help" goto usage
 
 :usage
 echo ============================================================================
-echo   SYSTEM DESIGN STUDIO CLI (sds) - v3.4.0
+echo   SYSTEM DESIGN STUDIO CLI (sds) - v4.0.0
 echo ============================================================================
 echo Usage: sds ^<command^> [options]
 echo.
@@ -181,5 +181,5 @@ if exist "%GLOBAL_DIR%\update.ps1" (
 exit /b %errorlevel%
 
 :do_version
-echo System Design Studio CLI v3.4.0
+echo System Design Studio CLI v4.0.0
 exit /b 0
