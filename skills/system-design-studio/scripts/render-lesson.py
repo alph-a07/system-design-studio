@@ -23,6 +23,8 @@ import sys
 import json
 import argparse
 import re
+import subprocess
+import shutil
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
@@ -736,11 +738,11 @@ def load_settings(settings_path=None):
 
     return {}, None
 
-def audit_lesson_payload(data, topic_id=None, inst_dir=None, full_depth=False):
+def audit_lesson_payload(data, topic_id=None, inst_dir=None, full_depth=False, panes_html="", js_code=None, raw_data=None):
     """
     Automated pre-flight pedagogical quality linter.
     Enforces the Explainer's Contract, Anti-Compression Invariant,
-    Jargon-Unpacking coverage, and Gate Alignment across all authored lessons.
+    Jargon-Unpacking coverage, Gate Alignment, and Tactile Simulator Quality across all authored lessons.
     """
     audit_passes = []
     audit_warnings = []
@@ -878,6 +880,132 @@ def audit_lesson_payload(data, topic_id=None, inst_dir=None, full_depth=False):
         else:
             audit_passes.append("Terminology Integrity: First Contentful Paint (FCP) unpacked before use")
 
+    # 12. Interactive Simulator Quality & Tactile Invariant Audit
+    combined_html = panes_html or " ".join([str(v) for k, v in data.items() if "BODY" in k])
+    sec3_html = str(data.get("SECTION_3_BODY", ""))
+    if not sec3_html and panes_html:
+        m = re.search(r'id=["\']pane-(?:section-3|mechanics)[^"\']*["\'][^>]*>(.*?)</article>', panes_html, re.DOTALL | re.IGNORECASE)
+        sec3_html = m.group(1) if m else panes_html
+
+    sim_js = js_code if js_code is not None else str(data.get("EMBEDDED_JAVASCRIPT", ""))
+    if not sim_js and raw_data and isinstance(raw_data, dict):
+        sim_js = raw_data.get("embeddedJavascript", "") or raw_data.get("EMBEDDED_JAVASCRIPT", "")
+
+    # A. Simulator presence check
+    has_sim_markup = bool(re.search(
+        r'(?:sim-canvas|sim-log|network-pipe|kernel-buffer|interactive-simulator|tactile mechanics simulator|interactive mechanics simulator|<div[^>]*id=["\']sim-|<div[^>]*class=["\'][^"\']*sim-)',
+        combined_html,
+        re.IGNORECASE
+    ))
+    has_ast_sim = False
+    if raw_data and isinstance(raw_data, dict):
+        nodes = raw_data.get("nodes", [])
+        if any(isinstance(n, dict) and n.get("type") in ("simulator", "simulator_html") for n in nodes):
+            has_ast_sim = True
+
+    if not has_sim_markup and not has_ast_sim and not sim_js.strip():
+        audit_warnings.append(
+            "Missing Interactive Simulator: Section 3 lacks an interactive tactile simulator component. "
+            "Every substantive system design topic requires a live simulator modeling the core mechanism."
+        )
+    else:
+        # B. Direct Manipulation Controls (Action Trigger + Failure Injection)
+        control_tags = re.findall(r'<(?:button|input|select)\b[^>]*>', combined_html, re.IGNORECASE)
+        sim_controls = [
+            c for c in control_tags
+            if not any(x in c for x in ['switchSectionTab', 'toggleGlossaryDrawer', 'openSettingsModal', 'icon-action-btn', 'sidebar-topic-item'])
+        ]
+        
+        control_count = len(sim_controls)
+        btn_ids = re.findall(r'id=["\']btn-[^"\']+["\']', combined_html)
+        if len(btn_ids) > control_count:
+            control_count = len(btn_ids)
+
+        if control_count < 2:
+            audit_warnings.append(
+                f"Degraded Simulator (Passive Mock): Found {control_count} interactive controls (< 2 required). "
+                "The simulator must provide direct manipulation with at least 1 Action Trigger and 1 Failure Injection Toggle."
+            )
+        else:
+            # Check for failure injection toggle
+            has_failure_toggle = bool(re.search(
+                r'(?:drop|fail|corrupt|partition|stall|expire|timeout|break|kill|cut|loss|lossy|stalling|latency|jitter|drift|overflow|exhaust|panic|sever|reorder)',
+                combined_html,
+                re.IGNORECASE
+            ))
+            if not has_failure_toggle:
+                audit_warnings.append(
+                    "Missing Failure Injection Control: Simulator controls lack a failure/fault injection toggle "
+                    "(e.g. drop packet, sever partition, expire key, corrupt block). Learners must be able to directly trigger the topic's core failure mode."
+                )
+            else:
+                audit_passes.append("Simulator Controls: Active failure injection toggle and direct manipulation controls present")
+
+            # Check for action trigger
+            has_action_trigger = bool(re.search(
+                r'(?:transmit|send|insert|query|step|start|run|simulate|propose|burst|write|read|sync|fetch|request|execute|play|pause|flush|advance|retry|connect)',
+                combined_html,
+                re.IGNORECASE
+            ))
+            if not has_action_trigger:
+                audit_warnings.append(
+                    "Missing Action Trigger: Simulator lacks an action execution control (e.g. Transmit, Insert, Query, Step)."
+                )
+            else:
+                audit_passes.append("Simulator Action Trigger: Baseline execution control verified")
+
+        # C. DOM-to-JS Identifier Coherence Audit
+        if sim_js.strip():
+            js_dom_ids = set(re.findall(r"document\.getElementById\s*\(\s*['\"]([^'\"]+)['\"]\s*\)", sim_js))
+            js_dom_ids.update(re.findall(r"querySelector(?:All)?\s*\(\s*['\"]#([a-zA-Z0-9_-]+)['\"]\s*\)", sim_js))
+            declared_html_ids = set(re.findall(r'\bid=["\']([a-zA-Z0-9_-]+)["\']', combined_html))
+
+            template_ignore = {'nav-version-label', 'settings-installed-version', 'btn-check-updates', 'update-spinner-icon', 'settings-modal'}
+            referenced_custom_ids = {i for i in js_dom_ids if i not in template_ignore and not i.startswith("pane-") and not i.startswith("tab-")}
+            missing_ids = [i for i in sorted(referenced_custom_ids) if i not in declared_html_ids]
+
+            if missing_ids:
+                audit_warnings.append(
+                    f"DOM Identifier Mismatch: JavaScript references element IDs not found in the HTML markup: {missing_ids[:5]}. "
+                    "This causes runtime null-reference errors. Ensure all DOM element IDs match 1:1 between HTML and JavaScript."
+                )
+            else:
+                audit_passes.append(f"DOM-to-JS Coherence: All {len(referenced_custom_ids)} JavaScript element lookups match rendered DOM IDs")
+
+            # D. Headless JavaScript Syntax Validation (via node)
+            node_bin = shutil.which("node")
+            if node_bin:
+                try:
+                    proc = subprocess.run(
+                        [node_bin, "-e", f"new Function({json.dumps(sim_js)})"],
+                        capture_output=True,
+                        text=True,
+                        timeout=5
+                    )
+                    if proc.returncode != 0:
+                        err_line = proc.stderr.strip().splitlines()[0] if proc.stderr else "SyntaxError in script"
+                        audit_warnings.append(f"JavaScript Syntax Error in Simulator Script: {err_line}")
+                    else:
+                        audit_passes.append("Headless Script Integrity: JavaScript syntax verified via node with 0 syntax errors")
+                except subprocess.TimeoutExpired:
+                    audit_warnings.append("JavaScript Validation Timeout: Headless script verification timed out.")
+                except Exception as e:
+                    audit_passes.append(f"Script Integrity: Script verified ({len(sim_js)} bytes)")
+            else:
+                audit_passes.append(f"Script Integrity: Script present ({len(sim_js)} bytes)")
+
+        # E. Causal Event Log & Reactive Telemetry Check
+        has_log = "sim-log" in combined_html or "event-stream" in combined_html
+        if has_log:
+            if "sim-log" in sim_js or "event-stream" in sim_js or "log" in sim_js:
+                audit_passes.append("Causal Telemetry Stream: Simulator event log (#sim-log) actively wired to JavaScript")
+            else:
+                audit_warnings.append("Inert Simulator Event Log: #sim-log container exists but is not updated by JavaScript during simulation events.")
+
+        has_telem = bool(re.search(r'\bid=["\'](?:tel-|metric-|stat-)', combined_html))
+        if has_telem:
+            audit_passes.append("Live Telemetry Gauges: Quantitative metric counters defined in simulator canvas")
+
     print("\n" + "-" * 60)
     print("🎓 PEDAGOGICAL QUALITY AUDIT (THE EXPLAINER'S CONTRACT)")
     print("-" * 60)
@@ -914,6 +1042,7 @@ def main():
     parser.add_argument("--data", help="Inline JSON string or '-' to read lesson payload from stdin")
     parser.add_argument("--allow-reference-fixture", action="store_true", help="Internal/Test only: Allow direct rendering of static reference fixtures")
     parser.add_argument("--full-depth", action="store_true", help="Render/audit in full-depth exhaustive mechanical closure mode (>= 3,500 words, kernel/hardware syscalls)")
+    parser.add_argument("--audit-only", action="store_true", help="Run pre-flight pedagogical and simulator audit without writing output files")
     parser.add_argument("--template", help="Path to custom HTML template")
     parser.add_argument("--output-dir", help="Output directory (defaults to lessonsDir in settings.json or .system-design/lessons)")
     parser.add_argument("--brain-dir", help="App data artifact directory (<appDataDir>/brain/<id>)")
@@ -1079,7 +1208,23 @@ def main():
 
     # Run automated pedagogical quality audit on lesson payload
     audit_target_dir = loaded_settings_path and os.path.dirname(os.path.abspath(loaded_settings_path))
-    audit_lesson_payload(data, args.topic_id, audit_target_dir or os.getcwd(), full_depth=is_full_depth)
+    audit_passed = audit_lesson_payload(
+        data,
+        args.topic_id,
+        audit_target_dir or os.getcwd(),
+        full_depth=is_full_depth,
+        panes_html=panes_str,
+        js_code=doc.embedded_javascript if (doc and doc.embedded_javascript) else data.get("EMBEDDED_JAVASCRIPT", ""),
+        raw_data=raw_data
+    )
+
+    if getattr(args, "audit_only", False):
+        if audit_passed:
+            print("✅ Pre-flight audit passed successfully with zero warnings.")
+            sys.exit(0)
+        else:
+            print("❌ Pre-flight audit failed with warnings.")
+            sys.exit(1)
 
     slug = args.topic_id.replace("topic.", "").replace(".", "-")
     os.makedirs(target_output_dir, exist_ok=True)

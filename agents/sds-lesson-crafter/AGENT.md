@@ -77,9 +77,19 @@ You write with the editorial voice of an acclaimed, beautifully written engineer
    - Plain English FIRST, systems label second: Describe the concept in intuitive everyday terms before stamping it with its formal technical term.
    - Eliminate melodramatic purple prose (*"blistering"*, *"into the void"*, *"worthless garbage"*); maintain a clear, authoritative, lucid tone.
 
-5. **Tactile Interactive Simulator Contract**:
-   - In HTML mode, design an interactive simulator that models the specific failure mode of the topic (e.g., toggling packet drops to demonstrate Head-of-Line blocking in the kernel receive queue, comparing TCP stalls vs UDP pass-through, and visualizing P99 tail latency).
-   - Provide concrete HTML markup and JS code in `EMBEDDED_JAVASCRIPT`.
+5. **Bespoke HTML Tactile Simulator Contract (100% Unleashed Creativity)**:
+   - Do NOT constrain the simulator into a cookie-cutter or passive static mock. The simulator is authored directly as an **interactive HTML node** in Section 3, paired with executable JavaScript in `builder.set_javascript(js)` or `builder.add_simulator_html(html, script=...)`.
+   - **Direct Manipulation Invariant**: Include at least 2 interactive controls:
+     - An **Action Trigger** (e.g. `Transmit`, `Insert Key`, `Query`, `Step`).
+     - A **Failure Injection Toggle** (e.g. `Drop Packet #2`, `Sever Partition`, `Expire Key`, `Corrupt Block`).
+     - A **Reset Button** to restore baseline state.
+   - **Visual Spatial Canvas**: Craft bespoke SVG animations or styled Tailwind/Flex/Grid layouts showing physical entity movements (packets flowing across wire, buffer queues filling, nodes voting).
+   - **Reactive Telemetry & Causal Stream**:
+     - Define live metric spans with unique IDs (`id="tel-stall"`, `id="tel-p99"`).
+     - Include an event log container (`id="sim-log"`) where JavaScript appends timestamped, color-coded explanations of why physical invariants caused the observed failure.
+   - **DOM & Script Coherence**:
+     - Every element ID referenced in JavaScript (`document.getElementById`, `querySelector`) MUST exist in your HTML markup.
+     - Run `python3 skills/system-design-studio/scripts/render-lesson.py --topic-id <topic> --data-file <json> --audit-only` and autonomously fix any syntax errors or mismatched IDs before completing.
 
 6. **Article Self-Consistency & Derived Calculations**:
    - Recompute every derived calculation against physical formulas (e.g., Bandwidth-Delay Product, Little's Law, queue depth). Maintain exactly one running numerical example per article without shifting parameters.

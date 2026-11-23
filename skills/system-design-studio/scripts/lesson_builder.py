@@ -624,96 +624,88 @@ class CodeBlockNode(Node):
         )
 
 
-class SimulatorNode(Node):
+class SimulatorHtmlNode(Node):
+    """
+    Direct HTML Simulator Node.
+    Empowers agents to author bespoke interactive tactile simulators directly in HTML,
+    supporting custom SVG, Tailwind layouts, action buttons, failure injection controls,
+    live telemetry counters, and custom event handlers without being boxed into rigid AST schemas.
+    """
     def __init__(
         self,
-        model: str,
-        title: str,
-        subtitle: str,
-        params: Optional[Dict[str, Any]] = None,
-        stages: Optional[List[Dict[str, str]]] = None,
-        telemetry: Optional[List[Dict[str, str]]] = None,
-        script: str = ""
+        html: str = "",
+        raw_html: str = "",
+        script: str = "",
+        markdown_trace: str = "",
+        title: str = "",
+        subtitle: str = "",
+        **kwargs
     ):
-        self.model = model.strip()
-        self.title = title.strip()
-        self.subtitle = subtitle.strip()
-        self.params = params or {}
-        self.stages = stages or [
-            {"id": "sender", "title": "Sender Outbound Queue", "desc": "Buffered application bytes waiting for window opening"},
-            {"id": "wire", "title": "Physical Transit", "desc": "Packets in-flight subject to speed-of-light propagation"},
-            {"id": "receiver", "title": "Receiver Kernel Buffer", "desc": "Out-of-order queue holding packets during loss"},
-            {"id": "app", "title": "Application socket.read()", "desc": "Sequential bytes delivered to user-space process"}
-        ]
-        self.telemetry = telemetry or [
-            {"label": "Head-of-Line Stall", "default": "0 ms"},
-            {"label": "In-Flight Bytes", "default": "0 KB"},
-            {"label": "Congestion Window", "default": "100%"}
-        ]
+        self.html = (html or raw_html or "").strip()
         self.script = script.strip()
+        self.markdown_trace = markdown_trace.strip()
+        self.title = (title or kwargs.get("model", "")).strip()
+        self.subtitle = subtitle.strip()
+
+        # If html is empty, construct a clean container shell using title/subtitle
+        if not self.html:
+            t = self.title or "Tactile Mechanics Simulator"
+            st = self.subtitle or "Interactive physical systems simulation"
+            self.html = (
+                f'<!-- TACTILE INTERACTIVE MECHANICS SIMULATOR -->\n'
+                f'<div class="my-8 p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)]">\n'
+                f'  <div class="flex items-center justify-between pb-4 border-b border-[var(--border)]">\n'
+                f'    <div>\n'
+                f'      <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">Tactile Mechanics Simulator</span>\n'
+                f'      <h4 class="text-base font-bold text-[var(--foreground)] mt-0.5 mb-0">{t}</h4>\n'
+                f'      <div class="text-xs text-[var(--muted-foreground)] mt-0.5">{st}</div>\n'
+                f'    </div>\n'
+                f'  </div>\n'
+                f'</div>\n'
+            )
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
-            "type": "simulator",
-            "model": self.model,
-            "title": self.title,
-            "subtitle": self.subtitle,
-            "params": self.params,
-            "stages": self.stages,
-            "telemetry": self.telemetry,
-            "script": self.script
+        d = {
+            "type": "simulator_html",
+            "html": self.html
         }
+        if self.script:
+            d["script"] = self.script
+        if self.markdown_trace:
+            d["markdown_trace"] = self.markdown_trace
+        if self.title:
+            d["title"] = self.title
+        if self.subtitle:
+            d["subtitle"] = self.subtitle
+        return d
 
     def render_markdown(self, context: Dict[str, Any]) -> str:
-        lines = [
-            f"> [!NOTE] 🎮 Interactive Simulation Walkthrough: {self.title}",
-            f"> *{self.subtitle}*",
-            ">",
-            "> **Key Invariants & Pipeline Stages Modeled:**"
-        ]
-        for st in self.stages:
-            lines.append(f"> - **{st.get('title','Stage')}**: {st.get('desc','')}")
-        if self.params:
-            lines.append(">\n> **Baseline Simulation Parameters:**")
-            for k, v in self.params.items():
-                lines.append(f"> - `{k}`: `{v}`")
-        return "\n".join(lines) + "\n\n"
+        if self.markdown_trace:
+            return self.markdown_trace.strip() + "\n\n"
+        title = self.title or "Interactive Mechanics Simulator"
+        sub = f"\n> *{self.subtitle}*" if self.subtitle else ""
+        return (
+            f"> [!NOTE] 🎮 Interactive Simulation Walkthrough: {title}{sub}\n"
+            f">\n"
+            f"> *The interactive HTML edition provides a live tactile failure simulator for this mechanism.*\n"
+            f"> *In HTML mode, direct manipulation controls permit triggering baseline actions and failure injections to observe real-time queue stalls, buffer saturation, and recovery overhead.*\n\n"
+        )
 
     def render_html(self, context: Dict[str, Any]) -> str:
-        stages_cols = "".join([
-            f'<div class="p-3 rounded-xl bg-stone-900/80 border border-stone-800">'
-            f'<div class="text-[11px] text-[var(--muted-foreground)] uppercase font-bold mb-1">{html.escape(st.get("title",""))}</div>'
-            f'<div class="text-[10px] text-stone-400">{html.escape(st.get("desc",""))}</div>'
-            f'</div>'
-            for st in self.stages
-        ])
-        telem_cols = "".join([
-            f'<div class="p-2.5 rounded-lg bg-stone-900 border border-stone-800">'
-            f'<div class="text-[10px] text-[var(--muted-foreground)]">{html.escape(t.get("label",""))}</div>'
-            f'<div class="text-sm font-bold text-amber-300 mt-0.5">{html.escape(t.get("default","0"))}</div>'
-            f'</div>'
-            for t in self.telemetry
-        ])
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("render_lesson", os.path.join(os.path.dirname(__file__), "render-lesson.py"))
+            if spec and spec.loader:
+                rl = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(rl)
+                return rl.sanitize_tooltips_to_spans(self.html) + "\n"
+        except Exception:
+            pass
+        return self.html + "\n"
 
-        return (
-            f'<!-- TACTILE INTERACTIVE MECHANICS SIMULATOR -->\n'
-            f'<div class="my-8 p-5 rounded-2xl bg-[var(--card)] border border-[var(--card-border)]">\n'
-            f'  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-[var(--border)] gap-2">\n'
-            f'    <div>\n'
-            f'      <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider">Tactile Mechanics Simulator</span>\n'
-            f'      <h4 class="text-base font-bold text-[var(--foreground)] mt-0.5 mb-0">{html.escape(self.title)}</h4>\n'
-            f'      <div class="text-xs text-[var(--muted-foreground)] mt-0.5">{html.escape(self.subtitle)}</div>\n'
-            f'    </div>\n'
-            f'  </div>\n'
-            f'  <div class="py-4 space-y-4">\n'
-            f'    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 font-mono text-xs">{stages_cols}</div>\n'
-            f'    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs font-mono pt-2">{telem_cols}</div>\n'
-            f'    <div id="sim-log" class="text-[11px] font-mono p-3 rounded-lg bg-stone-950 border border-stone-800 text-stone-400 leading-relaxed">\n'
-            f'      👉 Simulator initialized. Manipulate controls to observe queue dynamics and latency penalties.\n'
-            f'    </div>\n'
-            f'  </div>\n'
-            f'</div>\n'
-        )
+
+# Alias for backwards compatibility
+SimulatorNode = SimulatorHtmlNode
 
 
 class DefenseChallengeNode(Node):
@@ -874,7 +866,8 @@ NODE_CLASSES = {
     "comparison_matrix": ComparisonMatrixNode,
     "formula": FormulaNode,
     "code_block": CodeBlockNode,
-    "simulator": SimulatorNode,
+    "simulator": SimulatorHtmlNode,
+    "simulator_html": SimulatorHtmlNode,
     "defense_challenge": DefenseChallengeNode,
     "mental_model": MentalModelNode,
     "raw_html": RawHtmlNode
@@ -1015,19 +1008,35 @@ class LessonDocument:
     def add_code(self, language: str, code: str, filename: str = "", caption: str = "") -> "LessonDocument":
         return self.add_node(CodeBlockNode(language, code, filename, caption))
 
+    def add_simulator_html(
+        self,
+        html: str,
+        script: str = "",
+        markdown_trace: str = "",
+        title: str = "",
+        subtitle: str = ""
+    ) -> "LessonDocument":
+        """
+        Embeds an agent-crafted bespoke interactive simulator directly as an HTML node.
+        Unleashes 100% creative freedom for custom SVG, Tailwind layouts, and interactive controls.
+        """
+        if script and not self.embedded_javascript:
+            self.embedded_javascript = script.strip()
+        return self.add_node(SimulatorHtmlNode(html=html, script=script.strip(), markdown_trace=markdown_trace, title=title, subtitle=subtitle))
+
     def add_simulator(
         self,
-        model: str,
-        title: str,
-        subtitle: str,
-        params: Optional[Dict[str, Any]] = None,
-        stages: Optional[List[Dict[str, str]]] = None,
-        telemetry: Optional[List[Dict[str, str]]] = None,
-        script: str = ""
+        html: str = "",
+        script: str = "",
+        markdown_trace: str = "",
+        title: str = "",
+        subtitle: str = "",
+        **kwargs
     ) -> "LessonDocument":
-        if script and not self.embedded_javascript:
-            self.embedded_javascript = script
-        return self.add_node(SimulatorNode(model, title, subtitle, params, stages, telemetry, script))
+        """Convenience alias for adding a simulator HTML node."""
+        raw = html or kwargs.get("raw_html", "")
+        t = title or kwargs.get("model", "")
+        return self.add_simulator_html(html=raw, script=script, markdown_trace=markdown_trace, title=t, subtitle=subtitle)
 
     def add_defense_challenge(
         self,
@@ -1547,8 +1556,8 @@ def build_mental_model_box(statement: str, explanation: str) -> str:
 def build_defense_scenario(scenario_title: str, context_paragraphs: List[str], defense_prompts: List[Tuple[str, str]]) -> str:
     return DefenseChallengeNode(scenario_title, "\n\n".join(context_paragraphs), defense_prompts).render_html({})
 
-def build_simulator_container(title: str, subtitle: str, **kwargs) -> str:
-    return SimulatorNode("default", title, subtitle).render_html({})
+def build_simulator_container(title: str = "", subtitle: str = "", html: str = "", **kwargs) -> str:
+    return SimulatorHtmlNode(html=html, title=title, subtitle=subtitle, **kwargs).render_html({})
 
 # Node class aliases
 MathFormulaNode = FormulaNode

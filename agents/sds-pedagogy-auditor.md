@@ -58,8 +58,12 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
    - **Full-Depth Mode (`FULL_DEPTH=true`)**: Verify narrative word count (minimum 3,500 words; target 4,000–6,000 words). Verify exhaustive mechanical closure: POSIX syscalls (`read()`, `write()`, `fsync()`), kernel queues, hardware registers, and failure modes.
    - Reject lessons that resemble bullet-point cheat sheets or API reference tables.
 
-8. **Simulator Failure-Mode Fidelity**:
-   - Verify that the interactive simulator specification actively demonstrates the core failure mode of the topic (e.g. queue blocking, packet drops, split-brain, memory stalls) rather than a trivial static clicker.
+8. **Simulator Tactile Fidelity & DOM Integrity Audit**:
+   - Verify that the simulator is authored as an active, bespoke HTML component (NOT a static decorative mock or passive text card).
+   - Verify direct manipulation controls: at least 1 Action Trigger and at least 1 genuine **Failure Injection Toggle** actively testing the topic's true physical bottleneck.
+   - Verify 100% DOM-to-JS identifier coherence: all element IDs referenced in JavaScript exist in the HTML markup.
+   - Verify that embedded JavaScript passes headless syntax check (`node -e`) with zero syntax errors.
+   - Verify that live telemetry metrics (`tel-...`) and `#sim-log` causal event messages are actively updated on interaction.
 
 ## Output Contract
 
@@ -75,6 +79,7 @@ Return a structured audit report:
 - **Dilemma Resolution**: [PASS | GAP DETECTED: ...]
 - **Scoped Claims**: [PASS | UNHEDGED STATEMENTS: ...]
 - **Sign-Off Gate Alignment**: [PASS | MISMATCH: ...]
+- **Simulator Fidelity & DOM Check**: [PASS | ISSUES DETECTED: ...]
 
 #### Required Revisions (if any):
 1. ...

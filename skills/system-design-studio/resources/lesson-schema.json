@@ -282,16 +282,14 @@
     },
     "SimulatorNode": {
       "type": "object",
-      "required": ["type", "model", "title", "subtitle"],
+      "required": ["type"],
       "properties": {
-        "type": { "const": "simulator" },
-        "model": { "type": "string" },
+        "type": { "enum": ["simulator_html", "simulator"] },
+        "html": { "type": "string" },
+        "script": { "type": "string" },
+        "markdown_trace": { "type": "string" },
         "title": { "type": "string" },
-        "subtitle": { "type": "string" },
-        "params": { "type": "object" },
-        "stages": { "type": "array" },
-        "telemetry": { "type": "array" },
-        "script": { "type": "string" }
+        "subtitle": { "type": "string" }
       }
     },
     "DefenseChallengeNode": {
