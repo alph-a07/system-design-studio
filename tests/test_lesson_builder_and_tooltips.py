@@ -459,7 +459,16 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertIn("NOTE_SLASH_COMMANDS", dash)
         self.assertIn("function handleNoteEditorKeyDown(e)", dash)
         self.assertIn("function toggleNoteTaskCheckbox(", dash)
-        self.assertIn("function syncNoteSplitScroll()", dash)
+        self.assertNotIn('id="btn-note-split"', dash)
+        self.assertNotIn('id="note-split-preview"', dash)
+        self.assertIn('id="note-rich-editor"', dash)
+        self.assertIn("NoteHistoryManager", dash)
+        self.assertIn("function noteHistoryUndo()", dash)
+        self.assertIn("function noteHistoryRedo()", dash)
+        self.assertIn("function htmlToMarkdown(", dash)
+        self.assertIn("function markdownToRichEditorHtml(", dash)
+        self.assertIn("function hydrateMermaidDiagrams(", dash)
+        self.assertIn("function renderMermaidSvgFallback(", dash)
 
         # 2. Highlights slide-over sidebar replaces toolbar dropover
         self.assertIn('id="highlights-drawer"', dash)

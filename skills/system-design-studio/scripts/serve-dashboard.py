@@ -2698,36 +2698,92 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       overflow: hidden;
     }
 
-    .note-editor-pane {
-      flex: 1;
-      height: 100%;
-      border: none;
-      background: var(--surface-container);
-      color: var(--on-surface);
-      padding: 16px;
-      font-family: var(--font-mono);
-      font-size: 12.5px;
-      line-height: 1.65;
-      resize: none;
-      outline: none;
-      overflow-y: auto;
-      box-sizing: border-box;
+    .notion-tool-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
     }
 
-    .note-preview-pane {
+    .note-rich-editor {
       flex: 1;
       height: 100%;
       overflow-y: auto;
-      padding: 20px 24px;
+      padding: 24px 32px;
       background: var(--surface);
+      color: var(--on-surface);
+      outline: none;
       box-sizing: border-box;
-      border-left: 1.5px solid var(--border-color);
+      cursor: text;
+    }
+
+    .note-rich-editor:empty::before {
+      content: attr(data-placeholder);
+      color: var(--on-surface-variant);
+      opacity: 0.65;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      pointer-events: none;
+    }
+
+    .note-rich-editor p:empty::before {
+      content: ' ';
+      white-space: pre;
     }
 
     .note-view-pane {
       flex: 1;
       height: 100%;
       overflow-y: auto;
+      padding: 24px 32px;
+      background: var(--surface);
+      box-sizing: border-box;
+    }
+
+    /* MERMAID & RICH CODE BLOCKS */
+    .mermaid-diagram-box {
+      margin: 16px 0;
+      border: 1.5px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--surface-container-lowest);
+      overflow: hidden;
+    }
+    .mermaid-render-target {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+      min-height: 72px;
+      background: var(--surface-container-lowest);
+    }
+    .mermaid-render-target svg {
+      max-width: 100%;
+      height: auto;
+    }
+    .mermaid-src-editor {
+      width: 100%;
+      min-height: 92px;
+      padding: 10px 14px;
+      border: none;
+      border-top: 1px dashed var(--border-color);
+      background: var(--surface-container);
+      color: var(--on-surface);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      resize: vertical;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .code-lang-select {
+      background: var(--surface-container);
+      color: var(--on-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 3px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 6px;
+      outline: none;
+    }
       padding: 20px 24px;
       background: var(--surface);
       box-sizing: border-box;
@@ -4204,17 +4260,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </div>
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <!-- Mode Switcher Pill Group -->
+          <!-- Mode Switcher Pill Group (Read & Rich Edit only) -->
           <div class="format-pill-group">
-            <button type="button" id="btn-note-view" class="format-pill-btn active" onclick="setNoteMode('view')" title="Rendered Markdown Preview">
-              <span class="material-symbols-outlined" style="font-size:14px;">visibility</span>
-              <span>Preview</span>
+            <button type="button" id="btn-note-view" class="format-pill-btn active" onclick="setNoteMode('view')" title="Read Mode">
+              <span class="material-symbols-outlined" style="font-size:14px;">menu_book</span>
+              <span>Read</span>
             </button>
-            <button type="button" id="btn-note-split" class="format-pill-btn" onclick="setNoteMode('split')" title="Side-by-side Editor &amp; Live Preview">
-              <span class="material-symbols-outlined" style="font-size:14px;">vertical_split</span>
-              <span>Split</span>
-            </button>
-            <button type="button" id="btn-note-edit" class="format-pill-btn" onclick="setNoteMode('edit')" title="Full-screen Markdown Editor">
+            <button type="button" id="btn-note-edit" class="format-pill-btn" onclick="setNoteMode('edit')" title="Notion-style Rich Text Editor">
               <span class="material-symbols-outlined" style="font-size:14px;">edit_note</span>
               <span>Edit</span>
             </button>
@@ -4245,33 +4297,37 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
       </div>
 
-      <!-- Notion Toolbar (Active in edit / split mode) -->
+      <!-- Notion Toolbar (Active in Edit mode) -->
       <div id="note-editor-toolbar" class="note-editor-toolbar" style="display:none;">
-        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('**', '**')" title="Bold (⌘B)"><span class="material-symbols-outlined" style="font-size:15px;">format_bold</span></button>
-        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('*', '*')" title="Italic (⌘I)"><span class="material-symbols-outlined" style="font-size:15px;">format_italic</span></button>
-        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('~~', '~~')" title="Strikethrough"><span class="material-symbols-outlined" style="font-size:15px;">strikethrough_s</span></button>
-        <button type="button" class="notion-tool-btn" onclick="wrapNoteSelection('`', '`')" title="Inline Code"><span class="material-symbols-outlined" style="font-size:15px;">code</span></button>
+        <button type="button" id="btn-note-undo" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="noteHistoryUndo()" title="Undo (⌘Z / Ctrl+Z)" disabled><span class="material-symbols-outlined" style="font-size:15px;">undo</span></button>
+        <button type="button" id="btn-note-redo" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="noteHistoryRedo()" title="Redo (⌘⇧Z / Ctrl+Y)" disabled><span class="material-symbols-outlined" style="font-size:15px;">redo</span></button>
         <div class="toolbar-divider"></div>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('# ')" title="Heading 1">H1</button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('## ')" title="Heading 2">H2</button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('### ')" title="Heading 3">H3</button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="execRichFormat('bold')" title="Bold (⌘B)"><span class="material-symbols-outlined" style="font-size:15px;">format_bold</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="execRichFormat('italic')" title="Italic (⌘I)"><span class="material-symbols-outlined" style="font-size:15px;">format_italic</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="execRichFormat('strikeThrough')" title="Strikethrough"><span class="material-symbols-outlined" style="font-size:15px;">strikethrough_s</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="toggleRichInlineCode()" title="Inline Code (⌘E / ⌘K)"><span class="material-symbols-outlined" style="font-size:15px;">code</span></button>
         <div class="toolbar-divider"></div>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('- ')" title="Bullet List"><span class="material-symbols-outlined" style="font-size:15px;">format_list_bulleted</span></button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('1. ')" title="Numbered List"><span class="material-symbols-outlined" style="font-size:15px;">format_list_numbered</span></button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('- [ ] ')" title="Task Checklist"><span class="material-symbols-outlined" style="font-size:15px;">check_box</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="applyRichBlock('H1')" title="Heading 1">H1</button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="applyRichBlock('H2')" title="Heading 2">H2</button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="applyRichBlock('H3')" title="Heading 3">H3</button>
         <div class="toolbar-divider"></div>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteLinePrefix('> ')" title="Quote"><span class="material-symbols-outlined" style="font-size:15px;">format_quote</span></button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteSnippet('> [!NOTE]\n> ')" title="Callout Alert"><span class="material-symbols-outlined" style="font-size:15px;">crisis_alert</span></button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteTableTemplate()" title="Insert Table"><span class="material-symbols-outlined" style="font-size:15px;">table_chart</span></button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteCodeBlockTemplate()" title="Insert Code Block"><span class="material-symbols-outlined" style="font-size:15px;">terminal</span></button>
-        <button type="button" class="notion-tool-btn" onclick="insertNoteSynthesisTemplate()" title="Insert SDS Invariant Template"><span class="material-symbols-outlined" style="font-size:15px;">auto_stories</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="applyRichList('ul')" title="Bullet List"><span class="material-symbols-outlined" style="font-size:15px;">format_list_bulleted</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="applyRichList('ol')" title="Numbered List"><span class="material-symbols-outlined" style="font-size:15px;">format_list_numbered</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('todo')" title="Task Checklist"><span class="material-symbols-outlined" style="font-size:15px;">check_box</span></button>
+        <div class="toolbar-divider"></div>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('quote')" title="Quote"><span class="material-symbols-outlined" style="font-size:15px;">format_quote</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('callout')" title="Invariant Callout"><span class="material-symbols-outlined" style="font-size:15px;">crisis_alert</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('mermaid')" title="Insert Mermaid Flowchart"><span class="material-symbols-outlined" style="font-size:15px;">account_tree</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('table')" title="Insert Table"><span class="material-symbols-outlined" style="font-size:15px;">table_chart</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('code')" title="Insert Code Block"><span class="material-symbols-outlined" style="font-size:15px;">terminal</span></button>
+        <button type="button" class="notion-tool-btn" onmousedown="event.preventDefault()" onclick="insertRichBlockTemplate('template')" title="Insert Reference Template"><span class="material-symbols-outlined" style="font-size:15px;">auto_stories</span></button>
       </div>
 
-      <!-- Workbench Body: View Pane, Editor Pane, and Split Preview Pane -->
+      <!-- Workbench Body: Read Pane & Rich WYSIWYG Editor -->
       <div class="note-workbench-layout" style="margin-top:12px;">
         <div id="note-view-body" class="md-rendered note-view-pane" style="display:block;"></div>
-        <textarea id="note-edit-body" class="note-editor-pane" style="display:none;" placeholder="Type '/' for Notion-style blocks, or start writing Markdown..." oninput="handleNoteLiveInput(event)" onkeydown="handleNoteEditorKeyDown(event)" onscroll="syncNoteSplitScroll()"></textarea>
-        <div id="note-split-preview" class="md-rendered note-preview-pane" style="display:none;"></div>
+        <div id="note-rich-editor" class="md-rendered note-rich-editor" contenteditable="true" style="display:none;" data-placeholder="Type '/' for Notion blocks, '#' for headings, or start writing..." oninput="handleRichEditorInput(event)" onkeydown="handleNoteEditorKeyDown(event)"></div>
+        <textarea id="note-edit-body" style="display:none;"></textarea>
         <div id="note-slash-menu" class="note-slash-menu" style="display:none;"></div>
       </div>
     </div>
@@ -4974,36 +5030,42 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const id = '__CODE_BLOCK_' + idx + '__';
         let blockHtml = '';
         const safeCode = cb.code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const rawTrimmed = cb.code.trim();
+        const attrSrc = rawTrimmed.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         if (cb.lang === 'mermaid') {
-          blockHtml = `<div class="diagram-box">
+          blockHtml = `<div class="mermaid-diagram-box" contenteditable="false" data-lang="mermaid" data-mermaid-src="${attrSrc}">
             <div class="diagram-header">
               <span style="display:flex; align-items:center; gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:14px;">account_tree</span>
-                <span>MERMAID PROTOCOL SEQUENCE</span>
+                <span>MERMAID FLOWCHART</span>
               </span>
-              <span style="font-size:10px; opacity:0.8;">Zero-JS Diagram</span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                <button type="button" class="code-copy-btn" onclick="copyMermaidSource(this)" title="Copy Mermaid source">
+                  <span class="material-symbols-outlined" style="font-size:13px;">content_copy</span>
+                </button>
+              </div>
             </div>
-            <pre><code>${safeCode.trim()}</code></pre>
+            <div class="mermaid-render-target"></div>
           </div>`;
         } else if (cb.lang === 'ascii' || cb.lang === 'diagram' || cb.code.includes('+---') || (cb.lang === 'text' && cb.code.includes('|'))) {
-          blockHtml = `<div class="diagram-box">
+          blockHtml = `<div class="diagram-box" data-lang="${cb.lang || 'text'}">
             <div class="diagram-header">
               <span style="display:flex; align-items:center; gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:14px;">memory</span>
                 <span>HARDWARE &amp; BUFFER STATE TRACE</span>
               </span>
-              <span style="font-size:10px; opacity:0.8;">ASCII Hardware Invariant</span>
+              <span style="font-size:10px; opacity:0.8;">ASCII Diagram</span>
             </div>
             <pre><code>${safeCode.trim()}</code></pre>
           </div>`;
         } else {
-          blockHtml = `<div class="code-block-container">
+          blockHtml = `<div class="code-block-container" data-lang="${cb.lang || 'text'}">
             <div class="code-block-header">
               <span style="display:flex; align-items:center; gap:6px;">
                 <span class="material-symbols-outlined" style="font-size:14px;">terminal</span>
                 <span>${(cb.lang || 'CODE').toUpperCase()}</span>
               </span>
-              <button class="code-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('code').innerText); showToast('Code copied');" title="Copy code">
+              <button type="button" class="code-copy-btn" onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('code').innerText); showToast('Code copied');" title="Copy code">
                 <span class="material-symbols-outlined" style="font-size:13px;">content_copy</span>
               </button>
             </div>
@@ -5014,6 +5076,188 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       });
 
       return finalHtml;
+    }
+
+    // Mermaid Flowchart Engine (Offline-Safe Built-in SVG + Progressive Mermaid.js Upgrade)
+    let mermaidLoaderPromise = null;
+    function ensureMermaidLoaded() {
+      if (window.mermaid) return Promise.resolve(window.mermaid);
+      if (mermaidLoaderPromise) return mermaidLoaderPromise;
+      mermaidLoaderPromise = new Promise((resolve) => {
+        try {
+          const s = document.createElement('script');
+          s.src = 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js';
+          s.async = true;
+          s.onload = () => {
+            try {
+              const isDark = document.documentElement.classList.contains('dark');
+              window.mermaid.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
+              resolve(window.mermaid);
+            } catch (e) { resolve(null); }
+          };
+          s.onerror = () => resolve(null);
+          document.head.appendChild(s);
+          setTimeout(() => resolve(window.mermaid || null), 2500);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+      return mermaidLoaderPromise;
+    }
+
+    function copyMermaidSource(btn) {
+      const box = btn?.closest('.mermaid-diagram-box');
+      const src = box?.getAttribute('data-mermaid-src') || '';
+      if (src) copyAgentCommand(src);
+    }
+
+    function renderMermaidSvgFallback(src) {
+      const lines = String(src || '').split('\n').map(l => l.trim()).filter(l => l && !l.startsWith('%%'));
+      const isLR = /flowchart\s+LR|graph\s+LR/i.test(lines[0] || '');
+      const nodesMap = new Map();
+      const edges = [];
+
+      const parseNodeToken = (tok) => {
+        const clean = tok.trim();
+        let m;
+        if ((m = clean.match(/^([A-Za-z0-9_-]+)\s*\[([^\]]+)\]/))) return { id: m[1], label: m[2].replace(/["']/g, ''), shape: 'rect' };
+        if ((m = clean.match(/^([A-Za-z0-9_-]+)\s*\{([^}]+)\}/))) return { id: m[1], label: m[2].replace(/["']/g, ''), shape: 'diamond' };
+        if ((m = clean.match(/^([A-Za-z0-9_-]+)\s*\(\(([^)]+)\)\)/))) return { id: m[1], label: m[2].replace(/["']/g, ''), shape: 'circle' };
+        if ((m = clean.match(/^([A-Za-z0-9_-]+)\s*\(([^)]+)\)/))) return { id: m[1], label: m[2].replace(/["']/g, ''), shape: 'round' };
+        if ((m = clean.match(/^([A-Za-z0-9_-]+)$/))) return { id: m[1], label: m[1], shape: 'rect' };
+        return null;
+      };
+
+      const ensureNode = (info) => {
+        if (!info) return null;
+        if (!nodesMap.has(info.id)) {
+          nodesMap.set(info.id, info);
+        } else if (info.label !== info.id) {
+          nodesMap.set(info.id, info);
+        }
+        return info.id;
+      };
+
+      lines.forEach(line => {
+        if (/^(flowchart|graph|sequenceDiagram|subgraph|end)\b/i.test(line)) return;
+        const edgeMatch = line.match(/^(.+?)\s*(?:-->|-.->|==>|->)\s*(?:\|([^|]+)\|)?\s*(.+)$/);
+        if (edgeMatch) {
+          const from = ensureNode(parseNodeToken(edgeMatch[1]));
+          const to = ensureNode(parseNodeToken(edgeMatch[3]));
+          const label = (edgeMatch[2] || '').trim();
+          if (from && to) edges.push({ from, to, label });
+          return;
+        }
+        const single = parseNodeToken(line);
+        if (single) ensureNode(single);
+      });
+
+      const nodeList = Array.from(nodesMap.values());
+      if (nodeList.length === 0) {
+        const esc = String(src || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return `<pre style="margin:0; font-size:12px;"><code>${esc}</code></pre>`;
+      }
+
+      const boxW = 148;
+      const boxH = 44;
+      const gapX = 64;
+      const gapY = 52;
+      const pad = 24;
+
+      const positions = new Map();
+      nodeList.forEach((n, idx) => {
+        const col = isLR ? idx : 0;
+        const row = isLR ? 0 : idx;
+        positions.set(n.id, {
+          x: pad + col * (boxW + gapX),
+          y: pad + row * (boxH + gapY),
+          w: boxW,
+          h: boxH
+        });
+      });
+
+      const totalW = isLR ? pad * 2 + nodeList.length * boxW + Math.max(0, nodeList.length - 1) * gapX : pad * 2 + boxW + 140;
+      const totalH = isLR ? pad * 2 + boxH + 40 : pad * 2 + nodeList.length * boxH + Math.max(0, nodeList.length - 1) * gapY;
+
+      let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} ${totalH}" width="${totalW}" height="${totalH}" style="font-family:var(--font-mono), monospace;">`;
+      svg += `<defs><marker id="sds-m-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 1 L 10 5 L 0 9 z" fill="currentColor"/></marker></defs>`;
+
+      edges.forEach(e => {
+        const a = positions.get(e.from);
+        const b = positions.get(e.to);
+        if (!a || !b) return;
+        let x1, y1, x2, y2;
+        if (isLR) {
+          x1 = a.x + a.w; y1 = a.y + a.h / 2;
+          x2 = b.x; y2 = b.y + b.h / 2;
+        } else {
+          x1 = a.x + a.w / 2; y1 = a.y + a.h;
+          x2 = b.x + b.w / 2; y2 = b.y;
+        }
+        svg += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="var(--on-surface-variant, #94a3b8)" stroke-width="1.75" marker-end="url(#sds-m-arrow)" />`;
+        if (e.label) {
+          const lx = (x1 + x2) / 2 + (isLR ? 0 : 8);
+          const ly = (y1 + y2) / 2 - (isLR ? 8 : 0);
+          const escLbl = e.label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+          svg += `<text x="${lx}" y="${ly}" font-size="10" fill="var(--on-surface-variant, #94a3b8)" text-anchor="${isLR ? 'middle' : 'start'}">${escLbl}</text>`;
+        }
+      });
+
+      nodeList.forEach(n => {
+        const p = positions.get(n.id);
+        const escLbl = n.label.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (n.shape === 'diamond') {
+          const cx = p.x + p.w / 2;
+          const cy = p.y + p.h / 2;
+          svg += `<polygon points="${cx},${p.y - 4} ${p.x + p.w},${cy} ${cx},${p.y + p.h + 4} ${p.x},${cy}" fill="var(--surface-container-high, #1e293b)" stroke="var(--primary-container, #f59e0b)" stroke-width="1.75"/>`;
+        } else {
+          const rx = n.shape === 'round' || n.shape === 'circle' ? 20 : 6;
+          svg += `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="${rx}" fill="var(--surface-container-high, #1e293b)" stroke="var(--primary-container, #f59e0b)" stroke-width="1.75"/>`;
+        }
+        svg += `<text x="${p.x + p.w / 2}" y="${p.y + p.h / 2 + 4}" font-size="11" font-weight="600" fill="var(--on-surface, #f8fafc)" text-anchor="middle">${escLbl}</text>`;
+      });
+
+      svg += `</svg>`;
+      return svg;
+    }
+
+    async function hydrateMermaidDiagrams(container) {
+      if (!container) return;
+      const boxes = Array.from(container.querySelectorAll('.mermaid-diagram-box'));
+      if (boxes.length === 0) return;
+
+      // 1. Render immediately via built-in zero-dependency SVG engine (works offline)
+      boxes.forEach(box => {
+        const src = box.getAttribute('data-mermaid-src') || '';
+        const target = box.querySelector('.mermaid-render-target');
+        if (target && src) {
+          target.innerHTML = renderMermaidSvgFallback(src);
+        }
+      });
+
+      // 2. Progressively upgrade with full Mermaid.js if online
+      try {
+        const m = await ensureMermaidLoaded();
+        if (m && typeof m.render === 'function') {
+          const isDark = document.documentElement.classList.contains('dark');
+          m.initialize({ startOnLoad: false, theme: isDark ? 'dark' : 'default', securityLevel: 'loose' });
+          for (let idx = 0; idx < boxes.length; idx++) {
+            const box = boxes[idx];
+            const src = box.getAttribute('data-mermaid-src') || '';
+            const target = box.querySelector('.mermaid-render-target');
+            if (!target || !src) continue;
+            try {
+              const uid = `sds_mmd_${Date.now()}_${idx}`;
+              const res = await m.render(uid, src);
+              if (res && res.svg) {
+                target.innerHTML = res.svg;
+              }
+            } catch (err) {
+              // Keep built-in fallback SVG on parse/network error
+            }
+          }
+        }
+      } catch (e) {}
     }
 
     // Modal Control (with Body Scroll Locking to prevent background scroll leaks)
@@ -6053,11 +6297,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
       } else if (surfaceHint === 'note') {
         if (currentNoteMode === 'edit') {
-          setNoteMode('split');
+          setNoteMode('view');
         }
-        targetContainer = (currentNoteMode === 'split')
-          ? document.getElementById('note-split-preview')
-          : document.getElementById('note-view-body');
+        targetContainer = document.getElementById('note-view-body');
       } else if (surfaceHint === 'adr') {
         targetContainer = document.getElementById('adr-modal-content');
       }
@@ -6610,7 +6852,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
         surfaceHint = 'note';
         artifactPath = activeNoteRelPath;
-        targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
+        targetContainer = document.getElementById('note-view-body');
         selObj = window.getSelection();
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
         surfaceHint = 'lesson';
@@ -6785,7 +7027,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
         surfaceHint = 'note';
         artifactPath = activeNoteRelPath;
-        targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
+        targetContainer = document.getElementById('note-view-body');
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
         surfaceHint = 'lesson';
         artifactPath = currentLessonContext.htmlPath;
@@ -6825,7 +7067,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           clearMarks(targetContainer);
           clearMarks(document.getElementById('lesson-modal-markdown'));
           clearMarks(document.getElementById('note-view-body'));
-          clearMarks(document.getElementById('note-split-preview'));
           clearMarks(document.getElementById('adr-modal-content'));
           const iframe = document.getElementById('lesson-modal-iframe');
           if (iframe && iframe.contentDocument) clearMarks(iframe.contentDocument.body);
@@ -6847,33 +7088,339 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     window.clearActiveHighlights = clearActiveHighlights;
     window.clearAllSelectionArtifacts = clearAllSelectionArtifacts;
 
-    // Notion-Grade Markdown Note Workbench Engine
-    let currentNoteMode = 'view'; // 'view' | 'split' | 'edit'
+    // Notion-Grade Rich Text Note Workbench Engine (Read & Rich Edit only)
+    let currentNoteMode = 'view'; // 'view' | 'edit'
     let currentNoteSavedContent = '';
     let isNoteDirty = false;
     let noteAutoSaveTimer = null;
-    let noteSplitHlTimer = null;
+    let noteHistoryTimer = null;
     let noteSlashMenuOpen = false;
-    let noteSlashStartIdx = -1;
+    let noteSlashRange = null;
     let noteSlashSelectedIdx = 0;
     let noteSlashFiltered = [];
 
-    const NOTE_EMPTY_HTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant); padding:16px 0; line-height:1.7;">No note recorded yet for this topic.<br/>Switch to <strong>Split</strong> or <strong>Edit</strong> mode to start writing, or type <code>/</code> in the editor for Notion-style blocks.</div>';
+    const NOTE_EMPTY_HTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant); padding:16px 0; line-height:1.7;">No note recorded yet for this topic.<br/>Switch to <strong>Edit</strong> mode to start writing, or type <code>/</code> for Notion-style blocks, code, and Mermaid flowcharts.</div>';
 
     const NOTE_SLASH_COMMANDS = [
-      { id: 'h1', label: 'Heading 1', desc: '# Large section title', type: 'prefix', value: '# ' },
-      { id: 'h2', label: 'Heading 2', desc: '## Subsection heading', type: 'prefix', value: '## ' },
-      { id: 'h3', label: 'Heading 3', desc: '### Topic heading', type: 'prefix', value: '### ' },
-      { id: 'bullet', label: 'Bullet List', desc: '- Unordered item', type: 'prefix', value: '- ' },
-      { id: 'numbered', label: 'Numbered List', desc: '1. Ordered item', type: 'prefix', value: '1. ' },
-      { id: 'todo', label: 'To-do Checklist', desc: '- [ ] Interactive task', type: 'prefix', value: '- [ ] ' },
-      { id: 'quote', label: 'Blockquote', desc: '> Highlighted insight', type: 'prefix', value: '> ' },
-      { id: 'callout', label: 'Invariant Callout', desc: '> [!INVARIANT] block', type: 'snippet', value: '> [!INVARIANT]\n> ' },
-      { id: 'code', label: 'Code / ASCII Diagram', desc: '```text diagram```', type: 'snippet', value: '```text\n+--------+     request     +--------+\n| Client | --------------> | Server |\n+--------+ <-------------- +--------+\n```\n' },
-      { id: 'table', label: 'Trade-off Table', desc: 'Markdown comparison matrix', type: 'snippet', value: '| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Option A vs Option B | Choose A when... | SLA / Sizing |\n' },
-      { id: 'template', label: 'Reference Note Template', desc: 'Clean architecture reference scaffold', type: 'snippet', value: '## 1. Core Mechanism & Constraints\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Core Invariant\n> [!INVARIANT]\n> Non-negotiable architectural invariant.\n\n## 3. Production Trade-Off Matrix\n| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads | Tail SLA < 15ms @ p99 |\n' },
-      { id: 'divider', label: 'Divider', desc: '--- Horizontal rule', type: 'snippet', value: '\n---\n' }
+      { id: 'h1', label: 'Heading 1', desc: '# Large section title', action: () => applyRichBlock('H1') },
+      { id: 'h2', label: 'Heading 2', desc: '## Subsection heading', action: () => applyRichBlock('H2') },
+      { id: 'h3', label: 'Heading 3', desc: '### Topic heading', action: () => applyRichBlock('H3') },
+      { id: 'text', label: 'Text', desc: 'Plain paragraph block', action: () => applyRichBlock('P') },
+      { id: 'bullet', label: 'Bullet List', desc: '- Unordered list', action: () => applyRichList('ul') },
+      { id: 'numbered', label: 'Numbered List', desc: '1. Ordered list', action: () => applyRichList('ol') },
+      { id: 'todo', label: 'To-do Checklist', desc: 'Interactive task item', action: () => insertRichBlockTemplate('todo') },
+      { id: 'quote', label: 'Blockquote', desc: '> Key insight quote', action: () => insertRichBlockTemplate('quote') },
+      { id: 'callout', label: 'Invariant Callout', desc: '[!INVARIANT] highlight box', action: () => insertRichBlockTemplate('callout') },
+      { id: 'mermaid', label: 'Mermaid Flowchart', desc: 'Interactive SVG flowchart diagram', action: () => insertRichBlockTemplate('mermaid') },
+      { id: 'code', label: 'Code Block', desc: 'Fenced code block with language', action: () => insertRichBlockTemplate('code') },
+      { id: 'table', label: 'Trade-off Table', desc: 'Editable comparison matrix', action: () => insertRichBlockTemplate('table') },
+      { id: 'template', label: 'Reference Note Template', desc: 'Clean architecture reference scaffold', action: () => insertRichBlockTemplate('template') },
+      { id: 'divider', label: 'Divider', desc: '--- Horizontal rule', action: () => insertRichBlockTemplate('divider') }
     ];
+
+    // Conflict-Free Custom Undo / Redo Stack (Never collides with browser native stack)
+    const NoteHistoryManager = {
+      undoStack: [],
+      redoStack: [],
+      maxSize: 150,
+      lastPushTime: 0,
+
+      reset(initialMd) {
+        this.undoStack = [{ md: initialMd || '', caretOffset: 0 }];
+        this.redoStack = [];
+        this.lastPushTime = Date.now();
+        this.updateButtons();
+      },
+
+      getCaretOffset(root) {
+        try {
+          const sel = window.getSelection();
+          if (!sel || sel.rangeCount === 0 || !root.contains(sel.anchorNode)) return 0;
+          const r = sel.getRangeAt(0).cloneRange();
+          const pre = document.createRange();
+          pre.selectNodeContents(root);
+          pre.setEnd(r.startContainer, r.startOffset);
+          return pre.toString().length;
+        } catch (e) {
+          return 0;
+        }
+      },
+
+      restoreCaretOffset(root, offset) {
+        try {
+          const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+          let remaining = Math.max(0, offset || 0);
+          let node;
+          while ((node = walker.nextNode())) {
+            const len = node.nodeValue.length;
+            if (remaining <= len) {
+              const range = document.createRange();
+              range.setStart(node, remaining);
+              range.collapse(true);
+              const sel = window.getSelection();
+              sel.removeAllRanges();
+              sel.addRange(range);
+              return;
+            }
+            remaining -= len;
+          }
+          const range = document.createRange();
+          range.selectNodeContents(root);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch (e) {}
+      },
+
+      pushSnapshot(md, force = false) {
+        const rich = document.getElementById('note-rich-editor');
+        const caretOffset = rich ? this.getCaretOffset(rich) : 0;
+        const top = this.undoStack[this.undoStack.length - 1];
+        if (top && top.md === md) return;
+
+        const now = Date.now();
+        if (!force && top && (now - this.lastPushTime) < 420 && this.undoStack.length > 1) {
+          this.undoStack[this.undoStack.length - 1] = { md, caretOffset };
+        } else {
+          this.undoStack.push({ md, caretOffset });
+          if (this.undoStack.length > this.maxSize) this.undoStack.shift();
+        }
+        this.redoStack = [];
+        this.lastPushTime = now;
+        this.updateButtons();
+      },
+
+      updateButtons() {
+        const undoBtn = document.getElementById('btn-note-undo');
+        const redoBtn = document.getElementById('btn-note-redo');
+        if (undoBtn) undoBtn.disabled = this.undoStack.length <= 1;
+        if (redoBtn) redoBtn.disabled = this.redoStack.length === 0;
+      }
+    };
+
+    function noteHistoryUndo() {
+      if (currentNoteMode !== 'edit' || NoteHistoryManager.undoStack.length <= 1) return;
+      const current = NoteHistoryManager.undoStack.pop();
+      NoteHistoryManager.redoStack.push(current);
+      const prev = NoteHistoryManager.undoStack[NoteHistoryManager.undoStack.length - 1];
+      applyHistorySnapshot(prev);
+      NoteHistoryManager.updateButtons();
+    }
+
+    function noteHistoryRedo() {
+      if (currentNoteMode !== 'edit' || NoteHistoryManager.redoStack.length === 0) return;
+      const next = NoteHistoryManager.redoStack.pop();
+      NoteHistoryManager.undoStack.push(next);
+      applyHistorySnapshot(next);
+      NoteHistoryManager.updateButtons();
+    }
+
+    function applyHistorySnapshot(snap) {
+      if (!snap) return;
+      const rich = document.getElementById('note-rich-editor');
+      const editBody = document.getElementById('note-edit-body');
+      const md = snap.md || '';
+      if (editBody) editBody.value = md;
+      if (rich) {
+        rich.innerHTML = markdownToRichEditorHtml(md);
+        hydrateMermaidDiagrams(rich);
+        rich.focus();
+        NoteHistoryManager.restoreCaretOffset(rich, snap.caretOffset);
+      }
+      syncNoteDirtyAndSave(md);
+    }
+
+    function inlineHtmlToMarkdown(node) {
+      if (!node) return '';
+      if (node.nodeType === Node.TEXT_NODE) {
+        return node.nodeValue.replace(/\u00A0/g, ' ');
+      }
+      if (node.nodeType !== Node.ELEMENT_NODE) return '';
+      const tag = node.tagName.toLowerCase();
+      if (tag === 'br') return '\n';
+      const inner = Array.from(node.childNodes).map(inlineHtmlToMarkdown).join('');
+      if (tag === 'strong' || tag === 'b') return inner ? `**${inner}**` : '';
+      if (tag === 'em' || tag === 'i') return inner ? `*${inner}*` : '';
+      if (tag === 'del' || tag === 's' || tag === 'strike') return inner ? `~~${inner}~~` : '';
+      if (tag === 'code') return inner ? `\`${inner}\`` : '';
+      if (tag === 'a') {
+        const href = node.getAttribute('href') || '';
+        return `[${inner}](${href})`;
+      }
+      return inner;
+    }
+
+    function htmlToMarkdown(root) {
+      if (!root) return '';
+      const blocks = [];
+
+      const serializeNode = (el) => {
+        if (el.nodeType === Node.TEXT_NODE) {
+          const t = el.nodeValue.replace(/\u00A0/g, ' ').trim();
+          if (t) blocks.push(t);
+          return;
+        }
+        if (el.nodeType !== Node.ELEMENT_NODE) return;
+        const tag = el.tagName.toLowerCase();
+
+        if (/^h[1-6]$/.test(tag)) {
+          const lvl = parseInt(tag[1], 10);
+          const txt = Array.from(el.childNodes).map(inlineHtmlToMarkdown).join('').trim();
+          if (txt) blocks.push(`${'#'.repeat(lvl)} ${txt}`);
+          return;
+        }
+        if (tag === 'hr') {
+          blocks.push('---');
+          return;
+        }
+        if (el.classList.contains('mermaid-diagram-box')) {
+          const ta = el.querySelector('.mermaid-src-editor');
+          const src = (ta ? ta.value : el.getAttribute('data-mermaid-src') || '').trim();
+          blocks.push('```mermaid\n' + src + '\n```');
+          return;
+        }
+        if (el.classList.contains('code-block-container') || el.classList.contains('diagram-box')) {
+          const sel = el.querySelector('.code-lang-select');
+          const lang = (sel ? sel.value : el.getAttribute('data-lang') || 'text').trim().toLowerCase();
+          const codeEl = el.querySelector('code');
+          const code = (codeEl ? codeEl.innerText : '').replace(/\n+$/, '');
+          blocks.push('```' + lang + '\n' + code + '\n```');
+          return;
+        }
+        if (el.classList.contains('callout-alert')) {
+          const headerSpan = el.querySelector('.callout-header span:last-child');
+          const type = (headerSpan ? headerSpan.innerText : 'NOTE').trim().toUpperCase();
+          const contentEl = el.querySelector('.callout-content');
+          const raw = (contentEl ? Array.from(contentEl.childNodes).map(inlineHtmlToMarkdown).join('') : '').trim();
+          const qLines = raw.split('\n').map(l => `> ${l.trim()}`).join('\n');
+          blocks.push(`> [!${type}]\n${qLines}`);
+          return;
+        }
+        if (tag === 'blockquote') {
+          const raw = Array.from(el.childNodes).map(inlineHtmlToMarkdown).join('').trim();
+          if (raw) {
+            blocks.push(raw.split('\n').map(l => `> ${l.trim()}`).join('\n'));
+          }
+          return;
+        }
+        if (el.classList.contains('lead-meta')) {
+          const raw = Array.from(el.childNodes).map(inlineHtmlToMarkdown).join('').trim();
+          if (raw) blocks.push(raw.split('\n').map(l => `> ${l.trim()}`).join('\n'));
+          return;
+        }
+        if (tag === 'ul' && el.classList.contains('notion-task-list')) {
+          const items = [];
+          el.querySelectorAll(':scope > li').forEach(li => {
+            const cb = li.querySelector('input[type="checkbox"]');
+            const mark = (cb && cb.checked) ? 'x' : ' ';
+            const span = li.querySelector('span') || li;
+            const txt = Array.from(span.childNodes).filter(n => n.tagName !== 'INPUT').map(inlineHtmlToMarkdown).join('').trim();
+            items.push(`- [${mark}] ${txt}`);
+          });
+          if (items.length) blocks.push(items.join('\n'));
+          return;
+        }
+        if (tag === 'ul') {
+          const items = [];
+          el.querySelectorAll(':scope > li').forEach(li => {
+            const txt = Array.from(li.childNodes).map(inlineHtmlToMarkdown).join('').trim();
+            items.push(`- ${txt}`);
+          });
+          if (items.length) blocks.push(items.join('\n'));
+          return;
+        }
+        if (tag === 'ol') {
+          const items = [];
+          let idx = 1;
+          el.querySelectorAll(':scope > li').forEach(li => {
+            const txt = Array.from(li.childNodes).map(inlineHtmlToMarkdown).join('').trim();
+            items.push(`${idx}. ${txt}`);
+            idx++;
+          });
+          if (items.length) blocks.push(items.join('\n'));
+          return;
+        }
+        if (el.classList.contains('table-responsive-wrapper') || tag === 'table') {
+          const tbl = tag === 'table' ? el : el.querySelector('table');
+          if (!tbl) return;
+          const ths = Array.from(tbl.querySelectorAll('thead th')).map(th => Array.from(th.childNodes).map(inlineHtmlToMarkdown).join('').trim());
+          const rows = Array.from(tbl.querySelectorAll('tbody tr')).map(tr =>
+            Array.from(tr.querySelectorAll('td')).map(td => Array.from(td.childNodes).map(inlineHtmlToMarkdown).join('').trim())
+          );
+          if (ths.length) {
+            const mdRows = [
+              `| ${ths.join(' | ')} |`,
+              `| ${ths.map(() => ':---').join(' | ')} |`,
+              ...rows.map(r => `| ${r.join(' | ')} |`)
+            ];
+            blocks.push(mdRows.join('\n'));
+          }
+          return;
+        }
+        if (tag === 'p' || tag === 'div') {
+          const txt = Array.from(el.childNodes).map(inlineHtmlToMarkdown).join('').replace(/\n+$/, '').trim();
+          if (txt) blocks.push(txt);
+          return;
+        }
+        Array.from(el.childNodes).forEach(serializeNode);
+      };
+
+      Array.from(root.childNodes).forEach(serializeNode);
+      return blocks.join('\n\n').trim() + (blocks.length ? '\n' : '');
+    }
+
+    function markdownToRichEditorHtml(md) {
+      if (!md || !md.trim()) return '<p class="notion-p"><br></p>';
+      let html = renderMarkdown(md);
+      const tmp = document.createElement('div');
+      tmp.innerHTML = html;
+
+      // Upgrade Mermaid diagrams inside edit mode to include live source editor
+      tmp.querySelectorAll('.mermaid-diagram-box').forEach(box => {
+        const src = box.getAttribute('data-mermaid-src') || '';
+        const ta = document.createElement('textarea');
+        ta.className = 'mermaid-src-editor';
+        ta.value = src;
+        ta.setAttribute('oninput', 'refreshMermaidEditBlock(this)');
+        ta.setAttribute('onkeydown', 'event.stopPropagation()');
+        box.appendChild(ta);
+      });
+
+      // Upgrade Code blocks inside edit mode to editable <code> + language selector
+      tmp.querySelectorAll('.code-block-container').forEach(box => {
+        const lang = (box.getAttribute('data-lang') || 'text').toLowerCase();
+        const header = box.querySelector('.code-block-header');
+        if (header) {
+          const langs = ['text', 'python', 'go', 'sql', 'json', 'yaml', 'bash', 'javascript', 'typescript'];
+          if (!langs.includes(lang)) langs.unshift(lang);
+          const selHtml = `<select class="code-lang-select" onchange="this.closest('.code-block-container').setAttribute('data-lang', this.value); handleRichEditorInput();">${langs.map(l => `<option value="${l}" ${l === lang ? 'selected' : ''}>${l.toUpperCase()}</option>`).join('')}</select>`;
+          header.innerHTML = `<span style="display:flex; align-items:center; gap:6px;"><span class="material-symbols-outlined" style="font-size:14px;">terminal</span>${selHtml}</span><button type="button" class="code-copy-btn" contenteditable="false" onclick="navigator.clipboard.writeText(this.closest('.code-block-container').querySelector('code').innerText); showToast('Code copied');" title="Copy code"><span class="material-symbols-outlined" style="font-size:13px;">content_copy</span></button>`;
+        }
+        const codeEl = box.querySelector('code');
+        if (codeEl) codeEl.setAttribute('contenteditable', 'true');
+      });
+
+      // Make tables editable cell-by-cell
+      tmp.querySelectorAll('table th, table td').forEach(cell => {
+        cell.setAttribute('contenteditable', 'true');
+      });
+
+      // Make callout content editable
+      tmp.querySelectorAll('.callout-content').forEach(cc => {
+        cc.setAttribute('contenteditable', 'true');
+      });
+
+      return tmp.innerHTML;
+    }
+
+    function refreshMermaidEditBlock(ta) {
+      const box = ta?.closest('.mermaid-diagram-box');
+      if (!box) return;
+      box.setAttribute('data-mermaid-src', ta.value);
+      hydrateMermaidDiagrams(box.parentElement || box);
+      handleRichEditorInput();
+    }
 
     function updateNoteSaveStatus(state) {
       const badge = document.getElementById('note-save-status');
@@ -6903,7 +7450,20 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
     }
 
-    // Dynamic Notes Resolution (Fixes 404 Bug & Split Default-Text Leak)
+    function syncNoteDirtyAndSave(md) {
+      updateNoteStats(md);
+      const dirty = (md !== currentNoteSavedContent);
+      isNoteDirty = dirty;
+      updateNoteSaveStatus(dirty ? 'dirty' : 'saved');
+      if (dirty && activeNoteRelPath && md.trim().length > 0) {
+        if (noteAutoSaveTimer) clearTimeout(noteAutoSaveTimer);
+        noteAutoSaveTimer = setTimeout(() => {
+          saveNoteFromEditor(true);
+        }, 1200);
+      }
+    }
+
+    // Dynamic Notes Resolution (Fixes 404 Bug & Default-Text Leak)
     async function openTopicNote(clusterId, topicId, topicTitle) {
       if (noteAutoSaveTimer) { clearTimeout(noteAutoSaveTimer); noteAutoSaveTimer = null; }
       closeNoteSlashMenu();
@@ -6912,7 +7472,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const topicLeaf = cleanSlug.split('-').slice(2).join('-') || cleanSlug;
       let resolvedPath = `${clusterId || 'general'}/${cleanSlug || 'note'}.md`;
 
-      // Search globalStatus.notes for existing note matching topic slug or leaf
       if (globalStatus?.notes && Array.isArray(globalStatus.notes)) {
         const matched = globalStatus.notes.find(n => {
           const p = (n.relPath || n.filename || '').toLowerCase();
@@ -6940,12 +7499,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
       const viewBody = document.getElementById('note-view-body');
       const editBody = document.getElementById('note-edit-body');
-      const splitPreview = document.getElementById('note-split-preview');
+      const richEditor = document.getElementById('note-rich-editor');
 
-      // Reset all panes cleanly BEFORE switching mode or opening modal so previous note state never leaks
       if (editBody) editBody.value = '';
-      if (splitPreview) splitPreview.innerHTML = '';
+      if (richEditor) richEditor.innerHTML = '';
       if (viewBody) viewBody.innerHTML = '<div style="font-family:var(--font-mono);">Loading note...</div>';
+      NoteHistoryManager.reset('');
 
       setNoteMode('view');
       openModal('note-modal');
@@ -6959,14 +7518,16 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           updateNoteSaveStatus('saved');
           updateNoteStats(content);
           if (editBody) editBody.value = content;
+          if (richEditor) {
+            richEditor.innerHTML = markdownToRichEditorHtml(content);
+            hydrateMermaidDiagrams(richEditor);
+          }
+          NoteHistoryManager.reset(content);
           const rendered = content.trim() ? renderMarkdown(content) : NOTE_EMPTY_HTML;
           if (viewBody) {
             viewBody.innerHTML = rendered;
+            hydrateMermaidDiagrams(viewBody);
             loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
-          }
-          if (splitPreview && currentNoteMode === 'split') {
-            splitPreview.innerHTML = rendered;
-            loadAndApplyHighlights(activeNoteRelPath, splitPreview, 'note');
           }
           if (viewBody && new URLSearchParams(window.location.search).get('notescroll') === 'bottom') {
             viewBody.scrollTop = viewBody.scrollHeight;
@@ -6977,8 +7538,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           updateNoteSaveStatus('saved');
           updateNoteStats('');
           if (editBody) editBody.value = '';
+          if (richEditor) richEditor.innerHTML = '<p class="notion-p"><br></p>';
+          NoteHistoryManager.reset('');
           if (viewBody) viewBody.innerHTML = NOTE_EMPTY_HTML;
-          if (splitPreview) splitPreview.innerHTML = NOTE_EMPTY_HTML;
           loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
         }
       } catch (e) {
@@ -6991,166 +7553,217 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function setNoteMode(mode) {
+      if (mode === 'split') mode = 'edit';
+      const prevMode = currentNoteMode;
       currentNoteMode = mode;
       closeNoteSlashMenu();
+
       const viewBody = document.getElementById('note-view-body');
+      const richEditor = document.getElementById('note-rich-editor');
       const editBody = document.getElementById('note-edit-body');
-      const splitPreview = document.getElementById('note-split-preview');
       const toolbar = document.getElementById('note-editor-toolbar');
       const saveBtn = document.getElementById('note-save-btn');
-
       const btnView = document.getElementById('btn-note-view');
-      const btnSplit = document.getElementById('btn-note-split');
       const btnEdit = document.getElementById('btn-note-edit');
       const noteHls = document.getElementById('note-highlighter-controls');
 
       if (btnView) btnView.classList.toggle('active', mode === 'view');
-      if (btnSplit) btnSplit.classList.toggle('active', mode === 'split');
       if (btnEdit) btnEdit.classList.toggle('active', mode === 'edit');
       if (noteHls) noteHls.style.display = (mode === 'edit') ? 'none' : 'inline-flex';
 
+      if (prevMode === 'edit' && mode === 'view' && richEditor && editBody) {
+        editBody.value = htmlToMarkdown(richEditor);
+      }
+
       const rawContent = editBody ? editBody.value : '';
-      const renderedHtml = rawContent.trim() ? renderMarkdown(rawContent) : NOTE_EMPTY_HTML;
 
       if (mode === 'view') {
         if (toolbar) toolbar.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'none';
+        if (richEditor) richEditor.style.display = 'none';
         if (viewBody) {
           viewBody.style.display = 'block';
-          viewBody.innerHTML = renderedHtml;
+          viewBody.innerHTML = rawContent.trim() ? renderMarkdown(rawContent) : NOTE_EMPTY_HTML;
+          hydrateMermaidDiagrams(viewBody);
           if (rawContent.trim() && activeNoteRelPath) {
             loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
           }
         }
-        if (editBody) editBody.style.display = 'none';
-        if (splitPreview) splitPreview.style.display = 'none';
-      } else if (mode === 'split') {
-        if (toolbar) toolbar.style.display = 'flex';
-        if (saveBtn) saveBtn.style.display = 'inline-flex';
-        if (viewBody) viewBody.style.display = 'none';
-        if (editBody) {
-          editBody.style.display = 'block';
-          editBody.style.flex = '1';
-        }
-        if (splitPreview) {
-          splitPreview.style.display = 'block';
-          splitPreview.style.flex = '1';
-          splitPreview.innerHTML = renderedHtml;
-          if (rawContent.trim() && activeNoteRelPath) {
-            loadAndApplyHighlights(activeNoteRelPath, splitPreview, 'note');
-          }
-        }
-        if (editBody) editBody.focus();
       } else if (mode === 'edit') {
         if (toolbar) toolbar.style.display = 'flex';
         if (saveBtn) saveBtn.style.display = 'inline-flex';
         if (viewBody) viewBody.style.display = 'none';
-        if (splitPreview) splitPreview.style.display = 'none';
-        if (editBody) {
-          editBody.style.display = 'block';
-          editBody.style.flex = '1';
-          editBody.focus();
+        if (richEditor) {
+          richEditor.style.display = 'block';
+          if (prevMode !== 'edit') {
+            richEditor.innerHTML = markdownToRichEditorHtml(rawContent);
+            hydrateMermaidDiagrams(richEditor);
+            NoteHistoryManager.reset(rawContent);
+          }
+          richEditor.focus();
         }
       }
       updateNoteStats(rawContent);
     }
 
     function toggleNoteEditMode() {
-      if (currentNoteMode === 'view') {
-        setNoteMode('split');
-      } else {
-        setNoteMode('view');
-      }
+      setNoteMode(currentNoteMode === 'view' ? 'edit' : 'view');
     }
 
-    function handleNoteLiveInput(event) {
+    function handleRichEditorInput(event) {
+      const rich = document.getElementById('note-rich-editor');
       const editBody = document.getElementById('note-edit-body');
-      const splitPreview = document.getElementById('note-split-preview');
-      const content = editBody ? editBody.value : '';
+      if (!rich) return;
 
-      if (currentNoteMode === 'split' && splitPreview) {
-        splitPreview.innerHTML = content.trim() ? renderMarkdown(content) : NOTE_EMPTY_HTML;
-        if (noteSplitHlTimer) clearTimeout(noteSplitHlTimer);
-        noteSplitHlTimer = setTimeout(() => {
-          const list = activeHighlightsCache.note?.list || [];
-          if (content.trim() && list.length > 0 && currentNoteMode === 'split') {
-            renderHighlightsInContainer(splitPreview, list, activeNoteRelPath, 'note');
-          }
-        }, 120);
+      // Live Markdown Input Rules inside Rich Editor (# , ## , ### , - , 1. , - [ ] , > , ---)
+      if (!event || event.inputType === 'insertText') {
+        applyLiveMarkdownInputRule(rich);
       }
 
-      updateNoteStats(content);
-
-      const dirty = (content !== currentNoteSavedContent);
-      isNoteDirty = dirty;
-      updateNoteSaveStatus(dirty ? 'dirty' : 'saved');
-      if (dirty && activeNoteRelPath && content.trim().length > 0) {
-        if (noteAutoSaveTimer) clearTimeout(noteAutoSaveTimer);
-        noteAutoSaveTimer = setTimeout(() => {
-          saveNoteFromEditor(true);
-        }, 1200);
-      }
-
+      const md = htmlToMarkdown(rich);
+      if (editBody) editBody.value = md;
+      NoteHistoryManager.pushSnapshot(md, false);
+      syncNoteDirtyAndSave(md);
       updateNoteSlashMenu();
     }
 
-    function syncNoteSplitScroll() {
-      if (currentNoteMode !== 'split') return;
-      const ta = document.getElementById('note-edit-body');
-      const preview = document.getElementById('note-split-preview');
-      if (!ta || !preview) return;
-      const maxTa = ta.scrollHeight - ta.clientHeight;
-      const maxPrev = preview.scrollHeight - preview.clientHeight;
-      if (maxTa > 0 && maxPrev > 0) {
-        preview.scrollTop = (ta.scrollTop / maxTa) * maxPrev;
+    function applyLiveMarkdownInputRule(rich) {
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || !sel.isCollapsed) return;
+      const node = sel.anchorNode;
+      if (!node || node.nodeType !== Node.TEXT_NODE) return;
+      const block = node.parentElement ? node.parentElement.closest('p, div, h1, h2, h3, li') : null;
+      if (!block || block === rich || block.closest('.code-block-container, .mermaid-diagram-box')) return;
+
+      const text = node.nodeValue || '';
+      const offset = sel.anchorOffset;
+      const before = text.slice(0, offset);
+
+      if (before === '# ' || before === '## ' || before === '### ') {
+        const lvl = before.trim().length;
+        const h = document.createElement(`h${lvl}`);
+        h.className = `notion-h${lvl}`;
+        const rest = text.slice(offset);
+        h.textContent = rest;
+        if (!rest) h.innerHTML = '<br>';
+        block.replaceWith(h);
+        placeCaretStart(h);
+      } else if (before === '- [ ] ') {
+        const ul = document.createElement('ul');
+        ul.className = 'notion-task-list';
+        const li = document.createElement('li');
+        li.className = 'notion-task-item';
+        const rest = text.slice(offset);
+        li.innerHTML = `<input type="checkbox" class="notion-checkbox" style="cursor:pointer;" onchange="handleRichEditorInput()" /><span>${rest || '<br>'}</span>`;
+        ul.appendChild(li);
+        block.replaceWith(ul);
+        placeCaretStart(li.querySelector('span'));
+      } else if (before === '- ' || before === '* ') {
+        const ul = document.createElement('ul');
+        ul.className = 'notion-bullet-list';
+        const li = document.createElement('li');
+        const rest = text.slice(offset);
+        li.textContent = rest;
+        if (!rest) li.innerHTML = '<br>';
+        ul.appendChild(li);
+        block.replaceWith(ul);
+        placeCaretStart(li);
+      } else if (before === '1. ') {
+        const ol = document.createElement('ol');
+        ol.className = 'notion-ordered-list';
+        const li = document.createElement('li');
+        const rest = text.slice(offset);
+        li.textContent = rest;
+        if (!rest) li.innerHTML = '<br>';
+        ol.appendChild(li);
+        block.replaceWith(ol);
+        placeCaretStart(li);
+      } else if (before === '> ') {
+        const bq = document.createElement('blockquote');
+        bq.className = 'notion-quote';
+        const rest = text.slice(offset);
+        bq.textContent = rest;
+        if (!rest) bq.innerHTML = '<br>';
+        block.replaceWith(bq);
+        placeCaretStart(bq);
+      } else if (before === '---') {
+        const hr = document.createElement('hr');
+        hr.className = 'notion-hr';
+        const p = document.createElement('p');
+        p.className = 'notion-p';
+        p.innerHTML = '<br>';
+        block.replaceWith(hr);
+        hr.insertAdjacentElement('afterend', p);
+        placeCaretStart(p);
       }
     }
 
+    function placeCaretStart(el) {
+      if (!el) return;
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      r.collapse(true);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+
     function toggleNoteTaskCheckbox(lineIdx, checked) {
-      const ta = document.getElementById('note-edit-body');
-      if (!ta) return;
-      const lines = ta.value.split('\n');
+      const editBody = document.getElementById('note-edit-body');
+      if (!editBody) return;
+      const lines = editBody.value.split('\n');
       if (lineIdx >= 0 && lineIdx < lines.length) {
         lines[lineIdx] = lines[lineIdx].replace(/^(-\s+\[)[ xX](\])/, `$1${checked ? 'x' : ' '}$2`);
-        ta.value = lines.join('\n');
-        handleNoteLiveInput();
+        editBody.value = lines.join('\n');
+        syncNoteDirtyAndSave(editBody.value);
         if (activeNoteRelPath) saveNoteFromEditor(true);
       }
     }
 
     function closeNoteSlashMenu() {
       noteSlashMenuOpen = false;
-      noteSlashStartIdx = -1;
+      noteSlashRange = null;
       const menu = document.getElementById('note-slash-menu');
       if (menu) menu.style.display = 'none';
     }
 
     function updateNoteSlashMenu() {
-      const ta = document.getElementById('note-edit-body');
+      const rich = document.getElementById('note-rich-editor');
       const menu = document.getElementById('note-slash-menu');
-      if (!ta || !menu || currentNoteMode === 'view') {
+      if (!rich || !menu || currentNoteMode !== 'edit') {
         closeNoteSlashMenu();
         return;
       }
-      const pos = ta.selectionStart;
-      const textBefore = ta.value.slice(0, pos);
-      const lineStart = textBefore.lastIndexOf('\n') + 1;
-      const currentLineBefore = textBefore.slice(lineStart);
-      const slashMatch = currentLineBefore.match(/(?:^|\s)\/([a-z0-9_-]*)$/i);
-
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0 || !sel.isCollapsed || !rich.contains(sel.anchorNode)) {
+        closeNoteSlashMenu();
+        return;
+      }
+      const node = sel.anchorNode;
+      if (node.nodeType !== Node.TEXT_NODE) {
+        closeNoteSlashMenu();
+        return;
+      }
+      const offset = sel.anchorOffset;
+      const textBefore = node.nodeValue.slice(0, offset);
+      const slashMatch = textBefore.match(/(?:^|\s)\/([a-z0-9_-]*)$/i);
       if (!slashMatch) {
         closeNoteSlashMenu();
         return;
       }
 
       const query = (slashMatch[1] || '').toLowerCase();
-      noteSlashStartIdx = pos - slashMatch[1].length - 1;
+      const slashStart = offset - slashMatch[1].length - 1;
+      const r = document.createRange();
+      r.setStart(node, slashStart);
+      r.setEnd(node, offset);
+      noteSlashRange = r;
+
       noteSlashFiltered = NOTE_SLASH_COMMANDS.filter(c =>
         c.label.toLowerCase().includes(query) ||
         c.desc.toLowerCase().includes(query) ||
         c.id.includes(query)
       );
-
       if (noteSlashFiltered.length === 0) {
         closeNoteSlashMenu();
         return;
@@ -7159,6 +7772,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       noteSlashSelectedIdx = 0;
       noteSlashMenuOpen = true;
       renderNoteSlashMenu();
+
+      // Anchor slash menu right at caret coordinates inside .note-workbench-layout
+      const layout = rich.closest('.note-workbench-layout');
+      if (layout) {
+        const layoutRect = layout.getBoundingClientRect();
+        const caretRect = r.getBoundingClientRect();
+        const top = Math.min(layoutRect.height - 220, Math.max(8, caretRect.bottom - layoutRect.top + 6));
+        const left = Math.min(layoutRect.width - 270, Math.max(8, caretRect.left - layoutRect.left));
+        menu.style.top = `${Math.round(top)}px`;
+        menu.style.left = `${Math.round(left)}px`;
+      }
       menu.style.display = 'block';
     }
 
@@ -7176,22 +7800,64 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function applyNoteSlashCommand(idx) {
-      const ta = document.getElementById('note-edit-body');
+      const rich = document.getElementById('note-rich-editor');
       const cmd = noteSlashFiltered[idx];
-      if (!ta || !cmd || noteSlashStartIdx < 0) return;
+      if (!rich || !cmd) return;
 
-      const pos = ta.selectionStart;
-      ta.focus();
-      ta.setRangeText(cmd.value, noteSlashStartIdx, pos, 'end');
+      if (noteSlashRange) {
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(noteSlashRange);
+        noteSlashRange.deleteContents();
+      }
       closeNoteSlashMenu();
-      handleNoteLiveInput();
+      rich.focus();
+      cmd.action();
+      const md = htmlToMarkdown(rich);
+      const editBody = document.getElementById('note-edit-body');
+      if (editBody) editBody.value = md;
+      NoteHistoryManager.pushSnapshot(md, true);
+      syncNoteDirtyAndSave(md);
     }
 
     function handleNoteEditorKeyDown(e) {
-      const ta = document.getElementById('note-edit-body');
-      if (!ta) return;
+      const rich = document.getElementById('note-rich-editor');
+      if (!rich) return;
 
-      // Slash command navigation
+      // Conflict-free Undo / Redo (Cmd/Ctrl+Z, Cmd/Ctrl+Shift+Z, Ctrl+Y)
+      if ((e.metaKey || e.ctrlKey) && !e.altKey) {
+        const k = e.key.toLowerCase();
+        if (k === 'z') {
+          e.preventDefault();
+          e.stopPropagation();
+          if (e.shiftKey) noteHistoryRedo();
+          else noteHistoryUndo();
+          return;
+        } else if (k === 'y') {
+          e.preventDefault();
+          e.stopPropagation();
+          noteHistoryRedo();
+          return;
+        } else if (k === 's') {
+          e.preventDefault();
+          e.stopPropagation();
+          saveNoteFromEditor(false);
+          return;
+        } else if (k === 'b') {
+          e.preventDefault();
+          execRichFormat('bold');
+          return;
+        } else if (k === 'i') {
+          e.preventDefault();
+          execRichFormat('italic');
+          return;
+        } else if (k === 'k' || k === 'e') {
+          e.preventDefault();
+          toggleRichInlineCode();
+          return;
+        }
+      }
+
       if (noteSlashMenuOpen) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
@@ -7214,124 +7880,112 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
       }
 
-      // Keyboard shortcuts: Cmd/Ctrl + S, B, I, K
-      if (e.metaKey || e.ctrlKey) {
-        const k = e.key.toLowerCase();
-        if (k === 's') {
-          e.preventDefault();
-          saveNoteFromEditor(false);
-          return;
-        } else if (k === 'b') {
-          e.preventDefault();
-          wrapNoteSelection('**', '**');
-          return;
-        } else if (k === 'i') {
-          e.preventDefault();
-          wrapNoteSelection('*', '*');
-          return;
-        } else if (k === 'k') {
-          e.preventDefault();
-          wrapNoteSelection('`', '`');
-          return;
-        }
-      }
-
-      // Tab / Shift+Tab indentation inside editor
       if (e.key === 'Tab') {
         e.preventDefault();
-        const start = ta.selectionStart;
-        const end = ta.selectionEnd;
-        if (e.shiftKey) {
-          const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
-          if (ta.value.slice(lineStart, lineStart + 2) === '  ') {
-            ta.setRangeText('', lineStart, lineStart + 2, 'end');
-            ta.selectionStart = Math.max(lineStart, start - 2);
-            ta.selectionEnd = Math.max(lineStart, end - 2);
-          }
-        } else {
-          ta.setRangeText('  ', start, end, 'end');
-        }
-        handleNoteLiveInput();
-        return;
-      }
-
-      // Smart Markdown list continuation on Enter
-      if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
-        const pos = ta.selectionStart;
-        const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
-        const currentLine = ta.value.slice(lineStart, pos);
-        const listMatch = currentLine.match(/^(\s*)(-\s+\[[ xX]\]\s+|[-*+]\s+|(\d+)\.\s+)(.*)$/);
-        if (listMatch) {
-          e.preventDefault();
-          const indent = listMatch[1] || '';
-          const marker = listMatch[2];
-          const num = listMatch[3];
-          const body = listMatch[4] || '';
-          if (body.trim() === '') {
-            // Empty list item: exit list cleanly
-            ta.setRangeText('\n', lineStart, pos, 'end');
-          } else {
-            const nextMarker = num ? `${parseInt(num, 10) + 1}. ` : marker.replace(/\[[xX]\]/, '[ ]');
-            ta.setRangeText(`\n${indent}${nextMarker}`, pos, ta.selectionEnd, 'end');
-          }
-          handleNoteLiveInput();
-        }
+        document.execCommand('insertText', false, '  ');
+        handleRichEditorInput();
       }
     }
 
-    function wrapNoteSelection(before, after) {
-      const ta = document.getElementById('note-edit-body');
-      if (!ta) return;
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
-      const selected = ta.value.slice(start, end) || 'text';
-      ta.focus();
-      ta.setRangeText(before + selected + after, start, end, 'select');
-      ta.selectionStart = start + before.length;
-      ta.selectionEnd = start + before.length + selected.length;
-      handleNoteLiveInput();
+    function execRichFormat(cmd) {
+      const rich = document.getElementById('note-rich-editor');
+      if (!rich) return;
+      rich.focus();
+      document.execCommand(cmd, false, null);
+      const md = htmlToMarkdown(rich);
+      const editBody = document.getElementById('note-edit-body');
+      if (editBody) editBody.value = md;
+      NoteHistoryManager.pushSnapshot(md, true);
+      syncNoteDirtyAndSave(md);
     }
 
-    function insertNoteLinePrefix(prefix) {
-      const ta = document.getElementById('note-edit-body');
-      if (!ta) return;
-      const start = ta.selectionStart;
-      const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
-      ta.focus();
-      ta.setRangeText(prefix, lineStart, lineStart, 'end');
-      ta.selectionStart = ta.selectionEnd = start + prefix.length;
-      handleNoteLiveInput();
+    function toggleRichInlineCode() {
+      const rich = document.getElementById('note-rich-editor');
+      if (!rich) return;
+      rich.focus();
+      const sel = window.getSelection();
+      if (!sel || sel.rangeCount === 0) return;
+      const range = sel.getRangeAt(0);
+      const parentCode = (sel.anchorNode.nodeType === 1 ? sel.anchorNode : sel.anchorNode.parentElement)?.closest('code.notion-inline-code');
+      if (parentCode) {
+        const txt = document.createTextNode(parentCode.textContent);
+        parentCode.replaceWith(txt);
+      } else {
+        const code = document.createElement('code');
+        code.className = 'notion-inline-code';
+        code.textContent = range.toString() || 'code';
+        range.deleteContents();
+        range.insertNode(code);
+      }
+      const md = htmlToMarkdown(rich);
+      const editBody = document.getElementById('note-edit-body');
+      if (editBody) editBody.value = md;
+      NoteHistoryManager.pushSnapshot(md, true);
+      syncNoteDirtyAndSave(md);
     }
 
-    function insertNoteSnippet(snippet) {
-      const ta = document.getElementById('note-edit-body');
-      if (!ta) return;
-      const start = ta.selectionStart;
-      const end = ta.selectionEnd;
-      ta.focus();
-      ta.setRangeText(snippet, start, end, 'end');
-      handleNoteLiveInput();
+    function applyRichBlock(tagName) {
+      const rich = document.getElementById('note-rich-editor');
+      if (!rich) return;
+      rich.focus();
+      document.execCommand('formatBlock', false, tagName);
+      const sel = window.getSelection();
+      const blk = (sel?.anchorNode?.nodeType === 1 ? sel.anchorNode : sel?.anchorNode?.parentElement)?.closest('h1, h2, h3, p');
+      if (blk) {
+        blk.className = `notion-${blk.tagName.toLowerCase()}`;
+      }
+      const md = htmlToMarkdown(rich);
+      const editBody = document.getElementById('note-edit-body');
+      if (editBody) editBody.value = md;
+      NoteHistoryManager.pushSnapshot(md, true);
+      syncNoteDirtyAndSave(md);
     }
 
-    function insertNoteTableTemplate() {
-      const tpl = `\n| Architectural Trade-Off | Operational Decision Rule | Production Bound / Sizing |\n|:---|:---|:---|\n| Ordering vs. HOL Blocking | QUIC multiplexing when independent | Buffer sizing = BDP (RTT × BW) |\n| Connection Lifecycle | Pre-warm TLS connection pool | Ephemeral port floor (65,535) |\n\n`;
-      insertNoteSnippet(tpl);
+    function applyRichList(listType) {
+      const rich = document.getElementById('note-rich-editor');
+      if (!rich) return;
+      rich.focus();
+      document.execCommand(listType === 'ol' ? 'insertOrderedList' : 'insertUnorderedList', false, null);
+      rich.querySelectorAll('ul:not(.notion-task-list)').forEach(u => u.classList.add('notion-bullet-list'));
+      rich.querySelectorAll('ol').forEach(o => o.classList.add('notion-ordered-list'));
+      const md = htmlToMarkdown(rich);
+      const editBody = document.getElementById('note-edit-body');
+      if (editBody) editBody.value = md;
+      NoteHistoryManager.pushSnapshot(md, true);
+      syncNoteDirtyAndSave(md);
     }
 
-    function insertNoteCodeBlockTemplate() {
-      const tpl = `\n\`\`\`text\n+--------------------+     1 RTT Handshake     +--------------------+\n| Client Application | ----------------------> | Upstream Load Bal. |\n+--------------------+ <---------------------- +--------------------+\n\`\`\`\n\n`;
-      insertNoteSnippet(tpl);
-    }
+    function insertRichBlockTemplate(kind) {
+      const rich = document.getElementById('note-rich-editor');
+      if (!rich) return;
+      rich.focus();
+      let mdSnippet = '';
+      if (kind === 'todo') mdSnippet = '- [ ] Action item\n';
+      else if (kind === 'quote') mdSnippet = '> Key architectural insight\n';
+      else if (kind === 'callout') mdSnippet = '> [!INVARIANT]\n> Non-negotiable system bound.\n';
+      else if (kind === 'mermaid') mdSnippet = '```mermaid\nflowchart LR\n  A[Client] --> B{Load Balancer}\n  B --> C[Service A]\n```\n';
+      else if (kind === 'code') mdSnippet = '```python\ndef handle_request(req):\n    return {"status": "ok"}\n```\n';
+      else if (kind === 'table') mdSnippet = '| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads | Tail SLA < 15ms |\n';
+      else if (kind === 'divider') mdSnippet = '\n---\n';
+      else if (kind === 'template') mdSnippet = '## 1. Core Mechanism & Constraints\n- Bottleneck:\n\n## 2. Core Architectural Invariant\n> [!INVARIANT]\n> Non-negotiable invariant.\n';
 
-    function insertNoteSynthesisTemplate() {
-      const tpl = `\n## 1. Core Mechanism & Constraints\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Core Architectural Invariant\n> [!INVARIANT]\n> Non-negotiable physical or mathematical invariant.\n\n## 3. Production Trade-Off & Sizing Matrix\n| Architectural Trade-Off | Decision Rule | Production Sizing Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads with bounded staleness | Tail SLA < 15ms @ p99 |\n\n`;
-      insertNoteSnippet(tpl);
+      const currentMd = htmlToMarkdown(rich).trim();
+      const nextMd = (currentMd ? currentMd + '\n\n' : '') + mdSnippet;
+      rich.innerHTML = markdownToRichEditorHtml(nextMd);
+      hydrateMermaidDiagrams(rich);
+      const editBody = document.getElementById('note-edit-body');
+      if (editBody) editBody.value = nextMd;
+      NoteHistoryManager.pushSnapshot(nextMd, true);
+      syncNoteDirtyAndSave(nextMd);
+      placeCaretStart(rich.lastElementChild || rich);
     }
 
     async function saveNoteFromEditor(isAuto = false) {
       if (noteAutoSaveTimer) { clearTimeout(noteAutoSaveTimer); noteAutoSaveTimer = null; }
+      const rich = document.getElementById('note-rich-editor');
       const editBody = document.getElementById('note-edit-body');
-      const content = editBody ? editBody.value : '';
+      const content = (currentNoteMode === 'edit' && rich) ? htmlToMarkdown(rich) : (editBody ? editBody.value : '');
+      if (editBody) editBody.value = content;
       if (!activeNoteRelPath) return;
       updateNoteSaveStatus('saving');
       try {
@@ -7347,6 +8001,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const viewBody = document.getElementById('note-view-body');
           if (viewBody && currentNoteMode === 'view') {
             viewBody.innerHTML = content.trim() ? renderMarkdown(content) : NOTE_EMPTY_HTML;
+            hydrateMermaidDiagrams(viewBody);
           }
           if (!isAuto) {
             showToast('Note saved to project repository');
