@@ -1,4 +1,4 @@
-﻿# System Design Studio — Universal Windows PowerShell Updater (v4.2.0)
+﻿# System Design Studio — Universal Windows PowerShell Updater (v4.2.1)
 # Updates agent skills and CLI to latest release while strictly preserving:
 # 1. User learning progress (manifest.json, CURSOR.md, CURRICULUM.md, DECISIONS.md)
 # 2. Existing interactive lesson artifacts (lessons/*.html, lessons/*.md)

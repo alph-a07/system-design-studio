@@ -5,7 +5,7 @@ tools: [read_file, write_file, edit_file, run_command]
 subagent: true
 mainAgent: false
 metadata:
-  version: 4.2.0
+  version: 4.2.1
   author: Jeel Patel
   role: Adversarial Systems Review Auditor
 ---
@@ -73,8 +73,8 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
 
 When auditing a draft note payload from `sds-notes-crafter`, evaluate these 6 Hard Notes Checks:
 
-1. **Topic Context & Technical Accuracy**:
-   - Cross-check against `.system-design/lessons/.generated-<slug>.json` and `.system-design/CURRICULUM.md`. Verify numbers, formulas, and failure boundaries match the topic's mechanics without unhedged absolutes.
+1. **Topic Context, Key Glossaries & Technical Accuracy**:
+   - Cross-check against `.system-design/lessons/.generated-<slug>.json` and `.system-design/CURRICULUM.md`. Verify numbers, formulas, failure boundaries, and key glossary terms (`glossary_terms` / `future_safe_anchors`) match the topic's mechanics without unhedged absolutes.
 2. **User Context Completeness**:
    - Verify the draft integrates the user's **self-evaluation answers**, **saved highlights** (`.system-design/highlights/`), **existing manual notes** (no user-written content dropped), and **additional post-`sds-teach` discussions**.
 3. **Adaptiveness Continuity**:

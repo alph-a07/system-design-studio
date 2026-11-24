@@ -1,6 +1,6 @@
 {
   "name": "system-design-studio",
-  "version": "4.2.0",
+  "version": "4.2.1",
   "description": "Interactive, dashboard-first system design studio running inside a project as a dedicated learning instance. Real-time progress tracking, interactive HTML failure simulators, revision mode, living cursor state retention, and ADR trade-off defense.",
   "author": {
     "name": "Jeel Patel",

@@ -5,7 +5,7 @@ tools: [read_file]
 subagent: true
 mainAgent: false
 metadata:
-  version: 4.2.0
+  version: 4.2.1
   author: Jeel Patel
   role: Senior Systems Sounding Board
 ---

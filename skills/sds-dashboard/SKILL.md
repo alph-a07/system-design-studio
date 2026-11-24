@@ -3,7 +3,7 @@ name: sds-dashboard
 description: Launch or view the interactive curriculum studio workbench, real-time progress tracker, revision mode, and artifact studio on localhost in sync with Git.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.2.0
+  version: 4.2.1
 ---
 
 # /sds-dashboard

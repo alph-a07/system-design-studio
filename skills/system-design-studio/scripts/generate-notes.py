@@ -276,6 +276,111 @@ def format_highlights_markdown_section(highlights):
     lines.append("")
     return "\n".join(lines)
 
+def _strip_html_tags(raw):
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", str(raw or ""))).strip()
+
+def extract_lesson_glossary_terms(instance_dir, topic_id, topic_info=None):
+    """Extract key glossary terms from the topic's generated lesson JSON or HTML artifact."""
+    if not instance_dir or not os.path.isdir(instance_dir):
+        return []
+    base_dir = os.path.dirname(os.path.abspath(instance_dir))
+    raw_slug = slugify(topic_id.replace("topic.", ""))
+    cand_files = [
+        os.path.join(instance_dir, "lessons", f".generated-{raw_slug}.json"),
+        os.path.join(instance_dir, "lessons", f"{raw_slug}.json"),
+        os.path.join(instance_dir, "lessons", f"{raw_slug}.html"),
+        os.path.join(base_dir, "lessons", f"{raw_slug}.html"),
+    ]
+    if topic_info and topic_info.get("lessonArtifact"):
+        art_rel = topic_info["lessonArtifact"].lstrip("/")
+        cand_files.insert(0, os.path.join(instance_dir, art_rel))
+        cand_files.insert(1, os.path.join(base_dir, art_rel))
+
+    terms = []
+    seen = set()
+
+    def add_term(title, badge, body):
+        clean_title = _strip_html_tags(title).replace("💡", "").replace("Jargon Unpacked:", "").strip()
+        clean_badge = _strip_html_tags(badge)
+        clean_body = _strip_html_tags(body)
+        if clean_title and clean_body and clean_title.lower() not in seen:
+            seen.add(clean_title.lower())
+            terms.append({"term": clean_title, "badge": clean_badge, "definition": clean_body})
+
+    def scan_html_blob(blob):
+        if not blob:
+            return
+        # Match inline tooltip popovers
+        for m in re.finditer(
+            r'<span[^>]*class="jargon-popover-title"[^>]*>(.*?)</span>.*?'
+            r'<span[^>]*class="jargon-popover-badge"[^>]*>(.*?)</span>.*?'
+            r'<div[^>]*class="jargon-popover-body"[^>]*>(.*?)</div>',
+            blob,
+            flags=re.DOTALL | re.IGNORECASE,
+        ):
+            add_term(m.group(1), m.group(2), m.group(3))
+        for m in re.finditer(
+            r'<span[^>]*class="jargon-popover-title"[^>]*>(.*?)</span>.*?'
+            r'<span[^>]*class="jargon-popover-badge"[^>]*>(.*?)</span>.*?'
+            r'<span[^>]*class="jargon-popover-body"[^>]*>(.*?)</span>',
+            blob,
+            flags=re.DOTALL | re.IGNORECASE,
+        ):
+            add_term(m.group(1), m.group(2), m.group(3))
+        # Match standalone jargon cards
+        for m in re.finditer(
+            r'<[^>]*class="jargon-title"[^>]*>(.*?)</[^>]+>.*?'
+            r'<[^>]*class="jargon-pill"[^>]*>(.*?)</[^>]+>.*?'
+            r'<div[^>]*class="jargon-body"[^>]*>(.*?)</div>',
+            blob,
+            flags=re.DOTALL | re.IGNORECASE,
+        ):
+            add_term(m.group(1), m.group(2), m.group(3))
+
+    for cf in cand_files:
+        if not os.path.isfile(cf):
+            continue
+        try:
+            with open(cf, "r", encoding="utf-8") as f:
+                raw = f.read()
+            if cf.endswith(".json"):
+                data = json.loads(raw)
+                for node in data.get("nodes", []):
+                    if isinstance(node, dict):
+                        if node.get("type") == "jargon":
+                            add_term(node.get("term") or node.get("title", ""), node.get("badge", ""), node.get("definition") or node.get("body", ""))
+                        for k in ("html", "text", "content", "explanation"):
+                            if isinstance(node.get(k), str) and "jargon-" in node[k]:
+                                scan_html_blob(node[k])
+                for sec in data.get("sections", []):
+                    if isinstance(sec, dict):
+                        for k in ("html", "text", "content"):
+                            if isinstance(sec.get(k), str) and "jargon-" in sec[k]:
+                                scan_html_blob(sec[k])
+            else:
+                scan_html_blob(raw)
+        except Exception:
+            pass
+    return terms
+
+def format_glossary_markdown_section(glossary_terms):
+    """Format extracted key glossary terms as a concise quick-reference section."""
+    if not glossary_terms:
+        return ""
+    lines = [
+        "## Key Glossary",
+        "",
+    ]
+    for g in glossary_terms:
+        term = g.get("term", "").strip()
+        badge = g.get("badge", "").strip()
+        defn = g.get("definition", "").strip()
+        badge_str = f" ({badge})" if badge else ""
+        if term and defn:
+            lines.append(f"- **{term}**{badge_str}: {defn}")
+    lines.append("")
+    return "\n".join(lines)
+
 def get_clean_tier_slug(tier):
     tier_name = tier.get("name", "")
     clean_name = re.sub(r'^tier\s*\d+\s*[:—\-]?\s*', '', tier_name, flags=re.IGNORECASE).strip()
@@ -561,6 +666,14 @@ def main():
     # Fallback to domain synthesis if no AST available
     if not note_body:
         note_body = build_note_markdown(tier, cluster, topic, args.evidence, args.discussion_summary, args.hypothesis, today_str)
+
+    # Incorporate key glossary terms from lesson context (unless already rendered by agentic JSON)
+    if "## Key Glossary" not in note_body:
+        glossary_terms = extract_lesson_glossary_terms(instance_dir, args.topic_id, topic)
+        if glossary_terms:
+            gl_section = format_glossary_markdown_section(glossary_terms)
+            if gl_section:
+                note_body = note_body.rstrip() + "\n\n" + gl_section
 
     # Incorporate learner highlights persisted on disk for this topic (unless already rendered by agentic JSON)
     if "## Highlighted Passages" not in note_body:

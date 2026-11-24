@@ -4,7 +4,7 @@ description: Switch active project learning instance context to another project 
 argument-hint: "<project-name>"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.2.0
+  version: 4.2.1
 ---
 
 # /sds-open

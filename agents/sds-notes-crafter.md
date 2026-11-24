@@ -5,7 +5,7 @@ tools: [read_file, write_file, edit_file, run_command]
 subagent: true
 mainAgent: false
 metadata:
-  version: 4.2.0
+  version: 4.2.1
   author: Jeel Patel
   role: Contextual Notes Crafter
 ---
@@ -26,6 +26,7 @@ The coordinator provides a contextual bundle (and you MUST also inspect the corr
 | Signal | Where to Read / Source | How to Use |
 |---|---|---|
 | **Topic & Lesson Context** | `.system-design/lessons/.generated-<slug>.json`, `.system-design/CURRICULUM.md`, `.system-design/CURSOR.md` | Ground exact numbers, formulas, mechanisms, and architectural boundaries without copying the full essay. |
+| **Key Glossaries** | Inline `.jargon-tooltip-wrapper` & `.jargon-card` definitions inside `.system-design/lessons/.generated-<slug>.json` / `<slug>.html` | Pull key domain terms and concise definitions into `glossary_terms` / `future_safe_anchors` so re-reads never require reopening the lesson's Glossary Drawer. |
 | **Self-Evaluation Answers** | Passed in coordinator prompt | Preserve the exact trade-offs, invariants, and edge cases the user reasoned through—expressed as direct engineering truth, not dialogue recap. |
 | **User Highlights** | `.system-design/highlights/` (matching `<slug>` or topic's notes) | Weave highlighted passages into the relevant sections and/or `highlighted_passages`. **Colors (`yellow`, `emerald`, `cyan`) are purely decorative—NEVER assign semantic meanings like "Key Concept" or "Invariant" to colors.** |
 | **User's Manual Notes** | Existing `.md` file under `notes/` for this topic (if any) | Preserve every user-written insight, checklist item, diagram, or phrasing! Merge and elevate them cleanly rather than overwriting or discarding them. |
@@ -84,6 +85,13 @@ Write a valid JSON object matching `NoteDocument` schema:
   ],
   "future_safe_anchors": [
     "**SO_RCVBUF / SO_SNDBUF**: Per-socket OS kernel memory queues holding inbound/outbound bytes before application read() or wire transmit."
+  ],
+  "glossary_terms": [
+    {
+      "term": "Head-of-Line (HOL) Blocking",
+      "badge": "Transport Bottleneck",
+      "definition": "A stall where a single lost packet prevents all subsequent packets in the same stream from being delivered to the application until retransmission arrives."
+    }
   ],
   "highlighted_passages": [
     { "text": "Exact highlighted passage...", "paneId": "pane-section-2" }

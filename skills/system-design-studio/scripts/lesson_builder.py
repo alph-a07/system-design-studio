@@ -1638,6 +1638,7 @@ class NoteDocument:
         takeaways: Optional[List[str]] = None,
         future_safe_anchors: Optional[List[str]] = None,
         highlighted_passages: Optional[List[Any]] = None,
+        glossary_terms: Optional[List[Dict[str, str]]] = None,
     ):
         self.topic_id = topic_id
         self.title = title
@@ -1653,6 +1654,7 @@ class NoteDocument:
         self.takeaways = takeaways or []
         self.future_safe_anchors = future_safe_anchors or []
         self.highlighted_passages = highlighted_passages or []
+        self.glossary_terms = glossary_terms or []
 
     def add_rule(self, tradeoff: str, decision_rule: str, production_bound: str) -> "NoteDocument":
         self.rules_of_thumb.append({
@@ -1697,6 +1699,7 @@ class NoteDocument:
             "takeaways": self.takeaways,
             "future_safe_anchors": self.future_safe_anchors,
             "highlighted_passages": self.highlighted_passages,
+            "glossary_terms": self.glossary_terms,
         }
 
     @classmethod
@@ -1716,6 +1719,7 @@ class NoteDocument:
             takeaways=data.get("takeaways", []),
             future_safe_anchors=data.get("future_safe_anchors") or data.get("futureSafeAnchors", []),
             highlighted_passages=data.get("highlighted_passages") or data.get("highlightedPassages", []),
+            glossary_terms=data.get("glossary_terms") or data.get("glossaryTerms", []),
         )
 
     def save(self, path: str):
@@ -1794,6 +1798,18 @@ class NoteDocument:
             lines.append("## Quick Refresh Anchors")
             for anchor in self.future_safe_anchors:
                 lines.append(f"- {anchor}")
+            lines.append("")
+
+        if self.glossary_terms:
+            lines.append("## Key Glossary")
+            for g in self.glossary_terms:
+                if isinstance(g, dict):
+                    term = str(g.get("term") or g.get("title") or "").strip()
+                    badge = str(g.get("badge") or "").strip()
+                    defn = re.sub(r"\s+", " ", str(g.get("definition") or g.get("body") or g.get("desc") or "")).strip()
+                    badge_str = f" ({badge})" if badge else ""
+                    if term and defn:
+                        lines.append(f"- **{term}**{badge_str}: {defn}")
             lines.append("")
 
         if self.highlighted_passages:

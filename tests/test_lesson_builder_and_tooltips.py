@@ -556,14 +556,46 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
                 {"tradeoff": "Order vs Freshness", "decision_rule": "Prefer QUIC for multiplexed RPCs", "production_bound": "BDP = RTT * Bandwidth"}
             ],
             "future_safe_anchors": ["**SO_RCVBUF**: Kernel memory queue staging inbound segments before read()."],
+            "glossary_terms": [{"term": "Head-of-Line (HOL) Blocking", "badge": "Transport Bottleneck", "definition": "Stall caused by in-order delivery waiting on a lost segment."}],
             "highlighted_passages": [{"text": "TCP has no concept of message boundaries.", "paneId": "pane-section-2"}],
         }
         md = NoteDocument.from_dict(payload).to_markdown()
         self.assertIn("## Quick Refresh Anchors", md)
         self.assertIn("**SO_RCVBUF**", md)
+        self.assertIn("## Key Glossary", md)
+        self.assertIn("**Head-of-Line (HOL) Blocking** (Transport Bottleneck):", md)
         self.assertIn("## Highlighted Passages", md)
         self.assertIn("**[Stage 2]**", md)
         self.assertNotIn("Key Concept", md)
+
+        # Verify generate-notes.py extracts key glossaries from lesson JSON/HTML
+        import importlib.util
+        import tempfile
+        gen_path = os.path.join(SCRIPTS_DIR, "generate-notes.py")
+        spec = importlib.util.spec_from_file_location("generate_notes_gl", gen_path)
+        gen_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gen_mod)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            inst_dir = os.path.join(tmpdir, ".system-design")
+            lessons_dir = os.path.join(inst_dir, "lessons")
+            os.makedirs(lessons_dir, exist_ok=True)
+            lesson_json = os.path.join(lessons_dir, ".generated-0-1-tcp-vs-udp.json")
+            with open(lesson_json, "w", encoding="utf-8") as lf:
+                json.dump({
+                    "nodes": [
+                        {
+                            "type": "paragraph",
+                            "html": '<span class="jargon-tooltip-wrapper"><span class="jargon-inline-cue">RTT</span><span class="jargon-popover-card"><span class="jargon-popover-header"><span class="jargon-popover-title">💡 Round-Trip Time (RTT)</span><span class="jargon-popover-badge">Network Metric</span></span><span class="jargon-popover-body">Time for a packet to travel to destination and back.</span></span></span>'
+                        }
+                    ]
+                }, lf)
+            terms = gen_mod.extract_lesson_glossary_terms(inst_dir, "topic.0.1.tcp-vs-udp")
+            self.assertEqual(len(terms), 1)
+            self.assertEqual(terms[0]["term"], "Round-Trip Time (RTT)")
+            gl_md = gen_mod.format_glossary_markdown_section(terms)
+            self.assertIn("## Key Glossary", gl_md)
+            self.assertIn("Round-Trip Time (RTT)", gl_md)
 
 
 if __name__ == "__main__":

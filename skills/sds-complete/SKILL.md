@@ -4,7 +4,7 @@ description: Complete topic sign-off with self evaluation, record decision (ADR)
 argument-hint: "[evidence]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.2.0
+  version: 4.2.1
 ---
 
 # /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis
@@ -19,7 +19,7 @@ Verify that the learner has achieved closure on the topic trade-offs through sel
 ## Agentic Notes Pipeline (Crafter ➔ Auditor ➔ Deterministic Markdown Render)
 
 When `autoGenerateNotes` is enabled, notes are authored agentically rather than mechanically:
-1. **`sds-notes-crafter` (Subagent)**: Synthesizes the topic context, the user's self-evaluation answers, saved highlights (`.system-design/highlights/`), any existing manual notes in `notes/`, all additional discussions since `/sds-teach`, and prior adaptiveness history (`.system-design/notes-adaptiveness.json`). Writes `.system-design/.generated-note-<slug>.json` and appends an adaptiveness decision entry to `.system-design/notes-adaptiveness.json`.
+1. **`sds-notes-crafter` (Subagent)**: Synthesizes the topic context, the lesson's key glossaries, the user's self-evaluation answers, saved highlights (`.system-design/highlights/`), any existing manual notes in `notes/`, all additional discussions since `/sds-teach`, and prior adaptiveness history (`.system-design/notes-adaptiveness.json`). Writes `.system-design/.generated-note-<slug>.json` and appends an adaptiveness decision entry to `.system-design/notes-adaptiveness.json`.
 2. **`sds-pedagogy-auditor` (Notes Audit Mode)**: Audits `.system-design/.generated-note-<slug>.json` against topic context, user context, `.system-design/notes-adaptiveness.json`, zero learning-process leakage, decorative-only highlight colors, and future-safety (ensuring effortless re-reads months later).
 3. **`generate-notes.py` (Deterministic Renderer)**: Once `sds-pedagogy-auditor` returns `APPROVED`, `advance-cursor.py --notes-data-file .system-design/.generated-note-<slug>.json` deterministically compiles the signed-off JSON into clean Markdown under `notes/`.
 
