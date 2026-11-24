@@ -3433,6 +3433,38 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       background-color: transparent !important;
     }
 
+    /* Suppress selection on inline tooltip cues and popovers to prevent selection leak artifacts */
+    .jargon-tooltip-wrapper,
+    .jargon-tooltip-wrapper *,
+    .jargon-inline-cue,
+    .jargon-inline-cue *,
+    .jargon-pill-cue,
+    .jargon-pill-cue *,
+    .jargon-popover-card,
+    .jargon-popover-card *,
+    .sds-hl-del-btn,
+    .sds-hl-del-btn * {
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
+    }
+    .jargon-tooltip-wrapper::selection,
+    .jargon-tooltip-wrapper *::selection,
+    .jargon-inline-cue::selection,
+    .jargon-inline-cue *::selection,
+    .jargon-pill-cue::selection,
+    .jargon-pill-cue *::selection,
+    .jargon-popover-card::selection,
+    .jargon-popover-card *::selection,
+    .sds-hl-del-btn::selection,
+    .sds-hl-del-btn *::selection {
+      background-color: transparent !important;
+      background: transparent !important;
+      color: inherit !important;
+      -webkit-text-fill-color: inherit !important;
+    }
+
     /* MARKDOWN & ADR STYLES FOR NOTES, LESSONS & DECISIONS */
     .md-rendered p,
     .md-rendered h1,
@@ -5721,6 +5753,39 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         html:not(.dark) footer::selection {
           background-color: transparent !important;
         }
+
+        /* Suppress selection on inline tooltip cues and popovers to prevent selection leak artifacts */
+        .jargon-tooltip-wrapper,
+        .jargon-tooltip-wrapper *,
+        .jargon-inline-cue,
+        .jargon-inline-cue *,
+        .jargon-pill-cue,
+        .jargon-pill-cue *,
+        .jargon-popover-card,
+        .jargon-popover-card *,
+        .sds-hl-del-btn,
+        .sds-hl-del-btn * {
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          user-select: none !important;
+        }
+        .jargon-tooltip-wrapper::selection,
+        .jargon-tooltip-wrapper *::selection,
+        .jargon-inline-cue::selection,
+        .jargon-inline-cue *::selection,
+        .jargon-pill-cue::selection,
+        .jargon-pill-cue *::selection,
+        .jargon-popover-card::selection,
+        .jargon-popover-card *::selection,
+        .sds-hl-del-btn::selection,
+        .sds-hl-del-btn *::selection {
+          background-color: transparent !important;
+          background: transparent !important;
+          color: inherit !important;
+          -webkit-text-fill-color: inherit !important;
+        }
+
         p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
         .notion-p, .notion-h1, .notion-h2, .notion-h3 {
           width: fit-content !important;
@@ -5849,8 +5914,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
               const p = node.parentElement;
               if (!p) return NodeFilter.FILTER_REJECT;
-              // Skip script, style, inputs, and popover cards (tooltips)
-              if (p.closest('.jargon-popover-card, script, style, textarea, input, select, noscript')) {
+              // Skip script, style, inputs, popover cards, and delete buttons
+              if (p.closest('.jargon-popover-card, .sds-hl-del-btn, script, style, textarea, input, select, noscript')) {
                 return NodeFilter.FILTER_REJECT;
               }
               return NodeFilter.FILTER_ACCEPT;
@@ -6077,7 +6142,38 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (iframe && iframe.contentWindow) {
         iframe.contentWindow.deleteSingleHighlight = deleteSingleHighlight;
         iframe.contentWindow.clearActiveHighlights = clearActiveHighlights;
+        iframe.contentWindow.clearAllSelectionArtifacts = clearAllSelectionArtifacts;
       }
+    }
+
+    function clearAllSelectionArtifacts() {
+      const clearInWindow = (win) => {
+        if (!win) return;
+        try {
+          const sel = win.getSelection ? win.getSelection() : null;
+          if (sel) {
+            if (typeof sel.removeAllRanges === 'function') sel.removeAllRanges();
+            if (typeof sel.empty === 'function') sel.empty();
+          }
+        } catch (e) {}
+        try {
+          if (win.document && typeof win.document.getSelection === 'function') {
+            const docSel = win.document.getSelection();
+            if (docSel && typeof docSel.removeAllRanges === 'function') docSel.removeAllRanges();
+          }
+        } catch (e) {}
+      };
+
+      clearInWindow(window);
+      const iframes = [
+        document.getElementById('lesson-modal-iframe'),
+        document.getElementById('workbench-iframe')
+      ];
+      iframes.forEach(iframe => {
+        if (iframe && iframe.contentWindow) {
+          clearInWindow(iframe.contentWindow);
+        }
+      });
     }
 
     async function loadAndApplyHighlights(artifactPath, container, surfaceHint = 'lesson') {
@@ -6173,9 +6269,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const paneEl = startEl ? startEl.closest('.section-pane, [id^="pane-"]') : null;
       paneId = paneEl ? paneEl.id : null;
 
-      // Extract cleaned text without tooltips, scripts, etc.
+      // Extract cleaned text without tooltips, scripts, delete buttons, etc.
       const cloned = range.cloneContents();
-      cloned.querySelectorAll('.jargon-popover-card, script, style').forEach(el => el.remove());
+      cloned.querySelectorAll('.jargon-popover-card, .sds-hl-del-btn, script, style').forEach(el => el.remove());
       selectedText = (cloned.textContent || selObj.toString()).replace(/[\r\n\t]+/g, ' ').replace(/[\s\u00A0]+/g, ' ').trim();
 
       if (!selectedText) {
@@ -6190,7 +6286,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         preRange.selectNodeContents(rootContainer);
         preRange.setEnd(range.startContainer, range.startOffset);
         const preCloned = preRange.cloneContents();
-        preCloned.querySelectorAll('.jargon-popover-card, script, style').forEach(el => el.remove());
+        preCloned.querySelectorAll('.jargon-popover-card, .sds-hl-del-btn, script, style').forEach(el => el.remove());
         const preText = (preCloned.textContent || '').replace(/[\r\n\t]+/g, ' ').replace(/[\s\u00A0]+/g, ' ');
         prefix = preText.slice(-40);
 
@@ -6198,7 +6294,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         postRange.selectNodeContents(rootContainer);
         postRange.setStart(range.endContainer, range.endOffset);
         const postCloned = postRange.cloneContents();
-        postCloned.querySelectorAll('.jargon-popover-card, script, style').forEach(el => el.remove());
+        postCloned.querySelectorAll('.jargon-popover-card, .sds-hl-del-btn, script, style').forEach(el => el.remove());
         const postText = (postCloned.textContent || '').replace(/[\r\n\t]+/g, ' ').replace(/[\s\u00A0]+/g, ' ');
         suffix = postText.slice(0, 40);
       } catch (e) {
@@ -6215,6 +6311,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         paneId: paneId
       };
 
+      // Clear selection BEFORE mutating DOM so browser does not orphan active selection rects
+      clearAllSelectionArtifacts();
+
       try {
         const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}`, {
           method: 'POST',
@@ -6229,9 +6328,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (targetContainer) {
             renderHighlightsInContainer(targetContainer, [hlObj], artifactPath, surfaceHint);
           }
-          if (selObj) {
-            selObj.removeAllRanges();
-          }
+          // Thoroughly clear selection AFTER DOM mutation
+          clearAllSelectionArtifacts();
           showToast(`Highlighted in ${color.toUpperCase()}`);
         } else {
           showToast('Failed to save highlight');
@@ -6243,6 +6341,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     async function deleteSingleHighlight(artifactPath, hlId, markElement, surfaceHint = null) {
       if (!artifactPath || !hlId) return;
+      clearAllSelectionArtifacts();
       try {
         const res = await fetch(`/api/highlights?artifact=${encodeURIComponent(artifactPath)}&id=${encodeURIComponent(hlId)}`, {
           method: 'DELETE'
@@ -6268,6 +6367,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           unwrapMarks(document);
           const iframe = document.getElementById('lesson-modal-iframe');
           if (iframe && iframe.contentDocument) unwrapMarks(iframe.contentDocument);
+          clearAllSelectionArtifacts();
 
           if (surfaceHint && activeHighlightsCache[surfaceHint]) {
             activeHighlightsCache[surfaceHint].list = (activeHighlightsCache[surfaceHint].list || []).filter(h => h.id !== hlId);
@@ -6293,6 +6393,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     async function clearActiveHighlights(surfaceHint = null) {
       let artifactPath = '';
       let targetContainer = null;
+      clearAllSelectionArtifacts();
 
       const adrModal = document.getElementById('adr-modal');
       const noteModal = document.getElementById('note-modal');
@@ -6349,6 +6450,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           clearMarks(document.getElementById('adr-modal-content'));
           const iframe = document.getElementById('lesson-modal-iframe');
           if (iframe && iframe.contentDocument) clearMarks(iframe.contentDocument.body);
+          clearAllSelectionArtifacts();
 
           if (surfaceHint && activeHighlightsCache[surfaceHint]) {
             activeHighlightsCache[surfaceHint].list = [];
@@ -6366,6 +6468,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     // Attach functions globally so iframe click handlers never fail
     window.deleteSingleHighlight = deleteSingleHighlight;
     window.clearActiveHighlights = clearActiveHighlights;
+    window.clearAllSelectionArtifacts = clearAllSelectionArtifacts;
 
     // Dynamic Notes Resolution (Fixes 404 Bug)
     async function openTopicNote(clusterId, topicId, topicTitle) {

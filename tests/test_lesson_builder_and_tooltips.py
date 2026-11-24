@@ -422,6 +422,31 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertIn('rootDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`)', code)
         self.assertIn('sds-hl-del-btn', code)
 
+    def test_tooltip_selection_suppression_and_clean_drop(self):
+        """Verify tooltip cues and popover cards strictly suppress selection backgrounds and clean drops."""
+        template_path = os.path.join(REPO_ROOT, "skills", "system-design-studio", "resources", "lesson-template.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            tmpl = f.read()
+
+        dashboard_path = os.path.join(SCRIPTS_DIR, "serve-dashboard.py")
+        with open(dashboard_path, "r", encoding="utf-8") as f:
+            dash = f.read()
+
+        # Invariant 1: Both template and dashboard suppress selection on tooltip cues and wrappers
+        for source, name in [(tmpl, "lesson-template.html"), (dash, "serve-dashboard.py")]:
+            self.assertIn(".jargon-tooltip-wrapper::selection", source, f"Missing tooltip selection suppression in {name}")
+            self.assertIn(".jargon-inline-cue::selection", source, f"Missing inline cue selection suppression in {name}")
+            self.assertIn(".jargon-popover-card::selection", source, f"Missing popover card selection suppression in {name}")
+            self.assertIn("user-select: none !important;", source, f"Missing user-select none !important in {name}")
+
+        # Invariant 2: Universal clearAllSelectionArtifacts function in dashboard
+        self.assertIn("function clearAllSelectionArtifacts()", dash)
+        self.assertIn("clearAllSelectionArtifacts();", dash)
+        self.assertIn("iframe.contentWindow.clearAllSelectionArtifacts = clearAllSelectionArtifacts;", dash)
+
+        # Invariant 3: Zero overflowY = 'auto' on tooltip cards to prevent scrollbar tracks
+        self.assertNotIn("card.style.overflowY = 'auto'", tmpl)
+
 
 if __name__ == "__main__":
     unittest.main()

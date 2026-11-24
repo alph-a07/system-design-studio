@@ -79,6 +79,39 @@
     html:not(.dark) footer::selection {
       background-color: transparent !important;
     }
+
+    /* Suppress selection on inline tooltip cues and popovers to prevent selection leak artifacts */
+    .jargon-tooltip-wrapper,
+    .jargon-tooltip-wrapper *,
+    .jargon-inline-cue,
+    .jargon-inline-cue *,
+    .jargon-pill-cue,
+    .jargon-pill-cue *,
+    .jargon-popover-card,
+    .jargon-popover-card *,
+    .sds-hl-del-btn,
+    .sds-hl-del-btn * {
+      -webkit-user-select: none !important;
+      -moz-user-select: none !important;
+      -ms-user-select: none !important;
+      user-select: none !important;
+    }
+    .jargon-tooltip-wrapper::selection,
+    .jargon-tooltip-wrapper *::selection,
+    .jargon-inline-cue::selection,
+    .jargon-inline-cue *::selection,
+    .jargon-pill-cue::selection,
+    .jargon-pill-cue *::selection,
+    .jargon-popover-card::selection,
+    .jargon-popover-card *::selection,
+    .sds-hl-del-btn::selection,
+    .sds-hl-del-btn *::selection {
+      background-color: transparent !important;
+      background: transparent !important;
+      color: inherit !important;
+      -webkit-text-fill-color: inherit !important;
+    }
+
     p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
     .notion-p, .notion-h1, .notion-h2, .notion-h3 {
       width: fit-content;
@@ -878,12 +911,10 @@
       card.style.right = 'auto';
       card.style.transform = 'none';
 
-      // Zero vertical scrollbar track/thumb guarantee
-      if (card.scrollHeight > window.innerHeight - 48) {
-        card.style.overflowY = 'auto';
-      } else {
-        card.style.overflow = 'hidden';
-      }
+      // Zero vertical scrollbar track/thumb guarantee: clean, strictly bounded cards
+      card.style.overflow = 'hidden';
+      card.style.overflowY = 'hidden';
+      card.style.scrollbarWidth = 'none';
 
       if (wasHidden) {
         card.style.display = '';
@@ -904,12 +935,29 @@
       }
     }
 
-    // Reposition popover dynamically on hover
+    // Reposition popover dynamically on hover and capture phase
     document.addEventListener('mouseover', (e) => {
       const wrapper = e.target.closest('.jargon-tooltip-wrapper');
       if (wrapper) {
         positionJargonPopover(wrapper);
       }
+    });
+
+    document.addEventListener('mouseenter', (e) => {
+      const wrapper = (e.target && e.target.closest) ? e.target.closest('.jargon-tooltip-wrapper') : null;
+      if (wrapper) {
+        positionJargonPopover(wrapper);
+      }
+    }, true);
+
+    // Cleanly drop selection on collapsed pointerup
+    document.addEventListener('pointerup', () => {
+      try {
+        const sel = window.getSelection();
+        if (sel && sel.isCollapsed && sel.rangeCount > 0) {
+          sel.removeAllRanges();
+        }
+      } catch (e) {}
     });
 
     document.addEventListener('click', (e) => {
