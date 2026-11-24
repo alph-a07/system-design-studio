@@ -343,10 +343,27 @@ def sanitize_tooltips_to_spans(html):
     all internal tags (popover card, header, body, desc) to strictly phrasing <span> tags.
     Placing <div> or <p> inside <p> causes browsers to auto-close paragraphs prematurely,
     splitting sentences and stranding words or punctuation on separate lines.
-    Also cleans up any leaking markdown asterisks surrounding tooltips.
+    Also cleans up any leaking markdown asterisks surrounding tooltips and unescapes
+    accidentally escaped tooltip entities.
     """
     if not html:
         return html
+
+    # Unescape any accidentally escaped tooltips (e.g. from markdown tables or json serialization)
+    if ("&lt;span" in html or "&lt;div" in html) and "jargon-tooltip-wrapper" in html:
+        def _unescape_tooltip_block(match):
+            block = match.group(0)
+            return (block.replace("&lt;", "<")
+                         .replace("&gt;", ">")
+                         .replace("&quot;", '"')
+                         .replace("&#39;", "'")
+                         .replace("&amp;", "&"))
+        html = re.sub(
+            r"&lt;(?:span|div)[^&]*class=&quot;[^&]*jargon-tooltip-wrapper[\s\S]*?&lt;/(?:span|div)&gt;",
+            _unescape_tooltip_block,
+            html,
+            flags=re.IGNORECASE
+        )
 
     html = clean_markdown_leaks_in_html(html)
 

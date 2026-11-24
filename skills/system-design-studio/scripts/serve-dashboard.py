@@ -554,9 +554,30 @@ except Exception:
     update_revisions_mod = None
 
 DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="__SDS_DARK_CLASS__" data-theme-preset="__SDS_THEME_PRESET__">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    (function() {
+      var preset = "__SDS_THEME_PRESET__" || "slate-clean";
+      if (preset === "__SDS_THEME_PRESET__") {
+        try {
+          preset = localStorage.getItem("sds_theme_preset") || "slate-clean";
+        } catch(e) { preset = "slate-clean"; }
+      }
+      var isDark = (preset !== "editorial-paper");
+      document.documentElement.setAttribute("data-theme-preset", preset);
+      if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+      try {
+        localStorage.setItem("sds_theme_preset", preset);
+        localStorage.setItem("sds_theme", isDark ? "dark" : "light");
+      } catch (e) {}
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>System Design Studio — Localhost Interactive Workbench</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -4706,14 +4727,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
     // Theme Management (Preset-driven)
     function initTheme() {
-      const savedPreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
-      const isDark = (savedPreset !== 'editorial-paper');
-      document.documentElement.setAttribute('data-theme-preset', savedPreset);
-      if (isDark) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      const serverPreset = document.documentElement.getAttribute('data-theme-preset');
+      const validServerPreset = (serverPreset && !serverPreset.startsWith('__')) ? serverPreset : null;
+      const savedPreset = validServerPreset || localStorage.getItem('sds_theme_preset') || 'slate-clean';
+      applyThemePreset(savedPreset);
     }
 
     function previewThemePreset(preset) {
@@ -4800,6 +4817,16 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         // Load projects data
         loadProjects();
+
+        // Sync theme preset from active project settings on disk if not currently drafting settings
+        if (globalStatus.settings && globalStatus.settings.artifactStyle) {
+          const diskPreset = globalStatus.settings.artifactStyle;
+          const modal = document.getElementById('settings-modal');
+          const isModalOpen = modal && modal.classList.contains('active');
+          if (!isModalOpen && diskPreset !== localStorage.getItem('sds_theme_preset')) {
+            applyThemePreset(diskPreset);
+          }
+        }
 
         if (manual) {
           showToast('Local data synced');
@@ -7045,6 +7072,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const p = data.project || {};
           document.getElementById('settings-notes-dir').value = p.notesDir || 'notes';
           document.getElementById('settings-auto-notes').checked = (p.autoGenerateNotes !== false);
+          if (p.artifactStyle) {
+            if (presetSelect) presetSelect.value = p.artifactStyle;
+            if (currentSettingsDraft) {
+              currentSettingsDraft.themePreset = p.artifactStyle;
+              currentSettingsDraft.themeMode = (p.artifactStyle === 'editorial-paper' ? 'light' : 'dark');
+            }
+          }
           if (currentSettingsDraft) {
             currentSettingsDraft.notesDir = p.notesDir || 'notes';
             currentSettingsDraft.autoNotes = (p.autoGenerateNotes !== false);
@@ -7209,8 +7243,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       refreshData();
       setupSSE();
       checkEagerAutoUpdate();
-      refreshData();
-      setupSSE();
 
       // Notion Markdown Editor Keyboard Shortcuts (Tab indent, Shift+Tab, Cmd+B, Cmd+I, Cmd+S)
       const noteTa = document.getElementById('note-edit-body');
@@ -7401,11 +7433,35 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
         self.sync_active_instance()
 
         if path in ["/", "/index.html"]:
+            active_preset = "slate-clean"
+            settings_path = os.path.join(self.inst_dir, "settings.json")
+            if os.path.isfile(settings_path):
+                try:
+                    with open(settings_path, "r", encoding="utf-8") as sf:
+                        s_data = json.load(sf)
+                        if s_data.get("artifactStyle"):
+                            active_preset = s_data["artifactStyle"]
+                except Exception:
+                    pass
+            if active_preset == "slate-clean":
+                global_cfg = os.path.join(os.path.expanduser("~"), ".system-design-studio", "config.json")
+                if os.path.isfile(global_cfg):
+                    try:
+                        with open(global_cfg, "r", encoding="utf-8") as gf:
+                            g_data = json.load(gf)
+                            if g_data.get("artifactStyle"):
+                                active_preset = g_data["artifactStyle"]
+                    except Exception:
+                        pass
+
+            dark_class = "" if active_preset == "editorial-paper" else "dark"
+            html_content = DASHBOARD_HTML_TEMPLATE.replace("__SDS_THEME_PRESET__", active_preset).replace("__SDS_DARK_CLASS__", dark_class)
+
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.send_cors()
             self.end_headers()
-            self.wfile.write(DASHBOARD_HTML_TEMPLATE.encode("utf-8"))
+            self.wfile.write(html_content.encode("utf-8"))
             return
 
         elif path == "/api/status":
@@ -7489,7 +7545,10 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
                 if scripts_dir not in sys.path:
                     sys.path.insert(0, scripts_dir)
                 import importlib
-                check_mod = importlib.import_module("check-updates")
+                if "check-updates" in sys.modules:
+                    check_mod = importlib.reload(sys.modules["check-updates"])
+                else:
+                    check_mod = importlib.import_module("check-updates")
                 update_info = check_mod.check_for_updates(force=force_check, instance_dir=self.inst_dir)
             except Exception as e:
                 update_info = {

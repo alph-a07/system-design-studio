@@ -530,6 +530,9 @@ for search_root in "$SCRIPT_DIR" "$TEMP_DIR/repo" "$TEMP_DIR/archive/system-desi
     [ -f "$search_root/bin/sds.ps1" ] && cp "$search_root/bin/sds.ps1" "${GLOBAL_BIN}/sds.ps1"
     [ -f "$search_root/update.sh" ] && cp "$search_root/update.sh" "${GLOBAL_STUDIO_DIR}/update.sh"
     [ -f "$search_root/update.ps1" ] && cp "$search_root/update.ps1" "${GLOBAL_STUDIO_DIR}/update.ps1"
+    [ -f "$search_root/plugin.json" ] && cp "$search_root/plugin.json" "${GLOBAL_STUDIO_DIR}/plugin.json"
+    [ -f "$search_root/marketplace.json" ] && cp "$search_root/marketplace.json" "${GLOBAL_STUDIO_DIR}/marketplace.json"
+    rm -f "${GLOBAL_STUDIO_DIR}/.update-check.json" "$HOME_DIR/.system-design-studio-update.json" 2>/dev/null || true
     INSTALLED_CLI=true
     break
   fi

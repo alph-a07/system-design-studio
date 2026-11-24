@@ -223,12 +223,19 @@ if [ -n "$SOURCE_ROOT" ] && [ -d "$SOURCE_ROOT/bin" ]; then
   chmod +x "$GLOBAL_BIN/sds" 2>/dev/null || true
 fi
 
-# Copy update scripts into global studio directory
+# Copy update scripts, plugin.json, and marketplace.json into global studio directory
 if [ -n "$SOURCE_ROOT" ]; then
+  [ -f "$SOURCE_ROOT/plugin.json" ] && cp "$SOURCE_ROOT/plugin.json" "$GLOBAL_STUDIO_DIR/plugin.json" 2>/dev/null || true
+  [ -f "$SOURCE_ROOT/marketplace.json" ] && cp "$SOURCE_ROOT/marketplace.json" "$GLOBAL_STUDIO_DIR/marketplace.json" 2>/dev/null || true
   [ -f "$SOURCE_ROOT/update.sh" ] && cp "$SOURCE_ROOT/update.sh" "$GLOBAL_STUDIO_DIR/update.sh" 2>/dev/null || true
   [ -f "$SOURCE_ROOT/update.ps1" ] && cp "$SOURCE_ROOT/update.ps1" "$GLOBAL_STUDIO_DIR/update.ps1" 2>/dev/null || true
   chmod +x "$GLOBAL_STUDIO_DIR/update.sh" 2>/dev/null || true
 fi
+
+# Invalidate stale update-check caches so dashboard immediately reflects latest version
+rm -f "$GLOBAL_STUDIO_DIR/.update-check.json" "$HOME_DIR/.system-design-studio-update.json" 2>/dev/null || true
+[ -n "$INSTANCE_DIR" ] && rm -f "${INSTANCE_DIR}/.update-check.json" 2>/dev/null || true
+rm -f ".system-design/.update-check.json" 2>/dev/null || true
 
 # 4. Verify and configure shell PATH for 'sds'
 configure_user_path() {

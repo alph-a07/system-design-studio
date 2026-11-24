@@ -29,28 +29,38 @@ def parse_semver(v_str):
     return tuple(parts[:3])
 
 def get_local_version(script_dir):
-    """Resolves local version from plugin.json or SKILL.md."""
+    """Resolves local version by scanning candidate files and returning the highest valid semver found."""
     candidates = [
-        os.path.join(script_dir, "..", "..", "..", "plugin.json"),
         os.path.join(script_dir, "..", "SKILL.md"),
-        os.path.join(script_dir, "SKILL.md")
+        os.path.join(script_dir, "SKILL.md"),
+        os.path.join(script_dir, "..", "..", "SKILL.md"),
+        os.path.join(script_dir, "..", "..", "..", "plugin.json"),
+        os.path.join(os.path.expanduser("~"), ".system-design-studio", "plugin.json"),
+        os.path.join(os.path.expanduser("~"), ".system-design-studio", "skills", "system-design-studio", "SKILL.md"),
     ]
 
+    found_versions = []
     for p in candidates:
         if os.path.exists(p):
             try:
-                with open(p) as f:
+                with open(p, "r", encoding="utf-8") as f:
                     content = f.read()
                 if p.endswith(".json"):
                     data = json.loads(content)
-                    if "version" in data:
-                        return data["version"]
+                    if "version" in data and data["version"]:
+                        found_versions.append(str(data["version"]).strip())
                 elif "version:" in content:
-                    m = re.search(r"version:\s*([0-9\.]+)", content)
+                    m = re.search(r"version:\s*[\"']?([0-9\.]+)[\"']?", content)
                     if m:
-                        return m.group(1)
+                        found_versions.append(m.group(1).strip())
             except Exception:
                 pass
+
+    if found_versions:
+        # Sort by semver tuple and return the maximum detected version
+        found_versions.sort(key=lambda v: parse_semver(v), reverse=True)
+        return found_versions[0]
+
     return "4.1.0"
 
 def get_cache_path(instance_dir=None):
@@ -67,10 +77,21 @@ def check_for_updates(force=False, instance_dir=".system-design"):
     now = time.time()
     if not force and os.path.exists(cache_path):
         try:
-            with open(cache_path) as cf:
+            with open(cache_path, "r", encoding="utf-8") as cf:
                 cache = json.load(cf)
             if now - cache.get("timestamp", 0) < CACHE_TTL_SECONDS:
-                return cache.get("result", {})
+                cached_res = cache.get("result", {})
+                cached_remote = cached_res.get("remoteVersion")
+                curr_tuple = parse_semver(current_version)
+                remote_tuple = parse_semver(cached_remote) if cached_remote else curr_tuple
+                update_available = remote_tuple > curr_tuple
+                live_res = {
+                    "status": cached_res.get("status", "ok"),
+                    "currentVersion": current_version,
+                    "remoteVersion": cached_remote,
+                    "updateAvailable": update_available
+                }
+                return live_res
         except Exception:
             pass
 
