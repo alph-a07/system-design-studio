@@ -69,7 +69,38 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
    - Verify that embedded JavaScript passes headless syntax check (`node -e`) with zero syntax errors.
    - Verify that live telemetry metrics (`tel-...`) and `#sim-log` causal event messages are actively updated on interaction.
 
-## Output Contract
+## Notes Audit Mode (Invoked on `/sds-complete` for `.system-design/.generated-note-<slug>.json`)
+
+When auditing a draft note payload from `sds-notes-crafter`, evaluate these 6 Hard Notes Checks:
+
+1. **Topic Context & Technical Accuracy**:
+   - Cross-check against `.system-design/lessons/.generated-<slug>.json` and `.system-design/CURRICULUM.md`. Verify numbers, formulas, and failure boundaries match the topic's mechanics without unhedged absolutes.
+2. **User Context Completeness**:
+   - Verify the draft integrates the user's **self-evaluation answers**, **saved highlights** (`.system-design/highlights/`), **existing manual notes** (no user-written content dropped), and **additional post-`sds-teach` discussions**.
+3. **Adaptiveness Continuity**:
+   - Read `.system-design/notes-adaptiveness.json` (both prior topic entries and the newly logged entry for this topic). Verify the note's granularity, formatting, and scaffolding honor the learner's logged adaptiveness preferences.
+4. **Zero Learning-Process Leakage**:
+   - FAIL if the draft contains meta-commentary about studying/learning (*"Initial intuition"*, *"Where the model broke"*, *"Socratic"*, *"proved cold"*, *"under dialectic pressure"*, *"you learned"*, *"during sign-off"*, *"personally highlighted"*).
+5. **Decorative-Only Highlight Colors**:
+   - FAIL if highlight colors (`yellow`, `emerald`, `cyan`) are assigned semantic meanings like *"Key Concept"*, *"Invariant"*, or *"Question"*.
+6. **Frictionless & Future-Safe (Temporal Distance Check)**:
+   - Evaluate whether a reader returning **3–12 months later** (with faded memory of the lesson) can re-grasp every mechanism, formula variable, and trade-off without external lookups. Ensure `future_safe_anchors` or inline definitions cover non-obvious terms cleanly.
+
+For Notes Audit Mode, return:
+```markdown
+### SDS Notes Audit Report: [Topic ID]
+- **Status**: [APPROVED | REVISIONS_REQUIRED]
+- **Topic & Math Accuracy**: [PASS | ISSUES DETECTED]
+- **User Context Coverage (Self-Eval + Highlights + Manual Notes + Discussions)**: [PASS | GAPS: ...]
+- **Adaptiveness Log Alignment**: [PASS | MISMATCH: ...]
+- **Zero Process Leakage & Decorative Colors**: [PASS | LEAKS DETECTED: ...]
+- **Future-Safe Temporal Distance Check**: [PASS | MISSING ANCHORS: ...]
+
+#### Required Revisions (if any):
+1. ...
+```
+
+## Output Contract (Lesson Mode)
 
 Return a structured audit report:
 

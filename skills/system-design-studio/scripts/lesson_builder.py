@@ -1636,6 +1636,8 @@ class NoteDocument:
         rules_of_thumb: Optional[List[Dict[str, str]]] = None,
         formulas: Optional[List[Dict[str, str]]] = None,
         takeaways: Optional[List[str]] = None,
+        future_safe_anchors: Optional[List[str]] = None,
+        highlighted_passages: Optional[List[Any]] = None,
     ):
         self.topic_id = topic_id
         self.title = title
@@ -1649,6 +1651,8 @@ class NoteDocument:
         self.rules_of_thumb = rules_of_thumb or []
         self.formulas = formulas or []
         self.takeaways = takeaways or []
+        self.future_safe_anchors = future_safe_anchors or []
+        self.highlighted_passages = highlighted_passages or []
 
     def add_rule(self, tradeoff: str, decision_rule: str, production_bound: str) -> "NoteDocument":
         self.rules_of_thumb.append({
@@ -1691,6 +1695,8 @@ class NoteDocument:
             "rules_of_thumb": self.rules_of_thumb,
             "formulas": self.formulas,
             "takeaways": self.takeaways,
+            "future_safe_anchors": self.future_safe_anchors,
+            "highlighted_passages": self.highlighted_passages,
         }
 
     @classmethod
@@ -1700,14 +1706,16 @@ class NoteDocument:
             title=data.get("title", ""),
             tier=data.get("tier", "Tier 0"),
             cluster=data.get("cluster", "General"),
-            verified_date=data.get("verified_date") or data.get("verifiedDate", ""),
-            status=data.get("status", "Verified Sign-Off (Active Learning Synthesis)"),
-            hypothesis=data.get("hypothesis", ""),
-            friction=data.get("friction", ""),
-            derived_invariant=data.get("derived_invariant") or data.get("derivedInvariant", ""),
+            verified_date=data.get("updated_date") or data.get("verified_date") or data.get("verifiedDate", ""),
+            status=data.get("status", "Reference Note"),
+            hypothesis=data.get("core_context") or data.get("hypothesis", ""),
+            friction=data.get("mechanics_and_failures") or data.get("friction", ""),
+            derived_invariant=data.get("core_invariant") or data.get("derived_invariant") or data.get("derivedInvariant", ""),
             rules_of_thumb=data.get("rules_of_thumb") or data.get("rulesOfThumb", []),
             formulas=data.get("formulas", []),
             takeaways=data.get("takeaways", []),
+            future_safe_anchors=data.get("future_safe_anchors") or data.get("futureSafeAnchors", []),
+            highlighted_passages=data.get("highlighted_passages") or data.get("highlightedPassages", []),
         )
 
     def save(self, path: str):
@@ -1780,6 +1788,26 @@ class NoteDocument:
             lines.append("## 6. Production Takeaways & Heuristics")
             for t in self.takeaways:
                 lines.append(f"- {t}")
+            lines.append("")
+
+        if self.future_safe_anchors:
+            lines.append("## Quick Refresh Anchors")
+            for anchor in self.future_safe_anchors:
+                lines.append(f"- {anchor}")
+            lines.append("")
+
+        if self.highlighted_passages:
+            lines.append("## Highlighted Passages")
+            for hl in self.highlighted_passages:
+                if isinstance(hl, dict):
+                    txt = re.sub(r"\s+", " ", str(hl.get("text") or "")).strip()
+                    pane_id = hl.get("paneId") or ""
+                    m = re.search(r"section-(\d+)", pane_id)
+                    stage_prefix = f"**[Stage {m.group(1)}]** " if m else ""
+                    if txt:
+                        lines.append(f"- {stage_prefix}*\"{txt}\"*")
+                elif str(hl).strip():
+                    lines.append(f"- *\"{str(hl).strip()}\"*")
             lines.append("")
 
         return "\n".join(lines).strip() + "\n"

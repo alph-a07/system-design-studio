@@ -478,6 +478,7 @@ def main():
     # Dynamic NoteDocument AST Construction
     note_body = None
     explicit_payload = None
+    raw_topic_slug = slugify(args.topic_id.replace("topic.", ""))
     if args.data_file and os.path.isfile(args.data_file):
         try:
             with open(args.data_file, "r", encoding="utf-8") as f:
@@ -489,10 +490,24 @@ def main():
             explicit_payload = json.loads(args.data)
         except Exception:
             pass
+    else:
+        # Auto-discover signed-off notes JSON produced by sds-notes-crafter
+        for cand_note_json in [
+            os.path.join(instance_dir, f".generated-note-{raw_topic_slug}.json"),
+            os.path.join(instance_dir, "notes", f".generated-note-{raw_topic_slug}.json"),
+        ]:
+            if os.path.isfile(cand_note_json):
+                try:
+                    with open(cand_note_json, "r", encoding="utf-8") as f:
+                        explicit_payload = json.load(f)
+                    break
+                except Exception:
+                    pass
 
     if explicit_payload and NoteDocument:
         try:
-            if "rules_of_thumb" in explicit_payload or "rulesOfThumb" in explicit_payload or "derived_invariant" in explicit_payload:
+            note_keys = ("rules_of_thumb", "rulesOfThumb", "derived_invariant", "core_invariant", "core_context", "mechanics_and_failures", "future_safe_anchors")
+            if any(k in explicit_payload for k in note_keys):
                 doc = NoteDocument.from_dict(explicit_payload)
             else:
                 doc = NoteDocument.from_lesson(
@@ -547,12 +562,13 @@ def main():
     if not note_body:
         note_body = build_note_markdown(tier, cluster, topic, args.evidence, args.discussion_summary, args.hypothesis, today_str)
 
-    # Incorporate learner highlights persisted on disk for this topic
-    topic_highlights = load_topic_highlights(instance_dir, args.topic_id, topic)
-    if topic_highlights:
-        hl_section = format_highlights_markdown_section(topic_highlights)
-        if hl_section:
-            note_body = note_body.rstrip() + "\n\n" + hl_section
+    # Incorporate learner highlights persisted on disk for this topic (unless already rendered by agentic JSON)
+    if "## Highlighted Passages" not in note_body:
+        topic_highlights = load_topic_highlights(instance_dir, args.topic_id, topic)
+        if topic_highlights:
+            hl_section = format_highlights_markdown_section(topic_highlights)
+            if hl_section:
+                note_body = note_body.rstrip() + "\n\n" + hl_section
 
     if notes_structure == "per-cluster":
         saved_path = write_note_per_cluster(notes_dir, tier, cluster, topic, note_body)

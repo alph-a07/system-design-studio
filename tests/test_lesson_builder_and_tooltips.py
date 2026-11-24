@@ -516,6 +516,55 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
             self.assertNotIn("proved cold", note_md)
             self.assertNotIn("Where the Model Broke", note_md)
 
+    def test_agentic_notes_crafter_and_auditor_pipeline(self):
+        """Verify sds-notes-crafter, auditor Notes Audit Mode, sds-complete orchestration, and NoteDocument JSON rendering."""
+        crafter_md = os.path.join(REPO_ROOT, "agents", "sds-notes-crafter.md")
+        crafter_agent = os.path.join(REPO_ROOT, "agents", "sds-notes-crafter", "AGENT.md")
+        auditor_md = os.path.join(REPO_ROOT, "agents", "sds-pedagogy-auditor.md")
+        complete_skill = os.path.join(REPO_ROOT, "skills", "sds-complete", "SKILL.md")
+
+        for p in [crafter_md, crafter_agent, auditor_md, complete_skill]:
+            self.assertTrue(os.path.isfile(p), f"Missing required file: {p}")
+
+        with open(crafter_md, "r", encoding="utf-8") as f:
+            crafter_txt = f.read()
+        self.assertIn("notes-adaptiveness.json", crafter_txt)
+        self.assertIn(".generated-note-", crafter_txt)
+        self.assertIn("future_safe_anchors", crafter_txt)
+
+        with open(auditor_md, "r", encoding="utf-8") as f:
+            auditor_txt = f.read()
+        self.assertIn("Notes Audit Mode", auditor_txt)
+        self.assertIn("Temporal Distance Check", auditor_txt)
+
+        with open(complete_skill, "r", encoding="utf-8") as f:
+            complete_txt = f.read()
+        self.assertIn("sds-notes-crafter", complete_txt)
+        self.assertIn("sds-pedagogy-auditor", complete_txt)
+        self.assertIn("--notes-data-file", complete_txt)
+
+        from lesson_builder import NoteDocument
+        payload = {
+            "topic_id": "topic.0.1.tcp-vs-udp",
+            "title": "TCP vs UDP",
+            "tier": {"code": "0", "name": "Tier 0"},
+            "cluster": {"code": "0.1", "title": "Transport"},
+            "core_context": "Balancing ordered byte delivery against tail-latency spikes.",
+            "mechanics_and_failures": ["Losing packet #2 stalls packets #3-#5 in SO_RCVBUF."],
+            "core_invariant": "Use UDP/QUIC when stale frames are worthless; use TCP when byte order is mandatory.",
+            "rules_of_thumb": [
+                {"tradeoff": "Order vs Freshness", "decision_rule": "Prefer QUIC for multiplexed RPCs", "production_bound": "BDP = RTT * Bandwidth"}
+            ],
+            "future_safe_anchors": ["**SO_RCVBUF**: Kernel memory queue staging inbound segments before read()."],
+            "highlighted_passages": [{"text": "TCP has no concept of message boundaries.", "paneId": "pane-section-2"}],
+        }
+        md = NoteDocument.from_dict(payload).to_markdown()
+        self.assertIn("## Quick Refresh Anchors", md)
+        self.assertIn("**SO_RCVBUF**", md)
+        self.assertIn("## Highlighted Passages", md)
+        self.assertIn("**[Stage 2]**", md)
+        self.assertNotIn("Key Concept", md)
+
 
 if __name__ == "__main__":
     unittest.main()
