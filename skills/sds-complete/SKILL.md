@@ -4,7 +4,7 @@ description: Complete topic sign-off with self evaluation, record decision (ADR)
 argument-hint: "[evidence]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.1.0
+  version: 4.1.1
 ---
 
 # /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis

@@ -4,7 +4,7 @@ description: List or view project-scoped active learning study notes with clicka
 argument-hint: "[topic]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.1.0
+  version: 4.1.1
 ---
 
 # /sds-notes

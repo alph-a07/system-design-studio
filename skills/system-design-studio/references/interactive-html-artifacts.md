@@ -211,7 +211,7 @@ All generated lesson artifacts are programmatically audited against the followin
 
 ---
 
-## 8. Tactile Simulators & Direct Manipulation Architecture (v4.1.0)
+## 8. Tactile Simulators & Direct Manipulation Architecture (v4.1+)
 
 Starting in **v4.1.0**, interactive failure simulators are freed from rigid schema constraints and authored as direct interactive HTML nodes (`SimulatorHtmlNode`, `builder.add_simulator_html(html, script=...)`), unlocking 100% agent creativity while enforcing automated pre-flight quality invariants:
 

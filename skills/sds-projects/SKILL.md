@@ -3,7 +3,7 @@ name: sds-projects
 description: List all registered System Design Studio project instances and tracks across this machine.
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.1.0
+  version: 4.1.1
 ---
 
 # /sds-projects

@@ -3650,7 +3650,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <!-- Studio Version Badge (Click to check updates) -->
       <button type="button" class="version-tag-pill" id="nav-version-pill" onclick="openSettingsModal('updates')" title="System Design Studio Version (Click to check for updates)">
         <span class="status-dot green" style="width:6px; height:6px;"></span>
-        <span id="nav-version-label">v4.1.0</span>
+        <span id="nav-version-label">v4.1.1</span>
       </button>
 
       <button aria-label="Refresh data" class="icon-action-btn" onclick="refreshData(true)" type="button" title="Refresh local data">
@@ -4261,7 +4261,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 Studio Updates &amp; Version
               </div>
               <div style="font-family:var(--font-mono); font-size:11px; color:var(--on-surface-variant); margin-top:2px;">
-                Installed Version: <strong id="settings-installed-version" style="color:var(--on-primary-container); background:var(--primary-container); border:1px solid var(--border-color); padding:1px 6px; border-radius:3px; font-weight:700;">v4.1.0</strong>
+                Installed Version: <strong id="settings-installed-version" style="color:var(--on-primary-container); background:var(--primary-container); border:1px solid var(--border-color); padding:1px 6px; border-radius:3px; font-weight:700;">v4.1.1</strong>
               </div>
             </div>
             <button type="button" class="btn-ghost" id="btn-check-updates" onclick="checkForUpdates(true)" style="padding:4px 8px; font-size:10px; display:inline-flex; align-items:center; gap:4px;">
@@ -7413,7 +7413,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const res = await fetch(`/api/update?force=${force}`);
         if (res.ok) {
           const data = await res.json();
-          const curr = data.currentVersion || 'v4.1.0';
+          const curr = data.currentVersion || 'v4.1.1';
           const remote = data.remoteVersion || curr;
           const isAvail = (data.updateAvailable === true);
 
@@ -7449,7 +7449,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const res = await fetch('/api/update?force=false');
         if (res.ok) {
           const data = await res.json();
-          const curr = data.currentVersion || 'v4.1.0';
+          const curr = data.currentVersion || 'v4.1.1';
           const remote = data.remoteVersion || curr;
           const formattedCurr = curr.startsWith('v') ? curr : `v${curr}`;
           const formattedRemote = remote.startsWith('v') ? remote : `v${remote}`;
@@ -7858,7 +7858,7 @@ class StudioDashboardHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 update_info = {
                     "status": "error",
-                    "currentVersion": "4.1.0",
+                    "currentVersion": "4.1.1",
                     "remoteVersion": None,
                     "updateAvailable": False,
                     "error": str(e)
