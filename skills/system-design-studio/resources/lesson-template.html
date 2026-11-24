@@ -572,7 +572,7 @@
   <div class="flex flex-col md:flex-row h-screen w-full overflow-hidden bg-[var(--background)]">
 
     <!-- VERTICAL TABBED SIDEBAR (INDEPENDENT SCROLL) -->
-    <aside class="w-full md:w-80 lg:w-88 h-full border-r border-[var(--border)] p-5 md:p-6 space-y-6 flex flex-col justify-between flex-shrink-0 bg-[var(--background)] overflow-y-auto">
+    <aside class="w-full md:w-80 lg:w-88 h-auto max-h-[40vh] md:max-h-none md:h-full border-b md:border-b-0 md:border-r border-[var(--border)] p-4 md:p-6 space-y-4 md:space-y-6 flex flex-col justify-between flex-shrink-0 bg-[var(--background)] overflow-y-auto">
       <div class="space-y-6">
         <!-- Sophisticated Sidebar Header -->
         <div class="sidebar-header space-y-2.5 pb-4 border-b border-[var(--border)]">
@@ -709,9 +709,11 @@
       if (targetPane) {
         targetPane.classList.add('active');
         targetPane.style.display = 'block';
-        targetPane.querySelectorAll('.jargon-tooltip-wrapper').forEach(wrapper => {
-          positionJargonPopover(wrapper);
-        });
+        try {
+          targetPane.querySelectorAll('.jargon-tooltip-wrapper').forEach(wrapper => {
+            positionJargonPopover(wrapper);
+          });
+        } catch (e) {}
       }
 
       // Update Sidebar Stage Tracker
@@ -727,8 +729,14 @@
       }
 
       const mainView = document.querySelector('.lesson-main-viewport') || window;
-      if (mainView.scrollTo) {
-        mainView.scrollTo({ top: 0, behavior: 'smooth' });
+      if (mainView && mainView.scrollTo) {
+        try {
+          mainView.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+          mainView.scrollTop = 0;
+        }
+      } else if (mainView) {
+        mainView.scrollTop = 0;
       }
     }
 

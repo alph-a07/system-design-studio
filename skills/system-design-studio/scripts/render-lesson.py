@@ -295,7 +295,32 @@ def extract_balanced_tag(html, start_idx, tag_name="div"):
                 return html[start_idx:i], i
         else:
             i += 1
-    return html[start_idx:], n
+    return None, start_idx + 1
+
+def extract_balanced_escaped_tag(html, start_idx, tag_name="span"):
+    """
+    Extracts a balanced &lt;tag&gt;...&lt;/tag&gt; block starting at start_idx, correctly handling nested tags.
+    Prevents truncation caused by non-greedy regexes matching inner closing tags.
+    """
+    tag_open = f"&lt;{tag_name}"
+    tag_close = f"&lt;/{tag_name}&gt;"
+    depth = 0
+    i = start_idx
+    n = len(html)
+    len_open = len(tag_open)
+    len_close = len(tag_close)
+    while i < n:
+        if html[i:i+len_open].lower() == tag_open and (i+len_open == n or html[i+len_open] in " >\t\r\n/&"):
+            depth += 1
+            i += len_open
+        elif html[i:i+len_close].lower() == tag_close:
+            depth -= 1
+            i += len_close
+            if depth == 0:
+                return html[start_idx:i], i
+        else:
+            i += 1
+    return None, start_idx + 1
 
 def clean_markdown_leaks_in_html(html):
     """
@@ -351,19 +376,30 @@ def sanitize_tooltips_to_spans(html):
 
     # Unescape any accidentally escaped tooltips (e.g. from markdown tables or json serialization)
     if ("&lt;span" in html or "&lt;div" in html) and "jargon-tooltip-wrapper" in html:
-        def _unescape_tooltip_block(match):
-            block = match.group(0)
-            return (block.replace("&lt;", "<")
-                         .replace("&gt;", ">")
-                         .replace("&quot;", '"')
-                         .replace("&#39;", "'")
-                         .replace("&amp;", "&"))
-        html = re.sub(
-            r"&lt;(?:span|div)[^&]*class=&quot;[^&]*jargon-tooltip-wrapper[\s\S]*?&lt;/(?:span|div)&gt;",
-            _unescape_tooltip_block,
-            html,
-            flags=re.IGNORECASE
-        )
+        esc_pattern = re.compile(r"&lt;(?:span|div)[^&]*class=&quot;[^&]*jargon-tooltip-wrapper", re.IGNORECASE)
+        esc_res = []
+        esc_idx = 0
+        while True:
+            m = esc_pattern.search(html, esc_idx)
+            if not m:
+                esc_res.append(html[esc_idx:])
+                break
+            start_pos = m.start()
+            esc_res.append(html[esc_idx:start_pos])
+            tag_name = "div" if "div" in html[start_pos:start_pos+10].lower() else "span"
+            block, end_pos = extract_balanced_escaped_tag(html, start_pos, tag_name)
+            if block:
+                unescaped_block = (block.replace("&lt;", "<")
+                                        .replace("&gt;", ">")
+                                        .replace("&quot;", '"')
+                                        .replace("&#39;", "'")
+                                        .replace("&amp;", "&"))
+                esc_res.append(unescaped_block)
+                esc_idx = end_pos
+            else:
+                esc_res.append(html[start_pos:end_pos])
+                esc_idx = end_pos
+        html = "".join(esc_res)
 
     html = clean_markdown_leaks_in_html(html)
 
@@ -382,6 +418,10 @@ def sanitize_tooltips_to_spans(html):
         res.append(html[idx:start_idx])
         tag_name = re.match(r"<([a-zA-Z0-9]+)", html[start_idx:]).group(1).lower()
         wrapper_str, end_idx = extract_balanced_tag(html, start_idx, tag_name)
+        if not wrapper_str:
+            res.append(html[start_idx:end_idx])
+            idx = end_idx
+            continue
         idx = end_idx
 
         cue_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*(?:jargon-inline-cue|jargon-pill-cue)[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
@@ -512,14 +552,15 @@ def clean_html_to_markdown(html):
 
         if sim_start != -1:
             sim_block, sim_end = extract_balanced_div(text, sim_start)
-            sim_summary = (
-                "\n> [!NOTE] Interactive Simulation Walkthrough\n"
-                "> *The interactive HTML edition provides a live tactile simulator for this mechanism. Key invariants modeled:*\n"
-                "> - Packet flight across physical network link bound by speed-of-light propagation latency.\n"
-                "> - Under packet drops, observing kernel buffer hold vs. immediate uncoordinated pass-through.\n"
-                "> - Reassembly, Head-of-Line blocking stalls, and retransmission recovery dynamics.\n"
-            )
-            text = text[:sim_start] + sim_summary + text[sim_end:]
+            if sim_block:
+                sim_summary = (
+                    "\n> [!NOTE] Interactive Simulation Walkthrough\n"
+                    "> *The interactive HTML edition provides a live tactile simulator for this mechanism. Key invariants modeled:*\n"
+                    "> - Packet flight across physical network link bound by speed-of-light propagation latency.\n"
+                    "> - Under packet drops, observing kernel buffer hold vs. immediate uncoordinated pass-through.\n"
+                    "> - Reassembly, Head-of-Line blocking stalls, and retransmission recovery dynamics.\n"
+                )
+                text = text[:sim_start] + sim_summary + text[sim_end:]
 
     # Convert Inline Jargon Tooltips (<span/div class="jargon-tooltip-wrapper">)
     # Replaces the inline wrapper with bold term (**Term**) and collects terms into a clean section glossary
@@ -531,6 +572,8 @@ def clean_html_to_markdown(html):
         tag_name = re.match(r"<([a-zA-Z0-9]+)", text[m.start():]).group(1).lower()
         start_idx = m.start()
         wrapper_str, end_idx = extract_balanced_tag(text, start_idx, tag_name)
+        if not wrapper_str:
+            break
 
         cue_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*(?:jargon-inline-cue|jargon-pill-cue)[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
         title_m = re.search(r"<(?:span|div)[^>]*class=[\"'][^\"']*jargon-popover-title[^\"']*[\"'][^>]*>([\s\S]*?)</(?:span|div)>", wrapper_str, re.IGNORECASE)
@@ -559,6 +602,8 @@ def clean_html_to_markdown(html):
             break
         start_idx = m.start()
         div_str, end_idx = extract_balanced_div(text, start_idx)
+        if not div_str:
+            break
         title_m = re.search(r"<span\s+class=[\"']jargon-title[\"']>([\s\S]*?)</span>", div_str)
         pill_m = re.search(r"<span\s+class=[\"']jargon-pill[\"']>([\s\S]*?)</span>", div_str)
         body_m = re.search(r"<div\s+class=[\"']jargon-body[\"']>([\s\S]*?)</div>", div_str)
@@ -581,6 +626,8 @@ def clean_html_to_markdown(html):
             break
         start_idx = m.start()
         div_str, end_idx = extract_balanced_div(text, start_idx)
+        if not div_str:
+            break
         classes = m.group(1).split()
         kind = "mechanism"
         for c in classes:

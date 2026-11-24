@@ -352,6 +352,42 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertNotIn('id="settings-lesson-format"', code)
         self.assertNotIn("settings-lesson-format", code)
 
+    def test_escaped_tooltip_sanitization_preserves_all_panes(self):
+        """Verify sanitize_tooltips_to_spans correctly unescapes nested tooltips without truncating remaining panes."""
+        rl = importlib.import_module("render-lesson")
+        
+        # Construct multi-pane HTML with an accidentally escaped tooltip inside pane 1
+        escaped_tip = (
+            '&lt;span class=&quot;jargon-tooltip-wrapper&quot;&gt;'
+            '&lt;span class=&quot;jargon-inline-cue&quot; onclick=&quot;toggleJargonTooltip(this, event)&quot;&gt;MSS&lt;/span&gt;'
+            '&lt;span class=&quot;jargon-popover-card&quot;&gt;'
+            '&lt;span class=&quot;jargon-popover-header&quot;&gt;&lt;span class=&quot;jargon-popover-title&quot;&gt;💡 MSS&lt;/span&gt;'
+            '&lt;span class=&quot;jargon-popover-badge&quot;&gt;Metric&lt;/span&gt;&lt;/span&gt;'
+            '&lt;span class=&quot;jargon-popover-body&quot;&gt;&lt;span class=&quot;jargon-popover-desc&quot;&gt;Maximum Segment Size&lt;/span&gt;&lt;/span&gt;'
+            '&lt;/span&gt;&lt;/span&gt;'
+        )
+        sample_panes = (
+            f'<article id="pane-section-1" class="section-pane active">\n'
+            f'  <p>Here is payload ({escaped_tip}) for testing.</p>\n'
+            f'  <button onclick="switchSectionTab(\'section-2\')">Next</button>\n'
+            f'</article>\n'
+            f'<article id="pane-section-2" class="section-pane">\n'
+            f'  <p>Stage 2 content here.</p>\n'
+            f'  <button onclick="switchSectionTab(\'section-3\')">Next</button>\n'
+            f'</article>\n'
+            f'<article id="pane-section-3" class="section-pane">\n'
+            f'  <p>Stage 3 content here.</p>\n'
+            f'</article>'
+        )
+
+        sanitized = rl.sanitize_tooltips_to_spans(sample_panes)
+        self.assertIn('id="pane-section-1"', sanitized)
+        self.assertIn('id="pane-section-2"', sanitized, "Pane 2 must not be truncated by tooltip sanitization")
+        self.assertIn('id="pane-section-3"', sanitized, "Pane 3 must not be truncated by tooltip sanitization")
+        self.assertNotIn('&lt;span class=&quot;jargon-tooltip-wrapper', sanitized)
+        self.assertIn('class="jargon-tooltip-wrapper"', sanitized)
+        self.assertIn('Maximum Segment Size', sanitized)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -103,7 +103,10 @@ class EditorialLeadNode(Node):
         return f"> *{self.text}*\n\n"
 
     def render_html(self, context: Dict[str, Any]) -> str:
-        return f'<div class="editorial-lead">\n  {html.escape(self.text)}\n</div>\n'
+        lead = self.text
+        if not ("<span" in lead or "<code" in lead or "<strong" in lead or "<em" in lead):
+            lead = html.escape(lead)
+        return f'<div class="editorial-lead">\n  {lead}\n</div>\n'
 
 
 class ParagraphNode(Node):
@@ -212,13 +215,23 @@ class ListNode(Node):
         items_html = []
         for it in self.items:
             if isinstance(it, (list, tuple)) and len(it) >= 2:
-                items_html.append(f'  <li><strong>{html.escape(it[0])}:</strong> {html.escape(it[1])}</li>')
+                t0, t1 = str(it[0]), str(it[1])
+                if not ("<span" in t0 or "<code" in t0): t0 = html.escape(t0)
+                if not ("<span" in t1 or "<code" in t1 or "<strong" in t1 or "<em" in t1): t1 = html.escape(t1)
+                items_html.append(f'  <li><strong>{t0}:</strong> {t1}</li>')
             elif isinstance(it, dict) and "title" in it:
-                items_html.append(f'  <li><strong>{html.escape(it["title"])}:</strong> {html.escape(it.get("text", ""))}</li>')
+                t0, t1 = str(it["title"]), str(it.get("text", ""))
+                if not ("<span" in t0 or "<code" in t0): t0 = html.escape(t0)
+                if not ("<span" in t1 or "<code" in t1 or "<strong" in t1 or "<em" in t1): t1 = html.escape(t1)
+                items_html.append(f'  <li><strong>{t0}:</strong> {t1}</li>')
             elif isinstance(it, dict):
-                items_html.append(f'  <li>{html.escape(it.get("text", ""))}</li>')
+                t1 = str(it.get("text", ""))
+                if not ("<span" in t1 or "<code" in t1 or "<strong" in t1 or "<em" in t1): t1 = html.escape(t1)
+                items_html.append(f'  <li>{t1}</li>')
             else:
-                items_html.append(f'  <li>{html.escape(str(it))}</li>')
+                t1 = str(it)
+                if not ("<span" in t1 or "<code" in t1 or "<strong" in t1 or "<em" in t1): t1 = html.escape(t1)
+                items_html.append(f'  <li>{t1}</li>')
         return f'<{tag} class="{cls}">\n' + "\n".join(items_html) + f'\n</{tag}>\n'
 
 
@@ -301,19 +314,33 @@ class DilemmaNode(Node):
     def render_html(self, context: Dict[str, Any]) -> str:
         items = []
         for ext in self.extremes:
-            metric_html = f'<br/><span class="text-amber-400 font-mono font-bold">Physical Limit / Math:</span> {html.escape(ext.get("metric", ""))}' if ext.get("metric") else ""
+            metric_val = ext.get("metric", "")
+            metric_html = f'<br/><span class="text-amber-400 font-mono font-bold">Physical Limit / Math:</span> {metric_val if ("<span" in metric_val or "<code" in metric_val) else html.escape(metric_val)}' if metric_val else ""
+            desc = ext.get("description", "")
+            if not ("<span" in desc or "<div" in desc or "<code" in desc or "<strong" in desc or "<em" in desc):
+                desc = html.escape(desc)
+            label = ext.get("label", "")
+            if not ("<span" in label or "<code" in label):
+                label = html.escape(label)
             items.append(
-                f'    <li><strong>{html.escape(ext["label"])}:</strong> {html.escape(ext["description"])}\n'
+                f'    <li><strong>{label}:</strong> {desc}\n'
                 f'      {metric_html}\n'
                 f'    </li>'
             )
         items_block = "\n".join(items)
-        preview_block = f'<p class="text-xs text-amber-300 font-mono mt-3 mb-0"><strong>Resolution Path:</strong> {html.escape(self.resolution_preview)}</p>' if self.resolution_preview else ""
+        res_preview = self.resolution_preview
+        if res_preview and not ("<span" in res_preview or "<code" in res_preview):
+            res_preview = html.escape(res_preview)
+        preview_block = f'<p class="text-xs text-amber-300 font-mono mt-3 mb-0"><strong>Resolution Path:</strong> {res_preview}</p>' if res_preview else ""
+
+        lead_text = self.lead
+        if not ("<span" in lead_text or "<div" in lead_text or "<code" in lead_text or "<strong" in lead_text or "<em" in lead_text):
+            lead_text = html.escape(lead_text)
 
         return (
             f'<div class="callout-box callout-dilemma my-4">\n'
             f'  <div class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider mb-1">⚡ {html.escape(self.title)}</div>\n'
-            f'  <p class="text-sm text-[var(--foreground)] m-0 leading-relaxed">\n    {html.escape(self.lead)}\n  </p>\n'
+            f'  <p class="text-sm text-[var(--foreground)] m-0 leading-relaxed">\n    {lead_text}\n  </p>\n'
             f'  <ul class="text-xs text-[var(--muted-foreground)] mt-2 mb-0 space-y-1.5 list-disc pl-4">\n'
             f'{items_block}\n'
             f'  </ul>\n'
@@ -350,10 +377,13 @@ class CalloutNode(Node):
 
     def render_html(self, context: Dict[str, Any]) -> str:
         color, icon, alert_type = self.VALID_KINDS[self.kind]
+        body = self.text
+        if not ("<span" in body or "<code" in body or "<strong" in body or "<em" in body):
+            body = html.escape(body)
         return (
             f'<div class="callout-box callout-{self.kind} my-4">\n'
             f'  <div class="text-xs font-mono font-bold {color} uppercase tracking-wider mb-1">{icon} {html.escape(self.title)}</div>\n'
-            f'  <p class="text-xs text-[var(--foreground)] leading-relaxed m-0">{html.escape(self.text)}</p>\n'
+            f'  <p class="text-xs text-[var(--foreground)] leading-relaxed m-0">{body}</p>\n'
             f'</div>\n'
         )
 
@@ -392,8 +422,18 @@ class AnalogyNode(Node):
     def render_html(self, context: Dict[str, Any]) -> str:
         mapping_html = ""
         if self.mapping:
-            rows = "".join([f'<tr><td class="p-1 border border-stone-800">{html.escape(m.get("physical",""))}</td><td class="p-1 border border-stone-800">{html.escape(m.get("systems",""))}</td></tr>' for m in self.mapping])
-            mapping_html = f'<table class="w-full text-[11px] font-mono mt-3 border-collapse text-[var(--muted-foreground)]"><thead><tr class="text-amber-300"><th class="p-1 text-left border border-stone-800">Real-World Concept</th><th class="p-1 text-left border border-stone-800">Systems Reality</th></tr></thead><tbody>{rows}</tbody></table>'
+            rows = []
+            for m in self.mapping:
+                p_val = m.get("physical", "")
+                s_val = m.get("systems", "")
+                if not ("<span" in p_val or "<code" in p_val): p_val = html.escape(p_val)
+                if not ("<span" in s_val or "<code" in s_val): s_val = html.escape(s_val)
+                rows.append(f'<tr><td class="p-1 border border-stone-800">{p_val}</td><td class="p-1 border border-stone-800">{s_val}</td></tr>')
+            mapping_html = f'<table class="w-full text-[11px] font-mono mt-3 border-collapse text-[var(--muted-foreground)]"><thead><tr class="text-amber-300"><th class="p-1 text-left border border-stone-800">Real-World Concept</th><th class="p-1 text-left border border-stone-800">Systems Reality</th></tr></thead><tbody>{"".join(rows)}</tbody></table>'
+
+        mm_text = self.mental_model
+        if not ("<span" in mm_text or "<div" in mm_text or "<code" in mm_text or "<strong" in mm_text or "<em" in mm_text):
+            mm_text = html.escape(mm_text)
 
         return (
             f'<div class="analogy-card">\n'
@@ -402,7 +442,7 @@ class AnalogyNode(Node):
             f'    <span class="analogy-pill">{html.escape(self.category)}</span>\n'
             f'  </div>\n'
             f'  <div class="analogy-body">\n'
-            f'    <p>{html.escape(self.mental_model)}</p>\n'
+            f'    <p>{mm_text}</p>\n'
             f'    {mapping_html}\n'
             f'  </div>\n'
             f'</div>\n'
