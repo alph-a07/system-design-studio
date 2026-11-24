@@ -209,6 +209,47 @@
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
     }
+    /* Robust Multi-Surface Highlighting Styles */
+    .sds-highlight {
+      position: relative;
+      border-radius: 2px;
+      padding: 0 1px;
+      cursor: pointer;
+      transition: filter 0.15s ease;
+    }
+    .sds-highlight:hover, .sds-highlight.is-hovered {
+      filter: brightness(1.2);
+    }
+    .sds-hl-yellow {
+      background-color: #fef08a !important;
+      color: #1a1a1a !important;
+      border-bottom: 2px solid #eab308;
+    }
+    html.dark .sds-hl-yellow, .dark .sds-hl-yellow {
+      background-color: rgba(250, 204, 21, 0.35) !important;
+      color: #fef08a !important;
+      border-bottom: 2px solid #facc15;
+    }
+    .sds-hl-emerald {
+      background-color: #a7f3d0 !important;
+      color: #064e3b !important;
+      border-bottom: 2px solid #10b981;
+    }
+    html.dark .sds-hl-emerald, .dark .sds-hl-emerald {
+      background-color: rgba(16, 185, 129, 0.3) !important;
+      color: #6ee7b7 !important;
+      border-bottom: 2px solid #10b981;
+    }
+    .sds-hl-cyan {
+      background-color: #bae6fd !important;
+      color: #0369a1 !important;
+      border-bottom: 2px solid #0284c7;
+    }
+    html.dark .sds-hl-cyan, .dark .sds-hl-cyan {
+      background-color: rgba(56, 189, 248, 0.3) !important;
+      color: #7dd3fc !important;
+      border-bottom: 2px solid #38bdf8;
+    }
     /* Tooltip popover card: clean, bounded, responsive popover with zero line breaks */
     .jargon-popover-card {
       display: none;

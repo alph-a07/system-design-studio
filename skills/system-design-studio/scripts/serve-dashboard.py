@@ -406,22 +406,63 @@ def scan_notes(base_dir, inst_dir):
 def get_highlights_candidates(inst_dir, artifact_path):
     clean_p = artifact_path.replace("\\", "/").strip("/")
     candidates = []
-    # If it is a note (starts with tier- or notes/ or ends with .md)
+
+    # 1. Notes artifacts: notes/... or tier-...
     if clean_p.startswith("notes/"):
         slug = clean_p.replace("/", "--")
         candidates.append(os.path.join(inst_dir, "highlights", f"{slug}.json"))
         unprefixed = clean_p[6:]
         candidates.append(os.path.join(inst_dir, "highlights", f"{unprefixed.replace('/', '--')}.json"))
+        candidates.append(os.path.join(inst_dir, "highlights", f"notes--{unprefixed.replace('/', '--')}.json"))
     elif any(clean_p.startswith(pfx) for pfx in ["tier-", "tier_"]):
         candidates.append(os.path.join(inst_dir, "highlights", f"notes--{clean_p.replace('/', '--')}.json"))
         candidates.append(os.path.join(inst_dir, "highlights", f"{clean_p.replace('/', '--')}.json"))
+    elif clean_p == "DECISIONS.md" or clean_p.endswith("/DECISIONS.md"):
+        candidates.append(os.path.join(inst_dir, "highlights", "DECISIONS.json"))
+        candidates.append(os.path.join(inst_dir, "highlights", "DECISIONS.md.json"))
+        candidates.append(os.path.join(inst_dir, "DECISIONS.md.highlights.json"))
     else:
-        candidates.append(os.path.join(inst_dir, "highlights", f"{clean_p.replace('/', '--')}.json"))
-    safe_name = os.path.basename(clean_p)
-    candidates.append(os.path.join(inst_dir, "highlights", f"{safe_name}.json"))
-    # Legacy next to artifact
+        # Lesson artifacts: lessons/<slug>.html, <slug>.html, <slug>.md, topic.<slug>, etc.
+        base_name = os.path.basename(clean_p)
+        stem, ext = os.path.splitext(base_name)
+        if clean_p.startswith("topic."):
+            stem = clean_p.replace("topic.", "").replace(".", "-")
+        elif stem.startswith("topic."):
+            stem = stem.replace("topic.", "").replace(".", "-")
+
+        # Strip any "lessons--" prefix if already present in stem
+        if stem.startswith("lessons--"):
+            stem = stem[9:]
+
+        # Canonical HTML lesson candidate is always first
+        candidates.append(os.path.join(inst_dir, "highlights", f"lessons--{stem}.html.json"))
+        candidates.append(os.path.join(inst_dir, "highlights", f"lessons--{stem}.json"))
+        # Legacy markdown lesson highlights
+        candidates.append(os.path.join(inst_dir, "highlights", f"lessons--{stem}.md.json"))
+        # Unprefixed variants
+        candidates.append(os.path.join(inst_dir, "highlights", f"{stem}.html.json"))
+        candidates.append(os.path.join(inst_dir, "highlights", f"{stem}.json"))
+        candidates.append(os.path.join(inst_dir, "highlights", f"{stem}.md.json"))
+        # Sidecar variants next to lessons
+        candidates.append(os.path.join(inst_dir, "lessons", f"{stem}.html.highlights.json"))
+        candidates.append(os.path.join(inst_dir, "lessons", f"{stem}.highlights.json"))
+        candidates.append(os.path.join(inst_dir, "lessons", f"{stem}.md.highlights.json"))
+
+    # Direct flat-slug fallbacks
+    flat_slug = clean_p.replace("/", "--")
+    candidates.append(os.path.join(inst_dir, "highlights", f"{flat_slug}.json"))
+    candidates.append(os.path.join(inst_dir, "highlights", f"{os.path.basename(clean_p)}.json"))
     candidates.append(os.path.join(inst_dir, clean_p + ".highlights.json"))
-    return candidates
+
+    # De-duplicate while preserving priority order
+    seen = set()
+    unique_candidates = []
+    for c in candidates:
+        norm = os.path.normpath(c)
+        if norm not in seen:
+            seen.add(norm)
+            unique_candidates.append(norm)
+    return unique_candidates
 
 def get_highlights_path(inst_dir, artifact_path):
     candidates = get_highlights_candidates(inst_dir, artifact_path)
@@ -432,20 +473,40 @@ def get_highlights_path(inst_dir, artifact_path):
 
 def load_highlights_data(inst_dir, artifact_path):
     candidates = get_highlights_candidates(inst_dir, artifact_path)
+    combined = []
+    seen_ids = set()
+
     for c in candidates:
         if os.path.isfile(c):
             try:
                 with open(c, "r", encoding="utf-8") as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    items = data if isinstance(data, list) else data.get("highlights", [])
+                    for item in items:
+                        if isinstance(item, dict):
+                            hl_id = item.get("id") or f"{item.get('text', '')}_{item.get('color', '')}"
+                            if hl_id not in seen_ids:
+                                seen_ids.add(hl_id)
+                                combined.append(item)
             except Exception:
                 pass
-    return []
+
+    return combined
 
 def save_highlights_data(inst_dir, artifact_path, data):
-    p = get_highlights_path(inst_dir, artifact_path)
-    os.makedirs(os.path.dirname(p), exist_ok=True)
-    with open(p, "w", encoding="utf-8") as f:
+    candidates = get_highlights_candidates(inst_dir, artifact_path)
+    canonical = candidates[0]
+    os.makedirs(os.path.dirname(canonical), exist_ok=True)
+    with open(canonical, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
+
+    # Clean up legacy .md.json if canonical .html.json has been written
+    for old_c in candidates[1:]:
+        if os.path.isfile(old_c) and old_c.endswith(".md.json") and old_c != canonical:
+            try:
+                os.remove(old_c)
+            except Exception:
+                pass
 
 def compute_instance_state_hash(inst_dir, base_dir):
     try:
@@ -3778,18 +3839,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         </div>
 
         <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-          <!-- Format Switcher Pill Group -->
-          <div id="lesson-format-toggle" class="format-pill-group">
-            <button id="btn-format-html" class="format-pill-btn active" onclick="switchLessonFormat('html')" title="Interactive HTML Lesson">
-              <span class="material-symbols-outlined" style="font-size:14px;">view_in_ar</span>
-              <span>HTML Lesson</span>
-            </button>
-            <button id="btn-format-md" class="format-pill-btn" onclick="switchLessonFormat('md')" title="Artifact Markdown Document">
-              <span class="material-symbols-outlined" style="font-size:14px;">description</span>
-              <span>Markdown</span>
-            </button>
-          </div>
-
           <!-- Highlighter controls for reader -->
           <div id="lesson-highlighter-controls" class="highlighter-controls-group" style="display:inline-flex; align-items:center; gap:6px; position:relative;">
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'lesson')" title="Yellow highlight"></button>
@@ -3817,11 +3866,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       </div>
 
       <div class="lesson-dialog-body">
-        <!-- Interactive HTML Simulator -->
+        <!-- Interactive HTML Lesson & Simulator -->
         <iframe id="lesson-modal-iframe" class="lesson-iframe" sandbox="allow-scripts allow-same-origin allow-forms" style="display:none;"></iframe>
-        
-        <!-- Artifact-Grade Markdown Viewer -->
-        <div id="lesson-modal-markdown" class="md-rendered lesson-artifact-view" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -4098,9 +4144,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Artifact Delivery Format</label>
+          <label class="form-label">Lesson Delivery Format</label>
           <div style="font-size:11px; font-family:var(--font-mono); color:var(--on-surface-variant); background:var(--surface-container-high); padding:6px 10px; border:1px solid var(--border-color); border-radius:3px;">
-            Dual Delivery Active: HTML (Interactive Simulator) &amp; Markdown (.md) are automatically compiled in sync.
+            Exclusively Interactive HTML (tactile failure simulators &amp; collision-aware inline popovers).
           </div>
         </div>
         <div class="form-group">
@@ -5452,55 +5498,30 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     const closeLessonWorkbench = closeLessonModal;
 
     async function switchLessonFormat(format) {
-      currentLessonContext.activeFormat = format;
-      const btnHtml = document.getElementById('btn-format-html');
-      const btnMd = document.getElementById('btn-format-md');
+      currentLessonContext.activeFormat = 'html';
       const iframe = document.getElementById('lesson-modal-iframe');
       const mdView = document.getElementById('lesson-modal-markdown');
       const highlighters = document.getElementById('lesson-highlighter-controls');
 
-      if (format === 'html' && currentLessonContext.htmlPath) {
-        if (btnHtml) btnHtml.classList.add('active');
-        if (btnMd) btnMd.classList.remove('active');
-        if (highlighters) highlighters.style.display = 'inline-flex';
-        mdView.style.display = 'none';
-        iframe.style.display = 'block';
-        currentActiveArtifact = currentLessonContext.htmlPath;
-        const isDark = document.documentElement.classList.contains('dark');
-        const activePreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
-        iframe.onload = () => {
-          try {
-            if (iframe.contentDocument) {
-              if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
-              else iframe.contentDocument.documentElement.classList.remove('dark');
-              iframe.contentDocument.documentElement.setAttribute('data-theme-preset', activePreset);
-              injectHighlightStylesIntoDoc(iframe.contentDocument);
-              loadAndApplyHighlights(currentLessonContext.htmlPath, iframe.contentDocument.body, 'lesson');
-            }
-          } catch (e) {}
-        };
-        iframe.src = `/api/lesson?path=${encodeURIComponent(currentLessonContext.htmlPath)}&theme=${isDark ? 'dark' : 'light'}&preset=${encodeURIComponent(activePreset)}`;
-      } else if (format === 'md' && currentLessonContext.mdPath) {
-        if (btnMd) btnMd.classList.add('active');
-        if (btnHtml) btnHtml.classList.remove('active');
-        if (highlighters) highlighters.style.display = 'inline-flex';
-        iframe.style.display = 'none';
-        mdView.style.display = 'block';
-        currentActiveArtifact = currentLessonContext.mdPath;
-        mdView.innerHTML = '<div style="font-family:var(--font-mono); font-size:12px; color:var(--on-surface-variant); padding:20px;">Loading artifact markdown lesson...</div>';
+      if (highlighters) highlighters.style.display = 'inline-flex';
+      if (mdView) mdView.style.display = 'none';
+      if (iframe) iframe.style.display = 'block';
+      currentActiveArtifact = currentLessonContext.htmlPath;
+
+      const isDark = document.documentElement.classList.contains('dark');
+      const activePreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
+      iframe.onload = () => {
         try {
-          const res = await fetch(`/api/lesson?path=${encodeURIComponent(currentLessonContext.mdPath)}`);
-          if (res.ok) {
-            const raw = await res.text();
-            mdView.innerHTML = renderMarkdown(raw);
-            loadAndApplyHighlights(currentLessonContext.mdPath, mdView, 'lesson');
-          } else {
-            mdView.innerHTML = '<div style="font-family:var(--font-mono); color:var(--secondary); padding:20px;">Failed to load markdown lesson artifact.</div>';
+          if (iframe.contentDocument && iframe.contentDocument.body) {
+            if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
+            else iframe.contentDocument.documentElement.classList.remove('dark');
+            iframe.contentDocument.documentElement.setAttribute('data-theme-preset', activePreset);
+            injectHighlightStylesIntoDoc(iframe.contentDocument);
+            loadAndApplyHighlights(currentLessonContext.htmlPath, iframe.contentDocument.body, 'lesson');
           }
-        } catch (e) {
-          mdView.innerHTML = '<div style="font-family:var(--font-mono); color:var(--secondary); padding:20px;">Error loading markdown lesson.</div>';
-        }
-      }
+        } catch (e) {}
+      };
+      iframe.src = `/api/lesson?path=${encodeURIComponent(currentLessonContext.htmlPath)}&theme=${isDark ? 'dark' : 'light'}&preset=${encodeURIComponent(activePreset)}`;
     }
 
     async function openLessonModal(topicId, title, explicitArtifact = '') {
@@ -5516,10 +5537,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const cleanId = (topicId || '').replace(/^topic\./, '');
       const dashedId = cleanId.replace(/\./g, '-');
 
-      // Check explicit artifact
+      // Check explicit artifact (convert any .md to .html)
       if (explicitArtifact) {
-        if (explicitArtifact.endsWith('.html')) currentLessonContext.htmlPath = explicitArtifact;
-        if (explicitArtifact.endsWith('.md')) currentLessonContext.mdPath = explicitArtifact;
+        if (explicitArtifact.endsWith('.html')) {
+          currentLessonContext.htmlPath = explicitArtifact;
+        } else if (explicitArtifact.endsWith('.md')) {
+          currentLessonContext.htmlPath = explicitArtifact.replace(/\.md$/, '.html');
+        }
       }
 
       // Check all lessons in directory
@@ -5527,44 +5551,21 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const fname = l.filename || '';
         const lpath = l.path || l.filename;
         if (fname.includes(cleanId) || fname.includes(dashedId)) {
-          if (fname.endsWith('.html') && !currentLessonContext.htmlPath) currentLessonContext.htmlPath = lpath;
-          if (fname.endsWith('.md') && !currentLessonContext.mdPath) currentLessonContext.mdPath = lpath;
+          if (fname.endsWith('.html') && !currentLessonContext.htmlPath) {
+            currentLessonContext.htmlPath = lpath;
+          }
         }
       });
 
       // Default fallback
-      if (!currentLessonContext.htmlPath && !currentLessonContext.mdPath) {
+      if (!currentLessonContext.htmlPath) {
         currentLessonContext.htmlPath = `lessons/${dashedId}.html`;
       }
 
       const toggleGroup = document.getElementById('lesson-format-toggle');
-      const btnHtml = document.getElementById('btn-format-html');
-      const btnMd = document.getElementById('btn-format-md');
+      if (toggleGroup) toggleGroup.style.display = 'none';
 
-      // Honor user/manifest outputType preference (markdown vs html)
-      const outputPref = (globalStatus?.settings?.outputType || globalStatus?.manifest?.settings?.outputType || '').toLowerCase();
-      const preferredFormat = (outputPref === 'markdown' || outputPref === 'md') ? 'md' : 'html';
-
-      if (currentLessonContext.htmlPath && currentLessonContext.mdPath) {
-        toggleGroup.style.display = 'inline-flex';
-        btnHtml.style.display = 'inline-flex';
-        btnMd.style.display = 'inline-flex';
-        switchLessonFormat(preferredFormat);
-      } else if (currentLessonContext.htmlPath) {
-        toggleGroup.style.display = 'none';
-        btnHtml.style.display = 'none';
-        btnMd.style.display = 'none';
-        switchLessonFormat('html');
-      } else if (currentLessonContext.mdPath) {
-        toggleGroup.style.display = 'none';
-        btnHtml.style.display = 'none';
-        btnMd.style.display = 'none';
-        switchLessonFormat('md');
-      } else {
-        toggleGroup.style.display = 'none';
-        switchLessonFormat('html');
-      }
-
+      switchLessonFormat('html');
       openModal('lesson-modal');
     }
 
@@ -5749,43 +5750,131 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function renderHighlightsInContainer(container, highlights, artifactPath, surfaceHint = null) {
-      if (!container || !highlights || !Array.isArray(highlights)) return;
+      if (!container || !highlights || !Array.isArray(highlights) || highlights.length === 0) return;
       const doc = container.ownerDocument || document;
 
-      highlights.forEach(hl => {
-        const searchText = (hl.text || '').trim();
-        if (!searchText) return;
+      injectHighlightStylesIntoDoc(doc);
 
+      highlights.forEach(hl => {
+        if (!hl || !hl.text) return;
+        const rawSearch = hl.text;
+        const normalizedSearch = rawSearch.replace(/[\s\u00A0]+/g, ' ').trim();
+        if (!normalizedSearch) return;
+
+        // Skip if this exact highlight is already rendered in container
+        if (hl.id && container.querySelector(`mark[data-hl-id="${hl.id}"]`)) {
+          return;
+        }
+
+        // Build continuous text and character offset map across all visible text nodes
         const walker = doc.createTreeWalker(
           container,
           NodeFilter.SHOW_TEXT,
           {
             acceptNode: function(node) {
-              if (!node.nodeValue || !node.nodeValue.includes(searchText)) return NodeFilter.FILTER_REJECT;
-              let p = node.parentElement;
-              while (p && p !== container) {
-                if (p.classList && p.classList.contains('sds-highlight')) return NodeFilter.FILTER_REJECT;
-                if (['SCRIPT', 'STYLE', 'TEXTAREA', 'INPUT'].includes(p.tagName)) return NodeFilter.FILTER_REJECT;
-                p = p.parentElement;
+              if (!node.nodeValue) return NodeFilter.FILTER_REJECT;
+              const p = node.parentElement;
+              if (!p) return NodeFilter.FILTER_REJECT;
+              // Skip script, style, inputs, and popover cards (tooltips)
+              if (p.closest('.jargon-popover-card, script, style, textarea, input, select, noscript')) {
+                return NodeFilter.FILTER_REJECT;
               }
               return NodeFilter.FILTER_ACCEPT;
             }
           }
         );
 
-        const matchingNodes = [];
-        let cur;
-        while (cur = walker.nextNode()) {
-          matchingNodes.push(cur);
+        let flatText = '';
+        const charMap = []; // index in flatText -> { node, offset }
+        let textNode;
+        let prevWasSpace = false;
+
+        while (textNode = walker.nextNode()) {
+          const val = textNode.nodeValue;
+          for (let i = 0; i < val.length; i++) {
+            const ch = val[i];
+            const isSpace = /[\s\u00A0]/.test(ch);
+            if (isSpace) {
+              if (!prevWasSpace && flatText.length > 0) {
+                flatText += ' ';
+                charMap.push({ node: textNode, offset: i });
+                prevWasSpace = true;
+              }
+            } else {
+              flatText += ch;
+              charMap.push({ node: textNode, offset: i });
+              prevWasSpace = false;
+            }
+          }
         }
 
-        matchingNodes.forEach(textNode => {
-          const val = textNode.nodeValue;
-          const idx = val.indexOf(searchText);
-          if (idx === -1) return;
+        if (flatText.length === 0) return;
 
-          const matchNode = textNode.splitText(idx);
-          matchNode.splitText(searchText.length);
+        // Find the match
+        let matchIdx = flatText.indexOf(normalizedSearch);
+        let matchLen = normalizedSearch.length;
+
+        if (matchIdx === -1) {
+          // Fallback 1: Case-insensitive
+          matchIdx = flatText.toLowerCase().indexOf(normalizedSearch.toLowerCase());
+        }
+
+        if (matchIdx === -1) {
+          // Fallback 2: Regex flexible whitespace
+          try {
+            const escaped = normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pattern = new RegExp(escaped.replace(/\s+/g, '\\s+'), 'i');
+            const m = pattern.exec(flatText);
+            if (m) {
+              matchIdx = m.index;
+              matchLen = m[0].length;
+            }
+          } catch (e) {}
+        }
+
+        if (matchIdx === -1) {
+          // Fallback 3: Substring without surrounding punctuation
+          const trimmedPunct = normalizedSearch.replace(/^[.,:;"'!?()[\]{}]+|[.,:;"'!?()[\]{}]+$/g, '').trim();
+          if (trimmedPunct && trimmedPunct.length > 6) {
+            matchIdx = flatText.toLowerCase().indexOf(trimmedPunct.toLowerCase());
+            matchLen = trimmedPunct.length;
+          }
+        }
+
+        if (matchIdx === -1 || matchIdx >= charMap.length) return;
+
+        const startChar = matchIdx;
+        const endChar = Math.min(matchIdx + matchLen - 1, charMap.length - 1);
+
+        // Group character indices by text node
+        const nodeMap = new Map();
+        for (let k = startChar; k <= endChar; k++) {
+          const item = charMap[k];
+          if (!item || !item.node) continue;
+          if (!nodeMap.has(item.node)) {
+            nodeMap.set(item.node, { minOffset: item.offset, maxOffset: item.offset });
+          } else {
+            const entry = nodeMap.get(item.node);
+            if (item.offset < entry.minOffset) entry.minOffset = item.offset;
+            if (item.offset > entry.maxOffset) entry.maxOffset = item.offset;
+          }
+        }
+
+        const markElements = [];
+        nodeMap.forEach((range, tNode) => {
+          if (!tNode.parentNode) return;
+          const nodeLen = tNode.nodeValue.length;
+          const start = Math.max(0, Math.min(range.minOffset, nodeLen));
+          const end = Math.max(start, Math.min(range.maxOffset + 1, nodeLen));
+          if (start >= end) return;
+
+          let targetNode = tNode;
+          if (start > 0) {
+            targetNode = tNode.splitText(start);
+          }
+          if (end - start < targetNode.nodeValue.length) {
+            targetNode.splitText(end - start);
+          }
 
           const mark = doc.createElement('mark');
           mark.className = `sds-highlight sds-hl-${hl.color || 'yellow'}`;
@@ -5799,11 +5888,24 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             }
           };
 
-          if (matchNode.parentNode) {
-            matchNode.parentNode.replaceChild(mark, matchNode);
-            mark.appendChild(matchNode);
+          if (targetNode.parentNode) {
+            targetNode.parentNode.replaceChild(mark, targetNode);
+            mark.appendChild(targetNode);
+            markElements.push(mark);
           }
         });
+
+        // Synchronize group hover across all slices of this highlight
+        if (markElements.length > 1) {
+          markElements.forEach(m => {
+            m.onmouseenter = () => {
+              markElements.forEach(other => other.classList.add('is-hovered'));
+            };
+            m.onmouseleave = () => {
+              markElements.forEach(other => other.classList.remove('is-hovered'));
+            };
+          });
+        }
       });
 
       // Synchronize iframe global functions
@@ -5867,19 +5969,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         selectedText = selObj ? selObj.toString().trim() : '';
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
         surfaceHint = 'lesson';
-        if (currentLessonContext.activeFormat === 'html') {
-          artifactPath = currentLessonContext.htmlPath;
-          const iframe = document.getElementById('lesson-modal-iframe');
-          if (iframe && iframe.contentDocument) {
-            targetDoc = iframe.contentDocument;
-            targetContainer = iframe.contentDocument.body;
-            selObj = iframe.contentWindow ? iframe.contentWindow.getSelection() : null;
-            selectedText = selObj ? selObj.toString().trim() : '';
-          }
-        } else {
-          artifactPath = currentLessonContext.mdPath;
-          targetContainer = document.getElementById('lesson-modal-markdown');
-          selObj = window.getSelection();
+        artifactPath = currentLessonContext.htmlPath;
+        const iframe = document.getElementById('lesson-modal-iframe');
+        if (iframe && iframe.contentDocument) {
+          targetDoc = iframe.contentDocument;
+          targetContainer = iframe.contentDocument.body;
+          selObj = iframe.contentWindow ? iframe.contentWindow.getSelection() : null;
           selectedText = selObj ? selObj.toString().trim() : '';
         }
       }
@@ -6011,14 +6106,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
         surfaceHint = 'lesson';
-        if (currentLessonContext.activeFormat === 'html') {
-          artifactPath = currentLessonContext.htmlPath;
-          const iframe = document.getElementById('lesson-modal-iframe');
-          targetContainer = iframe?.contentDocument?.body;
-        } else {
-          artifactPath = currentLessonContext.mdPath;
-          targetContainer = document.getElementById('lesson-modal-markdown');
-        }
+        artifactPath = currentLessonContext.htmlPath;
+        const iframe = document.getElementById('lesson-modal-iframe');
+        targetContainer = iframe?.contentDocument?.body;
       }
 
       if (!artifactPath && surfaceHint && activeHighlightsCache[surfaceHint]?.path) {
@@ -6966,8 +7056,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const p = data.project || {};
           document.getElementById('settings-notes-dir').value = p.notesDir || 'notes';
           document.getElementById('settings-auto-notes').checked = (p.autoGenerateNotes !== false);
-          const fmtEl = document.getElementById('settings-lesson-format');
-          if (fmtEl) fmtEl.value = p.outputType || 'html';
         }
       } catch (e) {}
       checkForUpdates(false);
@@ -7080,7 +7168,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       event.preventDefault();
       const notesDir = document.getElementById('settings-notes-dir').value;
       const autoNotes = document.getElementById('settings-auto-notes').checked;
-      const outputType = document.getElementById('settings-lesson-format')?.value || 'html';
       const themePreset = document.getElementById('settings-theme-preset').value;
 
       applyThemePreset(themePreset);
@@ -7092,7 +7179,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({
             notesDir: notesDir,
             autoGenerateNotes: autoNotes,
-            outputType: outputType
+            outputType: 'html'
           })
         });
         closeModal('settings-modal');

@@ -300,6 +300,58 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertLessEqual(c_right, max_r)
         self.assertLessEqual(c_right - c_left, 360)
 
+    def test_highlight_styles_and_storage_recovery(self):
+        """Verify highlight styles in lesson template and robust cross-format storage recovery."""
+        template_path = os.path.join(REPO_ROOT, "skills", "system-design-studio", "resources", "lesson-template.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            tmpl = f.read()
+        self.assertIn(".sds-highlight", tmpl)
+        self.assertIn(".sds-hl-yellow", tmpl)
+        self.assertIn(".sds-hl-emerald", tmpl)
+        self.assertIn(".sds-hl-cyan", tmpl)
+
+        # Import serve-dashboard functions
+        sd = importlib.import_module("serve-dashboard")
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp_inst:
+            hl_dir = os.path.join(tmp_inst, "highlights")
+            os.makedirs(hl_dir, exist_ok=True)
+
+            # Test 1: get_highlights_candidates
+            candidates = sd.get_highlights_candidates(tmp_inst, "lessons/0-1-tcp-vs-udp.html")
+            self.assertTrue(candidates[0].endswith("lessons--0-1-tcp-vs-udp.html.json"))
+            self.assertTrue(any(c.endswith("lessons--0-1-tcp-vs-udp.md.json") for c in candidates))
+
+            # Test 2: load_highlights_data recovers legacy .md.json highlights
+            legacy_md_json = os.path.join(hl_dir, "lessons--0-1-tcp-vs-udp.md.json")
+            with open(legacy_md_json, "w", encoding="utf-8") as f:
+                json.dump([
+                    {"id": "hl-1", "text": "TCP is a byte stream", "color": "yellow"},
+                    {"id": "hl-2", "text": "UDP preserves message boundaries", "color": "cyan"}
+                ], f)
+
+            loaded = sd.load_highlights_data(tmp_inst, "lessons/0-1-tcp-vs-udp.html")
+            self.assertEqual(len(loaded), 2)
+            self.assertEqual(loaded[0]["id"], "hl-1")
+            self.assertEqual(loaded[1]["id"], "hl-2")
+
+            # Test 3: save_highlights_data writes to canonical .html.json and cleans legacy .md.json
+            sd.save_highlights_data(tmp_inst, "lessons/0-1-tcp-vs-udp.html", loaded)
+            canonical_path = os.path.join(hl_dir, "lessons--0-1-tcp-vs-udp.html.json")
+            self.assertTrue(os.path.isfile(canonical_path), "Canonical .html.json must be written")
+            self.assertFalse(os.path.isfile(legacy_md_json), "Legacy .md.json must be safely migrated and cleaned")
+
+    def test_settings_modal_excludes_markdown_format(self):
+        """Verify dashboard settings modal no longer exposes markdown lesson delivery option."""
+        dashboard_path = os.path.join(SCRIPTS_DIR, "serve-dashboard.py")
+        with open(dashboard_path, "r", encoding="utf-8") as f:
+            code = f.read()
+
+        # Invariant: Settings modal must not contain settings-lesson-format dropdown or radio
+        self.assertNotIn('id="settings-lesson-format"', code)
+        self.assertNotIn("settings-lesson-format", code)
+
 
 if __name__ == "__main__":
     unittest.main()

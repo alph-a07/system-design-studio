@@ -9,7 +9,7 @@ metadata:
 
 # /sds-teach — Interactive System Design Lesson Engine
 
-Deliver an immersive, first-principles system design lesson artifact featuring tactile simulators (HTML) and visual diagrams (Markdown) deterministically compiled from structured causal JSON payloads.
+Deliver an immersive, first-principles system design lesson artifact featuring tactile simulators, responsive diagrams, and collision-aware inline tooltips in interactive HTML deterministically compiled from structured causal JSON payloads.
 
 ## Subagent Architecture & Agentic Efficiency
 
@@ -48,8 +48,8 @@ To ensure the highest cognitive quality without polluting coordinator dialog his
                 ▼
 ┌──────────────────────────────┐
 │       render-lesson.py       │ ──► .system-design/lessons/<slug>.html
-│   • Dual HTML & Markdown out │ ──► .system-design/lessons/<slug>.md
-│   • Regex/AST verification   │ ──► Auto-stages to conversation brain
+│   • Interactive HTML output  │ ──► Auto-stages to conversation brain
+│   • Regex/AST verification   │
 └──────────────────────────────┘
 ```
 
@@ -59,7 +59,7 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
 - **`sds-lesson-crafter` (KEPT - LLM Subagent)**: High-ROI creative & causal authoring. Writes the 2,500+ word JSON payload directly to `.system-design/lessons/.generated-<slug>.json`, keeping massive raw JSON strings out of the coordinator's dialog context.
 - **`sds-pedagogy-auditor` (KEPT - LLM Subagent)**: High-ROI adversarial critique. Prevents authoring confirmation bias by verifying math, term ordering, and gate alignment directly against the file on disk.
 - **Context Analyzer (DROPPED - Inlined in Coordinator)**: Reading `CURSOR.md` and `settings.json` takes 5ms via `read_file`. Delegating to a subagent would waste ~3,000 tokens and 5s latency.
-- **Content Renderer & Reviewer (DROPPED - Script-Automated)**: `render-lesson.py` compiles both HTML/JS and Markdown editions deterministically in <50ms with 0 token cost.
+- **Content Renderer & Reviewer (DROPPED - Script-Automated)**: `render-lesson.py` compiles the interactive HTML lesson deterministically in <50ms with 0 token cost.
 - **Notes & Revision Makers (DROPPED - Script-Automated)**: `compile-notes.py` and `update-revisions.py` handle disk formatting deterministically on sign-off with 0 token waste.
 
 ---
@@ -75,7 +75,7 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
    - Flagship models (e.g. Claude 3.7 / 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro) are STRICTLY FORBIDDEN from generating or outputting lesson text, summaries, or lectures in the coordinator chat turn.
    - The coordinator turn MUST be strictly a 5–12 line delivery bridge containing:
      1. Topic Title and Hierarchy (`Tier` -> `Cluster`)
-     2. Clickable links to both delivered formats: `[Open Interactive Lesson (HTML)](file:///...)` and `[Open Complete Notes (Markdown)](file:///...)`
+     2. Clickable link to the delivered interactive lesson: `[Open Interactive Lesson (HTML)](file:///...)`
      3. The opening Hypothesis Dilemma / Architectural Defense Challenge question to prompt the learner's thinking and invite dialectic defense directly in chat.
    - NEVER duplicate or summarize the lesson body in chat. The lesson belongs exclusively in the delivered artifacts.
 
@@ -233,9 +233,8 @@ When executing `/sds-teach`:
 ### Step 5: Clean Delivery Bridge (Coordinator)
 - Deliver a concise 5–12 line response in chat (NEVER dump lecture text):
   1. Topic Title and Hierarchy (`Tier` ➔ `Cluster`)
-  2. Clickable links to both formats:
+  2. Clickable link to the interactive HTML lesson:
      - `[Open Interactive Lesson (HTML)](file:///<path-to-lesson.html>)`
-     - `[Open Complete Notes (Markdown)](file:///<path-to-lesson.md>)`
   3. The Opening Hypothesis Dilemma / Defense Challenge prompt:
      *"Before we dissect the underlying mechanics, consider this core dilemma: [Concrete Dilemma from Lesson]. How would you approach this, or what physical constraint makes naive solutions fail? Review the artifact and defend your thesis directly in chat."*
 

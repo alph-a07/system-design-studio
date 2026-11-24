@@ -11,7 +11,7 @@ metadata:
 
 Inspect or dynamically update `.system-design/settings.json` (visual theme, notes structure). Settings can also be updated directly in the visual dashboard on `http://localhost:8420`.
 
-> **Note**: Both interactive HTML and complete Markdown lessons are compiled automatically on every lesson delivery.
+> **Note**: Lessons are strictly delivered as interactive HTML artifacts featuring embedded simulators and collision-aware tooltips. Active-learning notes are compiled into Markdown upon topic verification.
 
 ## Instructions
 
