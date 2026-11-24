@@ -6329,7 +6329,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             cnt.querySelectorAll('.sds-highlight').forEach(mark => {
               const parent = mark.parentNode;
               if (parent) {
-                while (mark.firstChild) parent.insertBefore(mark.firstChild, mark);
+                while (mark.firstChild) {
+                  if (mark.firstChild.nodeType === 1 && mark.firstChild.classList && mark.firstChild.classList.contains('sds-hl-del-btn')) {
+                    mark.removeChild(mark.firstChild);
+                  } else {
+                    parent.insertBefore(mark.firstChild, mark);
+                  }
+                }
                 parent.removeChild(mark);
                 parent.normalize();
               }

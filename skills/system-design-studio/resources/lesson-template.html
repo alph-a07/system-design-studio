@@ -304,7 +304,7 @@
       left: 0;
       width: min(90vw, 420px);
       max-width: 90vw;
-      min-width: 280px;
+      min-width: min(280px, 90vw);
       max-height: calc(100vh - 48px);
       overflow: hidden;
       scrollbar-width: none !important;
@@ -363,26 +363,29 @@
       flex-wrap: wrap;
     }
     .jargon-popover-title {
-      font-family: ui-monospace, monospace;
-      font-size: 0.82rem;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 0.8rem;
       font-weight: 700;
       color: #fbbf24;
       text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
+      line-height: 1.35;
       word-break: break-word;
       flex: 1 1 auto;
       min-width: 140px;
     }
     .jargon-popover-badge {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       padding: 0.15rem 0.5rem;
       border-radius: 9999px;
       background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.35);
       color: #fde68a;
-      font-family: ui-monospace, monospace;
+      font-family: ui-monospace, SFMono-Regular, monospace;
       font-weight: 600;
       flex-shrink: 0;
       white-space: nowrap;
+      line-height: normal;
     }
     .jargon-popover-body {
       display: block;
@@ -926,8 +929,8 @@
     const mainViewport = document.querySelector('.lesson-main-viewport');
     if (mainViewport) {
       mainViewport.addEventListener('scroll', () => {
-        const open = document.querySelector('.jargon-tooltip-wrapper.is-open');
-        if (open) positionJargonPopover(open);
+        const active = document.querySelector('.jargon-tooltip-wrapper.is-open, .jargon-tooltip-wrapper:hover');
+        if (active) positionJargonPopover(active);
       }, { passive: true });
     }
 

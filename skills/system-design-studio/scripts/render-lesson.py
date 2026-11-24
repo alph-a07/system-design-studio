@@ -360,6 +360,17 @@ def clean_markdown_leaks_in_html(html):
         return f"<strong>{content}</strong>"
     html = re.sub(r"(?<![=\w/\"'])\*\*([^\*\r\n<>]+?)\*\*(?![=\w\"'])", _replace_bold, html)
 
+    # 6. Safeguard: protect code blocks, then strip any stray orphan asterisks in prose
+    code_blocks = []
+    def _save_code(m):
+        code_blocks.append(m.group(0))
+        return f"__CODE_BLOCK_{len(code_blocks)-1}__"
+
+    html = re.sub(r"<(?:pre|code)[^>]*>[\s\S]*?</(?:pre|code)>", _save_code, html, flags=re.IGNORECASE)
+    html = re.sub(r"\*\*", "", html)
+    for idx, cb in enumerate(code_blocks):
+        html = html.replace(f"__CODE_BLOCK_{idx}__", cb)
+
     return html
 
 def sanitize_tooltips_to_spans(html):
