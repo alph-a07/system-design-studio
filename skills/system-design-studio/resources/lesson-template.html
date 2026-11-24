@@ -261,6 +261,9 @@
       min-width: 280px;
       max-height: calc(100vh - 48px);
       overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
       background: var(--card, #18181b);
       border: 1.5px solid #f59e0b;
       border-radius: 0.875rem;
@@ -271,6 +274,11 @@
       white-space: normal;
       cursor: default;
       pointer-events: auto;
+    }
+    .jargon-popover-card::-webkit-scrollbar {
+      display: none;
+      width: 0;
+      height: 0;
     }
     /* Invisible hover bridge to prevent losing hover when cursor moves from cue to card */
     .jargon-popover-card::after {
