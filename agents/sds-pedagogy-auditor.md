@@ -28,12 +28,16 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
    - Verify that there is exactly one running numerical example throughout the lesson and that parameters do not shift arbitrarily between sections.
    - Verify that mathematical notation uses clean browser-native Unicode (`O(log N)`, `≈ 24`, `×`, `≤`) rather than uncompiled LaTeX tokens.
 
-2. **Term Ordering & Jargon Unpacking Invariant**:
-   - Grep the entire lesson body for every technical acronym, protocol name, or systems term.
-   - Verify that terms are unpacked via **inline tooltips** (`.jargon-tooltip-wrapper` with popover card) or structured callouts directly where the terms are introduced in sentences.
-   - Verify that no term is referenced before its defining tooltip or card.
-   - Verify that plain English precedes the technical label (e.g., "strictly in-order byte stream" before "monotonic TCP stream").
-   - Reject any orphaned buzzwords or unexplained acronyms.
+2. **Frictionless Vocabulary & Jargon Unpacking Invariant**:
+   - **Accessible Vocab Check**: Reject pompous, archaic, or hyper-academic words that introduce cognitive friction (e.g. flag *unambiguous*, *virtue*, *obsolete*, *catastrophic*, *inexorable*, *herculean*, *tapestry*, *plethora*). Enforce simple, modern, conversational engineering language.
+   - **Zero Unexplained Niche Name-Dropping**: Flag and fail any draft that casually mentions niche technical terms, protocols, or hardware concepts without explaining them (e.g. throwaway mentions of *BGP convergence flaps*, *optical repeaters*, *chromatic dispersion compensators*, *silicon SRAM packet queues*). If a term is introduced, it MUST be explained or unpacked via an inline tooltip; otherwise, it must be omitted.
+   - **Inline Tooltip Coverage**: Verify that every domain acronym or systems concept (e.g. RTT, BDP, HOL, socket, P99) is unpacked via **inline tooltips** (`.jargon-tooltip-wrapper` with popover card) directly where introduced in text. Plain English must precede technical labels.
+   - **The 5 Invariant Questions**: Verify the draft clearly answers:
+     - **WHY** the dilemma exists
+     - **WHEN** in real-world scale it matters
+     - **WHAT** the data structure/protocol shape is
+     - **WHERE** in the OS/network stack it lives
+     - **HOW** it works and fails step-by-step
 
 3. **Unindexed Section Headings Invariant**:
    - Verify that section titles are NOT prefixed with numbers ("1.", "Section 1:", "Phase 1:").
@@ -48,10 +52,10 @@ You eliminate authoring confirmation bias by enforcing the 8 Hard Pre-Flight Che
    - Flag any dogmatic or unhedged claims: *"guarantees zero latency"*, *"completely eliminates stalls"*, *"works across all firewalls"*, *"has no overhead"*.
    - Ensure physical boundaries, middlebox quirks, and real-world failure exceptions are explicitly stated.
 
-6. **Curriculum Sign-Off Gate Alignment**:
+6. **Curriculum Sign-Off & Self Evaluation Alignment (Conclude On Your Terms)**:
    - Read the target topic's explicit `— *Tick off when:*` line from the active project's `CURRICULUM.md`.
-   - Verify that Section 5's defense challenge directly and strictly tests that requirement.
-   - Ensure no untaught, out-of-scope prerequisite knowledge is required to defend the challenge.
+   - Verify that Section 5's Self Evaluation scenario directly and strictly tests that requirement.
+   - Ensure no untaught, out-of-scope prerequisite knowledge is required for the learner to reach closure and conclude on their terms.
 
 7. **Depth & Anti-Compression Gate**:
    - **Standard Mode**: Verify narrative word count (minimum 1,800 words; target 2,500–3,500 words).

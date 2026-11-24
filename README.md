@@ -31,9 +31,9 @@ Most engineers study system design by skimming static diagrams, memorizing high-
 ```text
   ┌─────────────────────────────────────────────────────────────────────────────┐
   │                                                                             │
-  │   1. DELIVER (/sds-teach)         2. DEFEND (Chat Reply)    3. VERIFY       │
-  │   Tactile HTML Simulators    ──►  Socratic Chaos Defense ──► Git Proof &    │
-  │   & Inline Jargon Tooltips       Injected Cold in Chat      Living Notes    │
+  │   1. DELIVER (/sds-teach)         2. SELF EVALUATE (Closure)    3. VERIFY   │
+  │   Tactile HTML Simulators    ──►  Conclude On Your Terms    ──► Git Proof & │
+  │   & Inline Jargon Tooltips        When You Have Closure         Living Notes│
   │                                                                             │
   └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -48,13 +48,13 @@ Don't just read abstract descriptions of head-of-line blocking, write amplificat
 ### 2. Zero-Friction Inline Jargon Tooltips (No Tab Switching)
 Never break your reading flow or tab out to Google systems buzzwords. Protocol keywords and acronyms (*Middlebox, BDP, ALPN, HoL Blocking, Write Amplification, P99, 4-Tuple*) are unpacked as **inline interactive tooltips** right inside the sentence where they appear—plain English first, formal systems label second—with an auto-indexed glossary drawer.
 
-### 3. Socratic Chaos Defense (Implicit in Chat)
-No generic nod-along praise. Every topic poses an opening architectural dilemma. When you reply in chat, the studio stress-tests your mental model against real production failure modes (asymmetric partitions, clock skew, disk fsync ceilings, queue drops) before allowing you to sign off.
+### 3. Self Evaluation (Conclude On Your Terms)
+No stressful interrogation gates or adversarial friction. Every topic pairs tactile simulators with a realistic Self Evaluation scenario. Once you explore the mechanics and reach internal closure on the trade-offs, conclude the topic on your own terms directly in chat or seal it with `/sds-complete`.
 
 ### 4. Active-Learning Living Notes (Your Personal Second Brain)
 Traditional courses dump generic textbook bullet points. System Design Studio automatically synthesizes what **you personally proved and understood** across 4 cognitive phases:
 1. **Initial Intuition & Working Hypothesis**: Your naive mental model before constraint analysis.
-2. **Dialectic & Friction Encountered**: The failure modes and edge cases where your initial model broke down.
+2. **Discussion & Friction Explored**: The failure modes and edge cases where your initial model broke down.
 3. **Derived Invariant (The 'Aha!' Synthesis)**: The non-negotiable physical or mathematical law you proved cold.
 4. **Personal Rules of Thumb & Sizing Reality**: Actionable quantitative heuristics ready for interviews and production.
 
@@ -129,7 +129,7 @@ Once initialized, **you never need to touch the terminal during study sessions**
 
 ```text
 1. /sds-teach [topic]     ──► Deliver interactive visual lesson & opening dilemma
-2. (Reply in chat)        ──► Defend trade-offs cold against simulated production chaos
+2. Self Evaluation         ──► Gain closure on trade-offs & conclude on your terms
 3. /sds-complete          ──► Seal verified mastery into Git with auto-synthesized notes
 ```
 
@@ -137,8 +137,8 @@ Once initialized, **you never need to touch the terminal during study sessions**
 | Command | What It Does |
 | :--- | :--- |
 | **`/sds-teach [topic]`** | Delivers the next or specified topic with tactile simulators, deep mechanics, and inline tooltips. |
-| **Chat Reply** | Defends your architectural reasoning against injected hardware/network constraints. |
-| **`/sds-complete [proof]`** | Verifies defense criteria, advances cursor, logs an ADR, and records an atomic Git commit. |
+| **Self Evaluation** | Review realistic scenario constraints and gain closure on your terms directly in chat. |
+| **`/sds-complete [proof]`** | Verifies criteria, advances cursor, logs an ADR, and records an atomic Git commit. |
 | **`/sds-status`** | Instant overview of current focus, completed percentage, and lineage anchors. |
 | **`/sds-notes [topic]`** | Browses synthesized active learning notes (Hypothesis ➔ Friction ➔ Invariant ➔ Rules). |
 | **`/sds-dashboard`** | Launches the live interactive visual workbench on `http://localhost:8420`. |
@@ -165,7 +165,6 @@ my-project/
 │   ├── DECISIONS.md               # Accepted Architecture Decision Records (ADRs)
 │   └── lessons/                   # Standalone interactive HTML simulators & lessons
 │       ├── 0-1-tcp-vs-udp.html
-│       ├── 0-1-tcp-vs-udp.md
 │       └── ...
 ├── notes/                         # Your synthesized personal active-learning notes
 │   ├── tier-0/
@@ -197,7 +196,7 @@ Choose the aesthetic that matches your workflow or customize anytime:
 | **Tier 1** | LLD & Object Modeling | 14 (1.1–1.14) | 94 | Cache eviction (W-TinyLFU/LRU), connection pool starvation, rate limiters, thread pools, lock-free queues. |
 | **Tier 2** | HLD & Distributed Infra | 18 (2.1–2.18) | 134 | Consistent hashing, LSM-Trees vs. B-Trees, Raft/Paxos quorums, event sourcing, CDC, 2PC vs. Sagas. |
 | **Tier 3** | Mobile Systems & Offline | 11 (3.1–3.11) | 76 | Radio battery limits, delta mutation queues, optimistic UI reconciliation, SQLite caching, push delivery. |
-| **Tier 4** | ADRs & System Defense | 2 (4.1–4.2) | 13 | Architectural Decision Records (ADRs), mock architecture defense, trade-off articulation, spaced review. |
+| **Tier 4** | ADRs & Self Evaluation | 2 (4.1–4.2) | 13 | Architectural Decision Records (ADRs), mock architecture self evaluation, trade-off articulation, spaced review. |
 
 Explore the complete interactive syllabus with search and progress tracking on the **[Documentation Site](https://alph-a07.github.io/system-design-studio/curriculum.html)**.
 
@@ -207,7 +206,7 @@ Explore the complete interactive syllabus with search and progress tracking on t
 
 | Capability | Static Books & Videos | Standard AI Chatbots | System Design Studio |
 | :--- | :--- | :--- | :--- |
-| **Progression Verification** | None (passive reading) | Nods along; says "Great job!" to anything | **Unannounced Defense Gate**: Proves you understand failure modes cold in chat |
+| **Progression Verification** | None (passive reading) | Nods along; says "Great job!" to anything | **Self Evaluation Gate**: Proves you understand trade-offs and conclude on your terms |
 | **Visual Mechanics** | Static 2D diagrams | Wall of generic Markdown text | **Tactile Simulators**: Inject packet loss, kill nodes, tweak concurrency dials |
 | **Jargon Friction** | Leaves you to search terms | Uses dense buzzwords unchecked | **Inline Tooltips**: Tap/hover any term for instant plain-English explanations |
 | **Cognitive Continuity** | None (forgotten in days) | Lost on context window rollover | **Git Living State**: Never loses your lineage across sessions or model changes |

@@ -44,7 +44,7 @@ flowchart TD
    - It is the **Final Sign-off Verification Gate**.
    - The lesson artifact and explanation must **NEVER** answer or reveal the tick-off scenario. There are no reveal toggles, solution accordions, or pre-baked answers in the lesson artifact.
    - Instead, the artifact leaves the learner with a **suitable, relevant engineering scenario WITHOUT AN ANSWER**.
-   - The sign-off status (marking the checkbox in `CURRICULUM.md`, logging evidence in `manifest.json`, and advancing `CURSOR.md`) is evaluated **strictly and exclusively based on the reader's independent answer and defense during chat discussion**.
+   - The sign-off status (marking the checkbox in `CURRICULUM.md`, logging evidence in `manifest.json`, and advancing `CURSOR.md`) is evaluated based on the reader achieving internal closure through self evaluation during discussion.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: sds-complete
-description: Verify defense against unannounced gate, sign off topic, record decision, and compile active-learning notes in System Design Studio.
+description: Complete topic sign-off with self evaluation, record decision (ADR), and compile active-learning notes in System Design Studio.
 argument-hint: "[evidence]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
@@ -9,7 +9,7 @@ metadata:
 
 # /sds-complete — Topic Sign-Off & Active-Learning Note Synthesis
 
-Verify that the learner has defended the unannounced gate scenario, tick off the topic, advance `CURSOR.md`, record an ADR in `DECISIONS.md`, and compile discussion-synthesized study notes.
+Verify that the learner has achieved closure on the topic trade-offs through self evaluation, tick off the topic, advance `CURSOR.md`, record an ADR in `DECISIONS.md`, and compile discussion-synthesized study notes. Learners conclude on their terms once they have internal closure.
 
 ## Strict Active Project Context Isolation Invariant
 
@@ -19,26 +19,27 @@ Verify that the learner has defended the unannounced gate scenario, tick off the
 ## Agentic Optimization: Deterministic Local Synthesis
 Rather than burning thousands of LLM tokens on trivial file formatting:
 - Note compilation (`compile-notes.py`) and revision card generation (`update-revisions.py`) are deterministically triggered by `advance-cursor.py` in under 15ms with 0 LLM token cost.
-- The coordinator extracts the learner's recorded hypothesis and dialectic friction directly from the chat context into the advance command.
+- The coordinator extracts the learner's recorded hypothesis and discussion summary directly from the chat context into the advance command.
 
 ## Mandatory Architectural Invariants
 
-1. **UNASSISTED GATE VERIFICATION (MANDATORY DEFENSE)**:
+1. **SELF EVALUATION & CLOSURE (CONCLUDE ON YOUR TERMS)**:
    - You MUST inspect `.system-design/CURRICULUM.md` for the active topic's tick-off requirement (`— *Tick off when:*`).
-   - You MUST NOT approve sign-off unless the learner has independently articulated the physical invariants and trade-offs in chat.
+   - Confirm that the learner has achieved internal closure and articulated the physical invariants and trade-offs.
+   - Learners conclude on their terms: once they have clarity and confidence in the trade-offs, approve the sign-off and seal the record into Git.
 
 2. **ACTIVE LEARNING NOTE GOVERNANCE**:
-   - The compiled study note MUST reflect **what the learner understood through the dialectic**, NOT passive textbook summaries.
+   - The compiled study note MUST reflect **what the learner understood through self evaluation**, NOT passive textbook summaries.
    - You MUST extract:
      1. The learner's initial hypothesis from the start of the topic.
-     2. The friction points and edge cases where that hypothesis broke down.
+     2. The friction points and edge cases explored during the lesson.
      3. The derived invariant they proved cold.
      4. Concrete personal rules of thumb and sizing formulas.
 
 ## Execution Sequence
 
-1. **Verify Evidence & Defense**:
-   - Compare the learner's chat defense against the hidden criterion in `CURRICULUM.md`.
+1. **Verify Evidence & Closure**:
+   - Ensure the learner has addressed the core tick-off criterion from `CURRICULUM.md` and reached internal closure.
 
 2. **Execute State Advance**:
    ```bash

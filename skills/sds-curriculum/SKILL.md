@@ -25,7 +25,7 @@ Tier (e.g., Tier 0, Tier 1, Tier 2, Tier 3, Tier 4)
 - **Tier 1 — Low-Level Design (LLD) & In-Process Architecture** (`T1`): Domain modeling, invariants & ownership, SOLID patterns, in-process concurrency, buffers & memory safety.
 - **Tier 2 — High-Level Design (HLD) & Distributed Systems** (`T2`): Scalability, data partitioning, replication, consensus (Raft/Paxos), distributed transactions, coordination.
 - **Tier 3 — Mobile & Offline-First Systems** (`T3`): Client state, local persistence, delta sync engines, CRDTs, battery & bandwidth invariants, offline queues.
-- **Tier 4 — Production Architecture Reviews & ADR Defenses** (`T4`): Failure injection, Socratic stress tests, board-level trade-off defense, ADR portfolio synthesis.
+- **Tier 4 — Production Architecture Reviews & Self Evaluations** (`T4`): Failure injection, trade-off analysis, self evaluation closure, ADR portfolio synthesis.
 
 ### Curated Study Tracks
 When working with learners, offer curated focus tracks to simplify the 354-topic surface:

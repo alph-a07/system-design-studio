@@ -214,9 +214,9 @@ class TestNodeASTRendering(unittest.TestCase):
         )
         md_def = defense.render_markdown(ctx)
         html_def = defense.render_html(ctx)
-        self.assertIn("## 🛡️ Architectural Defense Challenge: Power-Cut Recovery Invariant", md_def)
+        self.assertIn("## 🛡️ Self Evaluation Scenario: Power-Cut Recovery Invariant", md_def)
         self.assertIn("1. **Recovery Sequence:** Trace how WAL replay reconstructs", md_def)
-        self.assertIn("ARCHITECTURAL CHALLENGE SCENARIO", html_def)
+        self.assertIn("SELF EVALUATION SCENARIO", html_def)
 
         # 18. MentalModelNode
         mm = MentalModelNode(
@@ -375,7 +375,7 @@ class TestNodeASTRendering(unittest.TestCase):
             self.assertIn("# E2E AST Document Test", doc_md)
             self.assertIn("> [!WARNING] ⚡ Sync vs Async Writes", doc_md)
             self.assertIn("### ⏱️ Causal Execution Trace: Commit Trace", doc_md)
-            self.assertIn("## 🛡️ Architectural Defense Challenge: Torn Page Defense", doc_md)
+            self.assertIn("## 🛡️ Self Evaluation Scenario: Torn Page Defense", doc_md)
             self.assertIn("> 💡 **Jargon & Concepts Unpacked in this Section:**", doc_md)
             self.assertIn("> - **fsync()** *(POSIX Syscall)*: Forces dirty pages to storage.", doc_md)
             # Ensure no leaked raw HTML wrappers in Markdown

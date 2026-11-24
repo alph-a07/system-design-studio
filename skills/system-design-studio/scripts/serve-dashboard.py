@@ -3564,10 +3564,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         <span class="material-symbols-outlined" style="font-size:18px;">keyboard</span>
       </button>
 
-      <button aria-label="Toggle dark/light mode" class="icon-action-btn" onclick="toggleTheme()" type="button" title="Toggle Theme">
-        <span id="theme-icon" class="material-symbols-outlined" style="font-size:18px;">contrast</span>
-      </button>
-
       <button aria-label="Settings" class="icon-action-btn" onclick="openSettingsModal()" type="button" title="Settings">
         <span class="material-symbols-outlined" style="font-size:18px;">settings</span>
       </button>
@@ -4135,7 +4131,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <form onsubmit="handleSaveSettings(event)">
         <div class="form-group">
           <label class="form-label">Visual Theme Preset</label>
-          <select id="settings-theme-preset" class="form-input" onchange="applyThemePreset(this.value)">
+          <select id="settings-theme-preset" class="form-input" onchange="previewThemePreset(this.value)">
             <option value="slate-clean">Modern Slate (Tech Minimal Dark) [Default]</option>
             <option value="editorial-paper">Clean Editorial (Warm Cream &amp; Ink)</option>
             <option value="cyber-obsidian">Cyber Obsidian (Deep Black)</option>
@@ -4692,7 +4688,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
+    let currentSettingsDraft = null;
+
     function closeModal(modalId) {
+      if (modalId === 'settings-modal') {
+        revertSettings();
+      }
       const el = document.getElementById(modalId);
       if (el) {
         el.classList.remove('active');
@@ -4703,27 +4704,29 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
     }
 
-    // Theme Management
+    // Theme Management (Preset-driven)
     function initTheme() {
-      const saved = localStorage.getItem('sds_theme') || 'dark';
       const savedPreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
+      const isDark = (savedPreset !== 'editorial-paper');
       document.documentElement.setAttribute('data-theme-preset', savedPreset);
-      if (saved === 'dark') {
+      if (isDark) {
         document.documentElement.classList.add('dark');
-        document.getElementById('theme-icon').innerText = 'light_mode';
       } else {
         document.documentElement.classList.remove('dark');
-        document.getElementById('theme-icon').innerText = 'dark_mode';
       }
     }
 
-    function toggleTheme() {
-      const isDark = document.documentElement.classList.toggle('dark');
-      localStorage.setItem('sds_theme', isDark ? 'dark' : 'light');
-      document.getElementById('theme-icon').innerText = isDark ? 'light_mode' : 'dark_mode';
-      const preset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
+    function previewThemePreset(preset) {
+      if (!preset) return;
+      document.documentElement.setAttribute('data-theme-preset', preset);
+      const isDark = (preset !== 'editorial-paper');
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
 
-      // Propagate theme change to active iframe lesson
+      // Propagate live preview to active iframes
       const iframes = [
         document.getElementById('workbench-iframe'),
         document.getElementById('lesson-modal-iframe')
@@ -4742,48 +4745,24 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           } catch (e) {}
         }
       });
-      showToast(isDark ? 'Dark theme enabled' : 'Light theme enabled');
     }
 
     function applyThemePreset(preset) {
       if (!preset) return;
-      document.documentElement.setAttribute('data-theme-preset', preset);
+      previewThemePreset(preset);
       localStorage.setItem('sds_theme_preset', preset);
+      localStorage.setItem('sds_theme', preset === 'editorial-paper' ? 'light' : 'dark');
+    }
 
-      if (preset === 'editorial-paper') {
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem('sds_theme', 'light');
-        document.getElementById('theme-icon').innerText = 'dark_mode';
-      } else if (preset === 'cyber-obsidian' || preset === 'slate-clean' || preset === 'midnight-neon' || preset === 'nordic-frost' || preset === 'warm-amber') {
-        document.documentElement.classList.add('dark');
-        localStorage.setItem('sds_theme', 'dark');
-        document.getElementById('theme-icon').innerText = 'light_mode';
-      }
-
-      const iframes = [
-        document.getElementById('workbench-iframe'),
-        document.getElementById('lesson-modal-iframe')
-      ];
-      iframes.forEach(iframe => {
-        if (iframe && iframe.contentWindow) {
-          try {
-            iframe.contentWindow.postMessage({
-              type: 'sds-theme-change',
-              theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
-              preset: preset
-            }, '*');
-          } catch (e) {}
-        }
-        if (iframe && iframe.contentDocument) {
-          try {
-            const isDark = document.documentElement.classList.contains('dark');
-            if (isDark) iframe.contentDocument.documentElement.classList.add('dark');
-            else iframe.contentDocument.documentElement.classList.remove('dark');
-            iframe.contentDocument.documentElement.setAttribute('data-theme-preset', preset);
-          } catch (e) {}
-        }
-      });
-      showToast(`Visual Preset: ${preset}`);
+    function revertSettings() {
+      if (!currentSettingsDraft) return;
+      previewThemePreset(currentSettingsDraft.themePreset);
+      const presetSelect = document.getElementById('settings-theme-preset');
+      if (presetSelect) presetSelect.value = currentSettingsDraft.themePreset;
+      const notesDirInput = document.getElementById('settings-notes-dir');
+      if (notesDirInput) notesDirInput.value = currentSettingsDraft.notesDir;
+      const autoNotesCheck = document.getElementById('settings-auto-notes');
+      if (autoNotesCheck) autoNotesCheck.checked = currentSettingsDraft.autoNotes;
     }
 
     // Real-time Data Sync (SSE)
@@ -5224,7 +5203,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                     <span class="material-symbols-outlined" style="font-size:13px;">edit_note</span>
                     <span>Notes</span>
                   </button>
-                  ${isCompleted ? `<button class="btn-ghost" onclick="openADRModal('${t.id}')" title="View Defended ADR"><span class="material-symbols-outlined" style="font-size:13px;">gavel</span><span>ADR</span></button>` : ''}
+                  ${isCompleted ? `<button class="btn-ghost" onclick="openADRModal('${t.id}')" title="View Verified ADR"><span class="material-symbols-outlined" style="font-size:13px;">gavel</span><span>ADR</span></button>` : ''}
                 </div>
               </div>
             `;
@@ -6395,13 +6374,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const res = await fetch('/api/decisions');
         const text = await res.text();
         if (topicId) {
-          titleEl.innerText = `ADR Defense: ${topicId}`;
+          titleEl.innerText = `ADR Record: ${topicId}`;
           const blocks = text.split(/(?=## ADR-\\d+:)/);
           const matched = blocks.find(b => b.includes(topicId) || b.toLowerCase().includes(topicId.toLowerCase().replace('topic.', '')));
           if (matched) {
             box.innerHTML = `
               <div style="margin-bottom:14px; padding:6px 12px; background:var(--primary-container); border:1px solid var(--border-color); font-family:var(--font-headline); font-size:11px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
-                <span>Verified Architectural Defense Record</span>
+                <span>Verified Architecture Decision Record (ADR)</span>
                 <button class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="openADRModal()">View All ADRs</button>
               </div>
               <div>${renderMarkdown(matched)}</div>
@@ -7048,7 +7027,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     async function openSettingsModal(section = null) {
       openModal('settings-modal');
       const savedPreset = localStorage.getItem('sds_theme_preset') || 'slate-clean';
-      document.getElementById('settings-theme-preset').value = savedPreset;
+      const savedTheme = localStorage.getItem('sds_theme') || (savedPreset === 'editorial-paper' ? 'light' : 'dark');
+      const presetSelect = document.getElementById('settings-theme-preset');
+      if (presetSelect) presetSelect.value = savedPreset;
+
+      currentSettingsDraft = {
+        themePreset: savedPreset,
+        themeMode: savedTheme,
+        notesDir: document.getElementById('settings-notes-dir')?.value || 'notes',
+        autoNotes: document.getElementById('settings-auto-notes')?.checked ?? true
+      };
+
       try {
         const res = await fetch('/api/settings');
         if (res.ok) {
@@ -7056,6 +7045,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const p = data.project || {};
           document.getElementById('settings-notes-dir').value = p.notesDir || 'notes';
           document.getElementById('settings-auto-notes').checked = (p.autoGenerateNotes !== false);
+          if (currentSettingsDraft) {
+            currentSettingsDraft.notesDir = p.notesDir || 'notes';
+            currentSettingsDraft.autoNotes = (p.autoGenerateNotes !== false);
+          }
         }
       } catch (e) {}
       checkForUpdates(false);
@@ -7169,6 +7162,19 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const notesDir = document.getElementById('settings-notes-dir').value;
       const autoNotes = document.getElementById('settings-auto-notes').checked;
       const themePreset = document.getElementById('settings-theme-preset').value;
+      const isDark = (themePreset !== 'editorial-paper');
+
+      // Persist to localStorage
+      localStorage.setItem('sds_theme_preset', themePreset);
+      localStorage.setItem('sds_theme', isDark ? 'dark' : 'light');
+
+      // Update committed draft state so modal close doesn't revert
+      currentSettingsDraft = {
+        themePreset: themePreset,
+        themeMode: isDark ? 'dark' : 'light',
+        notesDir: notesDir,
+        autoNotes: autoNotes
+      };
 
       applyThemePreset(themePreset);
 
@@ -7179,10 +7185,17 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({
             notesDir: notesDir,
             autoGenerateNotes: autoNotes,
+            artifactStyle: themePreset,
             outputType: 'html'
           })
         });
-        closeModal('settings-modal');
+        const modal = document.getElementById('settings-modal');
+        if (modal) {
+          modal.classList.remove('active');
+          if (!document.querySelector('.modal-overlay.active')) {
+            document.body.style.overflow = '';
+          }
+        }
         showToast('Settings saved to disk');
         refreshData();
       } catch (e) {

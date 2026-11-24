@@ -64,7 +64,7 @@ def log_adr_record(inst_dir, topic_id, topic_title, cluster_title, cluster_code,
     adr_id = f"ADR-{next_num:03d}"
 
     claim_text = evidence.strip() if evidence else "Verified cold in chat defense without notes."
-    discussion_text = discussion_summary.strip() if discussion_summary else "Learner evaluated physical failure modes and quantitative boundaries during defense gate."
+    discussion_text = discussion_summary.strip() if discussion_summary else "Learner evaluated physical failure modes and quantitative boundaries during self evaluation."
     hypo_text = hypothesis.strip() if hypothesis else "Assumed naive architectural approach prior to stress testing failure boundaries."
 
     adr_entry = f"""## {adr_id}: {topic_title} Architectural Defense

@@ -739,7 +739,7 @@ class DefenseChallengeNode(Node):
 
     def render_markdown(self, context: Dict[str, Any]) -> str:
         lines = [
-            f"## 🛡️ Architectural Defense Challenge: {self.title}\n",
+            f"## 🛡️ Self Evaluation Scenario: {self.title}\n",
             "> [!IMPORTANT] Contextual Sign-Off Scenario",
             f"> {self.scenario}"
         ]
@@ -747,7 +747,7 @@ class DefenseChallengeNode(Node):
             lines.append(">\n> **Physical & System Constraints:**")
             for c in self.constraints:
                 lines.append(f"> - {c}")
-        lines.append("\n### Defense Prompts for Chat Sign-Off:")
+        lines.append("\n### Self Evaluation Prompts (Conclude on Your Terms):")
         for idx, p in enumerate(self.prompts, 1):
             lines.append(f"{idx}. **{p.get('label','')}:** {p.get('question','')}")
         return "\n".join(lines) + "\n\n"
@@ -767,14 +767,14 @@ class DefenseChallengeNode(Node):
         return (
             f'<div class="p-5 rounded-2xl bg-[var(--card)] border border-amber-500/40 my-6 space-y-4">\n'
             f'  <div class="flex items-center gap-2">\n'
-            f'    <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">ARCHITECTURAL CHALLENGE SCENARIO</span>\n'
+            f'    <span class="text-xs font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700">SELF EVALUATION SCENARIO</span>\n'
             f'  </div>\n'
             f'  <p class="text-sm text-[var(--foreground)] leading-relaxed m-0">\n'
             f'    {html.escape(self.scenario)}\n'
             f'  </p>\n'
             f'  {constraints_block}\n'
             f'  <div class="p-4 rounded-xl bg-stone-900 border border-stone-800 space-y-3">\n'
-            f'    <div class="text-xs font-mono font-bold text-amber-400 uppercase">Your Defense Prompts for Chat Sign-Off:</div>\n'
+            f'    <div class="text-xs font-mono font-bold text-amber-400 uppercase">Self Evaluation Prompts (Conclude on Your Terms):</div>\n'
             f'    <ol class="text-xs text-[var(--foreground)] space-y-2.5 list-decimal pl-4 m-0 leading-relaxed">\n'
             f'{prompts_block}\n'
             f'    </ol>\n'
@@ -1111,7 +1111,7 @@ class LessonDocument:
                 "System Architecture",
                 "Mechanics & Simulator",
                 "Production Reality",
-                "Architectural Defense"
+                "Self Evaluation"
             ]
             for i in range(1, 6):
                 t_key = f"SECTION_{i}_TITLE"
@@ -1248,7 +1248,7 @@ class LessonDocument:
             "System Architecture",
             "Mechanics & Simulator",
             "Production Reality",
-            "Architectural Defense"
+            "Self Evaluation"
         ]
 
         # 1. Render Tab Buttons

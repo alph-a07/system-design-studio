@@ -76,7 +76,7 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
    - The coordinator turn MUST be strictly a 5–12 line delivery bridge containing:
      1. Topic Title and Hierarchy (`Tier` -> `Cluster`)
      2. Clickable link to the delivered interactive lesson: `[Open Interactive Lesson (HTML)](file:///...)`
-     3. The opening Hypothesis Dilemma / Architectural Defense Challenge question to prompt the learner's thinking and invite dialectic defense directly in chat.
+     3. The opening Hypothesis Dilemma / Self Evaluation prompt to invite the learner to explore the core dilemma and conclude on their terms once they achieve closure.
    - NEVER duplicate or summarize the lesson body in chat. The lesson belongs exclusively in the delivered artifacts.
 
 ---
@@ -86,35 +86,47 @@ To prevent token waste and latency degradation, tasks are partitioned strictly b
 1. **EXPLANATIONS OVER STATEMENTS ("THE EXPLAINER'S CONTRACT")**:
    - The reader must experience *getting explained → understanding*, never *read raw data → struggle to process → understand*. We do the reading, synthesizing, and cognitive heavy lifting for them to deliver direct, crystal-clear explanations.
    - Never just state that a mechanism exists or list its properties. Walk the reader step-by-step through *why* it was invented, the tangible friction engineers faced, the intuitive real-world mental model (non-leaky analogies), and what happens step-by-step under the hood.
+   - **Answer Every Question Without Asking (WHY, WHEN, WHAT, WHERE, HOW)**:
+     - **WHY**: Why does this physical dilemma or engineering problem exist?
+     - **WHEN**: When in real-world scale, traffic, or failure conditions does this mechanism matter?
+     - **WHAT**: What concrete data structure, packet layout, or protocol shape does it take?
+     - **WHERE**: Where in the stack does it live (OS kernel buffer, user space process, network wire, client)?
+     - **HOW**: How does it execute step-by-step, and how does it fail under stress?
 
-2. **EDITORIAL COHESION & VOICE ("TOP-TIER TECH ESSAY / SUBSTACK VIBE")**:
+2. **FRICTIONLESS VOCABULARY & ZERO UNEXPLAINED NICHE DROPS**:
+   - **Accessible Everyday Language**: Use simple, commonly used engineering vocabulary. Ban pompous, archaic, or hyper-academic words (e.g. do NOT use *unambiguous* — use *clear* or *exact*; do NOT use *virtue* — use *advantage* or *benefit*; do NOT use *obsolete* — use *outdated* or *replaced*; do NOT use *catastrophic* — use *severe*, *critical*, or *total failure*; avoid *inexorable*, *herculean*, *tapestry*, *plethora*, *myriad*).
+   - **Zero Unexplained Niche Name-Dropping**: NEVER casually drop niche technical words, hardware components, or protocols briefly without explaining them (e.g. throwaway mentions of *BGP convergence flaps*, *optical repeaters*, *chromatic dispersion compensators*, *silicon static RAM (SRAM) queues*).
+   - **The Explainer's Law**: If a concept is introduced, explain it immediately on the spot (or unpack it via an inline jargon tooltip). If it is not going to be explained, or is not essential to the core causal mechanism, **OMIT IT ENTIRELY**. Never use vanity jargon drops.
+
+3. **EDITORIAL COHESION & VOICE ("TOP-TIER TECH ESSAY / SUBSTACK VIBE")**:
    - The artifact MUST NOT read or look like a dry API reference, cold wiki page, or RFC manual.
    - It MUST read like an acclaimed, beautifully written engineering deep-dive essay (Dan Luu / Bartosz Ciechanowski / Julia Evans vibe): conversational yet rigorous, narrative-driven, connecting each puzzle piece into one overarching architectural story.
    - Use engaging section narratives, smooth conceptual transitions, and authorial guidance (*"Let's pause here, because this is where everyone gets tripped up...", "Wait, why couldn't we just...?"*).
 
-3. **MANDATORY JARGON UNPACKING AS INLINE TOOLTIPS (ZERO ORPHANED BUZZWORDS)**:
+4. **MANDATORY JARGON UNPACKING AS INLINE TOOLTIPS (ZERO ORPHANED BUZZWORDS)**:
    - Readers must NEVER have to leave the page or open a search engine to look up an acronym or buzzword while reading.
    - Unpack domain acronyms, protocol keywords, and systems buzzwords (e.g. *Head-of-Line Blocking*, *Middlebox*, *Ossification*, *RTT*, *BDP*, *TCP 3-Way Handshake*, *4-Tuple*, *ALPN*, *Alt-Svc*, *P99*) primarily as **inline tooltips** (`<span class="jargon-tooltip-wrapper"><span class="jargon-inline-cue" onclick="toggleJargonTooltip(this, event)">Term</span><span class="jargon-popover-card">...</span></span>` or generated via `lesson_builder.build_jargon_tooltip(...)`) directly inside the sentence where the term appears.
-   - This keeps the reading narrative fluid and unbroken, while providing a wide 80% popover on hover/click, automatically indexed into the HTML Glossary Drawer and compiled into a clean section glossary in Markdown.
-   - Plain English FIRST, systems label second: Describe the concept in intuitive everyday terms before stamping it with its formal technical term. Ban dense noun-stacking (e.g., replace *"monotonic ordering"* with *"strictly in-order sequence"*; replace *"stateless boundary-preserving datagram"* with *"standalone message with clear boundaries"*).
+   - This keeps the reading narrative fluid and unbroken, while providing a wide 80% popover on hover/click, automatically indexed into the HTML Glossary Drawer.
+   - Plain English FIRST, systems label second: Describe the concept in intuitive everyday terms before stamping it with its formal technical term.
    - Eliminate melodramatic purple prose (*"blistering"*, *"into the void"*, *"worthless garbage"*); maintain a clear, authoritative, lucid tone.
 
-4. **ANTI-COMPRESSION & EXPLAINER DEPTH INVARIANT (BAN THE CHEAT SHEET)**:
+5. **ANTI-COMPRESSION & EXPLAINER DEPTH INVARIANT (BAN THE CHEAT SHEET)**:
    - A lesson must NEVER read like a compressed engineer's cheat sheet, summary table, or bullet-point review.
-   - **Standard Mode**: 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ defense gate.
+   - **Standard Mode**: 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ self evaluation gate.
    - **Full-Depth Mode (`--full-depth`)**: When requested on-demand, go to the absolute internal bottom depth of the topic: trace every abstraction down to OS kernel buffer queues, POSIX syscalls (`read()`, `write()`, `epoll()`, `fsync()`), memory registers, hardware flash/silicon layers, and physical wire propagation limits. Target 3,500–5,000+ words.
 
-5. **THE DILEMMA-RESOLUTION & COGNITIVE CLOSURE LAW**:
+6. **THE DILEMMA-RESOLUTION & COGNITIVE CLOSURE LAW**:
    - Section 1 must introduce a tangible engineering friction/dilemma (e.g., Stop-and-Wait vs Blasting; synchronous disk writes vs durability; polling overhead vs idle connection limits).
    - Section 3 MUST formally resolve that dilemma step-by-step with concrete mechanics (e.g., sliding window, pipelining, WAL append, multiplexing). It is strictly forbidden to state that a protocol "conquers" a dilemma without teaching *how*.
    - Section 3 MUST explicitly derive what that resolution *costs* (e.g., Head-of-Line blocking stalls, memory buffers, cwnd backoff).
 
-6. **PRUNING THE IRRELEVANT (LASER FOCUS ON CORE CAUSALITY)**:
-   - Exclude trivia that increases cognitive load without serving the core topic or target depth `[concept][mechanics][contrast][trap]`. (e.g., Do not dissect 20-byte binary packet headers or list exotic TCP socket flags when teaching TCP vs UDP; focus laser-sharp on why reliability costs latency and why real-time media chooses UDP).
+7. **PRUNING THE IRRELEVANT (LASER FOCUS ON CORE CAUSALITY)**:
+   - Exclude trivia that increases cognitive load without serving the core topic. (e.g., Do not dissect 20-byte binary packet headers or list exotic TCP socket flags when teaching TCP vs UDP; focus laser-sharp on why reliability costs latency and why real-time media chooses UDP).
 
-7. **STRICT 1:1 SIGN-OFF GATE ALIGNMENT**:
-   - Section 5's architectural defense challenge MUST directly test the explicit `— *Tick off when:*` line for that topic from `CURRICULUM.md`.
-   - Never inject out-of-scope stretch scenarios requiring untaught advanced domain knowledge (e.g., requiring cellular bufferbloat / queueing theory for an introductory transport lesson).
+8. **STRICT 1:1 SIGN-OFF ALIGNMENT & SELF EVALUATION (CONCLUDE ON YOUR TERMS)**:
+   - Section 5 is the **Self Evaluation Scenario**. It directly reflects the explicit `— *Tick off when:*` line for that topic from `CURRICULUM.md`.
+   - Frame it as concluding on the learner's terms: once they have internal closure and clarity on the trade-offs, they can discuss or finalize their sign-off.
+   - Never inject out-of-scope stretch scenarios requiring untaught advanced domain knowledge.
 
 8. **REAL-WORLD PRODUCTION NUANCE (BEYOND NAIVE TRADEOFFS)**:
    - Never present naive caricatures of engineering solutions (e.g., claiming real-time media "just drops frames"). Teach the real production mechanisms: Jitter Buffers, Packet Loss Concealment (PLC), Forward Error Correction (FEC), and Selective NACKs.
@@ -235,8 +247,8 @@ When executing `/sds-teach`:
   1. Topic Title and Hierarchy (`Tier` ➔ `Cluster`)
   2. Clickable link to the interactive HTML lesson:
      - `[Open Interactive Lesson (HTML)](file:///<path-to-lesson.html>)`
-  3. The Opening Hypothesis Dilemma / Defense Challenge prompt:
-     *"Before we dissect the underlying mechanics, consider this core dilemma: [Concrete Dilemma from Lesson]. How would you approach this, or what physical constraint makes naive solutions fail? Review the artifact and defend your thesis directly in chat."*
+  3. The Opening Hypothesis Dilemma / Self Evaluation prompt:
+     *"Before we dissect the underlying mechanics, consider this core dilemma: [Concrete Dilemma from Lesson]. How would you approach this? Review the artifact and tactile simulator, and conclude on your terms when you have closure."*
 
 ---
 

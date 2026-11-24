@@ -729,12 +729,12 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         self.assertIn("curl -fsSL https://raw.githubusercontent.com/alph-a07/system-design-studio/main/install.sh | bash", html)
 
         # 3. Invariant: High-value features are proudly displayed
-        self.assertIn("Live Studio Dashboard", html)
-        self.assertIn("Interactive Failure Simulators", html)
-        self.assertIn("Revision Mode &amp; Invariants", html)
-        self.assertIn("Socratic Trade-Off Defense", html)
-        self.assertIn("Study Notes &amp; Live Editor", html)
-        self.assertIn("Reader Mode &amp; Highlighting", html)
+        self.assertIn("Personalized Curriculum &amp; Deep Dives", html)
+        self.assertIn("Rich HTML Lessons &amp; Simulators", html)
+        self.assertIn("All Questions Answered Without Asking", html)
+        self.assertIn("Self Evaluation on Your Terms", html)
+        self.assertIn("Auto-Generated Notes &amp; Rich Editor", html)
+        self.assertIn("Local Dashboard &amp; Visual Themes", html)
 
         # 4. Invariant: Dark & Light mode toggle and flawless contrast principles
         self.assertIn("toggleDarkMode()", html)

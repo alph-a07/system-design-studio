@@ -80,7 +80,7 @@ Rather than an arbitrary list of internal scripts, the studio commands map to yo
 
 ### Phase 3: Automated Proof, Git Checkpointing & Retention
 - **`/sds-complete [evidence]`**
-  - *User Value*: Validates that you met the unannounced defense criteria, checks off the topic in `CURRICULUM.md`, records an ADR in `DECISIONS.md`, advances your living cursor, and records an atomic Git commit (`sds(learn): complete ...`).
+  - *User Value*: Validates that you completed self evaluation with closure, checks off the topic in `CURRICULUM.md`, records an ADR in `DECISIONS.md`, advances your living cursor, and records an atomic Git commit (`sds(learn): complete ...`).
   - *Natural Language*: "Mark complete", "Sign off topic with evidence: derived quorum formula"
 - **`/sds-notes [topic]`**
   - *User Value*: Accesses your synthesized active-learning study notes (Hypothesis → Friction → Derived Invariant → Sizing Rules). When `autoGenerateNotes` is true, notes compile automatically on sign-off; when disabled, compile notes on demand.

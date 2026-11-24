@@ -173,7 +173,7 @@ All generated lesson artifacts are programmatically audited against the followin
 
 1. **Anti-Compression & Explainer Depth (Ban the Cheat Sheet)**:
    - A lesson must NEVER read like a compressed engineer's cheat sheet, summary table, or bullet-point review.
-   - For any topic introducing architectural primitives or protocols with prerequisites, the lesson MUST provide 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ defense gate.
+   - For any topic introducing architectural primitives or protocols with prerequisites, the lesson MUST provide 2,500–3,500 words of progressive, unfolding narrative prose. Concepts must have breathing room: physical dilemma ➔ mental model ➔ internal mechanics & step-by-step trace ➔ failure modes & costs ➔ production reality ➔ self evaluation gate.
 
 2. **Zero-Orphaned Jargon Law**:
    - Every domain acronym, protocol keyword, or systems buzzword introduced MUST be accompanied by an immediate plain-English translation callout (`<div class="jargon-card">`) right where it appears.
@@ -189,7 +189,7 @@ All generated lesson artifacts are programmatically audited against the followin
    - Exclude trivia that increases cognitive load without serving the core topic or target depth `[concept][mechanics][contrast][trap]`. (e.g., Do not dissect 20-byte binary packet headers or list exotic TCP socket flags when teaching TCP vs UDP; focus laser-sharp on why reliability costs latency and why real-time media chooses UDP).
 
 5. **Strict 1:1 Sign-Off Gate Alignment**:
-   - Section 5's architectural defense challenge MUST directly test the explicit `— *Tick off when:*` line for that topic from `CURRICULUM.md`.
+   - Section 5's Self Evaluation scenario MUST directly test the explicit `— *Tick off when:*` line for that topic from `CURRICULUM.md`, allowing the learner to conclude on their terms when they have internal closure.
    - Never inject out-of-scope stretch scenarios requiring untaught advanced domain knowledge (e.g., requiring cellular bufferbloat / queueing theory for an introductory transport lesson).
 
 6. **Real-World Production Nuance & Grounded Accuracy**:

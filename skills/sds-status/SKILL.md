@@ -24,7 +24,7 @@ Check current progress, active topic, cognitive focus, and learning statistics f
    - Active Topic ID & Title
    - Current Progress Percentage across active curriculum track
    - Lineage anchors and verified physical invariants
-   - **Artifact Status**: Check if a lesson artifact (`.system-design/lessons/<slug>.<ext>`) exists for the active topic. If delivered and pending discussion, explicitly report: `Delivered — pending review & dialectic defense` and provide a clickable link to the lesson.
+   - **Artifact Status**: Check if a lesson artifact (`.system-design/lessons/<slug>.html`) exists for the active topic. If delivered and pending discussion, explicitly report: `Delivered — pending review & self evaluation` and provide a clickable link to the lesson.
    - **Next pedagogical action**:
-     - If an artifact is delivered and awaiting defense: Prompt the user to review the lesson and defend trade-offs directly in chat. **DO NOT** prompt for `/sds-teach` when an artifact is already delivered.
+     - If an artifact is delivered and awaiting self evaluation: Prompt the user to explore the lesson and interactive simulator, and conclude on their terms when they have closure. **DO NOT** prompt for `/sds-teach` when an artifact is already delivered.
      - Only if no artifact exists: Prompt the user to run `/sds-teach` to deliver the foundational lesson.

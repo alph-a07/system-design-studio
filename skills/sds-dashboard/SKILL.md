@@ -13,8 +13,8 @@ Launch the interactive, zero-dependency curriculum studio workbench and visual p
 ## Value to User
 - **Dashboard First, Fewer Commands**: Manage projects, syllabus, progress tracking, study notes, and settings directly via UI.
 - **Dual-Direction Read-Write**: Edits in the dashboard update local Git-tracked files; agent actions in chat immediately update the dashboard without manual page refresh.
-- **Real-Time Progress Tracking**: Granular topic statuses (`not started`, `in progress`, `completed`) with 1-click sign-off defense & ADR generation.
-- **Revision Mode**: High-yield conceptual understanding flashcards auto-compiled from accepted sign-off defenses, failure boundaries, and trade-off formulas.
+- **Real-Time Progress Tracking**: Granular topic statuses (`not started`, `in progress`, `completed`) with 1-click sign-off self evaluation & ADR generation.
+- **Revision Mode**: High-yield conceptual understanding flashcards auto-compiled from accepted self evaluations, failure boundaries, and trade-off formulas.
 - **Interactive Simulator Player & Reader Mode**: Test interactive HTML simulators or switch to distraction-free reader mode with built-in text highlighting (zero dedicated server required).
 - **In-Dashboard Notes Editor**: Read and edit Markdown study notes with instant disk synchronization.
 - **Multi-Project Management**: Switch active projects, initialize new learning instances, or configure syllabus tracks right from the dashboard.

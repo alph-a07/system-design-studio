@@ -18,7 +18,7 @@
       "invariant": "Proved unassisted that TCP vs UDP enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path.",
       "failureBoundary": "Under 1-2% loss on high BDP links (>50ms RTT), Mathis formula throughput collapses (Throughput <= (MSS / RTT) * (1 / sqrt(p))).",
       "formula": "Throughput <= (MSS / RTT) * (1 / sqrt(p)) [Mathis Equation] | BDP = RTT \u00d7 Bandwidth",
-      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
+      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during self evaluation.",
       "realityCheckPrompt": "Under 1% network packet loss on a 50ms link, why does an HTTP/2 connection stall across all multiplexed streams, and why does VoD use TCP while live videoconferencing picks UDP?",
       "guarantees": [
         "Verified operational ordering, bounded blast radius, and deterministic recovery."
@@ -133,7 +133,7 @@
       "invariant": "Proved unassisted that HTTP/1.1 vs HTTP/2 vs HTTP/3 enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path.",
       "failureBoundary": "HoL blocking in HTTP/2 stalls every request on the connection when 1 packet drops. HTTP/1.1 bounds the stall to 1 of 6 connections.",
       "formula": "QUIC 0-RTT/1-RTT connection setup saves 1-2 network roundtrips over TCP + TLS 1.3.",
-      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
+      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during self evaluation.",
       "realityCheckPrompt": "Why can HTTP/1.1 with 6 parallel TCP connections outperform multiplexed HTTP/2 over a single connection under 2% packet loss, and what problem does QUIC solve?",
       "guarantees": [
         "Verified operational ordering, bounded blast radius, and deterministic recovery."
@@ -162,7 +162,7 @@
       "invariant": "Proved unassisted that TLS handshake cost and session resumption enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path.",
       "failureBoundary": "Replayed 0-RTT early data packets can duplicate payment or mutation requests unless server enforces anti-replay caches.",
       "formula": "Cellular 1 RTT can exceed 100-200ms; warming connection pools with keep-alives cuts API tail latency by >300ms.",
-      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during defense gate.",
+      "defenseAnswer": "Learner evaluated physical failure modes and quantitative boundaries during self evaluation.",
       "realityCheckPrompt": "Why does connection reuse matter so critically on cellular networks, and what replay attack risk does TLS 1.3 0-RTT Early Data introduce to stateful APIs?",
       "guarantees": [
         "Verified operational ordering, bounded blast radius, and deterministic recovery."

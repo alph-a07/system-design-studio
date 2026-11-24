@@ -753,6 +753,45 @@ def audit_lesson_payload(data, topic_id=None, inst_dir=None, full_depth=False, p
     else:
         audit_passes.append("Editorial Voice: Free of melodramatic purple prose")
 
+    # 4b. Frictionless Vocabulary Check (Encourage simpler, commonly used terms)
+    friction_words = [
+        (r"\bunambiguous\b", "unambiguous ➔ use 'clear', 'exact', or 'precise'"),
+        (r"\bvirtue\b", "virtue ➔ use 'benefit' or 'advantage'"),
+        (r"\bobsolete\b", "obsolete ➔ use 'outdated' or 'replaced'"),
+        (r"\bcatastrophic\b", "catastrophic ➔ use 'severe', 'critical', or 'total failure'"),
+        (r"\binexorable\b", "inexorable ➔ use 'unavoidable' or 'inevitable'"),
+        (r"\bherculean\b", "herculean ➔ use 'massive' or 'difficult'"),
+        (r"\bparadigmatic\b", "paradigmatic ➔ use 'standard' or 'fundamental'"),
+    ]
+    detected_friction = []
+    for pattern, advice in friction_words:
+        if re.search(pattern, narrative_text, re.IGNORECASE):
+            detected_friction.append(advice)
+    if detected_friction:
+        audit_warnings.append(f"Vocabulary Friction: Detected elevated/archaic words: {', '.join(detected_friction)}. Prefer simpler, everyday engineering vocabulary.")
+    else:
+        audit_passes.append("Vocabulary Simplicity: Free of pompous, elevated, or archaic terms")
+
+    # 4c. Zero Unexplained Niche Name-Dropping Check
+    niche_drop_terms = [
+        (r"BGP convergence flaps?", "BGP convergence flaps"),
+        (r"chromatic dispersion(?:\s+compensators?)?", "chromatic dispersion compensators"),
+        (r"optical repeaters?", "optical repeaters"),
+        (r"static RAM \(SRAM\) packet queues?", "SRAM packet queues"),
+    ]
+    detected_niche = []
+    for pat, label in niche_drop_terms:
+        if re.search(pat, narrative_text, re.IGNORECASE):
+            if not re.search(rf'jargon-(?:tooltip-wrapper|inline-cue|card)[^>]*>[^<]*{label}', narrative_text, re.IGNORECASE):
+                detected_niche.append(label)
+    if detected_niche:
+        audit_warnings.append(
+            f"Unexplained Niche Jargon: Detected briefly dropped niche terms without dedicated explanation or tooltip: {detected_niche}. "
+            "Never drop niche words, phrases, or hardware topics briefly unless they are explained on the spot or essential to the topic. Explain or omit."
+        )
+    else:
+        audit_passes.append("Jargon Contextualization: Zero unexplained throwaway niche terms")
+
     # 5. Math Rendering & Character Encoding Check (Raw LaTeX in HTML)
     raw_latex_matches = re.findall(r"\\[a-zA-Z]+|\$[^\$]+\$", narrative_text)
     problematic_latex = [
