@@ -2353,18 +2353,62 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       margin: 0 4px;
     }
 
-    /* UNIVERSAL SDS HIGHLIGHT SYSTEM */
+    /* UNIVERSAL SDS HIGHLIGHT SYSTEM (W3C TextQuote Seamless Rendering) */
     .sds-highlight {
-      border-radius: 2px;
-      padding: 1px 3px;
-      cursor: pointer;
+      border-radius: 0;
+      padding: 1px 0;
+      margin: 0;
+      cursor: text;
       position: relative;
-      transition: all 0.15s ease;
+      transition: filter 0.12s ease;
       font-weight: 500;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
-    .sds-highlight:hover {
-      filter: brightness(0.95);
-      outline: 1px dashed currentColor;
+    .sds-highlight.sds-hl-head {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+      padding-left: 2px;
+    }
+    .sds-highlight.sds-hl-tail {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      padding-right: 2px;
+    }
+    .sds-highlight.is-hovered {
+      filter: brightness(0.92);
+    }
+    html.dark .sds-highlight.is-hovered,
+    .dark .sds-highlight.is-hovered {
+      filter: brightness(1.22);
+    }
+    .sds-hl-del-btn {
+      display: none;
+      position: absolute;
+      top: -9px;
+      right: -8px;
+      background: #dc2626;
+      color: #ffffff;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 12px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      padding: 0;
+      cursor: pointer;
+      z-index: 60;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      user-select: none;
+      pointer-events: auto;
+    }
+    .sds-highlight.is-hovered .sds-hl-del-btn,
+    .sds-hl-tail:hover .sds-hl-del-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .sds-hl-yellow {
       background-color: #fef08a !important;
@@ -5683,43 +5727,60 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           max-width: 100% !important;
         }
         .sds-highlight {
-          border-radius: 2px;
-          padding: 1px 3px;
-          cursor: pointer;
+          border-radius: 0;
+          padding: 1px 0;
+          margin: 0;
+          cursor: text;
           position: relative;
-          transition: all 0.15s ease;
+          transition: filter 0.12s ease;
           font-weight: 500;
+          box-decoration-break: clone;
+          -webkit-box-decoration-break: clone;
         }
-        .sds-highlight:hover {
+        .sds-highlight.sds-hl-head {
+          border-top-left-radius: 3px;
+          border-bottom-left-radius: 3px;
+          padding-left: 2px;
+        }
+        .sds-highlight.sds-hl-tail {
+          border-top-right-radius: 3px;
+          border-bottom-right-radius: 3px;
+          padding-right: 2px;
+        }
+        .sds-highlight.is-hovered {
           filter: brightness(0.92);
-          outline: 1.5px solid #dc2626;
         }
-        .sds-highlight::after {
-          content: "×";
+        html.dark .sds-highlight.is-hovered,
+        .dark .sds-highlight.is-hovered {
+          filter: brightness(1.22);
+        }
+        .sds-hl-del-btn {
+          display: none;
           position: absolute;
-          top: -10px;
-          right: -6px;
+          top: -9px;
+          right: -8px;
           background: #dc2626;
           color: #ffffff;
-          font-family: monospace;
-          font-size: 11px;
+          font-family: ui-monospace, SFMono-Regular, monospace;
+          font-size: 10px;
           font-weight: 800;
-          line-height: 13px;
+          line-height: 12px;
           width: 14px;
           height: 14px;
           border-radius: 50%;
+          border: 1.5px solid #ffffff;
+          padding: 0;
+          cursor: pointer;
+          z-index: 60;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+          user-select: none;
+          pointer-events: auto;
+        }
+        .sds-highlight.is-hovered .sds-hl-del-btn,
+        .sds-hl-tail:hover .sds-hl-del-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          opacity: 0;
-          pointer-events: auto;
-          cursor: pointer;
-          transition: opacity 0.15s ease;
-          z-index: 50;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-        }
-        .sds-highlight:hover::after {
-          opacity: 1;
         }
         .sds-hl-yellow {
           background-color: #fef08a !important;
@@ -5772,9 +5833,16 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           return;
         }
 
+        // Scope search container if paneId is present to prevent cross-pane/sidebar collisions
+        let searchRoot = container;
+        if (hl.paneId) {
+          const scoped = doc.getElementById(hl.paneId) || container.querySelector('#' + hl.paneId);
+          if (scoped) searchRoot = scoped;
+        }
+
         // Build continuous text and character offset map across all visible text nodes
         const walker = doc.createTreeWalker(
-          container,
+          searchRoot,
           NodeFilter.SHOW_TEXT,
           {
             acceptNode: function(node) {
@@ -5791,11 +5859,30 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         );
 
         let flatText = '';
-        const charMap = []; // index in flatText -> { node, offset }
+        const charMap = []; // index in flatText -> { node, offset, isVirtual }
         let textNode;
         let prevWasSpace = false;
+        let lastBlock = null;
+
+        const isBlockTag = (t) => ['p', 'div', 'article', 'section', 'header', 'footer', 'li', 'blockquote', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'table', 'tr'].includes(t);
+        const findBlock = (node) => {
+          let c = node.parentElement;
+          while (c && c !== searchRoot) {
+            if (c.tagName && isBlockTag(c.tagName.toLowerCase())) return c;
+            c = c.parentElement;
+          }
+          return null;
+        };
 
         while (textNode = walker.nextNode()) {
+          const block = findBlock(textNode);
+          if (lastBlock && block && block !== lastBlock && !prevWasSpace && flatText.length > 0) {
+            flatText += ' ';
+            charMap.push({ node: textNode, offset: 0, isVirtual: true });
+            prevWasSpace = true;
+          }
+          lastBlock = block;
+
           const val = textNode.nodeValue;
           for (let i = 0; i < val.length; i++) {
             const ch = val[i];
@@ -5803,12 +5890,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             if (isSpace) {
               if (!prevWasSpace && flatText.length > 0) {
                 flatText += ' ';
-                charMap.push({ node: textNode, offset: i });
+                charMap.push({ node: textNode, offset: i, isVirtual: false });
                 prevWasSpace = true;
               }
             } else {
               flatText += ch;
-              charMap.push({ node: textNode, offset: i });
+              charMap.push({ node: textNode, offset: i, isVirtual: false });
               prevWasSpace = false;
             }
           }
@@ -5816,17 +5903,69 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
 
         if (flatText.length === 0) return;
 
-        // Find the match
-        let matchIdx = flatText.indexOf(normalizedSearch);
-        let matchLen = normalizedSearch.length;
-
-        if (matchIdx === -1) {
-          // Fallback 1: Case-insensitive
-          matchIdx = flatText.toLowerCase().indexOf(normalizedSearch.toLowerCase());
+        // Collect all candidate occurrence matches
+        const occurrences = [];
+        const normLower = normalizedSearch.toLowerCase();
+        const flatLower = flatText.toLowerCase();
+        let curIdx = 0;
+        while (curIdx < flatLower.length) {
+          const found = flatLower.indexOf(normLower, curIdx);
+          if (found === -1) break;
+          occurrences.push({ index: found, length: normalizedSearch.length });
+          curIdx = found + 1;
         }
 
-        if (matchIdx === -1) {
-          // Fallback 2: Regex flexible whitespace
+        let matchIdx = -1;
+        let matchLen = normalizedSearch.length;
+
+        if (occurrences.length === 1) {
+          matchIdx = occurrences[0].index;
+          matchLen = occurrences[0].length;
+        } else if (occurrences.length > 1) {
+          // Disambiguate using prefix and suffix context
+          let bestScore = -1;
+          let bestOcc = occurrences[0];
+          const cleanPre = (hl.prefix || '').replace(/[\s\u00A0]+/g, ' ').trim().toLowerCase();
+          const cleanSuf = (hl.suffix || '').replace(/[\s\u00A0]+/g, ' ').trim().toLowerCase();
+
+          occurrences.forEach(occ => {
+            let score = 0;
+            if (cleanPre) {
+              const textBefore = flatLower.slice(Math.max(0, occ.index - cleanPre.length - 12), occ.index).trim();
+              if (textBefore.endsWith(cleanPre) || cleanPre.endsWith(textBefore)) {
+                score += 20;
+              } else {
+                for (let len = Math.min(cleanPre.length, 15); len >= 4; len--) {
+                  if (textBefore.endsWith(cleanPre.slice(-len))) {
+                    score += len;
+                    break;
+                  }
+                }
+              }
+            }
+            if (cleanSuf) {
+              const textAfter = flatLower.slice(occ.index + occ.length, occ.index + occ.length + cleanSuf.length + 12).trim();
+              if (textAfter.startsWith(cleanSuf) || cleanSuf.startsWith(textAfter)) {
+                score += 20;
+              } else {
+                for (let len = Math.min(cleanSuf.length, 15); len >= 4; len--) {
+                  if (textAfter.startsWith(cleanSuf.slice(0, len))) {
+                    score += len;
+                    break;
+                  }
+                }
+              }
+            }
+            if (score > bestScore) {
+              bestScore = score;
+              bestOcc = occ;
+            }
+          });
+
+          matchIdx = bestOcc.index;
+          matchLen = bestOcc.length;
+        } else {
+          // Fallback regex or punctuation-trimmed
           try {
             const escaped = normalizedSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
             const pattern = new RegExp(escaped.replace(/\s+/g, '\\s+'), 'i');
@@ -5836,14 +5975,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
               matchLen = m[0].length;
             }
           } catch (e) {}
-        }
 
-        if (matchIdx === -1) {
-          // Fallback 3: Substring without surrounding punctuation
-          const trimmedPunct = normalizedSearch.replace(/^[.,:;"'!?()[\]{}]+|[.,:;"'!?()[\]{}]+$/g, '').trim();
-          if (trimmedPunct && trimmedPunct.length > 6) {
-            matchIdx = flatText.toLowerCase().indexOf(trimmedPunct.toLowerCase());
-            matchLen = trimmedPunct.length;
+          if (matchIdx === -1) {
+            const trimmedPunct = normalizedSearch.replace(/^[.,:;"'!?()[\]{}]+|[.,:;"'!?()[\]{}]+$/g, '').trim();
+            if (trimmedPunct && trimmedPunct.length > 6) {
+              matchIdx = flatLower.indexOf(trimmedPunct.toLowerCase());
+              matchLen = trimmedPunct.length;
+            }
           }
         }
 
@@ -5852,11 +5990,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         const startChar = matchIdx;
         const endChar = Math.min(matchIdx + matchLen - 1, charMap.length - 1);
 
-        // Group character indices by text node
+        // Group character indices by text node in DOM order
         const nodeMap = new Map();
         for (let k = startChar; k <= endChar; k++) {
           const item = charMap[k];
-          if (!item || !item.node) continue;
+          if (!item || !item.node || item.isVirtual) continue;
           if (!nodeMap.has(item.node)) {
             nodeMap.set(item.node, { minOffset: item.offset, maxOffset: item.offset });
           } else {
@@ -5885,14 +6023,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           const mark = doc.createElement('mark');
           mark.className = `sds-highlight sds-hl-${hl.color || 'yellow'}`;
           mark.dataset.hlId = hl.id || '';
-          mark.title = `Click × to delete highlight (${hl.color || 'yellow'})`;
-          mark.onclick = (e) => {
-            e.stopPropagation();
-            const fn = window.deleteSingleHighlight || window.parent?.deleteSingleHighlight;
-            if (typeof fn === 'function') {
-              fn(artifactPath, hl.id, mark, surfaceHint);
-            }
-          };
 
           if (targetNode.parentNode) {
             targetNode.parentNode.replaceChild(mark, targetNode);
@@ -5901,16 +6031,44 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           }
         });
 
-        // Synchronize group hover across all slices of this highlight
-        if (markElements.length > 1) {
-          markElements.forEach(m => {
-            m.onmouseenter = () => {
-              markElements.forEach(other => other.classList.add('is-hovered'));
-            };
-            m.onmouseleave = () => {
-              markElements.forEach(other => other.classList.remove('is-hovered'));
-            };
+        const totalMarks = markElements.length;
+        markElements.forEach((m, idx) => {
+          if (totalMarks === 1) {
+            m.classList.add('sds-hl-solo', 'sds-hl-head', 'sds-hl-tail');
+          } else if (idx === 0) {
+            m.classList.add('sds-hl-head');
+          } else if (idx === totalMarks - 1) {
+            m.classList.add('sds-hl-tail');
+          } else {
+            m.classList.add('sds-hl-mid');
+          }
+
+          // Hover synchronization across all slices
+          m.addEventListener('mouseenter', () => {
+            markElements.forEach(other => other.classList.add('is-hovered'));
           });
+          m.addEventListener('mouseleave', () => {
+            markElements.forEach(other => other.classList.remove('is-hovered'));
+          });
+        });
+
+        // Dedicated delete button attached ONLY to the tail slice
+        if (totalMarks > 0) {
+          const tailMark = markElements[totalMarks - 1];
+          const delBtn = doc.createElement('button');
+          delBtn.className = 'sds-hl-del-btn';
+          delBtn.type = 'button';
+          delBtn.title = `Delete ${hl.color || 'yellow'} highlight`;
+          delBtn.innerHTML = '&times;';
+          delBtn.onclick = (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            const fn = window.deleteSingleHighlight || window.parent?.deleteSingleHighlight;
+            if (typeof fn === 'function') {
+              fn(artifactPath, hl.id, tailMark, surfaceHint);
+            }
+          };
+          tailMark.appendChild(delBtn);
         }
       });
 
@@ -5956,6 +6114,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       let targetDoc = document;
       let selectedText = '';
       let selObj = null;
+      let prefix = '';
+      let suffix = '';
+      let paneId = null;
 
       const adrModal = document.getElementById('adr-modal');
       const noteModal = document.getElementById('note-modal');
@@ -5966,13 +6127,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         artifactPath = 'DECISIONS.md';
         targetContainer = document.getElementById('adr-modal-content');
         selObj = window.getSelection();
-        selectedText = selObj ? selObj.toString().trim() : '';
       } else if (surfaceHint === 'note' || (noteModal && noteModal.classList.contains('active'))) {
         surfaceHint = 'note';
         artifactPath = activeNoteRelPath;
         targetContainer = (currentNoteMode === 'split') ? document.getElementById('note-split-preview') : document.getElementById('note-view-body');
         selObj = window.getSelection();
-        selectedText = selObj ? selObj.toString().trim() : '';
       } else if (surfaceHint === 'lesson' || (lessonModal && lessonModal.classList.contains('active'))) {
         surfaceHint = 'lesson';
         artifactPath = currentLessonContext.htmlPath;
@@ -5981,17 +6140,15 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           targetDoc = iframe.contentDocument;
           targetContainer = iframe.contentDocument.body;
           selObj = iframe.contentWindow ? iframe.contentWindow.getSelection() : null;
-          selectedText = selObj ? selObj.toString().trim() : '';
         }
       }
 
-      // Fallback: If no text was captured from primary focus, check iframe selection
-      if (!selectedText && lessonModal && lessonModal.classList.contains('active')) {
+      // Fallback: If no selection from primary focus, check iframe selection
+      if ((!selObj || !selObj.toString().trim()) && lessonModal && lessonModal.classList.contains('active')) {
         const iframe = document.getElementById('lesson-modal-iframe');
         if (iframe && iframe.contentWindow) {
           const ifSel = iframe.contentWindow.getSelection();
           if (ifSel && ifSel.toString().trim()) {
-            selectedText = ifSel.toString().trim();
             targetDoc = iframe.contentDocument;
             targetContainer = iframe.contentDocument.body;
             artifactPath = currentLessonContext.htmlPath;
@@ -6001,7 +6158,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         }
       }
 
-      if (!selectedText) {
+      if (!selObj || selObj.rangeCount === 0 || !selObj.toString().trim()) {
         showToast('Please select text with your cursor first to highlight');
         return;
       }
@@ -6010,10 +6167,52 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         return;
       }
 
+      const range = selObj.getRangeAt(0);
+      const startNode = range.startContainer;
+      const startEl = startNode.nodeType === Node.ELEMENT_NODE ? startNode : startNode.parentElement;
+      const paneEl = startEl ? startEl.closest('.section-pane, [id^="pane-"]') : null;
+      paneId = paneEl ? paneEl.id : null;
+
+      // Extract cleaned text without tooltips, scripts, etc.
+      const cloned = range.cloneContents();
+      cloned.querySelectorAll('.jargon-popover-card, script, style').forEach(el => el.remove());
+      selectedText = (cloned.textContent || selObj.toString()).replace(/[\r\n\t]+/g, ' ').replace(/[\s\u00A0]+/g, ' ').trim();
+
+      if (!selectedText) {
+        showToast('Please select text with your cursor first to highlight');
+        return;
+      }
+
+      // Capture prefix and suffix context for robust occurrence disambiguation
+      try {
+        const rootContainer = paneEl || (startEl ? startEl.closest('.narrative-prose, article, main, body') : null) || targetDoc.body;
+        const preRange = targetDoc.createRange();
+        preRange.selectNodeContents(rootContainer);
+        preRange.setEnd(range.startContainer, range.startOffset);
+        const preCloned = preRange.cloneContents();
+        preCloned.querySelectorAll('.jargon-popover-card, script, style').forEach(el => el.remove());
+        const preText = (preCloned.textContent || '').replace(/[\r\n\t]+/g, ' ').replace(/[\s\u00A0]+/g, ' ');
+        prefix = preText.slice(-40);
+
+        const postRange = targetDoc.createRange();
+        postRange.selectNodeContents(rootContainer);
+        postRange.setStart(range.endContainer, range.endOffset);
+        const postCloned = postRange.cloneContents();
+        postCloned.querySelectorAll('.jargon-popover-card, script, style').forEach(el => el.remove());
+        const postText = (postCloned.textContent || '').replace(/[\r\n\t]+/g, ' ').replace(/[\s\u00A0]+/g, ' ');
+        suffix = postText.slice(0, 40);
+      } catch (e) {
+        prefix = '';
+        suffix = '';
+      }
+
       const hlObj = {
         id: `hl_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
         color: color,
-        text: selectedText
+        text: selectedText,
+        prefix: prefix,
+        suffix: suffix,
+        paneId: paneId
       };
 
       try {
@@ -6049,29 +6248,26 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           method: 'DELETE'
         });
         if (res.ok) {
-          if (markElement && markElement.parentNode) {
-            const parent = markElement.parentNode;
-            while (markElement.firstChild) {
-              parent.insertBefore(markElement.firstChild, markElement);
-            }
-            parent.removeChild(markElement);
-            parent.normalize();
-          } else {
-            const unwrapMarks = (rootDoc) => {
-              if (!rootDoc) return;
-              rootDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`).forEach(m => {
-                const p = m.parentNode;
-                if (p) {
-                  while (m.firstChild) p.insertBefore(m.firstChild, m);
-                  p.removeChild(m);
-                  p.normalize();
+          const unwrapMarks = (rootDoc) => {
+            if (!rootDoc) return;
+            rootDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`).forEach(m => {
+              const p = m.parentNode;
+              if (p) {
+                while (m.firstChild) {
+                  if (m.firstChild.classList && m.firstChild.classList.contains('sds-hl-del-btn')) {
+                    m.removeChild(m.firstChild);
+                  } else {
+                    p.insertBefore(m.firstChild, m);
+                  }
                 }
-              });
-            };
-            unwrapMarks(document);
-            const iframe = document.getElementById('lesson-modal-iframe');
-            if (iframe && iframe.contentDocument) unwrapMarks(iframe.contentDocument);
-          }
+                p.removeChild(m);
+                p.normalize();
+              }
+            });
+          };
+          unwrapMarks(document);
+          const iframe = document.getElementById('lesson-modal-iframe');
+          if (iframe && iframe.contentDocument) unwrapMarks(iframe.contentDocument);
 
           if (surfaceHint && activeHighlightsCache[surfaceHint]) {
             activeHighlightsCache[surfaceHint].list = (activeHighlightsCache[surfaceHint].list || []).filter(h => h.id !== hlId);

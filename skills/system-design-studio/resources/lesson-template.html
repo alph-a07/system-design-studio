@@ -209,16 +209,62 @@
       transform: translateY(-1px);
       box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
     }
-    /* Robust Multi-Surface Highlighting Styles */
+    /* Robust Multi-Surface Highlighting Styles (W3C TextQuote Seamless Rendering) */
     .sds-highlight {
+      border-radius: 0;
+      padding: 1px 0;
+      margin: 0;
+      cursor: text;
       position: relative;
-      border-radius: 2px;
-      padding: 0 1px;
-      cursor: pointer;
-      transition: filter 0.15s ease;
+      transition: filter 0.12s ease;
+      font-weight: 500;
+      box-decoration-break: clone;
+      -webkit-box-decoration-break: clone;
     }
-    .sds-highlight:hover, .sds-highlight.is-hovered {
-      filter: brightness(1.2);
+    .sds-highlight.sds-hl-head {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+      padding-left: 2px;
+    }
+    .sds-highlight.sds-hl-tail {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+      padding-right: 2px;
+    }
+    .sds-highlight.is-hovered {
+      filter: brightness(0.92);
+    }
+    html.dark .sds-highlight.is-hovered,
+    .dark .sds-highlight.is-hovered {
+      filter: brightness(1.22);
+    }
+    .sds-hl-del-btn {
+      display: none;
+      position: absolute;
+      top: -9px;
+      right: -8px;
+      background: #dc2626;
+      color: #ffffff;
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 10px;
+      font-weight: 800;
+      line-height: 12px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1.5px solid #ffffff;
+      padding: 0;
+      cursor: pointer;
+      z-index: 60;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      user-select: none;
+      pointer-events: auto;
+    }
+    .sds-highlight.is-hovered .sds-hl-del-btn,
+    .sds-hl-tail:hover .sds-hl-del-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
     .sds-hl-yellow {
       background-color: #fef08a !important;
@@ -250,7 +296,7 @@
       color: #7dd3fc !important;
       border-bottom: 2px solid #38bdf8;
     }
-    /* Tooltip popover card: clean, bounded, responsive popover with zero line breaks */
+    /* Tooltip popover card: clean, bounded, responsive popover with zero line breaks and zero vertical bars */
     .jargon-popover-card {
       display: none;
       position: absolute;
@@ -260,10 +306,9 @@
       max-width: 90vw;
       min-width: 280px;
       max-height: calc(100vh - 48px);
-      overflow-y: auto;
-      overflow-x: hidden;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
+      overflow: hidden;
+      scrollbar-width: none !important;
+      -ms-overflow-style: none !important;
       background: var(--card, #18181b);
       border: 1.5px solid #f59e0b;
       border-radius: 0.875rem;
@@ -276,9 +321,9 @@
       pointer-events: auto;
     }
     .jargon-popover-card::-webkit-scrollbar {
-      display: none;
-      width: 0;
-      height: 0;
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
     /* Invisible hover bridge to prevent losing hover when cursor moves from cue to card */
     .jargon-popover-card::after {
@@ -829,6 +874,13 @@
       card.style.left = offsetLeft + 'px';
       card.style.right = 'auto';
       card.style.transform = 'none';
+
+      // Zero vertical scrollbar track/thumb guarantee
+      if (card.scrollHeight > window.innerHeight - 48) {
+        card.style.overflowY = 'auto';
+      } else {
+        card.style.overflow = 'hidden';
+      }
 
       if (wasHidden) {
         card.style.display = '';

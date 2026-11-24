@@ -388,6 +388,40 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertIn('class="jargon-tooltip-wrapper"', sanitized)
         self.assertIn('Maximum Segment Size', sanitized)
 
+    def test_popover_card_zero_vertical_bar_styling(self):
+        """Verify popover card enforces overflow: hidden and hides all scrollbars to eliminate vertical bars."""
+        template_path = os.path.join(REPO_ROOT, "skills", "system-design-studio", "resources", "lesson-template.html")
+        with open(template_path, "r", encoding="utf-8") as f:
+            tmpl = f.read()
+        self.assertIn(".jargon-popover-card", tmpl)
+        self.assertIn("overflow: hidden;", tmpl)
+        self.assertIn("scrollbar-width: none !important;", tmpl)
+        self.assertIn("-ms-overflow-style: none !important;", tmpl)
+        self.assertIn("display: none !important;", tmpl)
+
+    def test_seamless_highlight_styles_and_atomic_deletion(self):
+        """Verify seamless multi-node highlighting, no fragmentation gaps, and atomic deletion."""
+        dashboard_path = os.path.join(SCRIPTS_DIR, "serve-dashboard.py")
+        with open(dashboard_path, "r", encoding="utf-8") as f:
+            code = f.read()
+
+        # Invariant 1: Seamless highlight styling
+        self.assertIn("cursor: text;", code)
+        self.assertIn(".sds-highlight.sds-hl-head", code)
+        self.assertIn(".sds-highlight.sds-hl-tail", code)
+        self.assertIn(".sds-hl-del-btn", code)
+        self.assertIn("box-decoration-break: clone;", code)
+
+        # Invariant 2: Context-aware capture
+        self.assertIn("cloned.querySelectorAll('.jargon-popover-card", code)
+        self.assertIn("prefix = ", code)
+        self.assertIn("suffix = ", code)
+        self.assertIn("paneId = ", code)
+
+        # Invariant 3: Atomic deletion
+        self.assertIn('rootDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`)', code)
+        self.assertIn('sds-hl-del-btn', code)
+
 
 if __name__ == "__main__":
     unittest.main()
