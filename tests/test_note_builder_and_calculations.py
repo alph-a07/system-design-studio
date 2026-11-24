@@ -93,12 +93,12 @@ class TestNoteDocumentAST(unittest.TestCase):
 
         md = doc.to_markdown()
         self.assertIn("# Raft Distributed Consensus", md)
-        self.assertIn("## 1. Initial Intuition & Working Hypothesis", md)
-        self.assertIn("## 2. Dialectic & Friction Encountered", md)
-        self.assertIn("## 3. Derived Invariant (The 'Aha!' Synthesis)", md)
-        self.assertIn("## 4. Personal Rule of Thumb & Sizing Reality", md)
+        self.assertIn("## 1. Core Context & Problem Space", md)
+        self.assertIn("## 2. Failure Modes & Bottleneck Mechanics", md)
+        self.assertIn("## 3. Core Architectural Invariant", md)
+        self.assertIn("## 4. Trade-Offs & Sizing Reference", md)
         self.assertIn("| **Quorum Overlap** | Require 2Q > N for linearizable commits |", md)
-        self.assertIn("## 5. Mathematical & Physical Invariants", md)
+        self.assertIn("## 5. Mathematical & Physical Bounds", md)
         self.assertIn("### Majority Quorum Formula", md)
         self.assertIn("## 6. Production Takeaways & Heuristics", md)
 

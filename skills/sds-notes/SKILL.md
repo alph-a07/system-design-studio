@@ -12,7 +12,7 @@ metadata:
 Display direct clickable links (`file:///...`) to all active-learning study notes generated in this project, or read and edit notes live in the visual dashboard on `http://localhost:8420`.
 
 ## Value to User
-- **Knowledge Retention**: Access synthesized study notes combining your initial intuition, cold dialectic friction, and verified physical sizing rules.
+- **Fast Future Reference**: Access clean, agentic reference notes synthesized from topic context, failure modes, sizing bounds, and your highlighted passages.
 - **Auto vs. Manual Control**: When `autoGenerateNotes` is enabled, notes compile seamlessly on completion. If disabled, generate notes on demand whenever you want.
 
 ## Instructions
@@ -28,4 +28,4 @@ Display direct clickable links (`file:///...`) to all active-learning study note
 3. **Display structured note links**:
    - Format results as a tidy table or bullet list organized by Tier and Cluster.
    - Use absolute file links: `[<note-name>](file:///<path-to-note.md>)`.
-   - Notes contain the 4 active-learning sections: Initial Hypothesis, Dialectic Friction, Derived Invariant, and Personal Rules of Thumb.
+   - Notes are structured for quick re-reads: Core Context & Problem Space, Failure Modes & Bottleneck Mechanics, Core Architectural Invariant, Trade-Offs & Sizing Reference, and Highlighted Passages.

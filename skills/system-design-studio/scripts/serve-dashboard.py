@@ -4326,9 +4326,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <input type="text" id="hl-drawer-search" class="hl-drawer-search" placeholder="Filter highlights by text..." oninput="renderHighlightsSidebar()" />
       <div class="hl-filter-pills">
         <button type="button" class="hl-filter-pill active" data-hl-filter="all" onclick="setHighlightsFilter('all')">All</button>
-        <button type="button" class="hl-filter-pill" data-hl-filter="yellow" onclick="setHighlightsFilter('yellow')"><span class="hl-swatch-btn yellow" style="width:9px; height:9px; pointer-events:none;"></span> Key Concept</button>
-        <button type="button" class="hl-filter-pill" data-hl-filter="emerald" onclick="setHighlightsFilter('emerald')"><span class="hl-swatch-btn emerald" style="width:9px; height:9px; pointer-events:none;"></span> Invariant</button>
-        <button type="button" class="hl-filter-pill" data-hl-filter="cyan" onclick="setHighlightsFilter('cyan')"><span class="hl-swatch-btn cyan" style="width:9px; height:9px; pointer-events:none;"></span> Question</button>
+        <button type="button" class="hl-filter-pill" data-hl-filter="yellow" onclick="setHighlightsFilter('yellow')"><span class="hl-swatch-btn yellow" style="width:9px; height:9px; pointer-events:none;"></span> Yellow</button>
+        <button type="button" class="hl-filter-pill" data-hl-filter="emerald" onclick="setHighlightsFilter('emerald')"><span class="hl-swatch-btn emerald" style="width:9px; height:9px; pointer-events:none;"></span> Emerald</button>
+        <button type="button" class="hl-filter-pill" data-hl-filter="cyan" onclick="setHighlightsFilter('cyan')"><span class="hl-swatch-btn cyan" style="width:9px; height:9px; pointer-events:none;"></span> Cyan</button>
       </div>
     </div>
     <div id="hl-drawer-list" class="hl-drawer-body"></div>
@@ -5990,9 +5990,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
 
       const colorLabels = {
-        yellow: 'Key Concept',
-        emerald: 'Invariant',
-        cyan: 'Question'
+        yellow: 'Yellow',
+        emerald: 'Emerald',
+        cyan: 'Cyan'
       };
 
       const escapeHtmlLocal = (str) => String(str || '')
@@ -6871,7 +6871,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       { id: 'callout', label: 'Invariant Callout', desc: '> [!INVARIANT] block', type: 'snippet', value: '> [!INVARIANT]\n> ' },
       { id: 'code', label: 'Code / ASCII Diagram', desc: '```text diagram```', type: 'snippet', value: '```text\n+--------+     request     +--------+\n| Client | --------------> | Server |\n+--------+ <-------------- +--------+\n```\n' },
       { id: 'table', label: 'Trade-off Table', desc: 'Markdown comparison matrix', type: 'snippet', value: '| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Option A vs Option B | Choose A when... | SLA / Sizing |\n' },
-      { id: 'template', label: 'SDS Synthesis Template', desc: 'Full 4-phase study scaffold', type: 'snippet', value: '## 1. Ground Truth & First Principles\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Active Defense & Invariant Derived\n> [!INVARIANT]\n> Non-negotiable invariant proved cold.\n\n## 3. Production Trade-Off Matrix\n| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads | Tail SLA < 15ms @ p99 |\n' },
+      { id: 'template', label: 'Reference Note Template', desc: 'Clean architecture reference scaffold', type: 'snippet', value: '## 1. Core Mechanism & Constraints\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Core Invariant\n> [!INVARIANT]\n> Non-negotiable architectural invariant.\n\n## 3. Production Trade-Off Matrix\n| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads | Tail SLA < 15ms @ p99 |\n' },
       { id: 'divider', label: 'Divider', desc: '--- Horizontal rule', type: 'snippet', value: '\n---\n' }
     ];
 
@@ -7324,7 +7324,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     }
 
     function insertNoteSynthesisTemplate() {
-      const tpl = `\n## 1. Ground Truth & First Principles\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Active Defense & Invariant Derived\n> [!INVARIANT]\n> Non-negotiable physical or mathematical invariant deduced under dialetical pressure.\n\n## 3. Production Trade-Off & Sizing Matrix\n| Architectural Trade-Off | Decision Rule | Production Sizing Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads with bounded staleness | Tail SLA < 15ms @ p99 |\n\n`;
+      const tpl = `\n## 1. Core Mechanism & Constraints\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Core Architectural Invariant\n> [!INVARIANT]\n> Non-negotiable physical or mathematical invariant.\n\n## 3. Production Trade-Off & Sizing Matrix\n| Architectural Trade-Off | Decision Rule | Production Sizing Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads with bounded staleness | Tail SLA < 15ms @ p99 |\n\n`;
       insertNoteSnippet(tpl);
     }
 

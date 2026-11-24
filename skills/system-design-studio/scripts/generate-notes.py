@@ -98,33 +98,33 @@ def extract_or_infer_hypothesis(topic_id, topic_title, cluster_title, discussion
         if m:
             return m.group(1).strip()
 
-    # Domain-aware naive mental model inference representing opening user intuition
+    # Domain-aware context summary for fast future reference
     t_lower = (topic_id + " " + topic_title).lower()
     if "tcp" in t_lower or "udp" in t_lower:
-        return "Assumed critical RPCs should universally mandate TCP for reliability, treating packet loss purely as a transport concern transparent to application latency."
+        return "Choosing between TCP and UDP balances ordered byte-stream reliability against head-of-line blocking and tail-latency predictability."
     elif "lru" in t_lower or "lfu" in t_lower or "cache" in t_lower:
-        return "Assumed standard recency eviction (LRU) is optimal for high cache hit rates, before analyzing cache pollution from sequential one-off table scans."
+        return "Cache replacement policies trade recency sensitivity against scan resistance and metadata overhead under skewed workloads."
     elif "consistent-hash" in t_lower or "hashing" in t_lower:
-        return "Assumed standard modulo hashing `hash(key) % N` suffices to balance traffic, before analyzing catastrophic O(N) key remapping during node scale-out or crash."
+        return "Distributed partitioning requires bounding key remapping to O(K/N) during node churn instead of full O(K) re-sharding."
     elif "raft" in t_lower or "paxos" in t_lower or "consensus" in t_lower or "leader" in t_lower:
-        return "Assumed majority heartbeat timeouts alone prevent split-brain, before working through network partitions, asymmetric packet drops, and term generation counters."
+        return "Replicated state machines rely on strict quorum intersection and monotonic term numbers to preserve linearizability across partitions."
     elif "wal" in t_lower or "write-ahead" in t_lower or "lsm" in t_lower or "btree" in t_lower or "storage" in t_lower:
-        return "Assumed database durability requires synchronous in-place disk page flushes on every transaction commit, before considering write amplification and sequential log append efficiency."
+        return "Storage engines reconcile durable commit guarantees with disk I/O physics by decoupling sequential log appends from background page/table compaction."
     elif "rate" in t_lower or "token-bucket" in t_lower or "leaky" in t_lower:
-        return "Assumed simple counter-per-window rate limiting prevents API abuse, before discovering double-burst boundary exploits at window rollover boundaries."
+        return "Traffic shaping must absorb legitimate micro-bursts while preventing boundary-window spikes from saturating downstream capacity."
     elif "crdt" in t_lower or "sync" in t_lower or "offline" in t_lower or "eventual" in t_lower:
-        return "Assumed last-write-wins (LWW) with client timestamps resolves concurrent mobile edits cleanly, before observing clock skew overwriting legitimate data."
+        return "Offline-first and multi-region state replication requires deterministic convergence without relying on synchronized physical wall clocks."
     elif "queue" in t_lower or "kafka" in t_lower or "pub-sub" in t_lower or "backpressure" in t_lower:
-        return "Assumed unbounded memory queues maximize asynchronous producer throughput, before experiencing out-of-memory cascades when consumer processing degrades."
+        return "Asynchronous messaging decouples producer bursts from consumer throughput using bounded buffers and explicit backpressure."
     else:
-        return f"Assumed standard synchronous request-response architecture would satisfy requirements for {topic_title} before evaluating uncoordinated distributed failure states and physical resource saturation."
+        return f"Architectural design for {topic_title} centers on bounding tail latency, failure blast radius, and resource saturation under load."
 
 def extract_or_synthesize_friction(discussion_summary, topic_title):
     if discussion_summary and len(discussion_summary.strip()) > 30:
         return discussion_summary.strip()
-    return f"""- **The Socratic Stress Test**: Challenged the working assumption against uncoordinated hardware crashes, trans-oceanic network jitter, and concurrent race conditions.
-- **Where the Model Broke**: When packet loss or node membership churn occurred, the naive approach experienced catastrophic tail latency or state divergence.
-- **The Core Trade-Off Exposed**: Discovered that zero coordination cannot coexist with strong invariants—every architectural guarantee demands a specific tax in latency, buffer memory, or operational complexity."""
+    return f"""- **Failure Boundaries**: Uncoordinated node crashes, cross-AZ network partitions, and asymmetric packet loss expose hidden synchronous dependencies in {topic_title}.
+- **Bottleneck Mechanics**: Under partial degradation or membership churn, unbounded retries and head-of-line stalls amplify tail latency and queue depth.
+- **Trade-Off Implication**: Strong consistency or ordering guarantees always carry a measurable tax in round-trip latency, memory buffering, or operational complexity."""
 
 def build_rules_of_thumb(topic_id, topic_title):
     t_lower = (topic_id + " " + topic_title).lower()
@@ -172,27 +172,24 @@ def build_note_markdown(tier, cluster, topic, evidence, discussion_summary, hypo
 
     user_hypothesis = extract_or_infer_hypothesis(topic_id, title, cluster_title, discussion_summary, hypothesis)
     friction_text = extract_or_synthesize_friction(discussion_summary, title)
-    derived_claim = evidence.strip() if evidence else f"Proved unassisted that {title} enforces deterministic causal ordering and bounded blast radius by strictly decoupling volatile state from the critical write path."
+    derived_claim = evidence.strip() if evidence else f"{title} enforces deterministic ordering and bounded blast radius by decoupling volatile state from the critical write path."
     rules = build_rules_of_thumb(topic_id, title)
 
     lines = []
     lines.append(f"# {title}")
-    lines.append(f"**Hierarchy**: {tier_title} ➔ {cluster_title}")
-    lines.append(f"**Verified Date**: {today_str} | **Status**: Verified Sign-Off (Active Learning Synthesis)\n")
+    lines.append(f"**Track**: {tier_title} ➔ {cluster_title}")
+    lines.append(f"**Updated**: {today_str}\n")
     
-    lines.append("## 1. Initial Intuition & Working Hypothesis")
-    lines.append(f"> *\"{user_hypothesis}\"*\n")
-    lines.append("*The mental model or operational assumption held prior to exploring boundary constraints and failure states.*\n")
+    lines.append("## 1. Core Context & Problem Space")
+    lines.append(f"> {user_hypothesis}\n")
 
-    lines.append("## 2. Dialectic & Friction Encountered")
+    lines.append("## 2. Failure Modes & Bottleneck Mechanics")
     lines.append(friction_text + "\n")
-    lines.append("*The critical failure modes, counter-examples, or physical bottlenecks that challenged the initial hypothesis during active Socratic defense.*\n")
 
-    lines.append("## 3. Derived Invariant (The 'Aha!' Synthesis)")
-    lines.append(f"> **Demonstrated Claim**:\n> *\"{derived_claim}\"*\n")
-    lines.append("*What was personally deduced, proved cold, and internalized through active dialectic—the non-negotiable physical or mathematical invariant.*\n")
+    lines.append("## 3. Core Architectural Invariant")
+    lines.append(f"> {derived_claim}\n")
 
-    lines.append("## 4. Personal Rule of Thumb & Sizing Reality")
+    lines.append("## 4. Trade-Offs & Sizing Reference")
     lines.append("| Architectural Trade-Off / Constraint | Operational Decision Rule | Production Bound / Sizing Invariant |")
     lines.append("| :--- | :--- | :--- |")
     for r in rules:
@@ -262,28 +259,20 @@ def load_topic_highlights(instance_dir, topic_id, topic_info=None):
     return combined
 
 def format_highlights_markdown_section(highlights):
-    """Format learner highlights as a structured study note section."""
+    """Format saved highlights as clean reference passages without decorative color semantics."""
     if not highlights:
         return ""
-    color_labels = {
-        "yellow": "Key Concept",
-        "emerald": "Invariant",
-        "cyan": "Question / Deep Dive",
-    }
     lines = [
-        "## 5. Highlighted Lesson Passages & Focus Anchors",
-        "*Passages personally highlighted during study and incorporated into this synthesis:*",
+        "## Highlighted Passages",
         "",
     ]
     for hl in highlights:
-        color = (hl.get("color") or "yellow").lower()
-        label = color_labels.get(color, color.title())
         pane_id = hl.get("paneId") or ""
         m = re.search(r"section-(\d+)", pane_id)
-        stage_tag = f" · Stage {m.group(1)}" if m else ""
+        stage_prefix = f"**[Stage {m.group(1)}]** " if m else ""
         text = re.sub(r"\s+", " ", str(hl.get("text") or "")).strip()
         if text:
-            lines.append(f"- **[{label}{stage_tag}]** *\"{text}\"*")
+            lines.append(f"- {stage_prefix}*\"{text}\"*")
     lines.append("")
     return "\n".join(lines)
 

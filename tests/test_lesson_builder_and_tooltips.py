@@ -467,13 +467,17 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         self.assertIn("function toggleHighlightsSidebar(surfaceHint)", dash)
         self.assertIn("function navigateToHighlight(surfaceHint, hlId)", dash)
         self.assertIn("sds-hl-pulse", dash)
+        # Highlight colors are purely decorative (no semantic labels like Key Concept / Invariant)
+        self.assertNotIn("yellow: 'Key Concept'", dash)
+        self.assertNotIn("emerald: 'Invariant'", dash)
+        self.assertNotIn("cyan: 'Question'", dash)
 
         # 3. Atomic disk persistence for notes & highlights
         self.assertIn("def atomic_write_text(target_path, content):", dash)
         self.assertIn("atomic_write_text(canonical,", dash)
         self.assertIn("atomic_write_text(target, content)", dash)
 
-        # 4. sds-complete / generate-notes.py integrates highlights into compiled notes
+        # 4. sds-complete / generate-notes.py integrates highlights into clean reference notes
         import importlib.util
         import tempfile
         gen_path = os.path.join(SCRIPTS_DIR, "generate-notes.py")
@@ -494,10 +498,23 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
             loaded = gen_mod.load_topic_highlights(inst_dir, "topic.0.1.tcp-vs-udp")
             self.assertEqual(len(loaded), 2)
             md_section = gen_mod.format_highlights_markdown_section(loaded)
-            self.assertIn("## 5. Highlighted Lesson Passages & Focus Anchors", md_section)
-            self.assertIn("[Key Concept · Stage 2]", md_section)
-            self.assertIn("[Invariant · Stage 3]", md_section)
+            self.assertIn("## Highlighted Passages", md_section)
+            self.assertIn("**[Stage 2]**", md_section)
+            self.assertIn("**[Stage 3]**", md_section)
+            self.assertNotIn("Key Concept", md_section)
+            self.assertNotIn("Invariant", md_section)
             self.assertIn("TCP enforces ordered byte stream delivery.", md_section)
+
+            note_md = gen_mod.build_note_markdown(
+                {"code": "0", "name": "Tier 0"},
+                {"code": "0.1", "title": "Transport"},
+                {"id": "topic.0.1.tcp-vs-udp", "title": "TCP vs UDP"},
+                "", "", "", "2026-11-25"
+            )
+            self.assertIn("## 1. Core Context & Problem Space", note_md)
+            self.assertNotIn("Socratic", note_md)
+            self.assertNotIn("proved cold", note_md)
+            self.assertNotIn("Where the Model Broke", note_md)
 
 
 if __name__ == "__main__":

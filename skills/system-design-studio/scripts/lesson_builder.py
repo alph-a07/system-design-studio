@@ -1726,12 +1726,11 @@ class NoteDocument:
 
         lines = [
             f"# {self.title}",
-            f"**Hierarchy**: {tier_title} ➔ {cluster_title}",
-            f"**Verified Date**: {self.verified_date} | **Status**: {self.status}\n",
-            "## 1. Initial Intuition & Working Hypothesis",
-            f"> *\"{self.hypothesis}\"*\n",
-            "*The mental model or operational assumption held prior to exploring boundary constraints and failure states.*\n",
-            "## 2. Dialectic & Friction Encountered",
+            f"**Track**: {tier_title} ➔ {cluster_title}",
+            f"**Updated**: {self.verified_date}\n",
+            "## 1. Core Context & Problem Space",
+            f"> {self.hypothesis}\n",
+            "## 2. Failure Modes & Bottleneck Mechanics",
         ]
 
         if isinstance(self.friction, list):
@@ -1739,13 +1738,12 @@ class NoteDocument:
                 lines.append(f"- {f}")
         else:
             lines.append(self.friction.strip())
-        lines.append("\n*The critical failure modes, counter-examples, or physical bottlenecks that challenged the initial hypothesis during active Socratic defense.*\n")
+        lines.append("")
 
         lines.extend([
-            "## 3. Derived Invariant (The 'Aha!' Synthesis)",
-            f"> **Demonstrated Claim**:\n> *\"{self.derived_invariant}\"*\n",
-            "*What was personally deduced, proved cold, and internalized through active dialectic—the non-negotiable physical or mathematical invariant.*\n",
-            "## 4. Personal Rule of Thumb & Sizing Reality",
+            "## 3. Core Architectural Invariant",
+            f"> {self.derived_invariant}\n",
+            "## 4. Trade-Offs & Sizing Reference",
             "| Architectural Trade-Off / Constraint | Operational Decision Rule | Production Bound / Sizing Invariant |",
             "| :--- | :--- | :--- |",
         ])
@@ -1761,7 +1759,7 @@ class NoteDocument:
         lines.append("")
 
         if self.formulas:
-            lines.append("## 5. Mathematical & Physical Invariants")
+            lines.append("## 5. Mathematical & Physical Bounds")
             for f in self.formulas:
                 name = f.get("name", "Physical Law")
                 formula = f.get("formula", "")
@@ -1825,20 +1823,20 @@ class NoteDocument:
         for node in nodes:
             ntype = node.get("type", "")
 
-            # Extract hypothesis from dilemma or warning callouts
+            # Extract context from dilemma or warning callouts
             if not extracted_hypothesis and ntype in ("dilemma", "callout"):
                 kind = node.get("kind", "")
                 if kind in ("warning", "dilemma", "problem", "challenge") or ntype == "dilemma":
                     q = node.get("lead") or node.get("question") or node.get("title") or node.get("content") or node.get("text", "")
                     if q:
-                        extracted_hypothesis = f"Assumed naive model holds prior to exploring: {q.strip()[:240]}"
+                        extracted_hypothesis = q.strip()[:240]
 
-            # Extract friction from failure scenarios, mental models, or defense challenges
+            # Extract failure scenarios from failure_scenario, mental_model, or defense_challenge
             if not extracted_friction and ntype in ("failure_scenario", "mental_model", "defense_challenge"):
                 scen = node.get("scenario") or node.get("statement") or node.get("text") or node.get("title", "")
-                imp = node.get("impact") or node.get("explanation") or "Challenged under extreme distributed conditions"
+                imp = node.get("impact") or node.get("explanation") or "Degrades under high load or partition conditions"
                 if scen:
-                    extracted_friction = f"- **Failure Scenario**: {scen}\n- **Where Model Broke**: {imp}"
+                    extracted_friction = f"- **Failure Scenario**: {scen}\n- **System Impact**: {imp}"
 
             # Extract invariant from breakthrough cards or quotes
             if not extracted_invariant and ntype in ("breakthrough", "quote"):

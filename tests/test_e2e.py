@@ -296,10 +296,10 @@ class SystemDesignStudioE2ETest(unittest.TestCase):
         with open(notes_file, "r", encoding="utf-8") as f:
             note_text = f.read()
         self.assertIn("TCP vs UDP", note_text)
-        self.assertIn("1. Initial Intuition & Working Hypothesis", note_text)
-        self.assertIn("2. Dialectic & Friction Encountered", note_text)
-        self.assertIn("3. Derived Invariant", note_text)
-        self.assertIn("4. Personal Rule of Thumb & Sizing Reality", note_text)
+        self.assertIn("1. Core Context & Problem Space", note_text)
+        self.assertIn("2. Failure Modes & Bottleneck Mechanics", note_text)
+        self.assertIn("3. Core Architectural Invariant", note_text)
+        self.assertIn("4. Trade-Offs & Sizing Reference", note_text)
 
         # 6. Verify sync-status reports correct telemetry
         sync_res = self.run_cmd([sys.executable, sync_script, proj1_inst])

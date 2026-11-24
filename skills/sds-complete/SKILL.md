@@ -28,14 +28,9 @@ Rather than burning thousands of LLM tokens on trivial file formatting:
    - Confirm that the learner has achieved internal closure and articulated the physical invariants and trade-offs.
    - Learners conclude on their terms: once they have clarity and confidence in the trade-offs, approve the sign-off and seal the record into Git.
 
-2. **ACTIVE LEARNING NOTE GOVERNANCE**:
-   - The compiled study note MUST reflect **what the learner understood through self evaluation**, NOT passive textbook summaries.
-   - Inspect `.system-design/highlights/` for any highlights saved on the active topic's lesson or notes, and incorporate those highlighted focus anchors into `--discussion-summary` alongside the chat dialectic (`generate-notes.py` also deterministically embeds saved highlights into the compiled note).
-   - You MUST extract:
-     1. The learner's initial hypothesis from the start of the topic.
-     2. The friction points and edge cases explored during the lesson.
-     3. The derived invariant they proved cold.
-     4. Concrete personal rules of thumb and sizing formulas.
+2. **CONTEXTUAL REFERENCE NOTE GOVERNANCE**:
+   - Compiled notes MUST be clean, direct technical reference documents built for effortless future re-reads—never leaking meta-commentary about the learning/study process.
+   - Inspect `.system-design/highlights/` for any highlights saved on the active topic's lesson or notes, and incorporate those focus points alongside the core trade-offs, failure boundaries, and sizing rules (`generate-notes.py` also deterministically embeds saved highlights into the compiled note).
 
 ## Execution Sequence
 
