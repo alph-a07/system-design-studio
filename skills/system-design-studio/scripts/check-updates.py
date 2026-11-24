@@ -61,7 +61,7 @@ def get_local_version(script_dir):
         found_versions.sort(key=lambda v: parse_semver(v), reverse=True)
         return found_versions[0]
 
-    return "4.1.1"
+    return "4.2.0"
 
 def get_cache_path(instance_dir=None):
     if instance_dir and os.path.isdir(instance_dir):

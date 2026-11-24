@@ -5,7 +5,7 @@ tools: [read_file, write_file, edit_file, run_command]
 subagent: true
 mainAgent: false
 metadata:
-  version: 4.1.1
+  version: 4.2.0
   author: Jeel Patel
   role: Adversarial Systems Review Auditor
 ---

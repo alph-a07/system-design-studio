@@ -90,11 +90,11 @@ switch ($Command.ToLower()) {
         }
     }
     { $_ -in "version", "-v", "--version" } {
-        Write-Host "System Design Studio CLI v4.1.1"
+        Write-Host "System Design Studio CLI v4.2.0"
     }
     default {
         Write-Host "============================================================================"
-        Write-Host "  SYSTEM DESIGN STUDIO CLI (sds) - v4.1.1"
+        Write-Host "  SYSTEM DESIGN STUDIO CLI (sds) - v4.2.0"
         Write-Host "============================================================================"
         Write-Host "Usage: sds <command> [options]"
         Write-Host ""

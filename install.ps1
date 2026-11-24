@@ -1,4 +1,4 @@
-﻿# System Design Studio — Universal Windows PowerShell Installer (v4.1.1)
+﻿# System Design Studio — Universal Windows PowerShell Installer (v4.2.0)
 # Configures global studio preferences ($HOME\.system-design-studio\config.json)
 # and installs skill packages across AI coding agents on Windows.
 #

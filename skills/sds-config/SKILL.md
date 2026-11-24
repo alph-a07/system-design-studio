@@ -4,7 +4,7 @@ description: View or dynamically update studio settings (theme, notes structure)
 argument-hint: "[key] [value]"
 compatibility: Universal (Antigravity, Claude Code, Cursor, Codex)
 metadata:
-  version: 4.1.1
+  version: 4.2.0
 ---
 
 # /sds-config
