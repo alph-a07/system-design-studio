@@ -447,6 +447,58 @@ class TestLessonBuilderAndTooltips(unittest.TestCase):
         # Invariant 3: Zero overflowY = 'auto' on tooltip cards to prevent scrollbar tracks
         self.assertNotIn("card.style.overflowY = 'auto'", tmpl)
 
+    def test_notes_workbench_highlights_sidebar_and_persistence(self):
+        """Verify split editor bug fix, Notion-grade upgrades, highlights sidebar, atomic persistence, and sds-complete highlights."""
+        dashboard_path = os.path.join(SCRIPTS_DIR, "serve-dashboard.py")
+        with open(dashboard_path, "r", encoding="utf-8") as f:
+            dash = f.read()
+
+        # 1. Split editor bug fix: no phantom boilerplate default text in openTopicNote
+        self.assertNotIn("# System Architecture Notes: ${topicTitle || topicId}", dash)
+        self.assertIn("NOTE_EMPTY_HTML", dash)
+        self.assertIn("NOTE_SLASH_COMMANDS", dash)
+        self.assertIn("function handleNoteEditorKeyDown(e)", dash)
+        self.assertIn("function toggleNoteTaskCheckbox(", dash)
+        self.assertIn("function syncNoteSplitScroll()", dash)
+
+        # 2. Highlights slide-over sidebar replaces toolbar dropover
+        self.assertIn('id="highlights-drawer"', dash)
+        self.assertNotIn('class="hl-popover-menu"', dash)
+        self.assertIn("function toggleHighlightsSidebar(surfaceHint)", dash)
+        self.assertIn("function navigateToHighlight(surfaceHint, hlId)", dash)
+        self.assertIn("sds-hl-pulse", dash)
+
+        # 3. Atomic disk persistence for notes & highlights
+        self.assertIn("def atomic_write_text(target_path, content):", dash)
+        self.assertIn("atomic_write_text(canonical,", dash)
+        self.assertIn("atomic_write_text(target, content)", dash)
+
+        # 4. sds-complete / generate-notes.py integrates highlights into compiled notes
+        import importlib.util
+        import tempfile
+        gen_path = os.path.join(SCRIPTS_DIR, "generate-notes.py")
+        spec = importlib.util.spec_from_file_location("generate_notes", gen_path)
+        gen_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gen_mod)
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            inst_dir = os.path.join(tmpdir, ".system-design")
+            hl_dir = os.path.join(inst_dir, "highlights")
+            os.makedirs(hl_dir, exist_ok=True)
+            hl_file = os.path.join(hl_dir, "lessons--0-1-tcp-vs-udp.html.json")
+            with open(hl_file, "w", encoding="utf-8") as hf:
+                json.dump([
+                    {"id": "hl_1", "color": "yellow", "text": "TCP enforces ordered byte stream delivery.", "paneId": "pane-section-2"},
+                    {"id": "hl_2", "color": "emerald", "text": "Head-of-line blocking stalls all packets behind a lost segment.", "paneId": "pane-section-3"},
+                ], hf)
+            loaded = gen_mod.load_topic_highlights(inst_dir, "topic.0.1.tcp-vs-udp")
+            self.assertEqual(len(loaded), 2)
+            md_section = gen_mod.format_highlights_markdown_section(loaded)
+            self.assertIn("## 5. Highlighted Lesson Passages & Focus Anchors", md_section)
+            self.assertIn("[Key Concept · Stage 2]", md_section)
+            self.assertIn("[Invariant · Stage 3]", md_section)
+            self.assertIn("TCP enforces ordered byte stream delivery.", md_section)
+
 
 if __name__ == "__main__":
     unittest.main()

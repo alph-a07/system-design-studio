@@ -201,6 +201,92 @@ def build_note_markdown(tier, cluster, topic, evidence, discussion_summary, hypo
 
     return "\n".join(lines)
 
+def load_topic_highlights(instance_dir, topic_id, topic_info=None):
+    """Load and deduplicate learner highlights persisted for this topic."""
+    if not instance_dir or not os.path.isdir(instance_dir):
+        return []
+    hl_dir = os.path.join(instance_dir, "highlights")
+    if not os.path.isdir(hl_dir):
+        return []
+
+    raw_slug = topic_id.replace("topic.", "").replace(".", "-")
+    slugified = slugify(topic_id.replace("topic.", ""))
+    stems = []
+    for s in [raw_slug, slugified]:
+        if s and s not in stems:
+            stems.append(s)
+
+    if topic_info and topic_info.get("lessonArtifact"):
+        art_base = os.path.splitext(os.path.basename(topic_info["lessonArtifact"]))[0]
+        if art_base and art_base not in stems:
+            stems.append(art_base)
+
+    candidates = []
+    for st in stems:
+        candidates.extend([
+            os.path.join(hl_dir, f"lessons--{st}.html.json"),
+            os.path.join(hl_dir, f"lessons--{st}.json"),
+            os.path.join(hl_dir, f"lessons--{st}.md.json"),
+            os.path.join(hl_dir, f"{st}.html.json"),
+            os.path.join(hl_dir, f"{st}.json"),
+            os.path.join(hl_dir, f"{st}.md.json"),
+        ])
+
+    # Also include any highlight files matching the topic leaf slug
+    leaf = stems[-1].split("-", 2)[-1] if stems else ""
+    try:
+        for fname in sorted(os.listdir(hl_dir)):
+            if fname.endswith(".json") and (any(st in fname for st in stems) or (leaf and len(leaf) > 3 and leaf in fname)):
+                cand = os.path.join(hl_dir, fname)
+                if cand not in candidates:
+                    candidates.append(cand)
+    except Exception:
+        pass
+
+    combined = []
+    seen_ids = set()
+    for c in candidates:
+        if os.path.isfile(c):
+            try:
+                with open(c, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                items = data if isinstance(data, list) else data.get("highlights", [])
+                for item in items:
+                    if isinstance(item, dict) and item.get("text"):
+                        hl_id = item.get("id") or f"{item.get('text', '')}_{item.get('color', '')}"
+                        if hl_id not in seen_ids:
+                            seen_ids.add(hl_id)
+                            combined.append(item)
+            except Exception:
+                pass
+    return combined
+
+def format_highlights_markdown_section(highlights):
+    """Format learner highlights as a structured study note section."""
+    if not highlights:
+        return ""
+    color_labels = {
+        "yellow": "Key Concept",
+        "emerald": "Invariant",
+        "cyan": "Question / Deep Dive",
+    }
+    lines = [
+        "## 5. Highlighted Lesson Passages & Focus Anchors",
+        "*Passages personally highlighted during study and incorporated into this synthesis:*",
+        "",
+    ]
+    for hl in highlights:
+        color = (hl.get("color") or "yellow").lower()
+        label = color_labels.get(color, color.title())
+        pane_id = hl.get("paneId") or ""
+        m = re.search(r"section-(\d+)", pane_id)
+        stage_tag = f" · Stage {m.group(1)}" if m else ""
+        text = re.sub(r"\s+", " ", str(hl.get("text") or "")).strip()
+        if text:
+            lines.append(f"- **[{label}{stage_tag}]** *\"{text}\"*")
+    lines.append("")
+    return "\n".join(lines)
+
 def get_clean_tier_slug(tier):
     tier_name = tier.get("name", "")
     clean_name = re.sub(r'^tier\s*\d+\s*[:—\-]?\s*', '', tier_name, flags=re.IGNORECASE).strip()
@@ -471,6 +557,13 @@ def main():
     # Fallback to domain synthesis if no AST available
     if not note_body:
         note_body = build_note_markdown(tier, cluster, topic, args.evidence, args.discussion_summary, args.hypothesis, today_str)
+
+    # Incorporate learner highlights persisted on disk for this topic
+    topic_highlights = load_topic_highlights(instance_dir, args.topic_id, topic)
+    if topic_highlights:
+        hl_section = format_highlights_markdown_section(topic_highlights)
+        if hl_section:
+            note_body = note_body.rstrip() + "\n\n" + hl_section
 
     if notes_structure == "per-cluster":
         saved_path = write_note_per_cluster(notes_dir, tier, cluster, topic, note_body)

@@ -30,6 +30,7 @@ Rather than burning thousands of LLM tokens on trivial file formatting:
 
 2. **ACTIVE LEARNING NOTE GOVERNANCE**:
    - The compiled study note MUST reflect **what the learner understood through self evaluation**, NOT passive textbook summaries.
+   - Inspect `.system-design/highlights/` for any highlights saved on the active topic's lesson or notes, and incorporate those highlighted focus anchors into `--discussion-summary` alongside the chat dialectic (`generate-notes.py` also deterministically embeds saved highlights into the compiled note).
    - You MUST extract:
      1. The learner's initial hypothesis from the start of the topic.
      2. The friction points and edge cases explored during the lesson.

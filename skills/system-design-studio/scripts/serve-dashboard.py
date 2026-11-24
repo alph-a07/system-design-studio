@@ -22,6 +22,7 @@ import webbrowser
 import subprocess
 import threading
 import time
+import tempfile
 from pathlib import Path
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import urllib.parse
@@ -493,12 +494,28 @@ def load_highlights_data(inst_dir, artifact_path):
 
     return combined
 
+def atomic_write_text(target_path, content):
+    target_dir = os.path.dirname(os.path.abspath(target_path))
+    os.makedirs(target_dir, exist_ok=True)
+    fd, tmp_path = tempfile.mkstemp(prefix=".sds-tmp-", dir=target_dir)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp_path, target_path)
+    except Exception:
+        if os.path.exists(tmp_path):
+            try:
+                os.remove(tmp_path)
+            except Exception:
+                pass
+        raise
+
 def save_highlights_data(inst_dir, artifact_path, data):
     candidates = get_highlights_candidates(inst_dir, artifact_path)
     canonical = candidates[0]
-    os.makedirs(os.path.dirname(canonical), exist_ok=True)
-    with open(canonical, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
+    atomic_write_text(canonical, json.dumps(data, indent=2))
 
     # Clean up legacy .md.json if canonical .html.json has been written
     for old_c in candidates[1:]:
@@ -895,42 +912,179 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       background-color: var(--emerald-light, #10b981);
     }
 
-    /* INDIVIDUAL HIGHLIGHTS POPOVER MENU */
-    .hl-popover-menu {
-      position: absolute;
-      top: calc(100% + 6px);
-      right: 0;
-      width: 290px;
-      max-height: 280px;
-      overflow-y: auto;
-      background: var(--surface-container-high);
-      border: 2px solid var(--border-color);
-      box-shadow: 4px 4px 0px var(--shadow-color);
-      padding: 6px;
-      z-index: 2000;
-      font-family: var(--font-mono);
-      font-size: 11px;
+    /* SLIDE-OVER HIGHLIGHTS SIDEBAR (KEY TERMS GLOSSARY PATTERN) */
+    .hl-sidebar-trigger {
+      padding: 3px 8px !important;
+      font-size: 10.5px !important;
+      display: inline-flex !important;
+      align-items: center;
+      gap: 4px;
+      border-radius: 3px;
     }
-    .hl-popover-item {
+    .hl-count-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 16px;
+      height: 16px;
+      padding: 0 4px;
+      border-radius: 9999px;
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      font-weight: 800;
+    }
+    .hl-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(360px, 92vw);
+      background: var(--surface);
+      border-left: 2px solid var(--border-color);
+      box-shadow: -8px 0 32px rgba(0, 0, 0, 0.45);
+      z-index: 1200;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+    .hl-drawer.is-open {
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    .hl-drawer-header {
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 6px;
-      background: var(--surface-container-lowest);
-      border: 1px solid var(--border-color);
-      margin-bottom: 4px;
-      transition: background 0.15s ease;
-    }
-    .hl-popover-item:hover {
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1.5px solid var(--border-color);
       background: var(--surface-container-low);
+      flex-shrink: 0;
     }
-    .hl-popover-text {
-      flex: 1;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+    .hl-drawer-filters {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--surface-container-lowest);
+      flex-shrink: 0;
+    }
+    .hl-drawer-search {
+      width: 100%;
+      padding: 6px 10px;
+      border: 1.5px solid var(--border-color);
+      background: var(--surface);
       color: var(--on-surface);
-      font-size: 11px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      border-radius: 3px;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .hl-drawer-search:focus {
+      border-color: var(--primary-container);
+    }
+    .hl-filter-pills {
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .hl-filter-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border: 1px solid var(--border-color);
+      background: var(--surface-container-high);
+      color: var(--on-surface-variant);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .hl-filter-pill.active, .hl-filter-pill:hover {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+      border-color: var(--border-color);
+    }
+    .hl-drawer-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .hl-sidebar-card {
+      padding: 10px 12px;
+      background: var(--surface-container-low);
+      border: 1.5px solid var(--border-color);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hl-sidebar-card:hover {
+      transform: translate(-1px, -1px);
+      box-shadow: 3px 3px 0px var(--shadow-color);
+      border-color: var(--primary-container);
+    }
+    .hl-sidebar-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .hl-sidebar-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+    }
+    .hl-sidebar-stage-badge {
+      padding: 1px 5px;
+      background: var(--surface-container-high);
+      border: 1px solid var(--border-color);
+      border-radius: 2px;
+      font-size: 9.5px;
+      color: var(--on-surface);
+    }
+    .hl-sidebar-quote {
+      font-size: 12px;
+      line-height: 1.55;
+      color: var(--on-surface);
+      border-left: 3px solid var(--primary-container);
+      padding-left: 8px;
+      word-break: break-word;
+    }
+    .hl-sidebar-quote.color-yellow { border-left-color: #facc15; }
+    .hl-sidebar-quote.color-emerald { border-left-color: #10b981; }
+    .hl-sidebar-quote.color-cyan { border-left-color: #00e5ff; }
+    .hl-sidebar-jump-hint {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--on-surface-variant);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 3px;
+      opacity: 0.75;
+    }
+    .hl-sidebar-card:hover .hl-sidebar-jump-hint {
+      opacity: 1;
+      color: var(--on-surface);
     }
     .hl-popover-del-btn {
       background: transparent;
@@ -947,6 +1101,69 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     .hl-popover-del-btn:hover {
       background: var(--secondary);
       color: #fff;
+    }
+    @keyframes sdsHlPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+      25%, 65% { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.75); }
+    }
+    .sds-highlight.sds-hl-pulse {
+      animation: sdsHlPulse 1.4s ease-in-out;
+    }
+
+    /* NOTION SLASH COMMAND MENU & SAVE STATUS */
+    .note-save-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid var(--border-color);
+      background: var(--surface-container-high);
+      color: var(--on-surface-variant);
+    }
+    .note-save-status.dirty {
+      border-color: #f59e0b;
+      color: #f59e0b;
+    }
+    .note-save-status.saved {
+      border-color: #10b981;
+      color: #10b981;
+    }
+    .note-slash-menu {
+      position: absolute;
+      left: 20px;
+      top: 44px;
+      width: 260px;
+      max-height: 290px;
+      overflow-y: auto;
+      background: var(--surface-container-high);
+      border: 1.5px solid var(--border-color);
+      box-shadow: 4px 4px 0px var(--shadow-color);
+      border-radius: 4px;
+      padding: 4px;
+      z-index: 500;
+    }
+    .note-slash-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 11.5px;
+      color: var(--on-surface);
+    }
+    .note-slash-item:hover, .note-slash-item.active {
+      background: var(--primary-container);
+      color: var(--on-primary-container);
+    }
+    .note-slash-item-desc {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      opacity: 0.75;
     }
 
     .status-dot {
@@ -3937,13 +4154,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'lesson')" title="Yellow highlight"></button>
             <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'lesson')" title="Emerald highlight"></button>
             <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'lesson')" title="Cyan highlight"></button>
-            <button type="button" id="lesson-hl-list-btn" class="btn-ghost" style="padding:2px 6px; font-size:10px; display:inline-flex; align-items:center; gap:2px;" onclick="toggleHighlightsPopover('lesson')" title="View and remove individual highlights">
-              <span class="material-symbols-outlined" style="font-size:12px;">format_ink_highlighter</span>
-              <span id="lesson-hl-count">0</span>
-              <span class="material-symbols-outlined" style="font-size:11px;">arrow_drop_down</span>
+            <button type="button" id="lesson-hl-list-btn" class="btn-ghost hl-sidebar-trigger" onclick="toggleHighlightsSidebar('lesson')" title="Open Highlights Sidebar">
+              <span class="material-symbols-outlined" style="font-size:13px;">format_ink_highlighter</span>
+              <span>Highlights</span>
+              <span id="lesson-hl-count" class="hl-count-pill">0</span>
             </button>
-            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('lesson')" title="Clear all highlights in this lesson">Clear All</button>
-            <div id="lesson-hl-popover" class="hl-popover-menu" style="display:none;"></div>
           </div>
 
           <!-- Fullscreen Toggle Button -->
@@ -3984,6 +4199,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
                 <span class="material-symbols-outlined" style="font-size:13px;">schedule</span>
                 <span id="note-stats-text">0 words &bull; ~1 min read</span>
               </span>
+              <span id="note-save-status" class="note-save-status">Saved</span>
             </div>
           </div>
         </div>
@@ -4013,13 +4229,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'note')" title="Yellow highlight"></button>
             <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'note')" title="Emerald highlight"></button>
             <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'note')" title="Cyan highlight"></button>
-            <button type="button" id="note-hl-list-btn" class="btn-ghost" style="padding:2px 6px; font-size:10px; display:inline-flex; align-items:center; gap:2px;" onclick="toggleHighlightsPopover('note')" title="View and remove individual highlights">
-              <span class="material-symbols-outlined" style="font-size:12px;">format_ink_highlighter</span>
-              <span id="note-hl-count">0</span>
-              <span class="material-symbols-outlined" style="font-size:11px;">arrow_drop_down</span>
+            <button type="button" id="note-hl-list-btn" class="btn-ghost hl-sidebar-trigger" onclick="toggleHighlightsSidebar('note')" title="Open Highlights Sidebar">
+              <span class="material-symbols-outlined" style="font-size:13px;">format_ink_highlighter</span>
+              <span>Highlights</span>
+              <span id="note-hl-count" class="hl-count-pill">0</span>
             </button>
-            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('note')" title="Clear all highlights in this note">Clear All</button>
-            <div id="note-hl-popover" class="hl-popover-menu" style="display:none;"></div>
           </div>
           <button type="button" id="note-save-btn" class="btn-primary" onclick="saveNoteFromEditor()" style="display:none;" title="Save Note to Disk (⌘S / Ctrl+S)">
             <span class="material-symbols-outlined" style="font-size:14px;">save</span>
@@ -4056,8 +4270,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       <!-- Workbench Body: View Pane, Editor Pane, and Split Preview Pane -->
       <div class="note-workbench-layout" style="margin-top:12px;">
         <div id="note-view-body" class="md-rendered note-view-pane" style="display:block;"></div>
-        <textarea id="note-edit-body" class="note-editor-pane" style="display:none;" placeholder="Write architecture study notes in Notion-grade Markdown..." oninput="handleNoteLiveInput()"></textarea>
+        <textarea id="note-edit-body" class="note-editor-pane" style="display:none;" placeholder="Type '/' for Notion-style blocks, or start writing Markdown..." oninput="handleNoteLiveInput(event)" onkeydown="handleNoteEditorKeyDown(event)" onscroll="syncNoteSplitScroll()"></textarea>
         <div id="note-split-preview" class="md-rendered note-preview-pane" style="display:none;"></div>
+        <div id="note-slash-menu" class="note-slash-menu" style="display:none;"></div>
       </div>
     </div>
   </div>
@@ -4075,13 +4290,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
             <button type="button" class="hl-swatch-btn yellow" onmousedown="event.preventDefault()" onclick="applyHighlight('yellow', 'adr')" title="Yellow highlight"></button>
             <button type="button" class="hl-swatch-btn emerald" onmousedown="event.preventDefault()" onclick="applyHighlight('emerald', 'adr')" title="Emerald highlight"></button>
             <button type="button" class="hl-swatch-btn cyan" onmousedown="event.preventDefault()" onclick="applyHighlight('cyan', 'adr')" title="Cyan highlight"></button>
-            <button type="button" id="adr-hl-list-btn" class="btn-ghost" style="padding:2px 6px; font-size:10px; display:inline-flex; align-items:center; gap:2px;" onclick="toggleHighlightsPopover('adr')" title="View and remove individual highlights">
-              <span class="material-symbols-outlined" style="font-size:12px;">format_ink_highlighter</span>
-              <span id="adr-hl-count">0</span>
-              <span class="material-symbols-outlined" style="font-size:11px;">arrow_drop_down</span>
+            <button type="button" id="adr-hl-list-btn" class="btn-ghost hl-sidebar-trigger" onclick="toggleHighlightsSidebar('adr')" title="Open Highlights Sidebar">
+              <span class="material-symbols-outlined" style="font-size:13px;">format_ink_highlighter</span>
+              <span>Highlights</span>
+              <span id="adr-hl-count" class="hl-count-pill">0</span>
             </button>
-            <button type="button" class="btn-ghost" style="padding:2px 6px; font-size:10px;" onclick="clearActiveHighlights('adr')" title="Clear all highlights in DECISIONS.md">Clear All</button>
-            <div id="adr-hl-popover" class="hl-popover-menu" style="display:none;"></div>
           </div>
           <button class="modal-close-btn" onclick="closeModal('adr-modal')">
             <span class="material-symbols-outlined">close</span>
@@ -4093,6 +4306,33 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       </div>
     </div>
   </div>
+
+  <!-- SLIDE-OVER HIGHLIGHTS SIDEBAR (KEY TERMS GLOSSARY PATTERN) -->
+  <aside id="highlights-drawer" class="hl-drawer" aria-label="Highlights Sidebar">
+    <div class="hl-drawer-header">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary-container);">format_ink_highlighter</span>
+        <span style="font-family:var(--font-headline); font-size:14px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em;">Highlights</span>
+        <span id="hl-drawer-count" class="hl-count-pill">0</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button type="button" id="hl-drawer-clear-btn" class="btn-ghost" style="padding:3px 7px; font-size:10px; color:var(--secondary);" onclick="clearActiveHighlights(activeHighlightsSidebarSurface)" title="Clear all highlights on this surface">Clear All</button>
+        <button type="button" class="modal-close-btn" onclick="closeHighlightsSidebar()" title="Close Highlights Sidebar (Esc)">
+          <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+        </button>
+      </div>
+    </div>
+    <div class="hl-drawer-filters">
+      <input type="text" id="hl-drawer-search" class="hl-drawer-search" placeholder="Filter highlights by text..." oninput="renderHighlightsSidebar()" />
+      <div class="hl-filter-pills">
+        <button type="button" class="hl-filter-pill active" data-hl-filter="all" onclick="setHighlightsFilter('all')">All</button>
+        <button type="button" class="hl-filter-pill" data-hl-filter="yellow" onclick="setHighlightsFilter('yellow')"><span class="hl-swatch-btn yellow" style="width:9px; height:9px; pointer-events:none;"></span> Key Concept</button>
+        <button type="button" class="hl-filter-pill" data-hl-filter="emerald" onclick="setHighlightsFilter('emerald')"><span class="hl-swatch-btn emerald" style="width:9px; height:9px; pointer-events:none;"></span> Invariant</button>
+        <button type="button" class="hl-filter-pill" data-hl-filter="cyan" onclick="setHighlightsFilter('cyan')"><span class="hl-swatch-btn cyan" style="width:9px; height:9px; pointer-events:none;"></span> Question</button>
+      </div>
+    </div>
+    <div id="hl-drawer-list" class="hl-drawer-body"></div>
+  </aside>
 
   <!-- NEW PROJECT WORKSPACE MODAL -->
   <div id="new-project-modal" class="modal-overlay">
@@ -4678,7 +4918,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           while (i < lines.length && /^-\s+\[([ xX])\]\s+(.*)$/.test(lines[i].trim())) {
             const m = lines[i].trim().match(/^-\s+\[([ xX])\]\s+(.*)$/);
             const checked = m[1].toLowerCase() === 'x';
-            taskItems.push('<li class="notion-task-item ' + (checked ? 'checked' : '') + '"><input type="checkbox" ' + (checked ? 'checked' : '') + ' disabled class="notion-checkbox" /><span>' + formatInline(m[2]) + '</span></li>');
+            taskItems.push('<li class="notion-task-item ' + (checked ? 'checked' : '') + '"><input type="checkbox" ' + (checked ? 'checked' : '') + ' onchange="toggleNoteTaskCheckbox(' + i + ', this.checked)" class="notion-checkbox" style="cursor:pointer;" /><span>' + formatInline(m[2]) + '</span></li>');
             i++;
           }
           out.push('<ul class="notion-task-list">' + taskItems.join('') + '</ul>');
@@ -4798,7 +5038,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           document.body.style.overflow = '';
         }
       }
-      document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
+      if (typeof closeHighlightsSidebar === 'function') closeHighlightsSidebar();
     }
 
     // Theme Management (Preset-driven)
@@ -5668,52 +5908,189 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const cnt = activeHighlightsCache[surfaceHint]?.list?.length || 0;
       const el = document.getElementById(`${surfaceHint}-hl-count`);
       if (el) el.innerText = cnt;
+      if (activeHighlightsSidebarSurface === surfaceHint) {
+        const drawer = document.getElementById('highlights-drawer');
+        if (drawer && drawer.classList.contains('is-open')) {
+          renderHighlightsSidebar();
+        }
+      }
     }
 
-    function toggleHighlightsPopover(surfaceHint) {
-      const popover = document.getElementById(`${surfaceHint}-hl-popover`);
-      if (!popover) return;
-      const isVisible = (popover.style.display === 'block');
+    let activeHighlightsSidebarSurface = 'lesson';
+    let activeHighlightsColorFilter = 'all';
 
-      // Close all highlight popovers first
-      document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
+    function closeHighlightsSidebar() {
+      const drawer = document.getElementById('highlights-drawer');
+      if (drawer) drawer.classList.remove('is-open');
+    }
 
-      if (isVisible) return;
+    function setHighlightsFilter(color) {
+      activeHighlightsColorFilter = color || 'all';
+      document.querySelectorAll('.hl-filter-pill').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-hl-filter') === activeHighlightsColorFilter);
+      });
+      renderHighlightsSidebar();
+    }
 
+    function toggleHighlightsSidebar(surfaceHint) {
+      const drawer = document.getElementById('highlights-drawer');
+      if (!drawer) return;
+      const isAlreadyOpen = drawer.classList.contains('is-open') && activeHighlightsSidebarSurface === surfaceHint;
+      if (isAlreadyOpen) {
+        closeHighlightsSidebar();
+        return;
+      }
+      activeHighlightsSidebarSurface = surfaceHint || 'lesson';
+      const searchEl = document.getElementById('hl-drawer-search');
+      if (searchEl) searchEl.value = '';
+      setHighlightsFilter('all');
+      renderHighlightsSidebar();
+      drawer.classList.add('is-open');
+    }
+
+    // Backwards-compatible alias
+    const toggleHighlightsPopover = toggleHighlightsSidebar;
+
+    function renderHighlightsSidebar() {
+      const listEl = document.getElementById('hl-drawer-list');
+      const countEl = document.getElementById('hl-drawer-count');
+      const clearBtn = document.getElementById('hl-drawer-clear-btn');
+      if (!listEl) return;
+
+      const surfaceHint = activeHighlightsSidebarSurface || 'lesson';
       const cache = activeHighlightsCache[surfaceHint] || { list: [], path: '' };
-      const list = cache.list || [];
+      const allList = cache.list || [];
+      if (countEl) countEl.innerText = allList.length;
+      if (clearBtn) clearBtn.style.display = allList.length > 0 ? 'inline-flex' : 'none';
 
-      if (list.length === 0) {
-        popover.innerHTML = `
-          <div style="padding:10px 8px; text-align:center; color:var(--on-surface-variant); font-size:11px;">
-            No active highlights yet.<br/>Select text and click a swatch to add one.
+      const searchQ = (document.getElementById('hl-drawer-search')?.value || '').toLowerCase().trim();
+      const filtered = allList.filter(hl => {
+        const colorOk = (activeHighlightsColorFilter === 'all') || ((hl.color || 'yellow') === activeHighlightsColorFilter);
+        const textOk = !searchQ || (hl.text || '').toLowerCase().includes(searchQ);
+        return colorOk && textOk;
+      });
+
+      if (allList.length === 0) {
+        listEl.innerHTML = `
+          <div style="padding:28px 14px; text-align:center; color:var(--on-surface-variant); font-size:12px; line-height:1.6;">
+            <span class="material-symbols-outlined" style="font-size:28px; opacity:0.5; display:block; margin-bottom:6px;">format_ink_highlighter</span>
+            No highlights saved yet.<br/>Select any passage and click a color swatch to highlight it.
           </div>
         `;
-      } else {
-        let itemsHtml = `
-          <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border-color); padding-bottom:4px; margin-bottom:6px;">
-            <strong style="text-transform:uppercase; font-size:10px; color:var(--on-surface);">Highlights (${list.length})</strong>
-            <button type="button" class="btn-ghost" style="padding:1px 4px; font-size:9px; color:var(--secondary);" onclick="clearActiveHighlights('${surfaceHint}')">Clear All</button>
+        return;
+      }
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = `
+          <div style="padding:24px 14px; text-align:center; color:var(--on-surface-variant); font-size:12px;">
+            No highlights match your current filter.
           </div>
         `;
-        list.forEach(hl => {
-          const color = hl.color || 'yellow';
-          const rawText = (hl.text || '').replace(/\s+/g, ' ');
-          const previewText = rawText.length > 34 ? rawText.substring(0, 34) + '…' : rawText;
-          const escText = rawText.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-          itemsHtml += `
-            <div class="hl-popover-item" title="${escText}">
-              <span class="hl-swatch-btn ${color}" style="width:10px; height:10px; pointer-events:none; flex-shrink:0;"></span>
-              <span class="hl-popover-text">"${previewText}"</span>
-              <button type="button" class="hl-popover-del-btn" onclick="deleteSingleHighlight('${cache.path}', '${hl.id}', null, '${surfaceHint}')" title="Delete this highlight">
-                <span class="material-symbols-outlined" style="font-size:13px;">close</span>
+        return;
+      }
+
+      const colorLabels = {
+        yellow: 'Key Concept',
+        emerald: 'Invariant',
+        cyan: 'Question'
+      };
+
+      const escapeHtmlLocal = (str) => String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+
+      let html = '';
+      filtered.forEach(hl => {
+        const color = hl.color || 'yellow';
+        const label = colorLabels[color] || color.toUpperCase();
+        const rawText = (hl.text || '').replace(/\s+/g, ' ').trim();
+        const stageMatch = (hl.paneId || '').match(/section-(\d+)/);
+        const stageBadge = stageMatch ? `<span class="hl-sidebar-stage-badge">Stage ${stageMatch[1]}</span>` : '';
+        const safePath = (cache.path || '').replace(/'/g, "\\'");
+        const safeId = (hl.id || '').replace(/'/g, "\\'");
+
+        html += `
+          <div class="hl-sidebar-card" onclick="navigateToHighlight('${surfaceHint}', '${safeId}')">
+            <div class="hl-sidebar-card-top">
+              <div class="hl-sidebar-meta">
+                <span class="hl-swatch-btn ${color}" style="width:10px; height:10px; pointer-events:none;"></span>
+                <span>${label}</span>
+                ${stageBadge}
+              </div>
+              <button type="button" class="hl-popover-del-btn" onclick="event.stopPropagation(); deleteSingleHighlight('${safePath}', '${safeId}', null, '${surfaceHint}')" title="Delete highlight">
+                <span class="material-symbols-outlined" style="font-size:14px;">close</span>
               </button>
             </div>
-          `;
-        });
-        popover.innerHTML = itemsHtml;
+            <div class="hl-sidebar-quote color-${color}">"${escapeHtmlLocal(rawText)}"</div>
+            <div class="hl-sidebar-jump-hint">
+              <span>Jump to passage</span>
+              <span class="material-symbols-outlined" style="font-size:12px;">arrow_forward</span>
+            </div>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    function navigateToHighlight(surfaceHint, hlId) {
+      if (!hlId) return;
+      const cache = activeHighlightsCache[surfaceHint] || { list: [], path: '' };
+      const hl = (cache.list || []).find(item => item.id === hlId);
+
+      let targetDoc = document;
+      let targetContainer = null;
+
+      if (surfaceHint === 'lesson') {
+        const iframe = document.getElementById('lesson-modal-iframe');
+        if (!iframe || !iframe.contentDocument) return;
+        targetDoc = iframe.contentDocument;
+        targetContainer = targetDoc.body;
+        if (hl && hl.paneId && iframe.contentWindow && typeof iframe.contentWindow.switchSectionTab === 'function') {
+          const targetTabId = hl.paneId.replace(/^pane-/, '');
+          try { iframe.contentWindow.switchSectionTab(targetTabId); } catch (e) {}
+        }
+      } else if (surfaceHint === 'note') {
+        if (currentNoteMode === 'edit') {
+          setNoteMode('split');
+        }
+        targetContainer = (currentNoteMode === 'split')
+          ? document.getElementById('note-split-preview')
+          : document.getElementById('note-view-body');
+      } else if (surfaceHint === 'adr') {
+        targetContainer = document.getElementById('adr-modal-content');
       }
-      popover.style.display = 'block';
+
+      const findAndPulse = () => {
+        let marks = Array.from(targetDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`));
+        if (marks.length === 0 && hl && targetContainer) {
+          renderHighlightsInContainer(targetContainer, [hl], cache.path, surfaceHint);
+          marks = Array.from(targetDoc.querySelectorAll(`mark[data-hl-id="${hlId}"]`));
+        }
+        if (marks.length > 0) {
+          try {
+            marks[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          } catch (e) {
+            marks[0].scrollIntoView();
+          }
+          marks.forEach(m => {
+            m.classList.remove('sds-hl-pulse');
+            void m.offsetWidth;
+            m.classList.add('sds-hl-pulse');
+          });
+          setTimeout(() => {
+            marks.forEach(m => m.classList.remove('sds-hl-pulse'));
+          }, 1500);
+          if (window.innerWidth < 768) {
+            closeHighlightsSidebar();
+          }
+        } else {
+          showToast('Highlight passage not found in current view');
+        }
+      };
+
+      setTimeout(findAndPulse, 60);
     }
 
     // Universal Highlighting Engine (DOM TreeWalker & Multi-Surface Persistence)
@@ -5818,6 +6195,13 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         html.dark .sds-highlight.is-hovered,
         .dark .sds-highlight.is-hovered {
           filter: brightness(1.22);
+        }
+        @keyframes sdsHlPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0); }
+          25%, 65% { box-shadow: 0 0 0 4px rgba(250, 204, 21, 0.8); }
+        }
+        .sds-highlight.sds-hl-pulse {
+          animation: sdsHlPulse 1.4s ease-in-out;
         }
         .sds-hl-del-btn {
           display: none;
@@ -6372,11 +6756,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (surfaceHint && activeHighlightsCache[surfaceHint]) {
             activeHighlightsCache[surfaceHint].list = (activeHighlightsCache[surfaceHint].list || []).filter(h => h.id !== hlId);
             updateHighlightCountBadge(surfaceHint);
-            const popover = document.getElementById(`${surfaceHint}-hl-popover`);
-            if (popover && popover.style.display === 'block') {
-              toggleHighlightsPopover(surfaceHint);
-              toggleHighlightsPopover(surfaceHint);
-            }
           } else {
             Object.keys(activeHighlightsCache).forEach(s => {
               activeHighlightsCache[s].list = (activeHighlightsCache[s].list || []).filter(h => h.id !== hlId);
@@ -6455,8 +6834,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           if (surfaceHint && activeHighlightsCache[surfaceHint]) {
             activeHighlightsCache[surfaceHint].list = [];
             updateHighlightCountBadge(surfaceHint);
-            const popover = document.getElementById(`${surfaceHint}-hl-popover`);
-            if (popover) popover.style.display = 'none';
           }
           showToast('All highlights cleared');
         }
@@ -6470,8 +6847,67 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
     window.clearActiveHighlights = clearActiveHighlights;
     window.clearAllSelectionArtifacts = clearAllSelectionArtifacts;
 
-    // Dynamic Notes Resolution (Fixes 404 Bug)
+    // Notion-Grade Markdown Note Workbench Engine
+    let currentNoteMode = 'view'; // 'view' | 'split' | 'edit'
+    let currentNoteSavedContent = '';
+    let isNoteDirty = false;
+    let noteAutoSaveTimer = null;
+    let noteSplitHlTimer = null;
+    let noteSlashMenuOpen = false;
+    let noteSlashStartIdx = -1;
+    let noteSlashSelectedIdx = 0;
+    let noteSlashFiltered = [];
+
+    const NOTE_EMPTY_HTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant); padding:16px 0; line-height:1.7;">No note recorded yet for this topic.<br/>Switch to <strong>Split</strong> or <strong>Edit</strong> mode to start writing, or type <code>/</code> in the editor for Notion-style blocks.</div>';
+
+    const NOTE_SLASH_COMMANDS = [
+      { id: 'h1', label: 'Heading 1', desc: '# Large section title', type: 'prefix', value: '# ' },
+      { id: 'h2', label: 'Heading 2', desc: '## Subsection heading', type: 'prefix', value: '## ' },
+      { id: 'h3', label: 'Heading 3', desc: '### Topic heading', type: 'prefix', value: '### ' },
+      { id: 'bullet', label: 'Bullet List', desc: '- Unordered item', type: 'prefix', value: '- ' },
+      { id: 'numbered', label: 'Numbered List', desc: '1. Ordered item', type: 'prefix', value: '1. ' },
+      { id: 'todo', label: 'To-do Checklist', desc: '- [ ] Interactive task', type: 'prefix', value: '- [ ] ' },
+      { id: 'quote', label: 'Blockquote', desc: '> Highlighted insight', type: 'prefix', value: '> ' },
+      { id: 'callout', label: 'Invariant Callout', desc: '> [!INVARIANT] block', type: 'snippet', value: '> [!INVARIANT]\n> ' },
+      { id: 'code', label: 'Code / ASCII Diagram', desc: '```text diagram```', type: 'snippet', value: '```text\n+--------+     request     +--------+\n| Client | --------------> | Server |\n+--------+ <-------------- +--------+\n```\n' },
+      { id: 'table', label: 'Trade-off Table', desc: 'Markdown comparison matrix', type: 'snippet', value: '| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Option A vs Option B | Choose A when... | SLA / Sizing |\n' },
+      { id: 'template', label: 'SDS Synthesis Template', desc: 'Full 4-phase study scaffold', type: 'snippet', value: '## 1. Ground Truth & First Principles\n- Physical bottleneck:\n- Theoretical limit:\n\n## 2. Active Defense & Invariant Derived\n> [!INVARIANT]\n> Non-negotiable invariant proved cold.\n\n## 3. Production Trade-Off Matrix\n| Architectural Trade-Off | Decision Rule | Production Bound |\n|:---|:---|:---|\n| Latency vs. Consistency | Fast-path reads | Tail SLA < 15ms @ p99 |\n' },
+      { id: 'divider', label: 'Divider', desc: '--- Horizontal rule', type: 'snippet', value: '\n---\n' }
+    ];
+
+    function updateNoteSaveStatus(state) {
+      const badge = document.getElementById('note-save-status');
+      if (!badge) return;
+      badge.classList.remove('dirty', 'saved');
+      if (state === 'dirty') {
+        badge.classList.add('dirty');
+        badge.innerText = 'Unsaved';
+      } else if (state === 'saving') {
+        badge.innerText = 'Saving...';
+      } else {
+        badge.classList.add('saved');
+        badge.innerText = 'Saved';
+      }
+    }
+
+    function updateNoteStats(content) {
+      const statsText = document.getElementById('note-stats-text');
+      if (!statsText) return;
+      const trimmed = (content || '').trim();
+      if (!trimmed) {
+        statsText.innerHTML = '0 words &bull; New Note';
+        return;
+      }
+      const words = trimmed.split(/\s+/).filter(Boolean).length;
+      const readTime = Math.max(1, Math.ceil(words / 200));
+      statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
+    }
+
+    // Dynamic Notes Resolution (Fixes 404 Bug & Split Default-Text Leak)
     async function openTopicNote(clusterId, topicId, topicTitle) {
+      if (noteAutoSaveTimer) { clearTimeout(noteAutoSaveTimer); noteAutoSaveTimer = null; }
+      closeNoteSlashMenu();
+
       const cleanSlug = (topicId || '').replace('topic.', '').replace(/\./g, '-');
       const topicLeaf = cleanSlug.split('-').slice(2).join('-') || cleanSlug;
       let resolvedPath = `${clusterId || 'general'}/${cleanSlug || 'note'}.md`;
@@ -6490,45 +6926,63 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
 
       activeNoteRelPath = resolvedPath;
+      currentNoteSavedContent = '';
+      isNoteDirty = false;
+      updateNoteSaveStatus('saved');
+
       document.getElementById('note-modal-title').innerText = topicTitle || `Notes: ${topicId}`;
       const pathText = document.getElementById('note-path-text');
       const pathBadge = document.getElementById('note-path-badge');
       const statsText = document.getElementById('note-stats-text');
       if (pathText) pathText.innerText = `notes/${resolvedPath}`;
       if (pathBadge) pathBadge.title = `notes/${resolvedPath}`;
-      if (statsText) statsText.innerHTML = `Loading...`;
-      setNoteMode('view');
-      openModal('note-modal');
+      if (statsText) statsText.innerHTML = 'Loading...';
 
       const viewBody = document.getElementById('note-view-body');
       const editBody = document.getElementById('note-edit-body');
+      const splitPreview = document.getElementById('note-split-preview');
 
-      viewBody.innerHTML = '<div style="font-family:var(--font-mono);">Loading note...</div>';
+      // Reset all panes cleanly BEFORE switching mode or opening modal so previous note state never leaks
+      if (editBody) editBody.value = '';
+      if (splitPreview) splitPreview.innerHTML = '';
+      if (viewBody) viewBody.innerHTML = '<div style="font-family:var(--font-mono);">Loading note...</div>';
+
+      setNoteMode('view');
+      openModal('note-modal');
+
       try {
         const res = await fetch(`/api/note?path=${encodeURIComponent(activeNoteRelPath)}`);
         if (res.ok) {
           const content = await res.text();
-          const words = content.trim().split(/\s+/).filter(Boolean).length;
-          const readTime = Math.max(1, Math.ceil(words / 200));
-          if (statsText) statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
-          viewBody.innerHTML = renderMarkdown(content);
-          editBody.value = content;
-          loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
-          if (new URLSearchParams(window.location.search).get('notescroll') === 'bottom') {
+          currentNoteSavedContent = content;
+          isNoteDirty = false;
+          updateNoteSaveStatus('saved');
+          updateNoteStats(content);
+          if (editBody) editBody.value = content;
+          const rendered = content.trim() ? renderMarkdown(content) : NOTE_EMPTY_HTML;
+          if (viewBody) {
+            viewBody.innerHTML = rendered;
+            loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
+          }
+          if (splitPreview && currentNoteMode === 'split') {
+            splitPreview.innerHTML = rendered;
+            loadAndApplyHighlights(activeNoteRelPath, splitPreview, 'note');
+          }
+          if (viewBody && new URLSearchParams(window.location.search).get('notescroll') === 'bottom') {
             viewBody.scrollTop = viewBody.scrollHeight;
           }
         } else {
-          if (statsText) statsText.innerHTML = `New Note`;
-          viewBody.innerHTML = '<div style="font-family:var(--font-mono); color:var(--on-surface-variant);">No note recorded yet for this topic. Switch to Edit or Split mode to create one.</div>';
-          editBody.value = `# System Architecture Notes: ${topicTitle || topicId}
-
-## Invariant Defended
-- Hardware boundary:
-- Trade-off derived:
-`;
+          currentNoteSavedContent = '';
+          isNoteDirty = false;
+          updateNoteSaveStatus('saved');
+          updateNoteStats('');
+          if (editBody) editBody.value = '';
+          if (viewBody) viewBody.innerHTML = NOTE_EMPTY_HTML;
+          if (splitPreview) splitPreview.innerHTML = NOTE_EMPTY_HTML;
+          loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
         }
       } catch (e) {
-        viewBody.innerText = 'Failed to load note.';
+        if (viewBody) viewBody.innerText = 'Failed to load note.';
       }
     }
 
@@ -6536,11 +6990,9 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       openTopicNote('general', `quick-note-${Date.now()}`, 'Quick Note');
     }
 
-    // Notion-Grade Markdown Note Workbench Engine
-    let currentNoteMode = 'view'; // 'view' | 'split' | 'edit'
-
     function setNoteMode(mode) {
       currentNoteMode = mode;
+      closeNoteSlashMenu();
       const viewBody = document.getElementById('note-view-body');
       const editBody = document.getElementById('note-edit-body');
       const splitPreview = document.getElementById('note-split-preview');
@@ -6557,13 +7009,18 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (btnEdit) btnEdit.classList.toggle('active', mode === 'edit');
       if (noteHls) noteHls.style.display = (mode === 'edit') ? 'none' : 'inline-flex';
 
+      const rawContent = editBody ? editBody.value : '';
+      const renderedHtml = rawContent.trim() ? renderMarkdown(rawContent) : NOTE_EMPTY_HTML;
+
       if (mode === 'view') {
         if (toolbar) toolbar.style.display = 'none';
         if (saveBtn) saveBtn.style.display = 'none';
         if (viewBody) {
           viewBody.style.display = 'block';
-          viewBody.innerHTML = renderMarkdown(editBody.value);
-          loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
+          viewBody.innerHTML = renderedHtml;
+          if (rawContent.trim() && activeNoteRelPath) {
+            loadAndApplyHighlights(activeNoteRelPath, viewBody, 'note');
+          }
         }
         if (editBody) editBody.style.display = 'none';
         if (splitPreview) splitPreview.style.display = 'none';
@@ -6578,10 +7035,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         if (splitPreview) {
           splitPreview.style.display = 'block';
           splitPreview.style.flex = '1';
-          splitPreview.innerHTML = renderMarkdown(editBody.value);
-          loadAndApplyHighlights(activeNoteRelPath, splitPreview, 'note');
+          splitPreview.innerHTML = renderedHtml;
+          if (rawContent.trim() && activeNoteRelPath) {
+            loadAndApplyHighlights(activeNoteRelPath, splitPreview, 'note');
+          }
         }
-        editBody.focus();
+        if (editBody) editBody.focus();
       } else if (mode === 'edit') {
         if (toolbar) toolbar.style.display = 'flex';
         if (saveBtn) saveBtn.style.display = 'inline-flex';
@@ -6593,7 +7052,7 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           editBody.focus();
         }
       }
-      handleNoteLiveInput();
+      updateNoteStats(rawContent);
     }
 
     function toggleNoteEditMode() {
@@ -6604,20 +7063,219 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       }
     }
 
-    function handleNoteLiveInput() {
+    function handleNoteLiveInput(event) {
       const editBody = document.getElementById('note-edit-body');
       const splitPreview = document.getElementById('note-split-preview');
-      const statsText = document.getElementById('note-stats-text');
       const content = editBody ? editBody.value : '';
 
       if (currentNoteMode === 'split' && splitPreview) {
-        splitPreview.innerHTML = renderMarkdown(content);
+        splitPreview.innerHTML = content.trim() ? renderMarkdown(content) : NOTE_EMPTY_HTML;
+        if (noteSplitHlTimer) clearTimeout(noteSplitHlTimer);
+        noteSplitHlTimer = setTimeout(() => {
+          const list = activeHighlightsCache.note?.list || [];
+          if (content.trim() && list.length > 0 && currentNoteMode === 'split') {
+            renderHighlightsInContainer(splitPreview, list, activeNoteRelPath, 'note');
+          }
+        }, 120);
       }
 
-      if (statsText) {
-        const words = content.trim().split(/\s+/).filter(Boolean).length;
-        const readTime = Math.max(1, Math.ceil(words / 200));
-        statsText.innerHTML = `${words} words &bull; ~${readTime} min read`;
+      updateNoteStats(content);
+
+      const dirty = (content !== currentNoteSavedContent);
+      isNoteDirty = dirty;
+      updateNoteSaveStatus(dirty ? 'dirty' : 'saved');
+      if (dirty && activeNoteRelPath && content.trim().length > 0) {
+        if (noteAutoSaveTimer) clearTimeout(noteAutoSaveTimer);
+        noteAutoSaveTimer = setTimeout(() => {
+          saveNoteFromEditor(true);
+        }, 1200);
+      }
+
+      updateNoteSlashMenu();
+    }
+
+    function syncNoteSplitScroll() {
+      if (currentNoteMode !== 'split') return;
+      const ta = document.getElementById('note-edit-body');
+      const preview = document.getElementById('note-split-preview');
+      if (!ta || !preview) return;
+      const maxTa = ta.scrollHeight - ta.clientHeight;
+      const maxPrev = preview.scrollHeight - preview.clientHeight;
+      if (maxTa > 0 && maxPrev > 0) {
+        preview.scrollTop = (ta.scrollTop / maxTa) * maxPrev;
+      }
+    }
+
+    function toggleNoteTaskCheckbox(lineIdx, checked) {
+      const ta = document.getElementById('note-edit-body');
+      if (!ta) return;
+      const lines = ta.value.split('\n');
+      if (lineIdx >= 0 && lineIdx < lines.length) {
+        lines[lineIdx] = lines[lineIdx].replace(/^(-\s+\[)[ xX](\])/, `$1${checked ? 'x' : ' '}$2`);
+        ta.value = lines.join('\n');
+        handleNoteLiveInput();
+        if (activeNoteRelPath) saveNoteFromEditor(true);
+      }
+    }
+
+    function closeNoteSlashMenu() {
+      noteSlashMenuOpen = false;
+      noteSlashStartIdx = -1;
+      const menu = document.getElementById('note-slash-menu');
+      if (menu) menu.style.display = 'none';
+    }
+
+    function updateNoteSlashMenu() {
+      const ta = document.getElementById('note-edit-body');
+      const menu = document.getElementById('note-slash-menu');
+      if (!ta || !menu || currentNoteMode === 'view') {
+        closeNoteSlashMenu();
+        return;
+      }
+      const pos = ta.selectionStart;
+      const textBefore = ta.value.slice(0, pos);
+      const lineStart = textBefore.lastIndexOf('\n') + 1;
+      const currentLineBefore = textBefore.slice(lineStart);
+      const slashMatch = currentLineBefore.match(/(?:^|\s)\/([a-z0-9_-]*)$/i);
+
+      if (!slashMatch) {
+        closeNoteSlashMenu();
+        return;
+      }
+
+      const query = (slashMatch[1] || '').toLowerCase();
+      noteSlashStartIdx = pos - slashMatch[1].length - 1;
+      noteSlashFiltered = NOTE_SLASH_COMMANDS.filter(c =>
+        c.label.toLowerCase().includes(query) ||
+        c.desc.toLowerCase().includes(query) ||
+        c.id.includes(query)
+      );
+
+      if (noteSlashFiltered.length === 0) {
+        closeNoteSlashMenu();
+        return;
+      }
+
+      noteSlashSelectedIdx = 0;
+      noteSlashMenuOpen = true;
+      renderNoteSlashMenu();
+      menu.style.display = 'block';
+    }
+
+    function renderNoteSlashMenu() {
+      const menu = document.getElementById('note-slash-menu');
+      if (!menu) return;
+      menu.innerHTML = noteSlashFiltered.map((item, idx) => `
+        <div class="note-slash-item ${idx === noteSlashSelectedIdx ? 'active' : ''}" onmousedown="event.preventDefault(); applyNoteSlashCommand(${idx})">
+          <div style="flex:1;">
+            <div style="font-weight:700;">${item.label}</div>
+            <div class="note-slash-item-desc">${item.desc}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function applyNoteSlashCommand(idx) {
+      const ta = document.getElementById('note-edit-body');
+      const cmd = noteSlashFiltered[idx];
+      if (!ta || !cmd || noteSlashStartIdx < 0) return;
+
+      const pos = ta.selectionStart;
+      ta.focus();
+      ta.setRangeText(cmd.value, noteSlashStartIdx, pos, 'end');
+      closeNoteSlashMenu();
+      handleNoteLiveInput();
+    }
+
+    function handleNoteEditorKeyDown(e) {
+      const ta = document.getElementById('note-edit-body');
+      if (!ta) return;
+
+      // Slash command navigation
+      if (noteSlashMenuOpen) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          noteSlashSelectedIdx = (noteSlashSelectedIdx + 1) % noteSlashFiltered.length;
+          renderNoteSlashMenu();
+          return;
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          noteSlashSelectedIdx = (noteSlashSelectedIdx - 1 + noteSlashFiltered.length) % noteSlashFiltered.length;
+          renderNoteSlashMenu();
+          return;
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+          e.preventDefault();
+          applyNoteSlashCommand(noteSlashSelectedIdx);
+          return;
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeNoteSlashMenu();
+          return;
+        }
+      }
+
+      // Keyboard shortcuts: Cmd/Ctrl + S, B, I, K
+      if (e.metaKey || e.ctrlKey) {
+        const k = e.key.toLowerCase();
+        if (k === 's') {
+          e.preventDefault();
+          saveNoteFromEditor(false);
+          return;
+        } else if (k === 'b') {
+          e.preventDefault();
+          wrapNoteSelection('**', '**');
+          return;
+        } else if (k === 'i') {
+          e.preventDefault();
+          wrapNoteSelection('*', '*');
+          return;
+        } else if (k === 'k') {
+          e.preventDefault();
+          wrapNoteSelection('`', '`');
+          return;
+        }
+      }
+
+      // Tab / Shift+Tab indentation inside editor
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        if (e.shiftKey) {
+          const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
+          if (ta.value.slice(lineStart, lineStart + 2) === '  ') {
+            ta.setRangeText('', lineStart, lineStart + 2, 'end');
+            ta.selectionStart = Math.max(lineStart, start - 2);
+            ta.selectionEnd = Math.max(lineStart, end - 2);
+          }
+        } else {
+          ta.setRangeText('  ', start, end, 'end');
+        }
+        handleNoteLiveInput();
+        return;
+      }
+
+      // Smart Markdown list continuation on Enter
+      if (e.key === 'Enter' && !e.shiftKey && !e.metaKey && !e.ctrlKey) {
+        const pos = ta.selectionStart;
+        const lineStart = ta.value.lastIndexOf('\n', pos - 1) + 1;
+        const currentLine = ta.value.slice(lineStart, pos);
+        const listMatch = currentLine.match(/^(\s*)(-\s+\[[ xX]\]\s+|[-*+]\s+|(\d+)\.\s+)(.*)$/);
+        if (listMatch) {
+          e.preventDefault();
+          const indent = listMatch[1] || '';
+          const marker = listMatch[2];
+          const num = listMatch[3];
+          const body = listMatch[4] || '';
+          if (body.trim() === '') {
+            // Empty list item: exit list cleanly
+            ta.setRangeText('\n', lineStart, pos, 'end');
+          } else {
+            const nextMarker = num ? `${parseInt(num, 10) + 1}. ` : marker.replace(/\[[xX]\]/, '[ ]');
+            ta.setRangeText(`\n${indent}${nextMarker}`, pos, ta.selectionEnd, 'end');
+          }
+          handleNoteLiveInput();
+        }
       }
     }
 
@@ -6626,12 +7284,11 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (!ta) return;
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
-      const text = ta.value;
-      const selected = text.slice(start, end) || 'text';
-      ta.value = text.slice(0, start) + before + selected + after + text.slice(end);
+      const selected = ta.value.slice(start, end) || 'text';
+      ta.focus();
+      ta.setRangeText(before + selected + after, start, end, 'select');
       ta.selectionStart = start + before.length;
       ta.selectionEnd = start + before.length + selected.length;
-      ta.focus();
       handleNoteLiveInput();
     }
 
@@ -6639,11 +7296,10 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       const ta = document.getElementById('note-edit-body');
       if (!ta) return;
       const start = ta.selectionStart;
-      const text = ta.value;
-      const lineStart = text.lastIndexOf('\n', start - 1) + 1;
-      ta.value = text.slice(0, lineStart) + prefix + text.slice(lineStart);
-      ta.selectionStart = ta.selectionEnd = start + prefix.length;
+      const lineStart = ta.value.lastIndexOf('\n', start - 1) + 1;
       ta.focus();
+      ta.setRangeText(prefix, lineStart, lineStart, 'end');
+      ta.selectionStart = ta.selectionEnd = start + prefix.length;
       handleNoteLiveInput();
     }
 
@@ -6652,10 +7308,8 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       if (!ta) return;
       const start = ta.selectionStart;
       const end = ta.selectionEnd;
-      const text = ta.value;
-      ta.value = text.slice(0, start) + snippet + text.slice(end);
-      ta.selectionStart = ta.selectionEnd = start + snippet.length;
       ta.focus();
+      ta.setRangeText(snippet, start, end, 'end');
       handleNoteLiveInput();
     }
 
@@ -6674,9 +7328,12 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       insertNoteSnippet(tpl);
     }
 
-    async function saveNoteFromEditor() {
+    async function saveNoteFromEditor(isAuto = false) {
+      if (noteAutoSaveTimer) { clearTimeout(noteAutoSaveTimer); noteAutoSaveTimer = null; }
       const editBody = document.getElementById('note-edit-body');
       const content = editBody ? editBody.value : '';
+      if (!activeNoteRelPath) return;
+      updateNoteSaveStatus('saving');
       try {
         const res = await fetch('/api/note', {
           method: 'POST',
@@ -6684,15 +7341,24 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
           body: JSON.stringify({ path: activeNoteRelPath, content: content })
         });
         if (res.ok) {
+          currentNoteSavedContent = content;
+          isNoteDirty = false;
+          updateNoteSaveStatus('saved');
           const viewBody = document.getElementById('note-view-body');
-          if (viewBody) viewBody.innerHTML = renderMarkdown(content);
-          showToast('Note saved to git repository');
+          if (viewBody && currentNoteMode === 'view') {
+            viewBody.innerHTML = content.trim() ? renderMarkdown(content) : NOTE_EMPTY_HTML;
+          }
+          if (!isAuto) {
+            showToast('Note saved to project repository');
+          }
           refreshData();
         } else {
-          showToast('Failed to save note');
+          updateNoteSaveStatus('dirty');
+          if (!isAuto) showToast('Failed to save note');
         }
       } catch (e) {
-        showToast('Network error saving note');
+        updateNoteSaveStatus('dirty');
+        if (!isAuto) showToast('Network error saving note');
       }
     }
 
@@ -7549,39 +8215,6 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
       setupSSE();
       checkEagerAutoUpdate();
 
-      // Notion Markdown Editor Keyboard Shortcuts (Tab indent, Shift+Tab, Cmd+B, Cmd+I, Cmd+S)
-      const noteTa = document.getElementById('note-edit-body');
-      if (noteTa) {
-        noteTa.addEventListener('keydown', (e) => {
-          if (e.key === 'Tab') {
-            e.preventDefault();
-            const start = noteTa.selectionStart;
-            const end = noteTa.selectionEnd;
-            if (e.shiftKey) {
-              const text = noteTa.value;
-              const lineStart = text.lastIndexOf('\n', start - 1) + 1;
-              if (text.substr(lineStart, 2) === '  ') {
-                noteTa.value = text.slice(0, lineStart) + text.slice(lineStart + 2);
-                noteTa.selectionStart = noteTa.selectionEnd = Math.max(lineStart, start - 2);
-              }
-            } else {
-              noteTa.value = noteTa.value.substring(0, start) + '  ' + noteTa.value.substring(end);
-              noteTa.selectionStart = noteTa.selectionEnd = start + 2;
-            }
-            handleNoteLiveInput();
-          } else if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
-            e.preventDefault();
-            saveNoteFromEditor();
-          } else if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
-            e.preventDefault();
-            wrapNoteSelection('**', '**');
-          } else if ((e.ctrlKey || e.metaKey) && (e.key === 'i' || e.key === 'I')) {
-            e.preventDefault();
-            wrapNoteSelection('*', '*');
-          }
-        });
-      }
-
       // Backdrop dismissal on outside click for all dialog modals
       document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
@@ -7592,10 +8225,22 @@ DASHBOARD_HTML_TEMPLATE = r"""<!DOCTYPE html>
         });
       });
 
-      // Dismiss highlight popovers on click outside
+      // Dismiss Highlights Sidebar on outside click or Escape
       document.addEventListener('click', (e) => {
-        if (!e.target.closest('.highlighter-controls-group')) {
-          document.querySelectorAll('.hl-popover-menu').forEach(p => { p.style.display = 'none'; });
+        const drawer = document.getElementById('highlights-drawer');
+        if (drawer && drawer.classList.contains('is-open')) {
+          if (!e.target.closest('#highlights-drawer') && !e.target.closest('.hl-sidebar-trigger')) {
+            closeHighlightsSidebar();
+          }
+        }
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          const drawer = document.getElementById('highlights-drawer');
+          if (drawer && drawer.classList.contains('is-open')) {
+            closeHighlightsSidebar();
+            e.stopPropagation();
+          }
         }
       });
 
@@ -8574,9 +9219,7 @@ p, .editorial-lead, h1, h2, h3, h4, h5, h6, li, blockquote,
                 self.wfile.write(b"Access denied")
                 return
 
-            os.makedirs(os.path.dirname(target), exist_ok=True)
-            with open(target, "w", encoding="utf-8") as f:
-                f.write(content)
+            atomic_write_text(target, content)
 
             self.send_response(200)
             self.send_header("Content-Type", "application/json; charset=utf-8")
